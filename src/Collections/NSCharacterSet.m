@@ -1,0 +1,363 @@
+/*
+ * Copyright (c) 2004	Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ */
+
+#include <string.h>
+
+#import <Foundation/NSCharacterSet.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSData.h>
+#import <Foundation/NSCoder.h>
+#import <Foundation/NSException.h>
+#import <Foundation/NSResourceManager.h>
+
+#import "NSConcreteCharacterSet.h"
+
+/*
+   All these sets are ``masked'' sets--They use a mask on Unicode characters,
+   rather than a bitmap.
+ */
+static _NSICUCharacterSet *alphanumericCharacterSet = nil;
+static _NSICUCharacterSet *capitalizedLetterCharacterSet = nil;
+static _NSICUCharacterSet *controlCharacterSet = nil;
+static _NSICUCharacterSet *decimalDigitCharacterSet = nil;
+static _NSICUCharacterSet *emptyCharacterSet = nil;
+static _NSICUCharacterSet *illegalCharacterSet = nil;
+static _NSICUCharacterSet *letterCharacterSet = nil;
+static _NSICUCharacterSet *lowercaseLetterCharacterSet = nil;
+static _NSICUCharacterSet *newlineCharacterSet = nil;
+static _NSICUCharacterSet *nonBaseCharacterSet = nil;
+static _NSICUCharacterSet *punctuationCharacterSet = nil;
+static _NSICUCharacterSet *symbolCharacterSet = nil;
+static _NSICUCharacterSet *uppercaseLetterCharacterSet = nil;
+static _NSICUCharacterSet *whitespaceAndNewlineCharacterSet = nil;
+static _NSICUCharacterSet *whitespaceCharacterSet = nil;
+
+#define MASKED_CHAR_SET(mask, name) \
+	@synchronized(self) { \
+		if (name == nil) \
+			name = [[_NSICUCharacterSet alloc] initWithMask:mask inverted:false]; \
+	} \
+	return name
+
+#define PROPERTY_CHAR_SET(mask, name) \
+	@synchronized(self) { \
+		if (name == nil) \
+			name = [[_NSICUCharacterSet alloc] initWithProperty:mask inverted:false]; \
+	} \
+	return name
+
+#define CTYPE_CHAR_SET(mask, name) \
+	@synchronized(self) { \
+		if (name == nil) \
+			name = [[_NSICUCharacterSet alloc] initWithCharacterType:mask inverted:false]; \
+	} \
+	return name
+
+@implementation NSCharacterSet
+
+// Cluster allocation
+
++ (id)allocWithZone:(NSZone*)zone
+{
+    return NSAllocateObject( (self == [NSCharacterSet class]) ?
+	[_NSICUCharacterSet class] : (Class)self, 0, zone);
+}
+
+// Creating a Standard Character NSSet
+
++ (NSCharacterSet*)alphanumericCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_POSIX_ALNUM, alphanumericCharacterSet);
+}
+
++ (NSCharacterSet *) capitalizedLetterCharacterSet
+{
+	MASKED_CHAR_SET(U_GC_LT_MASK, capitalizedLetterCharacterSet);
+}
+
++ (NSCharacterSet*)controlCharacterSet
+{
+	CTYPE_CHAR_SET(U_CONTROL_CHAR, controlCharacterSet);
+}
+
++ (NSCharacterSet*)decimalDigitCharacterSet
+{
+	CTYPE_CHAR_SET(U_DECIMAL_DIGIT_NUMBER, decimalDigitCharacterSet);
+}
+
++ (NSCharacterSet *)illegalCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_ALPHABETIC, illegalCharacterSet);
+}
+
++ (NSCharacterSet*)letterCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_ALPHABETIC, letterCharacterSet);
+}
+
++ (NSCharacterSet*)lowercaseLetterCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_LOWERCASE, lowercaseLetterCharacterSet);
+}
+
++ (NSCharacterSet*)newlineCharacterSet
+{
+	MASKED_CHAR_SET(U_GC_ZL_MASK, newlineCharacterSet);
+}
+
++ (NSCharacterSet *) nonBaseCharacterSet
+{
+	MASKED_CHAR_SET(U_GC_M_MASK, nonBaseCharacterSet);
+}
+
++ (NSCharacterSet*)symbolCharacterSet
+{
+	MASKED_CHAR_SET(U_GC_S_MASK, symbolCharacterSet);
+}
+
++ (NSCharacterSet*)uppercaseLetterCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_UPPERCASE, uppercaseLetterCharacterSet);
+}
+
++ (NSCharacterSet*)whitespaceAndNewlineCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_WHITE_SPACE, whitespaceAndNewlineCharacterSet);
+}
+
++ (NSCharacterSet*)whitespaceCharacterSet
+{
+	PROPERTY_CHAR_SET(UCHAR_POSIX_BLANK, whitespaceCharacterSet);
+}
+
++ (NSCharacterSet*)punctuationCharacterSet
+{
+	MASKED_CHAR_SET(U_GC_P_MASK, punctuationCharacterSet);
+}
+
++ (NSCharacterSet*)emptyCharacterSet
+{
+	@synchronized(self) {
+		if (emptyCharacterSet == nil)
+			emptyCharacterSet = [[_NSICUCharacterSet alloc]
+				initWithString:@"" inverted:false];
+	}
+	return emptyCharacterSet;
+}
+
+// Creating a Custom Character NSSet
+
++ (NSCharacterSet*)characterSetWithBitmapRepresentation:(NSData*)data
+{
+	return AUTORELEASE([[_NSICUCharacterSet alloc]
+			initWithBitmapRepresentation:data inverted:false]);
+}
+
++ (NSCharacterSet*)characterSetWithCharactersInString:(NSString*)aString
+{
+	return [[[_NSICUCharacterSet alloc] initWithString:aString inverted:false] autorelease];
+}
+
++ (NSCharacterSet*)characterSetWithPattern:(NSString *)pattern
+{
+	return [[[_NSICUCharacterSet alloc] initWithPattern:pattern inverted:false] autorelease];
+}
+
++ (NSCharacterSet*)characterSetWithRange:(NSRange)aRange
+{
+	return AUTORELEASE([[_NSICUCharacterSet alloc] initWithRange:aRange inverted:false]);
+}
+
+// Getting a Binary Representation
+
+- (NSData*)bitmapRepresentation
+{
+	[self subclassResponsibility:_cmd];
+	return nil;
+}
+
+// Testing NSSet Membership
+
+- (bool)characterIsMember:(NSUniChar)aCharacter
+{
+	[self subclassResponsibility:_cmd];
+	return false;
+}
+
+- (bool)longCharacterIsMember:(UTF32Char)aCharacter
+{
+	[self subclassResponsibility:_cmd];
+	return false;
+}
+
+- (bool) isSupersetOfSet:(NSCharacterSet *)other
+{
+	TODO; // isSupersetOfSet:
+	[self notImplemented:_cmd];
+	return false;
+}
+
+// Inverting a Character NSSet
+
+- (NSCharacterSet*)invertedSet
+{
+	return [[[_NSICUCharacterSet alloc] initWithBitmapRepresentation:[self bitmapRepresentation] inverted:true] autorelease];
+}
+
+// Copying
+
+- copyWithZone:(NSZone*)zone
+{
+	if (NSShouldRetainWithZone(self, zone))
+	{
+		return RETAIN(self);
+	} else
+	{
+		id data = [self bitmapRepresentation];
+		return [[_NSICUCharacterSet alloc] initWithBitmapRepresentation:data inverted:false];
+	}
+}
+
+- (bool) isEqual:(id)other
+{
+	if (![other isKindOfClass:[NSCharacterSet class]])
+	{
+		return false;
+	}
+
+	NSData *bmrep = [self bitmapRepresentation];
+	return (memcmp([bmrep bytes], [[other bitmapRepresentation] bytes], [bmrep length]) == 0);
+}
+
+@end /* CharacterSet */
+
+@implementation NSMutableCharacterSet
+
++ (NSCharacterSet*)alphanumericCharacterSet
+{
+	return [[[NSCharacterSet alphanumericCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)controlCharacterSet
+{
+	return [[[NSCharacterSet controlCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)decimalDigitCharacterSet
+{
+	return [[[NSCharacterSet decimalDigitCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet *)illegalCharacterSet
+{
+	return [[[NSCharacterSet illegalCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)letterCharacterSet
+{
+	return [[[NSCharacterSet letterCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)lowercaseLetterCharacterSet
+{
+	return [[[NSCharacterSet lowercaseLetterCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)newlineCharacterSet
+{
+	return [[[NSCharacterSet newlineCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)symbolCharacterSet
+{
+	return [[[NSCharacterSet symbolCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)uppercaseLetterCharacterSet
+{
+	return [[[NSCharacterSet uppercaseLetterCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)whitespaceAndNewlineCharacterSet
+{
+	return [[[NSCharacterSet whitespaceAndNewlineCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)whitespaceCharacterSet
+{
+	return [[[NSCharacterSet whitespaceCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)punctuationCharacterSet
+{
+	return [[[NSCharacterSet punctuationCharacterSet] mutableCopy] autorelease];
+}
+
++ (NSCharacterSet*)emptyCharacterSet
+{
+	return [[_NSICUCharacterSet new] autorelease];
+}
+
+- (void) addCharactersInRange:(NSRange)r
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void) removeCharactersInRange:(NSRange)r
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void) addCharactersInString:(NSString *)str
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void) removeCharactersInString:(NSString *)str
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void) formIntersectionWithCharacterSet:(NSCharacterSet *)other
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void) formUnionWithCharacterSet:(NSCharacterSet *)other
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void) invert
+{
+	[self subclassResponsibility:_cmd];
+}
+
+@end

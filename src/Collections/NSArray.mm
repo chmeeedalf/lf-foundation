@@ -1,0 +1,1113 @@
+/*
+   NSArray.m
+
+   Copyright (C) 2005	Gold Project
+   Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+   All rights reserved.
+
+   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+
+   This file is part of the Gold System Framework (from libFoundation).
+
+   Permission to use, copy, modify, and distribute this software and its
+   documentation for any purpose and without fee is hereby granted, provided
+   that the above copyright notice appear in all copies and that both that
+   copyright notice and this permission notice appear in supporting
+   documentation.
+
+   We disclaim all warranties with regard to this software, including all
+   implied warranties of merchantability and fitness, in no event shall
+   we be liable for any special, indirect or consequential damages or any
+   damages whatsoever resulting from loss of use, data or profits, whether in
+   an action of contract, negligence or other tortious action, arising out of
+   or in connection with the use or performance of this software.
+*/
+
+#import <Foundation/NSArray.h>
+#import "NSCoreArray.h"
+
+#import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSCoder.h>
+#import <Foundation/NSException.h>
+#import <Foundation/NSIndexSet.h>
+#import <Foundation/NSNull.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSRange.h>
+#import <Foundation/NSSortDescriptor.h>
+#import <Foundation/NSString.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*
+ * NSArray Implementation
+ *
+ * primary methods are
+ *     initWithCapacity:
+ *     initWithObjects:count:
+ *     init
+ *     initWithObjects:count:
+ *     dealloc
+ *     count
+ *     objectAtIndex:
+ *     addObject:
+ *     replaceObjectAtIndex:withObject:
+ *     insertObject:atIndex:
+ *     removeObjectAtIndex:
+ */
+
+@implementation NSArray
+
+static Class ArrayClass;
+static Class CoreArrayClass;
+
++ (void) initialize
+{
+	CoreArrayClass = [NSCoreArray class];
+	ArrayClass = [NSArray class];
+}
+
+/* Allocating and Initializing an NSArray */
+
++ (id)allocWithZone:(NSZone*)zone
+{
+	return NSAllocateObject((self == ArrayClass)?CoreArrayClass :
+		(Class)self, 0, zone);
+}
+
++ (id)array
+{
+	return [[[self alloc] init] autorelease];
+}
+
++ (id)arrayWithObject:(id)anObject
+{
+	return [[[self alloc] initWithObjects:&anObject count:1] autorelease];
+}
+
++ (id)arrayWithObjects:(id)firstObj,...
+{
+	id array;
+	id obj;
+	va_list list;
+	std::vector<id> objects;
+
+	va_start(list, firstObj);
+	for (obj = firstObj; obj != nil; obj = va_arg(list,id))
+	{
+		objects.push_back(obj);
+	}
+	va_end(list);
+
+	array = [[self alloc] initWithObjects:&objects[0] count:objects.size()];
+	return [array autorelease];
+}
+
++ (id)arrayWithArray:(NSArray*)anotherArray
+{
+	return [[[self alloc] initWithArray:anotherArray] autorelease];
+}
+
++ (id)arrayWithObjects:(const id[])objects count:(unsigned int)count
+{
+	return [[[self alloc]
+			initWithObjects:objects count:count] autorelease];
+}
+
+- (id)init
+{
+	return self;
+}
+
+- (id)initWithArray:(NSArray*)anotherArray
+{
+	return [self initWithArray:anotherArray copyItems:false];
+}
+
+- (id)initWithArray:(NSArray*)anotherArray copyItems:(bool)flag;
+{
+	NSIndex i;
+	std::vector<id> objects;
+	NSIndex count = [anotherArray count];
+
+	for (i = 0; i < count; i++)
+	{
+		objects.push_back(flag
+			? [[anotherArray objectAtIndex:i]
+							 copyWithZone:NSZoneOf(self)]
+			: [anotherArray objectAtIndex:i]);
+	}
+	self = [self initWithObjects:&objects[0] count:count];
+
+	if (flag)
+	{
+		for (; i > 0; i--)
+		{
+			[objects[i-1] release];
+		}
+	}
+
+	return self;
+}
+
+- (id)initWithObjects:(id)firstObj,...
+{
+	id obj;
+	va_list list;
+	std::vector<id> objects;
+
+	va_start(list, firstObj);
+	for (obj = firstObj; obj; obj = va_arg(list,id))
+	{
+		objects.push_back(obj);
+	}
+	va_end(list);
+
+	self = [self initWithObjects:&objects[0] count:objects.size()];
+	return self;
+}
+
+- (id)initWithObjects:(const id[])objects count:(unsigned int)count
+{
+	[self subclassResponsibility:_cmd];
+	return self;
+}
+
+/* Querying the NSArray */
+
+- (bool)containsObject:(id)anObject
+{
+	return ([self indexOfObject:anObject] == NSNotFound) ? false : true;
+}
+
+- (NSIndex)count
+{
+	[self subclassResponsibility:_cmd];
+	return 0;
+}
+
+- (NSIndex)indexOfObject:(id)anObject
+{
+	return [self indexOfObject:anObject
+		inRange:NSRange(0, [self count])];
+}
+
+- (NSIndex)indexOfObjectIdenticalTo:(id)anObject;
+{
+	return [self indexOfObjectIdenticalTo:anObject
+		inRange:NSRange(0, [self count])];
+}
+
+- (NSIndex)indexOfObject:(id)anObject inRange:(NSRange)aRange
+{
+	NSIndex index;
+
+	for (index = 0; index < aRange.length; index++)
+	{
+		if ([anObject isEqual:[self objectAtIndex:aRange.location+index]])
+		{
+			return aRange.location+index;
+		}
+	}
+	return NSNotFound;
+}
+
+- (NSIndex)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
+{
+	NSIndex index;
+
+	for (index = 0; index < aRange.length; index++)
+		if (anObject == [self objectAtIndex:aRange.location+index])
+			return index;
+	return NSNotFound;
+}
+
+- (id)firstObject
+{
+	NSIndex count = [self count];
+	return count ? [self objectAtIndex:0] : nil;
+}
+
+- (id)lastObject
+{
+	NSIndex count = [self count];
+
+	return count ? [self objectAtIndex:count - 1] : nil;
+}
+
+- (id)objectAtIndex:(unsigned int)index
+{
+	[self subclassResponsibility:_cmd];
+	return self;
+}
+
+- (NSEnumerator*)objectEnumerator
+{
+	return [[[_ArrayEnumerator alloc]
+			initWithArray:self reverse:false] autorelease];
+}
+
+- (NSEnumerator*)reverseObjectEnumerator
+{
+	return [[[_ArrayEnumerator alloc]
+			initWithArray:self reverse:true] autorelease];
+}
+
+/* Sending Messages to Elements */
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector
+{
+	for (id object in self)
+	{
+		[object performSelector:aSelector];
+	}
+}
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)anObject
+{
+	for (id object in self)
+	{
+		[object performSelector:aSelector withObject:anObject];
+	}
+}
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector
+	withObject:(id)anObject1 withObject:(id)anObject2
+{
+	for (id object in self)
+	{
+		[object performSelector:aSelector
+			withObject:anObject1
+			withObject:anObject2];
+	}
+}
+
+/* Comparing Arrays */
+
+- (id)firstObjectCommonWithArray:(NSArray*)otherArray
+{
+	for (id obj in self)
+	{
+		if ([otherArray containsObject:obj])
+		{
+			return obj;
+		}
+	}
+	return nil;
+}
+
+- (bool)isEqualToArray:(NSArray*)otherArray
+{
+	NSIndex index;
+	NSIndex count;
+
+	if( otherArray == self )
+	{
+		return true;
+	}
+	if ([otherArray count] != (count = [self count]))
+	{
+		return false;
+	}
+	for (index = 0; index < count; index++)
+	{
+		if (![[self objectAtIndex:index] isEqual:
+				[otherArray objectAtIndex:index]])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+- (bool) isEqual:(id)other
+{
+	return ([other isKindOfClass:[self class]] && [self isEqualToArray:other]);
+}
+
+/* Deriving New Arrays */
+- (NSArray*)subarrayWithRange:(NSRange)range
+{
+	id array;
+	unsigned int index;
+	std::vector<id> objects;
+
+	if (NSMaxRange(range) > [self count])
+	{
+		@throw [NSRangeException exceptionWithReason:nil
+			userInfo:nil];
+	}
+
+	for (index = 0; index < range.length; index++)
+	{
+		objects.push_back([self objectAtIndex:range.location+index]);
+	}
+
+	array = [[[NSArray alloc] initWithObjects:&objects[0] count:range.length] autorelease];
+	return array;
+}
+
+/* Joining NSString Elements */
+
+- (NSString*)componentsJoinedByString:(NSString*)separator
+{
+	NSIndex count = [self count];
+
+	if(!separator)
+	{
+		separator = @"";
+	}
+
+	if(count)
+	{
+		NSMutableString* string = [NSMutableString new];
+		NSString *retString;
+		SEL sel;
+		IMP imp;
+		bool first = true;
+		CREATE_AUTORELEASE_POOL(pool);
+
+		sel = @selector(appendString:);
+		imp = [string methodForSelector:sel];
+
+		for (id elem in self)
+		{
+			if (![elem isKindOfClass:[NSString class]])
+			{
+				elem = [elem description];
+			}
+			if (!first)
+			{
+				(*imp)(string, sel, separator);
+			}
+			(*imp)(string, sel, elem);
+			first = false;
+		}
+		retString = [string copy];
+		[pool release];
+		[string release];
+		return [retString autorelease];
+	}
+
+	return nil;
+}
+
+/* Creating a NSString Description of the NSArray */
+
+- (NSString*)descriptionWithLocale:(NSLocale*)locale
+indent:(unsigned int)indent;
+{
+	unsigned int indent1 = indent + 4;
+	NSString* indentation = [NSString stringWithFormat:
+		[NSString stringWithFormat:@"%%%dc", indent1], ' '];
+	unsigned int count = [self count];
+
+	if(count)
+	{
+		id stringRepresentation;
+		NSMutableString* description = [NSMutableString stringWithString:@"(\n"];
+		CREATE_AUTORELEASE_POOL(pool);
+		NSMutableArray *descrArray = [NSArray array];
+
+		for (id object in self)
+		{
+			if ([object respondsToSelector:
+					@selector(descriptionWithLocale:indent:)])
+			{
+				stringRepresentation = [object descriptionWithLocale:locale
+					indent:indent1];
+			}
+			else if ([object
+					respondsToSelector:@selector(descriptionWithLocale:)])
+			{
+				stringRepresentation = [object descriptionWithLocale:locale];
+			}
+			else
+			{
+				stringRepresentation = [object description];
+			}
+			[descrArray addObject:[indentation stringByAppendingString:stringRepresentation]];
+		}
+		[description appendString:[descrArray componentsJoinedByString:@",\n"]];
+		[description appendString:@"\n"];
+		if (indent)
+			[description appendString:[NSString stringWithFormat:[NSString stringWithFormat:@"%%%dc",indent],' ']];
+		[description appendString:@")"];
+		[pool release];
+		return description;
+	}
+	return [indentation stringByAppendingString:@"()"];
+}
+
+- (NSString*)descriptionWithLocale:(NSLocale*)locale
+{
+	return [self descriptionWithLocale:locale indent:0];
+}
+
+- (NSString*)description
+{
+	return [self descriptionWithLocale:nil indent:0];
+}
+
+/* From adopted/inherited protocols */
+
+- (NSHashCode)hash
+{
+	return [self count];
+}
+
+/* Copying */
+
+- (id)copyWithZone:(NSZone*)zone
+{
+	return [[NSArray allocWithZone:zone] initWithArray:self copyItems:false];
+}
+
+- (id)mutableCopyWithZone:(NSZone*)zone
+{
+	return [[NSMutableArray allocWithZone:zone] initWithArray:self copyItems:false];
+}
+
+/* Deriving New Arrays */
+
+- (NSArray*)map:(SEL)aSelector
+{
+	NSIndex index;
+	NSIndex count = [self count];
+	id array = [NSMutableArray arrayWithCapacity:count];
+
+	for (index = 0; index < count; index++)
+	{
+		[array insertObject:[[self objectAtIndex:index]
+			performSelector:aSelector]
+			atIndex:index];
+	}
+	return array;
+}
+
+- (NSArray*)map:(SEL)aSelector with:anObject
+{
+	NSIndex index;
+	NSIndex count = [self count];
+	id array = [NSMutableArray arrayWithCapacity:count];
+
+	for (index = 0; index < count; index++)
+	{
+		[array insertObject:[[self objectAtIndex:index]
+			performSelector:aSelector withObject:anObject]
+			atIndex:index];
+	}
+	return array;
+}
+
+- (NSArray*)map:(SEL)aSelector with:anObject with:otherObject;
+{
+	NSIndex index;
+	NSIndex count = [self count];
+	id array = [NSMutableArray arrayWithCapacity:count];
+
+	for (index = 0; index < count; index++)
+	{
+		[array insertObject:[[self objectAtIndex:index]
+			performSelector:aSelector withObject:anObject withObject:otherObject]
+			atIndex:index];
+	}
+	return array;
+}
+
+- (NSArray*)arrayWithObjectsThat:(bool(*)(id anObject))comparator;
+// Returns an array listing the receiver's elements for that comparator
+// function returns true
+{
+	unsigned i;
+	NSIndex m;
+	NSIndex n = [self count];
+	std::vector<id> objects;
+	id array;
+
+	for (i = m = 0; i < n; i++)
+	{
+		id obj = [self objectAtIndex:i];
+		if (comparator(obj))
+		{
+			objects.push_back(obj);
+		}
+	}
+
+	array = [[[[self class] alloc] initWithObjects:&objects[0] count:m] autorelease];
+	return array;
+}
+
+- (NSArray *)arrayByAddingObject:(id)newObj
+{
+	unsigned long total = [self count] + 1;
+	NSArray *arrayOut;
+	std::vector<id> objList;
+
+	for (id obj in self)
+	{
+		objList.push_back(obj);
+	}
+	objList.push_back(newObj);
+
+	arrayOut = [NSArray arrayWithObjects:&objList[0] count:total];
+	return arrayOut;
+}
+
+- (NSArray *)arrayByAddingObjectsFromArray:(NSArray *)anotherArray
+{
+	unsigned long total = [self count] + [anotherArray count];
+	NSArray *arrayOut;
+	std::vector<id> objList;
+
+	for (id obj in self)
+	{
+		objList.push_back(obj);
+	}
+
+	for (id obj in anotherArray)
+	{
+		objList.push_back(obj);
+	}
+
+	arrayOut = [NSArray arrayWithObjects:&objList[0] count:total];
+	return arrayOut;
+}
+
+- (NSArray*)map:(id(*)(id anObject))function
+	objectsThat:(bool(*)(id anObject))comparator;
+// Returns an array listing the objects returned by function applied to
+// objects for that comparator returns true
+{
+	unsigned i, m, n = [self count];
+	std::vector<id> objects;
+	id array;
+
+	for (i = m = 0; i < n; i++)
+	{
+		id obj = [self objectAtIndex:i];
+		if (comparator(obj))
+		{
+			objects.push_back(function(obj));
+		}
+	}
+
+	array = [[[[self class] alloc] initWithObjects:&objects[0] count:m] autorelease];
+	return array;
+}
+
+- (NSArray *)objectsAtIndexes:(NSIndexSet *)indices
+{
+	size_t count = [self count];
+	if ([indices lastIndex] > count)
+		@throw [NSRangeException exceptionWithReason:@"Maximum index in index set out of range of array count." userInfo:nil];
+
+	NSUInteger indexes[count];
+	[indices getIndexes:indexes maxCount:count inIndexRange:NULL];
+	id objects[count];
+	for (NSIndex i = 0; i < count; i++)
+	{
+		objects[i] = [self objectAtIndex:indexes[count]];
+	}
+	return [NSArray arrayWithObjects:objects count:count];
+}
+
+- (id):(NSIndex)idx
+{
+	return [self objectAtIndex:idx];
+}
+
+- (void) setValue:(id)val forKey:(NSString *)key
+{
+	for (id obj in self)
+	{
+		[obj setValue:val forKey:key];
+	}
+}
+
+- (id) valueForKey:(NSString *)key
+{
+	NSMutableArray *a = [NSMutableArray new];
+
+	for (id obj in self)
+	{
+		id val = [obj valueForKey:key];
+		if (val != nil)
+			[a addObject:val];
+		else
+			[a addObject:[NSNull null]];
+	}
+	return [a autorelease];
+}
+
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+{
+	NSIndex i = 0;
+	NSIndex j = 0;
+	NSIndex count = [self count];
+
+	if (state->state == 0)
+	{
+		state->state = 1;
+	}
+	else
+	{
+		i = state->extra[0];
+	}
+	state->itemsPtr = stackBuf;
+
+	for (j = 0; j < len && i < count; j++, i++)
+	{
+		stackBuf[i] = [self objectAtIndex:i];
+	}
+	state->extra[0] = i;
+	return j;
+}
+
+- (NSArray *) sortedArrayUsingDescriptors:(NSArray *)descriptors
+{
+	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
+	[a sortUsingDescriptors:descriptors];
+	return a;
+}
+
+- (NSArray *) sortedArrayUsingSelector:(SEL)selector
+{
+	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
+	[a sortUsingSelector:selector];
+	return a;
+}
+
+- (NSArray *) sortedArrayUsingFunction:(NSComparisonResult(*)(id element1, id element2, void *userData))function
+	context:(void *)ctx
+{
+	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
+	[a sortUsingFunction:function context:ctx];
+	return a;
+}
+
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+	size_t count = [self count];
+	[coder encodeValueOfObjCType:@encode(size_t) at:&count];
+
+	for (id obj in self)
+	{
+		[coder encodeObject:obj];
+	}
+}
+
+- initWithCoder:(NSCoder *)coder
+{
+	size_t count = [self count];
+	std::vector<id> objs;
+	[coder encodeValueOfObjCType:@encode(size_t) at:&count];
+
+	for (size_t i = 0; i < count; i++)
+	{
+		objs.push_back([coder decodeObject]);
+	}
+	self = [self initWithObjects:&objs[0] count:count];
+
+	return self;
+}
+
+@end
+
+@implementation NSMutableArray
+
+static Class MutableArrayClass;
+
++ (void) initialize
+{
+	MutableArrayClass = [NSMutableArray class];
+	CoreArrayClass = [NSCoreArray class];
+}
+
++ (id)allocWithZone:(NSZone*)zone
+{
+	return NSAllocateObject((self == MutableArrayClass)?CoreArrayClass :
+		(Class)self, 0, zone);
+}
+
++ (id)arrayWithCapacity:(unsigned int)aNumItems
+{
+	return [[[self alloc] initWithCapacity:aNumItems] autorelease];
+}
+
+- (id)init
+{
+	return [self initWithCapacity:0];
+}
+
+- (id)initWithCapacity:(unsigned int)aNumItems
+{
+	[self subclassResponsibility:_cmd];
+	return self;
+}
+
+/* Adding Objects */
+
+- (void)addObject:(id)anObject
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void)addObjectsFromArray:(NSArray*)anotherArray
+{
+	for (id obj in anotherArray)
+	{
+		[self addObject:obj];
+	}
+}
+
+- (void)insertObject:(id)anObject atIndex:(unsigned int)index
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void)insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes
+{
+	unsigned long index = [indexes lastIndex];
+	for (id obj in objects)
+	{
+		[self insertObject:obj atIndex:index];
+		index = [indexes indexLessThanIndex:index];
+		if (index == NSNotFound)
+			break;
+	}
+}
+
+/* Removing Objects */
+
+- (void)removeAllObjects
+{
+	int count = [self count];
+	while (--count >= 0)
+		[self removeObjectAtIndex:count];
+}
+
+- (void)removeLastObject
+{
+	[self removeObjectAtIndex:[self count]-1];
+}
+
+- (void)removeObject:(id)anObject
+{
+	unsigned int i, n;
+	n = [self count];
+	for (i = 0; i < n; i++)
+	{
+		id obj = [self objectAtIndex:i];
+		if ([obj isEqual:anObject])
+		{
+			[self removeObjectAtIndex:i];
+			n--; i--;
+		}
+	}
+}
+
+- (void)removeObjectAtIndex:(unsigned int)index
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void)removeObjectIdenticalTo:(id)anObject
+{
+	NSMutableIndexSet *indices = [NSMutableIndexSet new];
+	NSInteger i = 0;
+	for (id obj in self)
+	{
+		if (obj == anObject)
+		{
+			[indices addIndex:i];
+		}
+		i++;
+	}
+	[self removeObjectsAtIndexes:indices];
+	[indices release];
+}
+
+static int __cmp_unsigned_ints(unsigned int* i1, unsigned int* i2)
+{
+	return (*i1 == *i2) ? 0 : ((*i1 < *i2) ? -1 : +1);
+}
+
+- (void)removeObjectsFromIndices:(unsigned int*)indices
+	numIndices:(unsigned int)count;
+{
+	unsigned int *indexes;
+	int i;
+
+	if (!count)
+		return;
+
+	indexes = new unsigned int[count];
+	memcpy(indexes, indices, count * sizeof(unsigned int));
+	qsort(indexes, count, sizeof(unsigned int),
+			(int(*)(const void *,const void *))__cmp_unsigned_ints);
+
+	for (i = count - 1; i >= 0; i--)
+	{
+		[self removeObjectAtIndex:indexes[i]];
+	}
+	delete[] indexes;
+}
+
+- (void)removeObjectsInArray:(NSArray*)otherArray
+{
+	unsigned int i, n = [otherArray count];
+	for (i = 0; i < n; i++)
+	{
+		[self removeObject:[otherArray objectAtIndex:i]];
+	}
+}
+
+- (void)removeObject:(id)anObject inRange:(NSRange)aRange
+{
+	unsigned int index;
+	for (index = aRange.location-1; index >= aRange.location; index--)
+	{
+		if ([anObject isEqual:[self objectAtIndex:index+aRange.location]])
+		{
+			[self removeObjectAtIndex:index+aRange.location];
+		}
+	}
+}
+
+- (void)removeObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
+{
+	unsigned int index;
+	index = [self indexOfObjectIdenticalTo:anObject inRange:aRange];
+
+	if (index != NSNotFound)
+	{
+		[self removeObjectAtIndex:index];
+	}
+}
+
+- (void)removeObjectsInRange:(NSRange)aRange
+{
+	[self removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:aRange]];
+}
+
+/* Replacing Objects */
+
+- (void)replaceObjectAtIndex:(unsigned int)index  withObject:(id)anObject
+{
+	[self subclassResponsibility:_cmd];
+}
+
+- (void)replaceObjectsInRange:(NSRange)rRange
+	withObjectsFromArray:(NSArray*)anArray
+{
+	[self replaceObjectsInRange:rRange
+		withObjectsFromArray:anArray
+		range:NSRange(0, [anArray count])];
+}
+
+- (void)replaceObjectsInRange:(NSRange)rRange
+	withObjectsFromArray:(NSArray*)anArray range:(NSRange)aRange
+{
+	unsigned int index;
+
+	if (rRange.length > aRange.length)
+	{
+		[self removeObjectsInRange:NSRange(rRange.location + aRange.length,
+				rRange.length - aRange.length)];
+	}
+	for (index = 0; index < rRange.length; index++)
+	{
+		[self replaceObjectAtIndex:(rRange.location + index)
+			withObject:[anArray objectAtIndex:(aRange.location + index)]];
+	}
+	if (aRange.length > rRange.length)
+	{
+		for (; index < aRange.length; index++)
+		{
+			[self insertObject:[anArray objectAtIndex:(aRange.location + index)]
+				atIndex:(rRange.location + index)];
+		}
+	}
+}
+
+- (void)replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)newObjects
+{
+	unsigned long index = [indexes firstIndex];
+	for (id obj in newObjects)
+	{
+		[self replaceObjectAtIndex:index withObject:obj];
+		index = [indexes indexGreaterThanIndex:index];
+		if (index == NSNotFound)
+			break;
+	}
+}
+
+- (void)setArray:(NSArray*)otherArray
+{
+	[self removeAllObjects];
+	[self addObjectsFromArray:otherArray];
+}
+
+- (void)sortUsingFunction:
+	(NSComparisonResult(*)(id element1, id element2, void *userData))comparator
+	context:(void*)context
+{
+	/* Shell sort algorithm taken from SortingInAction - a NeXT example */
+#define STRIDE_FACTOR 3	// good value for stride factor is not well-understood
+	// 3 is a fairly good choice (Sedgewick)
+	int c,d, stride;
+	bool found;
+	int count = [self count];
+
+	stride = 1;
+	while (stride <= count)
+	{
+		stride = stride * STRIDE_FACTOR + 1;
+	}
+
+	while(stride > (STRIDE_FACTOR - 1))
+	{
+		// loop to sort for each value of stride
+		stride = stride / STRIDE_FACTOR;
+		for (c = stride; c < count; c++)
+		{
+			found = false;
+			d = c - stride;
+			while ((d >= 0) && !found)
+			{
+				// move to left until correct place
+				id a = [self objectAtIndex:d + stride];
+				id b = [self objectAtIndex:d];
+				if ((*comparator)(a, b, context) == NSOrderedAscending)
+				{
+					(void)[a retain];
+					(void)[b retain];
+					[self replaceObjectAtIndex:d + stride withObject:b];
+					[self replaceObjectAtIndex:d withObject:a];
+					d -= stride;		// jump by stride factor
+					[a release];
+					[b release];
+				}
+				else found = true;
+			}
+		}
+	}
+}
+
+static NSComparisonResult selector_compare(id elem1, id elem2, void* comparator)
+{
+	return (NSComparisonResult)(long)[elem1 performSelector:(SEL)comparator withObject:elem2];
+}
+
+static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparator)
+{
+	NSArray *descriptors = (NSArray *)comparator;
+	int len = [descriptors count];
+	for (int i = 0; i < len; i++)
+	{
+		NSComparisonResult r = [[descriptors objectAtIndex:i] compareObject:elem1 toObject:elem2];
+		if (r != NSOrderedSame)
+			return r;
+	}
+	return NSOrderedSame;
+}
+
+- (void)sortUsingSelector:(SEL)comparator
+{
+	[self sortUsingFunction:selector_compare context:(void*)comparator];
+}
+
+- (void)removeObjectsThat:(bool(*)(id anObject))comparator
+{
+	NSIndex index;
+	NSIndex count = [self count];
+	NSMutableIndexSet *indexes = [[NSMutableIndexSet alloc] init];
+
+	for (index = 0; index < count; index++)
+	{
+		if (comparator([self objectAtIndex:index]))
+		{
+			[indexes addIndex:index];
+		}
+	}
+	[self removeObjectsAtIndexes:indexes];
+	[indexes release];
+}
+
+- (void) sortUsingDescriptors:(NSArray *)descriptors
+{
+	[self sortUsingFunction:descriptor_compare context:(void*)descriptors];
+}
+
+- (void) exchangeObjectAtIndex:(NSIndex)idx1 withObjectAtIndex:(NSIndex)idx2
+{
+	id obj1 = [self objectAtIndex:idx1];
+
+	[self replaceObjectAtIndex:idx1 withObject:[self objectAtIndex:idx2]];
+	[self replaceObjectAtIndex:idx2 withObject:obj1];
+}
+
+- (void) removeObjectsAtIndexes:(NSIndexSet *)indexes
+{
+	for (NSIndex i = [indexes lastIndex]; i != NSNotFound; i = [indexes indexLessThanIndex:i])
+	{
+		[self removeObjectAtIndex:i];
+	}
+}
+
+@end
+
+/*
+ * ArrayEnumerator class
+ */
+
+@implementation _ArrayEnumerator
+
+- (id)initWithArray:(NSArray*)anArray reverse:(bool)isReverse
+{
+	unsigned count = [anArray count];
+
+	reverse = isReverse;
+	array = [anArray retain];
+	index = (reverse)
+		? (count ? count - 1 : NSNotFound)
+		: (count ? 0 : NSNotFound);
+	return self;
+}
+
+- (void)dealloc
+{
+	[array release];
+	[super dealloc];
+}
+
+- (id)nextObject
+{
+	id object;
+
+	NSAssert(array, @"Invalid NSArray enumerator");
+	if (index == NSNotFound)
+		return nil;
+
+	object = [array objectAtIndex:index];
+	if (reverse)
+	{
+		if (index == 0)
+		{
+			index = NSNotFound;
+		} else
+		{
+			index--;
+		}
+	}
+	else
+	{
+		index++;
+		if (index >= [array count])
+			index = NSNotFound;
+	}
+
+	return object;
+}
+
+@end

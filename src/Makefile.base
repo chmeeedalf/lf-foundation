@@ -1,0 +1,33 @@
+TOPDIR=${.CURDIR}/../../../../../
+CONTRIB= ${TOPDIR}/contrib
+CPPFLAGS=	-I$(PWD) -I${TOPDIR}/system/include
+CPPFLAGS+= -DVERSION=\"1.0\" -DSTRUCT_ALIGNMENT=4 -DGOLD -nostdinc
+LDADD=-lgcc
+LIB=	Base
+SHLIB_MAJOR= 1
+SHLIB_MINOR= 0
+
+# Only included for now
+
+.include "${TOPDIR}/contrib/Rules.mk"
+.include "Base/Makefile.inc.base"
+.include "ansi/string/Makefile.inc"
+
+#CC=${GOLD_ROOT}/bin/gcc
+#CXX=${GOLD_ROOT}/bin/g++
+OBJC=${CC}
+OBJCXX=${CXX}
+NM=${GOLD_ROOT}/bin/nm
+LD=${GOLD_ROOT}/bin/ld
+
+# These have to go after the includes, because they set CPPFLAGS
+.ifndef(NDEBUG)
+CFLAGS+=-g3 -O0
+.else
+CFLAGS+=-O2
+.endif
+CFLAGS+=$(CPPFLAGS) -std=gnu99 -fno-unit-at-a-time -fexceptions
+CFLAGS+=-Wall -fno-inline  -Wno-uninitialized 
+OBJCFLAGS=$(CFLAGS) -fobjc-exceptions -fgnu-runtime -Wno-selector 
+
+.include <bsd.lib.mk>
