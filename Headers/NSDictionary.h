@@ -30,7 +30,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSEnumerator.h>
 
-@class NSArray, NSEnumerator, NSLocale, NSURI;
+@class NSArray, NSEnumerator, NSLocale, NSSet, NSURI;
 
 /*!
  \class NSDictionary
