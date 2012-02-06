@@ -179,8 +179,6 @@
 					return retval;
 				}
 			}
-		default:
-			break;
 	}
 	return nil;
 }
