@@ -73,6 +73,13 @@ static NSThread *mainThread;
 - (void) __startThread;
 @end
 
+@interface _NSTargetedThread	:	NSThread
+{
+	SEL selector;
+	id target;
+}
+@end
+
 @implementation NSThread
 
 @synthesize name;
@@ -120,6 +127,12 @@ static void cleanupThread(void *thrId)
 	privateThreadData = [NSMutableDictionary new];
 	self.name = NSStringFromClass([self class]);
 	return self;
+}
+
+- initWithTarget:(id)target selector:(SEL)sel object:(id)argument
+{
+	[self release];
+	return [[_NSTargetedThread alloc] initWithTarget:target selector:sel object:argument];
 }
 
 - initWithObject:(id)anArgument
@@ -186,7 +199,7 @@ static void cleanupThread(void *thrId)
 	isRunning = false;
 	isFinished = true;
 
-	if (self != currentThread)
+	if (self != [NSThread currentThread])
 	{
 		NSLog(@"Sending exit message to another thread.");
 		return;
@@ -339,3 +352,28 @@ static void cleanupThread(void *thrId)
 }
 
 @end /* NSThread */
+
+@implementation _NSTargetedThread
+- initWithTarget:(id)targ selector:(SEL)sel object:(id)argument
+{
+	if ((self = [super init]) != NULL)
+	{
+		target = [targ retain];
+		selector = sel;
+		arg = [argument retain];
+	}
+	return self;
+}
+
+- (void) main
+{
+	[target performSelector:selector withObject:arg];
+}
+
+- (void) dealloc
+{
+	[target release];
+	[arg release];
+	[super dealloc];
+}
+@end
