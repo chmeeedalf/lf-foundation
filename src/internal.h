@@ -40,6 +40,7 @@
 #endif
 #include <SysCall.h>
 #include <Foundation/NSObjCRuntime.h>
+#include <objc/encoding.h>
 #include <Foundation/primitives.h>
 #include <Event.h>
 #ifdef __OBJC__
