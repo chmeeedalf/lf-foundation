@@ -67,7 +67,7 @@
 
 - (void)dealloc
 {
-	[super dealloc];
+	pthread_mutex_destroy(&mutex);
 }
 
 - (void)lock
