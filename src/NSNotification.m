@@ -167,7 +167,6 @@
 	NSString *name;
 	id object;
 	NSDictionary *userInfo;
-	id n;
 
 	name = [coder decodeObject];
 	object = [coder decodeObject];
