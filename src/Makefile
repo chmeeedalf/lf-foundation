@@ -71,7 +71,6 @@ SRCS=	NSRange.m \
 		NSKVCMutableArray.m \
 		NSKeyValueObserving.m \
 		NSSocket.m \
-		BSDSocket.m \
 		NSNetworkAddress.m \
 		NSXMLParser.m \
 		NSConnection.m \
