@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -56,12 +56,11 @@ enum
  implementation is a class cluster.  Thus, subclasses may be written for
  preferred implementations.  To implement a subclass, the following methods must
  be overridden:
- 	\li -initWithObjects:count:
+	\li -count
  	\li -objectAtIndex:
 	\li -replaceObjectAtIndex;withObject: (NSMutableArray)
 	\li -removeObjectAtIndex: (NSMutableArray)
 	\li -insertObject:atIndex: (NSMutableArray)
-	\li -count
  */
 @interface NSArray	: NSObject <NSCoding,NSCopying,NSMutableCopying,NSFastEnumeration>
 
@@ -154,6 +153,49 @@ enum
 -(NSIndex)count;
 
 /*!
+ */
+- (void) getObjects:(id *)objs range:(NSRange)range;
+
+/*!
+ * @brief Returns the first object in the array.
+ * @return Returns the first object in the array.
+ */
+-(id)firstObject;
+
+/*!
+ * @brief Returns the last object in the array.
+ * @return Returns the last object in the array.
+ */
+-(id)lastObject;
+
+/*!
+ * @brief Returns the object at the specified index.
+ * @param index Index of the object to return.
+ * @return The object at the specified index, or RangeException if index is beyond the size of the array.
+ */
+-(id)objectAtIndex:(unsigned int)index;
+
+/*!
+ * @brief Returns the objects at the specified indices.
+ * @param indices Indices of the objects to return.
+ * @return The object at the specified indices, or RangeException if any index is beyond the size of the array.
+ */
+- (NSArray *)objectsAtIndexes:(NSIndexSet *)indices;
+
+/*!
+ * @brief Returns the enumerator for this array.
+ * @return Returns the enumerator for accessing this array, starting with the first element.
+ */
+-(NSEnumerator *)objectEnumerator;
+
+/*!
+ * @brief Returns the enumerator for this array.
+ * @return Returns the enumerator for accessing this array, starting with the last element.
+ */
+-(NSEnumerator *)reverseObjectEnumerator;
+
+
+/*!
  * @brief Returns the index an object occurs at.
  * @param anObject NSObject to find the index of.
  * @return Returns the index the object occurs at.
@@ -203,44 +245,6 @@ enum
 
 - (NSIndex) indexOfObject:(id)obj inSortedRange:(NSRange)r options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp;
 
-/*!
- * @brief Returns the first object in the array.
- * @return Returns the first object in the array.
- */
--(id)firstObject;
-
-/*!
- * @brief Returns the last object in the array.
- * @return Returns the last object in the array.
- */
--(id)lastObject;
-
-/*!
- * @brief Returns the object at the specified index.
- * @param index Index of the object to return.
- * @return The object at the specified index, or RangeException if index is beyond the size of the array.
- */
--(id)objectAtIndex:(unsigned int)index;
-
-/*!
- * @brief Returns the objects at the specified indices.
- * @param indices Indices of the objects to return.
- * @return The object at the specified indices, or RangeException if any index is beyond the size of the array.
- */
-- (NSArray *)objectsAtIndexes:(NSIndexSet *)indices;
-
-/*!
- * @brief Returns the enumerator for this array.
- * @return Returns the enumerator for accessing this array, starting with the first element.
- */
--(NSEnumerator *)objectEnumerator;
-
-/*!
- * @brief Returns the enumerator for this array.
- * @return Returns the enumerator for accessing this array, starting with the last element.
- */
--(NSEnumerator *)reverseObjectEnumerator;
-
 // Sending messages to elements
 
 /*!
@@ -258,8 +262,8 @@ enum
 
 #if __has_feature(blocks)
 - (void) enumerateObjectsUsingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block;
-- (void) enumerateObjectWithOptions:(NSEnumerationOptions)opts SUsingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block;
-- (void) enumerateObjectsAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts SUsingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block;
+- (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block;
+- (void) enumerateObjectsAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block;
 #endif
 
 
@@ -300,6 +304,15 @@ enum
  */
 -(NSArray *)subarrayWithRange:(NSRange)range;
 
+- (NSData *) sortedArrayHint;
+- (NSArray *) sortedArrayUsingComparator:(NSComparator)cmp;
+- (NSArray *) sortedArrayUsingDescriptors:(NSArray *)sortDescriptors;
+- (NSArray *) sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void *)ctx;
+- (NSArray *) sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void *)ctx hint:(NSData *)hint;
+- (NSArray *) sortedArrayUsingSelector:(SEL)sel;
+- (NSArray *) sortedArrayWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
+
+
 // Joining string elements
 
 /*!
@@ -331,15 +344,6 @@ enum
  */
 -(NSString *)descriptionWithLocale:(NSLocale *)localeDictionary
 	indent:(unsigned int)level;
-
-- (NSData *) sortedArrayHint;
-- (NSArray *) sortedArrayUsingComparator:(NSComparator)cmp;
-- (NSArray *) sortedArrayUsingDescriptors:(NSArray *)sortDescriptors;
-- (NSArray *) sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void *)ctx;
-- (NSArray *) sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void *)ctx hint:(NSData *)hint;
-- (NSArray *) sortedArrayUsingSelector:(SEL)sel;
-- (NSArray *) sortedArrayWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
-
 
 /*!
   @brief Return the object at the given index.

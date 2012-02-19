@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,7 +46,7 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 
 + port
 {
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 
 + (Class) portCoderClass
@@ -130,7 +130,7 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 
 - copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 - (uint32_t) newConversation

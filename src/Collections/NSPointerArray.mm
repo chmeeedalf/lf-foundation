@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -50,23 +50,23 @@
 
 + pointerArrayWithOptions:(NSPointerFunctionsOptions)options
 {
-	return [[[self alloc] initWithOptions:options] autorelease];
+	return [[self alloc] initWithOptions:options];
 }
 
 + pointerArrayWithPointerFunctions:(NSPointerFunctions *)functions
 {
-	return [[[self alloc] initWithPointerFunctions:functions] autorelease];
+	return [[self alloc] initWithPointerFunctions:functions];
 }
 
 + pointerArrayWithStrongObjects
 {
-	return [[[self alloc] initWithOptions:(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPersonality)] autorelease];
+	return [[self alloc] initWithOptions:(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPersonality)];
 }
 
 + pointerArrayWithWeakObjects
 {
-	return [[[self alloc] initWithOptions:(NSPointerFunctionsZeroingWeakMemory |
-			NSPointerFunctionsObjectPersonality)] autorelease];
+	return [[self alloc] initWithOptions:(NSPointerFunctionsZeroingWeakMemory |
+			NSPointerFunctionsObjectPersonality)];
 }
 
 - initWithOptions:(NSPointerFunctionsOptions)options
@@ -74,7 +74,6 @@
 	NSPointerFunctions *functions = [[NSPointerFunctions alloc] initWithOptions:options];
 
 	self = [self initWithPointerFunctions:functions];
-	[functions release];
 	return self;
 }
 
@@ -97,24 +96,26 @@
 - (NSArray *) allObjects
 {
 	size_t s = [self count];
-	id *buf = new id[s];
 	size_t i = 0;
+	std::vector<id> buf;
+
+	buf.reserve(s);
 
 	for (; i < s; i++)
 	{
-		id x = (id)[self pointerAtIndex:i];
+		id x = (__bridge id)[self pointerAtIndex:i];
 		if (x != nil)
 			buf[i] = x;
 	}
 	
-	NSArray *a = [NSArray arrayWithObjects:buf count:i];
-	delete[] buf;
+	NSArray *a = [NSArray arrayWithObjects:&buf[0] count:i];
 	return a;
 }
 
 - (void *)pointerAtIndex:(size_t)index
 {
-	return [self subclassResponsibility:_cmd];
+	[self subclassResponsibility:_cmd];
+	return NULL;
 }
 
 - (void) addPointer:(void *)ptr
@@ -183,11 +184,6 @@
 	}
 }
 
-- (NSArray *)allObjects
-{
-	return [NSArray arrayWithObjects:(id *)&array[0] count:array.size()];
-}
-
 - (void *)pointerAtIndex:(size_t)index
 {
 	return array[index];
@@ -195,7 +191,7 @@
 
 - (NSPointerFunctions *)pointerFunctions
 {
-	return [[functions copy] autorelease];
+	return [functions copy];
 }
 
 - (void) removePointerAtIndex:(size_t)index
@@ -228,14 +224,27 @@
 			array.end());
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
-	unsigned long numObjects = std::min(array.size() - state->extra[0], len);
-	state->itemsPtr = &((id*)&array[0])[state->extra[0]];
-	state->mutationsPtr = (unsigned long *)&array[0];
-	state->extra[0] += numObjects;
+	unsigned long idx = 0;
+
 	if (state->state == 0)
+	{
 		state->state = 1;
-	return numObjects;
+	}
+	else
+	{
+		idx = state->extra[1];
+	}
+	if (array.size() > 0)
+		state->mutationsPtr = &state->extra[0];
+	else
+		state->mutationsPtr = 0;
+	len = std::min(len, (unsigned long)array.size());
+	state->extra[1] += len;
+	for (unsigned long i = 0; i < len; ++i)
+		stackBuf[len] = (__bridge id)array[len + idx];
+	return len;
 }
 @end

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,14 +57,13 @@
 #include <vector>
 
 #import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSObject.h>
-#import <Foundation/PropertyListSerialization.h>
+#import <Foundation/NSPropertyListSerialization.h>
 #import <Foundation/NSRange.h>
 #import <Foundation/NSString.h>
 
@@ -75,7 +74,7 @@
 	NSEnumerator *keys;
 	NSDictionary *dict;
 }
-- initWithKeyEnumerator:(NSEnumerator *)keyEnum dictionary:(NSDictionary *)dict;
+- (id) initWithKeyEnumerator:(NSEnumerator *)keyEnum dictionary:(NSDictionary *)dict;
 
 @end
 
@@ -111,20 +110,19 @@ static Class CoreDictionaryClass;
 
 + (id)dictionary
 {
-	return [[self new] autorelease];
+	return [self new];
 }
 
 + (id)dictionaryWithObjects:(NSArray*)objects forKeys:(NSArray*)keys
 {
-	return [[[self allocWithZone:NULL]
-		initWithObjects:objects forKeys:keys] autorelease];
+	return [[self allocWithZone:NULL] initWithObjects:objects forKeys:keys];
 }
 
-+ (id)dictionaryWithObjects:(id*)objects forKeys:(id*)keys
-	count:(unsigned int)count;
++ (id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys
+	count:(unsigned int)count
 {
-	return [[[self allocWithZone:NULL]
-		initWithObjects:objects forKeys:keys count:count] autorelease];
+	return [[self allocWithZone:NULL]
+		initWithObjects:objects forKeys:keys count:count];
 }
 
 + (id)dictionaryWithObjectsAndKeys:(id)firstObject, ...
@@ -135,29 +133,28 @@ static Class CoreDictionaryClass;
 	va_start(va, firstObject);
 	dict = [dict initWithObjectsAndKeys:firstObject arguments:va];
 	va_end(va);
-	return [dict autorelease];
+	return dict;
 }
 
 + (id)dictionaryWithDictionary:(NSDictionary*)aDict
 {
-	return [[[self allocWithZone:NULL]
-		initWithDictionary:aDict] autorelease];
+	return [[self allocWithZone:NULL]
+		initWithDictionary:aDict];
 }
 
 + (id)dictionaryWithObject:object forKey:key
 {
-	return [[[self allocWithZone:NULL]
-			initWithObjects:&object forKeys:&key count:1] autorelease];
+	return [[self allocWithZone:NULL]
+			initWithObjects:&object forKeys:&key count:1];
 }
 
 + (id) dictionaryWithContentsOfURI:(NSURI *)uri
 {
-	return [[[self alloc] initWithContentsOfURI:uri] autorelease];
+	return [[self alloc] initWithContentsOfURI:uri];
 }
 
 - (id) initWithContentsOfURI:(NSURI *)uri
 {
-	[self release];
 	self = nil;
 
 	NSData *d = [[NSData alloc] initWithContentsOfURI:uri];
@@ -168,7 +165,7 @@ static Class CoreDictionaryClass;
 	}
 	@try
 	{
-		self = [PropertyListSerialization propertyListWithData:d options:PropertyListImmutable
+		self = [NSPropertyListSerialization propertyListWithData:d options:NSPropertyListImmutable
 			format:NULL error:NULL];
 		if (![self isKindOfClass:[NSDictionary class]])
 		{
@@ -244,7 +241,7 @@ static Class CoreDictionaryClass;
 	return self;
 }
 
-- (id)initWithObjects:(id*)objects forKeys:(id*)keys
+- (id)initWithObjects:(const id [])objects forKeys:(const id [])keys
 count:(unsigned int)count
 {
 	[self subclassResponsibility:_cmd];
@@ -262,9 +259,20 @@ count:(unsigned int)count
 	{
 		objs.push_back(key);
 	}
-	array = [[[NSArray alloc] initWithObjects:&objs[0] count:objs.size()] autorelease];
+	array = [[NSArray alloc] initWithObjects:&objs[0] count:objs.size()];
 
 	return array;
+}
+
+- (NSArray *) allKeysForObject:(id)obj
+{
+	__block NSMutableArray *ret = [NSMutableArray array];
+
+	[self enumerateKeysAndObjectsUsingBlock:^(id key, id object, bool *stop){
+		if ([object isEqual:obj])
+			[ret addObject:key];
+	}];
+	return ret;
 }
 
 - (NSArray*)allValues
@@ -276,9 +284,20 @@ count:(unsigned int)count
 	{
 		objs.push_back([self objectForKey:key]);
 	}
-	array = [[[NSArray alloc] initWithObjects:&objs[0] count:objs.size()] autorelease];
+	array = [[NSArray alloc] initWithObjects:&objs[0] count:objs.size()];
 
 	return array;
+}
+
+- (void) getObjects:(id[])objects andKeys:(id[])keys
+{
+	__block NSUInteger idx = 0;
+
+	[self enumerateKeysAndObjectsUsingBlock:^(id key, id obj, bool *stop){
+		objects[idx] = obj;
+		keys[idx] = key;
+		idx++;
+	}];
 }
 
 struct kvsCtx
@@ -307,6 +326,34 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 	return [[self allKeys] sortedArrayUsingFunction:compareVals context:&context];
 }
 
+- (NSArray *) keysSortedByValueUsingComparator:(NSComparator)cmp
+{
+	return [self keysSortedByValueWithOptions:0 usingComparator:cmp];
+}
+
+- (NSArray *) keysSortedByValueWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp
+{
+	return [[self allKeys] sortedArrayUsingComparator:cmp];
+}
+
+- (NSSet *) keysOfEntriesPassingTest:(bool (^)(id key, id obj, bool *stop))predicate
+{
+	return [self keysOfEntriesWithOptions:0 passingTest:predicate];
+}
+
+- (NSSet *) keysOfEntriesWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id key, id obj, bool *stop))predicate
+{
+	__block NSMutableSet *outset = [NSMutableSet new];
+
+	[self enumerateKeysAndObjectsUsingBlock:^(id key, id obj, bool *stop){
+		if (predicate(key, obj, stop))
+		{
+			[outset addObject:obj];
+		}
+	}];
+	return outset;
+}
+
 - (NSEnumerator*)keyEnumerator
 {
 	[self subclassResponsibility:_cmd];
@@ -315,13 +362,31 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 
 - (NSEnumerator *)objectEnumerator
 {
-	return [[[_DictionaryObjectEnumerator alloc]
+	return [[_DictionaryObjectEnumerator alloc]
 		initWithKeyEnumerator:[self keyEnumerator]
-		dictionary:self]
-		autorelease];
+		dictionary:self];
 }
 
-- (id)objectForKey:(id)aKey;
+- (void) enumerateKeysAndObjectsUsingBlock:(void (^)(id key, id obj, bool *stop))block
+{
+	[self enumerateKeysAndObjectsWithOptions:0 usingBlock:block];
+}
+
+- (void) enumerateKeysAndObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id key, id obj, bool *stop))block
+{
+	bool stop = false;
+
+	for (id key in self)
+	{
+		block(key, [self objectForKey:key], &stop);
+		if (stop)
+		{
+			break;
+		}
+	}
+}
+
+- (id)objectForKey:(id)aKey
 {
 	[self subclassResponsibility:_cmd];
 	return nil;
@@ -348,7 +413,7 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 
 /* Counting Entries */
 
-- (NSIndex)count
+- (NSUInteger)count
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -381,14 +446,13 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 /* Storing Dictionaries */
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-indent:(unsigned int)indent;
+	indent:(unsigned int)indent
 {
 	id value;
 	unsigned indent1 = indent + 4;
 	NSMutableArray* keyDescriptions;
 	NSString *keyDesc, *valDesc;
 	NSString *description, *indentation, *indent0;
-	NSAutoreleasePool *pool = nil;
 
 	if(![self count])
 	{
@@ -405,52 +469,51 @@ indent:(unsigned int)indent;
 		indent0 = @"";
 	}
 
-	pool = [NSAutoreleasePool new];
+	@autoreleasepool {
+		keyDescriptions = [NSMutableArray arrayWithCapacity:[self count]];
 
-	keyDescriptions = [NSMutableArray arrayWithCapacity:[self count]];
+		for (id key in self)
+		{
+			value = [self objectForKey:key];
 
-	for (id key in self)
-	{
-		value = [self objectForKey:key];
+			if ([key respondsToSelector:@selector(descriptionWithLocale:indent:)])
+			{
+				keyDesc = [key descriptionWithLocale:locale indent:indent1];
+			}
+			else if ([key respondsToSelector:@selector(descriptionWithLocale:)])
+			{
+				keyDesc = [key descriptionWithLocale:locale];
+			}
+			else
+			{
+				keyDesc = [key description];
+			}
 
-		if ([key respondsToSelector:@selector(descriptionWithLocale:indent:)])
-		{
-			keyDesc = [key descriptionWithLocale:locale indent:indent1];
-		}
-		else if ([key respondsToSelector:@selector(descriptionWithLocale:)])
-		{
-			keyDesc = [key descriptionWithLocale:locale];
-		}
-		else
-		{
-			keyDesc = [key description];
+			if ([value respondsToSelector:@selector(descriptionWithLocale:indent:)])
+			{
+				valDesc = [value descriptionWithLocale:locale indent:indent1];
+			}
+			else if ([value respondsToSelector:@selector(descriptionWithLocale:)])
+			{
+				valDesc = [value descriptionWithLocale:locale];
+			}
+			else
+			{
+				valDesc = [value description];
+			}
+
+			keyDesc = [NSString stringWithFormat:@"%@%@ = %@;\n",
+					indentation,keyDesc,valDesc];
+			[keyDescriptions addObject:keyDesc];
 		}
 
-		if ([value respondsToSelector:@selector(descriptionWithLocale:indent:)])
-		{
-			valDesc = [value descriptionWithLocale:locale indent:indent1];
-		}
-		else if ([value respondsToSelector:@selector(descriptionWithLocale:)])
-		{
-			valDesc = [value descriptionWithLocale:locale];
-		}
-		else
-		{
-			valDesc = [value description];
-		}
-
-		keyDesc = [NSString stringWithFormat:@"%@%@ = %@;\n",
-				indentation,keyDesc,valDesc];
-		[keyDescriptions addObject:keyDesc];
+		description = [[NSString alloc] initWithFormat:@"{\n%@%@}",
+					[keyDescriptions componentsJoinedByString:@""],
+					indent0
+						];
 	}
 
-	description = [[NSString alloc] initWithFormat:@"{\n%@%@}",
-				[keyDescriptions componentsJoinedByString:@""],
-				indent0
-					];
-	RELEASE(pool);
-
-	return [description autorelease];
+	return description;
 }
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
@@ -472,7 +535,7 @@ indent:(unsigned int)indent;
 		[desc appendFormat:@"\"%@\" = \"%@\";\n",k,[self objectForKey:k]];
 	}
 	[desc appendString:@"}"];
-	return [desc autorelease];
+	return desc;
 }
 
 /* From adopted/inherited protocols */
@@ -495,7 +558,7 @@ indent:(unsigned int)indent;
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	}
 	else
 	{
@@ -531,7 +594,8 @@ indent:(unsigned int)indent;
 /* Ugh, this algorithm is O(n^2), better hope this is only run once. A better
  * implementation is in NSCoreDictionary.mm.
  */
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	unsigned long i = 0;
 	NSEnumerator *en = [self keyEnumerator];
@@ -572,7 +636,6 @@ indent:(unsigned int)indent;
 		}
 		[coder encodeObject:keys forKey:@"GD.Dict.keys"];
 		[coder encodeObject:vals forKey:@"GD.Dict.vals"];
-		[vals release];
 	}
 	else
 	{
@@ -587,7 +650,7 @@ indent:(unsigned int)indent;
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	if ([coder allowsKeyedCoding])
 	{
@@ -633,7 +696,7 @@ indent:(unsigned int)indent;
 
 + (id)dictionaryWithCapacity:(unsigned int)aNumItems
 {
-	return [[[self alloc] initWithCapacity:aNumItems] autorelease];
+	return [[self alloc] initWithCapacity:aNumItems];
 }
 
 - (id)initWithCapacity:(unsigned int)aNumItems
@@ -723,7 +786,6 @@ indent:(unsigned int)indent;
 	if (values.size() == 0)
 	{
 		Class cls = [self class];
-		[self dealloc];
 		return [cls new];
 	}
 
@@ -736,14 +798,14 @@ indent:(unsigned int)indent;
 
 @implementation _DictionaryObjectEnumerator
 
-- initWithKeyEnumerator:(NSEnumerator *)keyEnum dictionary:(NSDictionary *)d
+- (id) initWithKeyEnumerator:(NSEnumerator *)keyEnum dictionary:(NSDictionary *)d
 {
 	dict = d;
 	keys = keyEnum;
 	return self;
 }
 
-- nextObject
+- (id) nextObject
 {
 	id obj = [keys nextObject];
 	

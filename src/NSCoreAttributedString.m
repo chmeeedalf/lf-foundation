@@ -34,11 +34,6 @@
 #import <Foundation/NSString.h>
 
 @implementation _AttributedRange
-- (void) dealloc
-{
-	[attributes release];
-	[super dealloc];
-}
 @end
 
 @implementation NSCoreAttributedString
@@ -46,8 +41,8 @@
 - initWithString:(NSString *)string attributes:(NSDictionary *)attributes
 {
 	str = string;
-	_AttributedRange *r = [[_AttributedRange new] autorelease];
-	r->attributes = [attributes retain];
+	_AttributedRange *r = [_AttributedRange new];
+	r->attributes = attributes;
 	r->range = (NSRange){0, [str length]};
 	attributeRanges = [[NSArray alloc] initWithObjects:r,nil];
 	return self;
@@ -64,10 +59,9 @@
 		NSDictionary *d;
 		_AttributedRange *ar = [_AttributedRange new];
 		d = [string attributesAtIndex:i effectiveRange:&r];
-		ar->attributes = [d retain];
+		ar->attributes = d;
 		ar->range = r;
 		[a addObject:ar];
-		[ar release];
 		i = NSMaxRange(r);
 	}
 	attributeRanges = a;
@@ -93,12 +87,6 @@
 	if (range != NULL)
 		*range = NSMakeRange(0, [self length]);
 	return nil;
-}
-
-- (void) dealloc
-{
-	[attributeRanges release];
-	[super dealloc];
 }
 
 @end
@@ -184,9 +172,8 @@
 	}
 	_AttributedRange *ar = [_AttributedRange new];
 	ar->range = r;
-	ar->attributes = [attribs retain];
+	ar->attributes = attribs;
 	[attributeRanges insertObject:ar atIndex:i];
-	[ar release];
 	return;
 }
 

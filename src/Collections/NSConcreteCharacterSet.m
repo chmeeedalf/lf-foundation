@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011	Gold Project
+ * Copyright (c) 2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -176,7 +176,6 @@
 - (void)dealloc
 {
 	uset_close(set);
-	[super dealloc];
 }
 
 - (bool)characterIsMember:(NSUniChar)aCharacter
@@ -193,7 +192,7 @@
 {
 	_NSICUCharacterSet *newSet;
 
-	newSet = [[[[self class] alloc] init] autorelease];
+	newSet = [[[self class] alloc] init];
 	uset_close(newSet->set);
 	newSet->set = uset_clone(set);
 	uset_complement(newSet->set);
@@ -255,8 +254,6 @@
 		otherSet = (_NSICUCharacterSet *)other;
 	}
 	uset_retainAll(set, otherSet->set);
-	if (otherSet != other)
-		[otherSet release];
 }
 
 - (void) formUnionWithCharacterSet:(NSCharacterSet *)other
@@ -272,8 +269,6 @@
 		otherSet = (_NSICUCharacterSet *)other;
 	}
 	uset_addAll(set, otherSet->set);
-	if (otherSet != other)
-		[otherSet release];
 }
 
 - (void) invert

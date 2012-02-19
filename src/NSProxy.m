@@ -30,7 +30,6 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSMethodSignature.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSProxy.h>
 #import <objc/runtime.h>
 #import <objc/objc-arc.h>
@@ -97,7 +96,7 @@ forwardInvocation:.
 /* Determining Allocation Zones */
 + (NSZone*)zone
 {
-	return NSZoneOf(self);
+	return NULL;
 }
 
 /* Identifying Proxies */
@@ -238,30 +237,6 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 	NSInvocation *i = _makeInvocation(self, _cmd, sig);
 	[i setArgument:&_object atIndex:2];
 	return i;
-}
-
-- (id)autorelease
-{
-	return objc_autorelease(self);
-}
-
-- (id)retain
-{
-	return objc_retain(self);
-}
-
-- (oneway void)release
-{
-	objc_release(self);
-}
-
-- (oneway void)release:(bool)autorelease
-{
-	if (autorelease)
-	{
-		NSDecrementAutoreleaseRefCount(self);
-	}
-	[self release];
 }
 
 - (Class)class
@@ -405,7 +380,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 
 - (NSZone *)zone
 {
-	return NSZoneOf((NSObject *)self);
+	return NULL;
 }
 
 - (bool)isEqual:(id)_object
@@ -439,24 +414,6 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 }
 
 // ******************** forwarding ********************
-
-- (retval_t)forward:(SEL)_selector:(arglist_t)argFrame
-{
-	void         *result;
-	NSInvocation *invocation;
-
-	invocation = [NSInvocation invocationWithMethodSignature:
-		[self methodSignatureForSelector:_selector]];
-	[invocation setArgumentFrame:argFrame];
-	[invocation setTarget:self];
-	[invocation setSelector:_selector];
-
-	[self forwardInvocation:invocation];
-
-	result = [invocation returnFrame];
-
-	return result;
-}
 
 - (void) finalize
 {

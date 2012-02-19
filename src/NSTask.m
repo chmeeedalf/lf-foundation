@@ -61,18 +61,9 @@ static NSMutableArray *runningTasks;
 + spawnedTaskWithURI:(NSURI *)target object:(id)arg
 		 environment:(NSDictionary *)env
 {
-	return [[[self alloc] initWithURI:target object:arg environment:env] autorelease];
-	NSTask *t = [[[self alloc] initWithURI:target object:arg environment:env] autorelease];
+	NSTask *t = [[self alloc] initWithURI:target object:arg environment:env];
 	[t launch];
 	return t;
-}
-
-- (void) dealloc
-{
-	[_taskObject release];
-	[_taskArguments release];
-	[_environment release];
-	[super dealloc];
 }
 
 - init
@@ -82,7 +73,7 @@ static NSMutableArray *runningTasks;
 
 - initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env
 {
-	_taskObject = [target retain];
+	_taskObject = target;
 	_taskArguments = [obj copy];
 	_environment = [env copy];
 	return self;
@@ -145,8 +136,6 @@ static NSMutableArray *runningTasks;
 
 - (void) setObject:(id)obj
 {
-	[obj retain];
-	[_taskArguments release];
 	_taskArguments = obj;
 }
 

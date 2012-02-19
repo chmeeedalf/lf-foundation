@@ -58,15 +58,13 @@ NSApplication *App = nil;
 - run
 {
 	id thr = [threadList objectAtIndex:0];
-	runThread(thr);
+	runThread((__bridge void *)thr);
 	return nil;
 }
 
 - (void)dealloc
 {
 	[self cleanup];
-	[threadList release];
-	[super dealloc];
 }
 
 - (void) removeThread:(NSThread *)thr
@@ -93,7 +91,7 @@ NSApplication *App = nil;
 
 - (NSArray *) threadList
 {
-	return [[threadList copy] autorelease];
+	return [threadList copy];
 }
 
 - (void) exit
@@ -129,7 +127,7 @@ NSApplication *App = nil;
 #endif
 
 	size_t count = 0;
-	id *threads = class_copySubclassList([NSThread class], &count);
+	Class *threads = class_copySubclassList([NSThread class], &count);
 
 	for (; count; count--)
 	{
@@ -140,7 +138,7 @@ NSApplication *App = nil;
 			thread = threads[count-1];
 		}
 	}
-	runThread([thread new]);
+	runThread((__bridge void *)[thread new]);
 	for (NSThread *t in threadList)
 		pthread_join([t _pthreadId], NULL);
 	[self exit];

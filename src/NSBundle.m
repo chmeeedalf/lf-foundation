@@ -27,10 +27,9 @@
 #import <Foundation/NSData.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSProcessInfo.h>
-#import <Foundation/PropertyListSerialization.h>
+#import <Foundation/NSPropertyListSerialization.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSUserDefaults.h>
 #import <Foundation/NSFileManager.h>
@@ -112,9 +111,9 @@ NSMakeSymbol(NSBundleDidLoadNotification);
 	if (self != [NSBundle class])
 		return;
 
-	bundleClasses = [[NSMapTable mapTableWithWeakToWeakObjects] retain];
-	bundleNames = [[NSMapTable mapTableWithStrongToWeakObjects] retain];
-	bundleIdentifiers = [[NSMapTable mapTableWithStrongToWeakObjects] retain];
+	bundleClasses = [NSMapTable mapTableWithWeakToWeakObjects];
+	bundleNames = [NSMapTable mapTableWithStrongToWeakObjects];
+	bundleIdentifiers = [NSMapTable mapTableWithStrongToWeakObjects];
 }
 
 // Load info for bundle
@@ -129,7 +128,7 @@ NSMakeSymbol(NSBundleDidLoadNotification);
 	file = [self URIForResource:@"Info" ofType:@"plist"];
 
 	if (file)
-		infoDictionary = [PropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURI:file] options:0 format:NULL error:NULL];
+		infoDictionary = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURI:file] options:0 format:NULL error:NULL];
 
 	if (infoDictionary == nil)
 		infoDictionary = [[NSDictionary alloc] init];
@@ -312,19 +311,18 @@ static bool canReadFile(NSURI *path)
 	path = [path URIByResolvingSymlinksInPath];
 	if ((path == nil) || !canReadDirectory(path))
 	{
-		[self release];
 		return nil;
 	}
 
 	old = [bundleNames objectForKey:path];
 	if (old)
 	{
-		(void)[self autorelease];
-		return [old retain];
+		(void)self;
+		return old;
 	}
 
 	[bundleNames setObject:self forKey:path];
-	fullPath = [path retain];
+	fullPath = path;
 
 	if ([self bundleIdentifier] != nil)
 	{
@@ -336,10 +334,6 @@ static bool canReadFile(NSURI *path)
 - (void)dealloc
 {
 	[bundleNames setObject:nil forKey:fullPath];
-	[fullPath release];
-	[infoDictionary release];
-	[stringTables release];
-	[super dealloc];
 }
 
 // Getting an NSBundle 
@@ -351,7 +345,7 @@ static bool canReadFile(NSURI *path)
 	for (NSBundle *value in [bundleNames objectEnumerator])
 		[bundles addObject:value];
 
-	return [[bundles copy] autorelease];
+	return [bundles copy];
 }
 
 + (NSArray *)allFrameworks
@@ -393,7 +387,7 @@ static bool canReadFile(NSURI *path)
 		if ((bundle = [bundleNames objectForKey:path]))
 			return bundle;
 	}
-	return [[[self alloc] initWithURI:path] autorelease];
+	return [[self alloc] initWithURI:path];
 }
 
 + (NSBundle *)mainBundle
@@ -421,7 +415,7 @@ static bool canReadFile(NSURI *path)
 			[arr addObject:locale];
 		}
 	}
-	return [arr autorelease];
+	return arr;
 }
 
 + (NSArray *) preferredLocalizationsFromArray:(NSArray *)localizations
@@ -505,11 +499,10 @@ static bool canReadFile(NSURI *path)
 	NSURI *path;
 	NSURI *file;
 	NSMutableArray* languages;
-	CREATE_AUTORELEASE_POOL(pool);
 
 	// Translate list by adding "lproj" extension
 	// {English, German, ...} to {English.lproj, German.lproj, ...}
-	languages = [[localizationNames mutableCopy] autorelease];
+	languages = [localizationNames mutableCopy];
 	if(languages)
 		n = [languages count];
 	else
@@ -576,10 +569,7 @@ static bool canReadFile(NSURI *path)
 
 found:
 
-	(void)[file retain];
-	[pool release];
-
-	return [file autorelease];
+	return file;
 }
 
 - (NSArray *)URIsForResourcesOfType:(NSString *)extension
@@ -637,8 +627,7 @@ found:
 	}
 	NSArray *tmp;
 	tmp = [result copy];
-	[result release];
-	return [tmp autorelease];
+	return tmp;
 }
 
 + (NSArray *) URIsForResourcesOfType:(NSString *)ext subdirectory:(NSString *)subdir inBundleWithURI:(NSURI *)bundleURI
@@ -801,7 +790,7 @@ found:
 		[localizations addObject:[[[path path] lastPathComponent] stringByDeletingPathExtension]];
 	}
 
-	return [localizations autorelease];
+	return localizations;
 }
 
 - (NSArray *) preferredLocalizations

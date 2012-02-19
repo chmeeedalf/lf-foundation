@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -53,13 +53,12 @@
 	NSDistantObject *proxy = [connection proxyForLocal:target];
 	if (proxy != nil)
 	{
-		[self release];
 		return proxy;
 	}
 	else
 	{
-		_connection = [connection retain];
-		_trueObject = [target retain];
+		_connection = connection;
+		_trueObject = target;
 	}
 	return self;
 }

@@ -56,7 +56,6 @@
 #include <stdlib.h>
 #include <vector>
 
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSString.h>
@@ -98,17 +97,17 @@ static Class CoreSetClass;
 
 + (id)set
 {
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 
 + (id)setWithArray:(NSArray*)array
 {
-	return [[[self alloc] initWithArray:array] autorelease];
+	return [[self alloc] initWithArray:array];
 }
 
 + (id)setWithObject:(id)anObject
 {
-	return [[[self alloc] initWithObjects:anObject, nil] autorelease];
+	return [[self alloc] initWithObjects:anObject, nil];
 }
 
 + (id)setWithObjects:(id)firstObj,...
@@ -117,19 +116,19 @@ static Class CoreSetClass;
 	va_list va;
 
 	va_start(va, firstObj);
-	set = [[[self alloc] initWithObject:firstObj arglist:va] autorelease];
+	set = [[self alloc] initWithObject:firstObj arglist:va];
 	va_end(va);
 	return set;
 }
 
 + (id)setWithObjects:(const id[])objects count:(unsigned int)count
 {
-	return [[[self alloc] initWithObjects:objects count:count] autorelease];
+	return [[self alloc] initWithObjects:objects count:count];
 }
 
 + (id)setWithSet:(NSSet*)aSet
 {
-	return [[[self alloc] initWithSet:aSet] autorelease];
+	return [[self alloc] initWithSet:aSet];
 }
 
 - (id)init
@@ -183,7 +182,6 @@ static Class CoreSetClass;
 - (id)initWithSet:(NSSet*)set copyItems:(bool)flag;
 {
 	std::vector<id> objs;
-	unsigned i = 0;
 
 	for (id key in set)
 	{
@@ -192,16 +190,6 @@ static Class CoreSetClass;
 
 	self = [self initWithObjects:&objs[0] count:objs.size()];
 
-	if (flag)
-	{
-		/* The new set holds the copies retained, so we can release the original
-		 * copy retain.
-		 */
-		for (i = 0; i < objs.size(); i++)
-		{
-			[objs[i] release];
-		}
-	}
 	return self;
 }
 
@@ -215,7 +203,6 @@ static Class CoreSetClass;
 	NSMutableArray *arr = [[NSMutableArray alloc] initWithArray:[self allObjects]];
 	[arr addObject:anObject];
 	NSSet *newSet = [NSSet setWithArray:arr];
-	[arr release];
 	return newSet;
 }
 
@@ -224,7 +211,6 @@ static Class CoreSetClass;
 	NSMutableArray *arr = [[NSMutableArray alloc] initWithArray:[self allObjects]];
 	[arr addObjectsFromArray:other];
 	NSSet *newSet = [NSSet setWithArray:arr];
-	[arr release];
 	return newSet;
 }
 
@@ -396,13 +382,16 @@ static Class CoreSetClass;
 		if (val != nil)
 			[s addObject:val];
 	}
-	return [s autorelease];
+	return s;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	unsigned long i = 0;
 	NSEnumerator *en;
+	return 0;
+#if 0
 	if (state->state == 0)
 	{
 		state->state = 1;
@@ -424,6 +413,7 @@ static Class CoreSetClass;
 		stackBuf[i] = obj;
 	}
 	return i;
+#endif
 }
 
 - (NSArray *) sortedArrayUsingDescriptors:(NSArray *)descriptors
@@ -487,7 +477,7 @@ static Class CoreSetClass;
 
 + (id)setWithCapacity:(unsigned)numItems
 {
-	return [[[self alloc] initWithCapacity:numItems] autorelease];
+	return [[self alloc] initWithCapacity:numItems];
 }
 
 - (id)initWithCapacity:(unsigned)numItems

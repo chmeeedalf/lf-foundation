@@ -27,18 +27,17 @@
  * 
  */
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSEnumerator.h>
 #import "internal.h"
 #if __GNUC_MINOR__ == 2
 #include <tr1/unordered_set>
-typedef std::tr1::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
+typedef std::tr1::unordered_multiset<id> _map_table;
 #else
 #include <unordered_set>
-typedef std::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
+typedef std::unordered_multiset<id> _map_table;
 #endif
-
-#define Table ((_map_table *)table)
 
 @interface _CountedSetEnumerator :	NSEnumerator
 {
@@ -49,12 +48,15 @@ typedef std::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
 @end
 
 @implementation NSCountedSet
+{
+	_map_table table;
+}
+
 -(id)initWithCapacity:(unsigned int)numItems
 {
 	if ((self = [super initWithCapacity:numItems]) == nil)
 		return nil;
 
-	table = new _map_table;
 	return self;
 }
 
@@ -63,7 +65,8 @@ typedef std::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
 	if ((self = [self initWithCapacity:count]) == nil)
 		return nil;
 
-	table = new _map_table(objects, objects + count);
+	for (unsigned int i = 0; i < count; i++)
+		table.insert(objects[i]);
 
 	return self;
 }
@@ -98,20 +101,20 @@ typedef std::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
 
 -(NSIndex)count
 {
-	return Table->size();
+	return table.size();
 }
 
 -(id)member:(id)anObject
 {
-	_map_table::iterator i = Table->find(anObject);
-	if (i != Table->end())
+	_map_table::iterator i = table.find(anObject);
+	if (i != table.end())
 		return *i;
 	return nil;
 }
 
 -(NSEnumerator *)enumerator
 {
-	return [[[_CountedSetEnumerator alloc] initWithTable:Table] autorelease];
+	return [[_CountedSetEnumerator alloc] initWithTable:&table];
 }
 
 -(bool)isEqualToSet:(NSSet *)otherSet
@@ -124,10 +127,10 @@ typedef std::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
 
 	if ([otherSet isKindOfClass:[NSCountedSet class]])
 	{
-		_map_table::iterator i = Table->begin();
-		for (; i != Table->end(); i++)
+		_map_table::iterator i = table.begin();
+		for (; i != table.end(); i++)
 		{
-			if ([(NSCountedSet *)otherSet countForObject:*i] != Table->count(*i))
+			if ([(NSCountedSet *)otherSet countForObject:*i] != table.count(*i))
 				return false;
 		}
 		return true;
@@ -137,19 +140,19 @@ typedef std::unordered_multiset<Alepha::Objective::Object<id>> _map_table;
 
 -(void)addObject:(id)object
 {
-	Table->insert(object);
+	table.insert(object);
 }
 
 -(void)removeObject:(id)object
 {
-	_map_table::iterator i = Table->find(object);
-	if (i != Table->end())
-		Table->erase(i);
+	_map_table::iterator i = table.find(object);
+	if (i != table.end())
+		table.erase(i);
 }
 
 - (size_t) countForObject:(id)object
 {
-	return Table->count(object);
+	return table.count(object);
 }
 
 @end

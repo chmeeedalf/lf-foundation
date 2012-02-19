@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,15 +35,12 @@
 #import <Foundation/NSArray.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSString.h>
-#if __GNUC_MINOR__ == 2
-#include <tr1/unordered_set>
-typedef std::tr1::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
-#else
+#include <vector>
 #include <unordered_set>
-typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
-#endif
 #include <algorithm>
 #import "internal.h"
+
+typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
 
 @interface NSConcreteHashTable	:	NSHashTable
 {
@@ -83,20 +80,19 @@ static Class ConcreteHashTableClass;
 
 + hashTableWithOptions:(NSPointerFunctionsOptions)options
 {
-	return [[[self alloc] initWithOptions:options capacity:0] autorelease];
+	return [[self alloc] initWithOptions:options capacity:0];
 }
 
 + hashTableWithWeakObjects
 {
-	return [[[self alloc] initWithOptions:(NSPointerFunctionsObjectPersonality |
-			NSPointerFunctionsZeroingWeakMemory) capacity:0] autorelease];
+	return [[self alloc] initWithOptions:(NSPointerFunctionsObjectPersonality |
+			NSPointerFunctionsZeroingWeakMemory) capacity:0];
 }
 
 - initWithOptions:(NSPointerFunctionsOptions)options capacity:(size_t)cap
 {
 	NSPointerFunctions *pf = [[NSPointerFunctions alloc] initWithOptions:options];
 	self = [self initWithPointerFunctions:pf capacity:cap];
-	[pf release];
 	return self;
 }
 
@@ -108,17 +104,13 @@ static Class ConcreteHashTableClass;
 
 - (NSArray *)allObjects
 {
-	size_t s = [self count];
-	NSArray *a;
-	id *objs = new id[s];
-	size_t i = 0;
+	std::vector<id> objs;
 
 	for (id obj in self)
 	{
-		objs[i++] = obj;
+		objs.push_back(obj);
 	}
-	a = [NSArray arrayWithObjects:objs count:i];
-	return a;
+	return [NSArray arrayWithObjects:&objs[0] count:objs.size()];
 }
 
 - (id)anyObject
@@ -218,7 +210,6 @@ static Class ConcreteHashTableClass;
 	{
 		[self removeObject:obj];
 	}
-	[arr release];
 }
 
 - (void)minusHashTable:(NSHashTable *)other
@@ -242,7 +233,8 @@ static Class ConcreteHashTableClass;
 	return [self subclassResponsibility:_cmd];
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -267,13 +259,12 @@ static Class ConcreteHashTableClass;
 {
 	std::for_each(table.begin(), table.end(),
 			std::bind2nd(std::ptr_fun(callbacks.relinquishFunction),callbacks.sizeFunction));
-	[super dealloc];
 }
 
 - (void) addObject:(id)obj
 {
-	callbacks.acquireFunction(obj, callbacks.sizeFunction, false);
-	table.insert(reinterpret_cast<void *>(obj));
+	callbacks.acquireFunction((__bridge void *)obj, callbacks.sizeFunction, false);
+	table.insert((__bridge void *)(obj));
 }
 
 - (void) removeAllObjects
@@ -290,15 +281,15 @@ static Class ConcreteHashTableClass;
 
 - (id) member:(id)obj
 {
-	intern_set::iterator i = table.find(reinterpret_cast<void *>(obj));
+	intern_set::iterator i = table.find((__bridge void *)(obj));
 	if (i != table.end())
-		return reinterpret_cast<id>(*i);
+		return (__bridge id)(*i);
 	return NULL;
 }
 
 - (void) removeObject:(id)obj
 {
-	intern_set::iterator i = table.find(reinterpret_cast<void *>(obj));
+	intern_set::iterator i = table.find((__bridge void *)(obj));
 	if (i != table.end())
 	{
 		callbacks.relinquishFunction(*i, callbacks.sizeFunction);
@@ -321,16 +312,16 @@ static Class ConcreteHashTableClass;
 			[string appendString:[NSString stringWithFormat:fmt,*i]];
 	}
 
-	return [string autorelease];
+	return string;
 }
 
 - objectEnumerator
 {
-	return [[[_ConcreteHashEnumerator alloc] initWithHashTable:self]
-		autorelease];
+	return [[_ConcreteHashEnumerator alloc] initWithHashTable:self];
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	intern_set::const_iterator i;
 	unsigned long j = 0;
@@ -341,17 +332,17 @@ static Class ConcreteHashTableClass;
 	}
 	else
 	{
-		i = table.find((id)state->extra[1]);
+		i = table.find((void *)state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != table.end(); j++, i++)
 	{
-		state->itemsPtr[j] = (id)*i;
+		state->itemsPtr[j] = (__bridge id)*i;
 	}
 	state->mutationsPtr = (unsigned long *)&table;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != table.end())
-		state->extra[1] = (unsigned long)(id)*i;
+		state->extra[1] = (unsigned long)(void *)*i;
 	return j;
 }
 
@@ -370,7 +361,7 @@ static Class ConcreteHashTableClass;
 {
 	if (i == table->end())
 		return nil;
-	return reinterpret_cast<id>(*(i++));
+	return (__bridge id)(*(i++));
 }
 
 @end

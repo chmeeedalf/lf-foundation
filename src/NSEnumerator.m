@@ -35,7 +35,8 @@
     return self;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	int i = 0;
 	if (state->state == 0)
@@ -50,7 +51,7 @@
 			break;
 		stackBuf[i] = obj;
 	}
-	state->mutationsPtr = (unsigned long *)self;
+	state->mutationsPtr = (unsigned long *)state->extra[0];
 	return i;
 }
 
@@ -66,12 +67,10 @@
 
 	if ([a count] == 0)
 	{
-		[a release];
 		return nil;
 	}
 	else
 	{
-		[a autorelease];
 		return a;
 	}
 }

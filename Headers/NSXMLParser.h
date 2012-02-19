@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -151,7 +151,7 @@ typedef NSInteger NSXMLParserError;
 	id error;
 	void *parser;	/*!< \brief Opaque XML parser object. */
 }
-@property(assign) id<NSXMLParserDelegate> delegate;
+@property(weak) id<NSXMLParserDelegate> delegate;
 @property bool shouldProcessNamespaces;
 @property bool shouldReportNamespacePrefixes;
 @property bool shouldResolveExternalEntities;

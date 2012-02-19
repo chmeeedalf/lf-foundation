@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006	Gold Project
+ * Copyright (c) 2006-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,7 +48,6 @@
 	
 	if (name == nil)
 	{
-		[self release];
 		return (id)[NSTimeZone defaultTimeZone];
 	}
 
@@ -147,6 +146,6 @@
 	tz->tz->getID(utzn);
 	tz->timeZoneName = [[NSCoreString alloc] initWithUnicodeString:&utzn];
 
-	return [tz autorelease];
+	return tz;
 }
 @end

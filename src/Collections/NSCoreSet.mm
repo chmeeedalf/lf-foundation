@@ -71,16 +71,6 @@ static size_t obj_hash(id obj)
 	return self;
 }
 
-/* Destroying */
-
-- (void)dealloc
-{
-	// removeAllObjects deletes the table
-	if (!set.empty())
-		[self removeAllObjects];
-	[super dealloc];
-}
-
 /* Copying */
 
 - (id)copyWithZone:(NSZone*)_zone
@@ -108,9 +98,7 @@ static size_t obj_hash(id obj)
 
 - (NSEnumerator *)objectEnumerator
 {
-	NSEnumerator *e = [[[_ConcreteSetEnumerator alloc]
-			initWithSet:self] autorelease];
-	return e;
+	return [[_ConcreteSetEnumerator alloc] initWithSet:self];
 }
 
 /* Add and remove entries */
@@ -135,7 +123,8 @@ static size_t obj_hash(id obj)
 	return &set;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	intern_set::const_iterator i;
 	unsigned long j = 0;
@@ -146,7 +135,7 @@ static size_t obj_hash(id obj)
 	}
 	else
 	{
-		i = set.find((id)state->extra[1]);
+		i = set.find((__bridge id)(void *)state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != set.end(); j++, i++)
@@ -167,17 +156,11 @@ static size_t obj_hash(id obj)
 
 - initWithSet:(NSCoreSet*)_set
 {
-	set = [_set retain];
+	set = _set;
 	table = [_set __setObject];
 	i = table->begin();
 
 	return self;
-}
-
-- (void)dealloc
-{
-	[set release];
-	[super dealloc];
 }
 
 - nextObject

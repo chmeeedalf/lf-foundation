@@ -1,6 +1,7 @@
 /* 
    NSPredicate.h
 
+   Copyright (C) 2010-2012	Gold Project
    Copyright (C) 2005, Helge Hess
    All rights reserved.
 

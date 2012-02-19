@@ -51,7 +51,7 @@ UText* UTextInitWithNSMutableString(UText *txt, NSMutableString *str);
 @end
 
 /**
- * Cleanup function used to fee a unichar buffer.
+ * Cleanup function used to free a unichar buffer.
  */
 static inline void free_string(unichar **buf)
 {

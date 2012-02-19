@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -90,18 +90,17 @@
 
 static int _StringFileWrite(void *cookie, const char *chars, int len)
 {
-	NSMutableString *outStr = cookie;
+	NSMutableString *outStr = (__bridge id)cookie;
 	// TODO: _StringFileWrite() - This should get the encoding from the input
 	// cookie, not assume UTF8
 	NSString *tempStr = [[NSString alloc] initWithBytesNoCopy:chars length:len encoding:NSUTF8StringEncoding freeWhenDone:false];
 	[outStr appendString:tempStr];
-	[tempStr release];
 	return len;
 }
 
 static int32_t do_write_string(const void *p, UChar *chars, int32_t len)
 {
-	NSString *s = [(id)p description];
+	NSString *s = [(__bridge id)p description];
 
 	if (chars == NULL)
 	{
@@ -117,19 +116,19 @@ static NSString* Avsprintf(NSString* format, NSLocale *locale, va_list args)
 	FILE *strFile;
 	UFILE *uniFile;
 	UChar *patternSpecification = malloc(([format length] + 1) * sizeof(UChar));
-	NSMutableString *str = [NSMutableString new];
+	NSMutableString *str;
 
-	strFile = fwopen(str, _StringFileWrite);
+	strFile = fwopen((__bridge const void *)str, _StringFileWrite);
 	uniFile = u_finit(strFile, [[locale localeIdentifier] UTF8String], "UTF-8");
 
 	u_register_printf_handler('@', do_write_string);
 
 	if (uniFile == NULL)
 	{
-		[str release];
 		free(patternSpecification);
 		return nil;
 	}
+	str = [NSMutableString new];
 	[format getCharacters:patternSpecification range:NSMakeRange(0, [format length])];
 	patternSpecification[[format length]] = 0;
 
@@ -137,7 +136,7 @@ static NSString* Avsprintf(NSString* format, NSLocale *locale, va_list args)
 	u_fclose(uniFile);
 	fclose(strFile);
 	free(patternSpecification);
-	return [str autorelease];
+	return str;
 }
 
 static UCollator *_CollatorFromOptions(unsigned long mask, NSLocale *locale)
@@ -163,7 +162,7 @@ static UCollator *_CollatorFromOptions(unsigned long mask, NSLocale *locale)
 /* Collator iterator */
 struct StringIterContext
 {
-	NSString *str;
+	__unsafe_unretained NSString *str;
 	IMP iterMethod;
 };
 
@@ -320,8 +319,8 @@ static Class MutableStringClass;
 	NSString* string;
 
 	va_start(va, locale);
-	string = AUTORELEASE([[self alloc] initWithFormat:format
-			locale:locale arguments:va]);
+	string = [[self alloc] initWithFormat:format
+			locale:locale arguments:va];
 	va_end(va);
 	return string;
 }
@@ -334,19 +333,19 @@ static Class MutableStringClass;
 + (id)stringWithCharacters:(const NSUniChar*)chars
 length:(NSIndex)length
 {
-	return AUTORELEASE([[self alloc] initWithCharacters:chars length:length]);
+	return [[self alloc] initWithCharacters:chars length:length];
 }
 
 + (id)stringWithCharactersNoCopy:(NSUniChar*)chars
 length:(NSIndex)length freeWhenDone:(bool)flag
 {
-	return AUTORELEASE([[self alloc] initWithCharactersNoCopy:chars
-			length:length freeWhenDone:flag]);
+	return [[self alloc] initWithCharactersNoCopy:chars
+			length:length freeWhenDone:flag];
 }
 
 + (id)stringWithString:(NSString*)aString
 {
-	return [[[self alloc] initWithString:aString] autorelease];
+	return [[self alloc] initWithString:aString];
 }
 
 + (id)stringWithCString:(const char*)byteString
@@ -356,14 +355,13 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 + (id)stringWithUTF8String:(const char *)byteString
 {
-	return AUTORELEASE([[self alloc] initWithCString:byteString
-			encoding:NSUTF8StringEncoding]);
+	return [[self alloc] initWithCString:byteString
+			encoding:NSUTF8StringEncoding];
 }
 
 + (id)stringWithCString:(const char *)byteString encoding:(NSStringEncoding)enc
 {
-	return AUTORELEASE([[self alloc] initWithCString:byteString
-			encoding:enc]);
+	return [[self alloc] initWithCString:byteString encoding:enc];
 }
 
 + (id)stringWithFormat:(NSString*)format,...
@@ -372,15 +370,15 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	NSString* string;
 
 	va_start(va, format);
-	string = AUTORELEASE([[self alloc] initWithFormat:format arguments:va]);
+	string = [[self alloc] initWithFormat:format arguments:va];
 	va_end(va);
 	return string;
 }
 
 + (id)stringWithFormat:(NSString*)format arguments:(va_list)argList
 {
-	return AUTORELEASE([[self alloc] initWithFormat:format
-			arguments:argList]);
+	return [[self alloc] initWithFormat:format
+			arguments:argList];
 }
 
 /* Getting a string's length */
@@ -526,7 +524,6 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 		[scan scanCharactersFromSet:set intoString:NULL];
 		[components addObject:temp];
 	}
-	[scan release];
 	return components;
 }
 
@@ -959,7 +956,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 
 	xlate(buf, length, buf, length, NULL, &ec);
 	buf[length] = 0;
-	NSString *s = [[[NSString alloc] initWithCharacters:buf length:length] autorelease];
+	NSString *s = [[NSString alloc] initWithCharacters:buf length:length];
 	free(buf);
 	return s;
 }
@@ -975,7 +972,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 
 	u_strToTitle(buf, length, buf, length, NULL, NULL, &ec);
 	buf[length] = 0;
-	NSString *s = [[[NSString alloc] initWithCharacters:buf length:length] autorelease];
+	NSString *s = [[NSString alloc] initWithCharacters:buf length:length];
 	free(buf);
 	return s;
 }
@@ -1035,8 +1032,10 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 - (bool)getCString:(char *)buffer maxLength:(NSIndex)maxLength encoding:(NSStringEncoding)enc
 {
 	NSRange len = {0, [self length]};
-	return [self getBytes:buffer maxLength:maxLength usedLength:NULL encoding:enc
+	bool result = [self getBytes:buffer maxLength:maxLength-1 usedLength:NULL encoding:enc
 		options:0 range:len remainingRange:NULL];
+	buffer[maxLength - 1] = 0;
+	return result;
 }
 
 - (bool)getBytes:(void*)buffer maxLength:(NSIndex)maxLength
@@ -1097,7 +1096,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	bool val = false;
 	NSScanner *scan = [[NSScanner alloc] initWithString:self];
 	[scan scanBool:&val];
-	[scan release];
 	return val;
 }
 - (double)doubleValue
@@ -1107,7 +1105,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	double val = 0;
 	NSScanner *scan = [[NSScanner alloc] initWithString:self];
 	[scan scanDouble:&val];
-	[scan release];
 	return val;
 }
 
@@ -1118,7 +1115,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	float val = 0;
 	NSScanner *scan = [[NSScanner alloc] initWithString:self];
 	[scan scanFloat:&val];
-	[scan release];
 	return val;
 }
 
@@ -1129,7 +1125,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	int val = 0;
 	NSScanner *scan = [[NSScanner alloc] initWithString:self];
 	[scan scanInt:&val];
-	[scan release];
 	return val;
 }
 
@@ -1140,7 +1135,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	NSInteger val = 0;
 	NSScanner *scan = [[NSScanner alloc] initWithString:self];
 	[scan scanInteger:&val];
-	[scan release];
 	return val;
 }
 
@@ -1149,7 +1143,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	long long val = 0;
 	NSScanner *scan = [[NSScanner alloc] initWithString:self];
 	[scan scanLongLong:&val];
-	[scan release];
 	return val;
 }
 
@@ -1475,7 +1468,7 @@ static inline const int hexval(char digit)
 + (id) stringWithContentsOfURI:(NSURI *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err
 {
 	TODO;
-	return [[[NSString alloc] initWithData:[NSData dataWithContentsOfURI:uri] encoding:0] autorelease];
+	return [[NSString alloc] initWithData:[NSData dataWithContentsOfURI:uri] encoding:0];
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder
@@ -1525,7 +1518,7 @@ static inline const int hexval(char digit)
 
 + (id)stringWithCapacity:(unsigned int)capacity
 {
-	return AUTORELEASE([[self alloc] initWithCapacity:capacity]);
+	return [[self alloc] initWithCapacity:capacity];
 }
 
 + (id)string
@@ -1656,8 +1649,6 @@ static NSTemporaryString *zoneStrings = nil;
 // Don't do anything, we're only a single instance.
 - (void)dealloc
 {
-	if (0)
-		[super dealloc];
 }
 
 - (NSZone*)zone

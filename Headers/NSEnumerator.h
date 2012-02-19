@@ -43,7 +43,7 @@ typedef struct NSFastEnumerationState NSFastEnumerationState;
 struct NSFastEnumerationState
 {
 	unsigned long state;
-	id *itemsPtr;
+	__unsafe_unretained id *itemsPtr;
 	unsigned long *mutationsPtr;
 	unsigned long extra[ 5 ];
 
@@ -54,122 +54,10 @@ struct NSFastEnumerationState
 #endif
 };
 
-#if defined(__cplusplus) && __GNUC_PREREQ__(4,6)
-namespace std
-{
-	const size_t OBJC_ENUMERATION_AMOUNT= 16;
-
-	template< typename ObjCIterable,
-			size_t enumCount= OBJC_ENUMERATION_AMOUNT >
-	class ObjCFastEnumerableIterator
-	{
-		private:
-			ObjCIterable iterableObject;
-			unsigned long partialIdx;
-			NSFastEnumerationState state;
-			id objects[ enumCount ];
-			unsigned long partialCount;
-
-			void
-			nextBlock()
-			{
-				//this->partialCount= [ this->iterableObject
-				ObjCIterable iobj= this->iterableObject;
-				NSFastEnumerationState *const st= &this->state;
-				id *const objs= this->objects;
-				const unsigned long ct= enumCount;
-				this->partialCount = [ iobj countByEnumeratingWithState: st
-						objects: objs
-						count: ct ];
-			}
-
-			void
-			advance()
-			{
-				if( !( ++( this->partialIdx ) < this->partialCount ) )
-				{
-					this->nextBlock();
-				}
-			}
-
-		public:
-			explicit inline
-			ObjCFastEnumerableIterator()
-					: iterableObject(), partialIdx(), state(), objects(),
-					partialCount() {}
-
-			explicit inline
-			ObjCFastEnumerableIterator( const ObjCIterable obj )
-					: iterableObject( obj ), partialIdx(), state(), objects(),
-					partialCount()
-			{
-				this->nextBlock();
-			}
-
-			ObjCFastEnumerableIterator &
-			operator ++()
-			{
-				this->advance();
-				return *this;
-			}
-
-			ObjCFastEnumerableIterator
-			operator++ ( int )
-			{
-				const ObjCFastEnumerableIterator tmp( *this );
-				this->advance();
-				return tmp;
-			}
-
-			const id &
-			operator *() const
-			{
-				return this->state.itemsPtr[ this->partialIdx ];
-			}
-
-			friend inline bool
-			operator == ( const ObjCFastEnumerableIterator &lhs,
-					const ObjCFastEnumerableIterator &rhs )
-			{
-				return !lhs.partialCount && !rhs.partialCount;
-			}
-
-			friend inline bool
-			operator != ( const ObjCFastEnumerableIterator &lhs,
-					const ObjCFastEnumerableIterator &rhs )
-			{
-				return !( lhs == rhs );
-			}
-	};
-
-	inline ObjCFastEnumerableIterator< id >
-	begin( id objcContainer )
-	{
-		return ObjCFastEnumerableIterator< id >( objcContainer );
-	}
-
-	inline ObjCFastEnumerableIterator< id >
-	end( id /* objcContainer */ )
-	{
-		return ObjCFastEnumerableIterator< id >();
-	}
-
-	class __objchookforiteration {};
-
-	template< typename ObjC_Class >
-	inline id
-	operator << ( const __objchookforiteration &, ObjC_Class *const item )
-	{
-		return static_cast< id >( item );
-	}
-}
-
-#define in : std::__objchookforiteration() <<
-#endif
 @class NSArray;
 
 @protocol NSFastEnumeration
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len;
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len;
 @end
 
 /*!

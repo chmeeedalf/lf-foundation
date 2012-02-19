@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,12 +40,12 @@
 
 + (id) indexPathWithIndex:(NSUInteger)index
 {
-	return [[[self alloc] initWithIndex:index] autorelease];
+	return [[self alloc] initWithIndex:index];
 }
 
 + (id) indexPathWithIndexes:(NSUInteger *)indexes length:(size_t)length
 {
-	return [[[self alloc] initWithIndexes:indexes length:length] autorelease];
+	return [[self alloc] initWithIndexes:indexes length:length];
 }
 
 - (id) initWithIndex:(NSUInteger)index
@@ -65,7 +65,6 @@
 - (void) dealloc
 {
 	delete[] _indexes;
-	[super dealloc];
 }
 
 - (void) getIndexes:(NSUInteger *)indexes
@@ -124,7 +123,7 @@
 
 - (id) copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder
@@ -140,7 +139,6 @@
 		NSData *d = [[NSData alloc] initWithBytes:buf length:_length *
 			sizeof(NSUInteger)];
 		[coder encodeObject:d forKey:@"IndexPathData"];
-		[d release];
 		delete[] buf;
 	}
 	else

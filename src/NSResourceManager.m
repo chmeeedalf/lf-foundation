@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,18 +48,13 @@ static NSMutableDictionary *resources;
 	resources = [NSMutableDictionary new];
 }
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	return sharedResourceManager;
 }
 
-- init
+- (id) init
 {
-	if (self != sharedResourceManager)
-	{
-		[self release];
-	}
-
 	return sharedResourceManager;
 }
 
@@ -68,12 +63,12 @@ static NSMutableDictionary *resources;
 	return sharedResourceManager;
 }
 
-- resourceWithName:(NSString *)name
+- (id) resourceWithName:(NSString *)name
 {
 	return [self resourceWithName:name inDomain:NSInnermostResourceDomain];
 }
 
-- resourceWithName:(NSString *)name inDomain:(NSResourceDomain)domain
+- (id) resourceWithName:(NSString *)name inDomain:(NSResourceDomain)domain
 {
 	id obj = resources;
 	NSArray *nameArray = [name componentsSeparatedByString:@"/"];
@@ -120,22 +115,11 @@ static NSMutableDictionary *resources;
 	}
 }
 
-- retain
-{
-	return self;
-}
-
-- (oneway void) release
-{
-}
-
 - (void) dealloc
 {
 	@throw [NSRuntimeException
 		exceptionWithReason: @"Attempting to dealloc shared resources"
 		userInfo:nil];
-	// WILL NOT GET HERE
-	[super dealloc];
 }
 
 @end

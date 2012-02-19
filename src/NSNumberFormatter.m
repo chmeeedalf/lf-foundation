@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,45 +34,69 @@
 #import "internal.h"
 #include <unicode/unum.h>
 
-@interface _NumberFormatterPrivate	:	NSObject
-{
-@public
-	UNumberFormat *_unf;
-	UParseError _parseError;
-}
-@end
-@implementation _NumberFormatterPrivate
-@end
-
-#define _private (*(_NumberFormatterPrivate **)&self->_private)
+/*
+ * Things TODO:
+ * - Positive/Negative infinity (currently just deals with 'infinity')
+ * - Positive/Negative formats
+ */
 
 #define BUFFER_SIZE 768
 
 @implementation NSNumberFormatter
+{
+	UNumberFormat *_unf;
+	UParseError _parseError;
+	NSString *_multiplier;
+	NSString *_zeroSym;
+	NSString *_nilSym;
+	NSString *_negFormat;
+	NSString *_posFormat;
+	NSLocale *_locale;
+	NSNumberFormatterStyle _style;
+	NSNumber *_maximum;
+	NSNumber *_minimum;
+	bool _userMultiplier;
+	bool _partialValidate;
+}
+@synthesize textAttributesForZero;
+@synthesize textAttributesForNegativeInfinity;
+@synthesize textAttributesForPositiveInfinity;
+@synthesize textAttributesForNegativeValues;
+@synthesize textAttributesForPositiveValues;
+@synthesize textAttributesForNil;
+@synthesize textAttributesForNotANumber;
+@synthesize generatesDecimalNumbers;
+@synthesize minimum = _minimum;
+@synthesize maximum = _maximum;
 
 static void _InitPrivate(NSNumberFormatter *self)
 {
 	UErrorCode ec = U_ZERO_ERROR;
-	if (_private->_unf != NULL)
+	if (self->_unf != NULL)
 		return;
-	_private->_unf = unum_open((UNumberFormatStyle)self->_style, NULL, 0, [[self->_locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], &_private->_parseError, &ec);
+	self->_unf = unum_open((UNumberFormatStyle)self->_style,
+			NULL, 0,
+			[[self->_locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding],
+			&self->_parseError, &ec);
 	if (!U_SUCCESS(ec))
 		NSLog(@"Warning: Unable to create ICU number formatter: %s", u_errorName(ec));
 	return;
 }
 
-static inline NSString *_GetTextAttribute(NSNumberFormatter *self, UNumberFormatTextAttribute attr)
+static inline NSString *_GetTextAttribute(NSNumberFormatter *self,
+		UNumberFormatTextAttribute attr)
 {
 	UChar buff[BUFFER_SIZE];
 	UErrorCode ec = U_ZERO_ERROR;
 	int32_t len;
 	_InitPrivate(self);
 
-	len = unum_getTextAttribute(_private->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
+	len = unum_getTextAttribute(self->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
 	return [NSString stringWithCharacters:buff length:len];
 }
 
-static inline void _SetTextAttribute(NSNumberFormatter *self, UNumberFormatTextAttribute attr, NSString *value)
+static inline void _SetTextAttribute(NSNumberFormatter *self,
+		UNumberFormatTextAttribute attr, NSString *value)
 {
 	UChar buff[BUFFER_SIZE];
 	UErrorCode ec = U_ZERO_ERROR;
@@ -81,7 +105,7 @@ static inline void _SetTextAttribute(NSNumberFormatter *self, UNumberFormatTextA
 
 	[value getCharacters:buff range:NSMakeRange(0, MIN(len, BUFFER_SIZE))];
 
-	unum_setTextAttribute(_private->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
+	unum_setTextAttribute(self->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
 }
 
 static inline NSString *_GetSymbol(NSNumberFormatter *self, UNumberFormatSymbol attr)
@@ -91,11 +115,12 @@ static inline NSString *_GetSymbol(NSNumberFormatter *self, UNumberFormatSymbol 
 	int32_t len;
 	_InitPrivate(self);
 
-	len = unum_getSymbol(_private->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
+	len = unum_getSymbol(self->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
 	return [NSString stringWithCharacters:buff length:len];
 }
 
-static inline void _SetSymbol(NSNumberFormatter *self, UNumberFormatSymbol attr, NSString *value)
+static inline void _SetSymbol(NSNumberFormatter *self, UNumberFormatSymbol attr,
+		NSString *value)
 {
 	UChar buff[BUFFER_SIZE];
 	UErrorCode ec = U_ZERO_ERROR;
@@ -104,43 +129,54 @@ static inline void _SetSymbol(NSNumberFormatter *self, UNumberFormatSymbol attr,
 
 	[value getCharacters:buff range:NSMakeRange(0, MIN(len, BUFFER_SIZE))];
 
-	unum_setSymbol(_private->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
+	unum_setSymbol(self->_unf, attr, buff, sizeof(buff)/sizeof(UChar), &ec);
 }
 
-static inline unsigned long _GetIntAttribute(NSNumberFormatter *self, UNumberFormatAttribute attr)
+static inline NSUInteger _GetIntAttribute(NSNumberFormatter *self,
+		UNumberFormatAttribute attr)
 {
 	_InitPrivate(self);
 
-	return unum_getAttribute(_private->_unf, attr);
+	return unum_getAttribute(self->_unf, attr);
 }
 
-static inline void _SetIntAttribute(NSNumberFormatter *self, UNumberFormatAttribute attr, unsigned long val)
+static inline void _SetIntAttribute(NSNumberFormatter *self,
+		UNumberFormatAttribute attr, NSUInteger val)
 {
 	_InitPrivate(self);
 
-	unum_setAttribute(_private->_unf, attr, (int32_t)val);
+	unum_setAttribute(self->_unf, attr, (int32_t)val);
 }
 
-static inline double _GetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAttribute attr)
+static inline double _GetDoubleAttribute(NSNumberFormatter *self,
+		UNumberFormatAttribute attr)
 {
 	_InitPrivate(self);
 
-	return unum_getDoubleAttribute(_private->_unf, attr);
+	return unum_getDoubleAttribute(self->_unf, attr);
 }
 
-static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAttribute attr, double val)
+static inline void _SetDoubleAttribute(NSNumberFormatter *self,
+		UNumberFormatAttribute attr, double val)
 {
 	_InitPrivate(self);
 
-	unum_setDoubleAttribute(_private->_unf, attr, val);
+	unum_setDoubleAttribute(self->_unf, attr, val);
 }
 
-- init
+- (id) init
 {
-	_private = [_NumberFormatterPrivate new];
 	_locale = [NSLocale systemLocale];
 
 	return self;
+}
+
+- (void) dealloc
+{
+	if (_unf)
+	{
+		unum_close(_unf);
+	}
 }
 
 - (bool) alwaysShowsDecimalSeparator
@@ -178,7 +214,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return _GetSymbol(self, UNUM_EXPONENTIAL_SYMBOL);
 }
 
-- (unsigned long) formatWidth
+- (NSUInteger) formatWidth
 {
 	return _GetIntAttribute(self, UNUM_FORMAT_WIDTH);
 }
@@ -188,7 +224,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return _GetSymbol(self, UNUM_GROUPING_SEPARATOR_SYMBOL);
 }
 
-- (unsigned long) groupingSize
+- (NSUInteger) groupingSize
 {
 	return _GetIntAttribute(self, UNUM_GROUPING_SIZE);
 }
@@ -213,42 +249,32 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return _locale;
 }
 
-- (NSNumber *) maximum
-{
-	return _maximum;
-}
-
-- (unsigned long) maximumFractionDigits
+- (NSUInteger) maximumFractionDigits
 {
 	return _GetIntAttribute(self, UNUM_MAX_FRACTION_DIGITS);
 }
 
-- (unsigned long) maximumIntegerDigits
+- (NSUInteger) maximumIntegerDigits
 {
 	return _GetIntAttribute(self, UNUM_MAX_INTEGER_DIGITS);
 }
 
-- (unsigned long) maximumSignificantDigits
+- (NSUInteger) maximumSignificantDigits
 {
 	return _GetIntAttribute(self, UNUM_MAX_SIGNIFICANT_DIGITS);
 }
 
-- (NSNumber *) minimum
-{
-	return _minimum;
-}
-
-- (unsigned long) minimumFractionDigits
+- (NSUInteger) minimumFractionDigits
 {
 	return _GetIntAttribute(self, UNUM_MIN_FRACTION_DIGITS);
 }
 
-- (unsigned long) minimumIntegerDigits
+- (NSUInteger) minimumIntegerDigits
 {
 	return _GetIntAttribute(self, UNUM_MIN_INTEGER_DIGITS);
 }
 
-- (unsigned long) minimumSignificantDigits
+- (NSUInteger) minimumSignificantDigits
 {
 	return _GetIntAttribute(self, UNUM_MIN_SIGNIFICANT_DIGITS);
 }
@@ -267,6 +293,11 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 {
 	TODO;	// negativeFormat
 	return nil;
+}
+
+- (NSString *) negativeInfinitySymbol
+{
+	return _GetSymbol(self, UNUM_INFINITY_SYMBOL);
 }
 
 - (NSString *) negativePrefix
@@ -325,6 +356,11 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return nil;
 }
 
+- (NSString *) positiveInfinitySymbol
+{
+	return _GetSymbol(self, UNUM_INFINITY_SYMBOL);
+}
+
 - (NSString *) positivePrefix
 {
 	return _GetTextAttribute(self, UNUM_POSITIVE_PREFIX);
@@ -335,7 +371,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return _GetTextAttribute(self, UNUM_POSITIVE_SUFFIX);
 }
 
-- (NSNumber *) roundingIncrememt
+- (NSNumber *) roundingIncrement
 {
 	return [NSNumber numberWithDouble:_GetDoubleAttribute(self, UNUM_ROUNDING_INCREMENT)];
 }
@@ -345,7 +381,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return _GetIntAttribute(self, UNUM_ROUNDING_MODE);
 }
 
-- (unsigned long) secondaryGroupingSize
+- (NSUInteger) secondaryGroupingSize
 {
 	return _GetIntAttribute(self, UNUM_SECONDARY_GROUPING_SIZE);
 }
@@ -385,7 +421,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	_SetSymbol(self, UNUM_EXPONENTIAL_SYMBOL, newSym);
 }
 
-- (void) setFormatWidth:(unsigned long)newWidth
+- (void) setFormatWidth:(NSUInteger)newWidth
 {
 	_SetIntAttribute(self, UNUM_FORMAT_WIDTH, newWidth);
 }
@@ -395,7 +431,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	_SetSymbol(self, UNUM_GROUPING_SEPARATOR_SYMBOL, newSep);
 }
 
-- (void) setGroupingSize:(unsigned long)newSize
+- (void) setGroupingSize:(NSUInteger)newSize
 {
 	_SetIntAttribute(self, UNUM_GROUPING_SIZE, newSize);
 }
@@ -413,51 +449,35 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 /* TODO: Make this recreate the unum object */
 - (void) setLocale:(NSLocale *)locale
 {
-	[locale retain];
-	[_locale release];
 	_locale = locale;
 }
 
-- (void) setMaximum:(NSNumber *)newMax
-{
-	[newMax retain];
-	[_maximum release];
-	_maximum = newMax;
-}
-
-- (void) setMaximumFractionDigits:(unsigned long)newMaxFrac
+- (void) setMaximumFractionDigits:(NSUInteger)newMaxFrac
 {
 	_SetIntAttribute(self, UNUM_MAX_FRACTION_DIGITS, newMaxFrac);
 }
 
-- (void) setMaximumIntegerDigits:(unsigned long)newMaxInt
+- (void) setMaximumIntegerDigits:(NSUInteger)newMaxInt
 {
 	_SetIntAttribute(self, UNUM_MAX_INTEGER_DIGITS, newMaxInt);
 }
 
-- (void) setMaximumSignificantDigits:(unsigned long)maxSigFig
+- (void) setMaximumSignificantDigits:(NSUInteger)maxSigFig
 {
 	_SetIntAttribute(self, UNUM_MAX_SIGNIFICANT_DIGITS, maxSigFig);
 }
 
-- (void) setMinimum:(NSNumber *)newMin
-{
-	[newMin retain];
-	[_minimum release];
-	_minimum = newMin;
-}
-
-- (void) setMinimumFractionDigits:(unsigned long)newMinFrac
+- (void) setMinimumFractionDigits:(NSUInteger)newMinFrac
 {
 	_SetIntAttribute(self, UNUM_MIN_FRACTION_DIGITS, newMinFrac);
 }
 
-- (void) setMinimumIntegerDigits:(unsigned long)newMinInt
+- (void) setMinimumIntegerDigits:(NSUInteger)newMinInt
 {
 	_SetIntAttribute(self, UNUM_MIN_INTEGER_DIGITS, newMinInt);
 }
 
-- (void) setMinimumSignificantDigits:(unsigned long)minSigFig
+- (void) setMinimumSignificantDigits:(NSUInteger)minSigFig
 {
 	_SetIntAttribute(self, UNUM_MIN_SIGNIFICANT_DIGITS, minSigFig);
 }
@@ -478,6 +498,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 
 - (void) setNegativeInfinitySymbol:(NSString *)newNeg
 {
+	_SetSymbol(self, UNUM_INFINITY_SYMBOL, newNeg);
 }
 
 - (void) setNegativePrefix:(NSString *)newNegPref
@@ -492,13 +513,12 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 
 - (void) setNilSymbol:(NSString *)newNil
 {
-	[newNil retain];
-	[_nilSym release];
 	_nilSym = newNil;
 }
 
 - (void) setNotANumberSymbol:(NSString *)newSym
 {
+	_SetSymbol(self, UNUM_NAN_SYMBOL, newSym);
 }
 
 - (void) setNumberStyle:(NSNumberFormatterStyle)newStyle
@@ -508,12 +528,12 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 
 - (void) setPaddingCharacter:(NSString *)newPad
 {
-	return _SetTextAttribute(self, UNUM_PADDING_CHARACTER, newPad);
+	_SetTextAttribute(self, UNUM_PADDING_CHARACTER, newPad);
 }
 
 - (void) setPaddingPosition:(NSNumberFormatterPadPosition)newPos
 {
-	return _SetIntAttribute(self, UNUM_PADDING_POSITION, newPos);
+	_SetIntAttribute(self, UNUM_PADDING_POSITION, newPos);
 }
 
 - (void) setPartialStringValidationEnabled:(bool)enabled
@@ -542,6 +562,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 
 - (void) setPositiveInfinitySymbol:(NSString *)newPos
 {
+	_SetSymbol(self, UNUM_INFINITY_SYMBOL, newPos);
 }
 
 - (void) setPositivePrefix:(NSString *)newPosPref
@@ -561,88 +582,28 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 
 - (void) setRoundingMode:(NSNumberFormatterRoundingMode)mode
 {
-	return _SetIntAttribute(self, UNUM_ROUNDING_MODE, mode);
+	_SetIntAttribute(self, UNUM_ROUNDING_MODE, mode);
 }
 
-- (void) setSecondaryGroupingSize:(unsigned long) newGroup
+- (void) setSecondaryGroupingSize:(NSUInteger) newGroup
 {
-	return _SetIntAttribute(self, UNUM_SECONDARY_GROUPING_SIZE, newGroup);
+	_SetIntAttribute(self, UNUM_SECONDARY_GROUPING_SIZE, newGroup);
 }
-
-#if 0
-- (void) setTextAttributesForNegativeInfinity:(NSDictionary *)newAttribs
-{
-}
-
-- (void) setTextAttributesForNegativeValues:(NSDictionary *)newAttribs
-{
-}
-
-- (void) setTextAttributesForNil:(NSDictionary *)newAttribs
-{
-}
-
-- (void) setTextAttributesForNotANumber:(NSDictionary *)newAttribs
-{
-}
-
-- (void) setTextAttributesForPositiveInfinity:(NSDictionary *)newAttribs
-{
-}
-
-- (void) setTextAttributesForPositiveValues:(NSDictionary *)newAttribs
-{
-}
-
-- (void) setTextAttributesForZero:(NSDictionary *)newAttribs
-{
-}
-#endif
 
 - (void) setUsesGroupingSeparator:(bool)useGroup
 {
-	return _SetIntAttribute(self, UNUM_GROUPING_USED, useGroup);
+	_SetIntAttribute(self, UNUM_GROUPING_USED, useGroup);
 }
 
 - (void) setUsesSignificantDigits:(bool)useSigFigs
 {
-	return _SetIntAttribute(self, UNUM_SIGNIFICANT_DIGITS_USED, useSigFigs);
+	_SetIntAttribute(self, UNUM_SIGNIFICANT_DIGITS_USED, useSigFigs);
 }
 
 - (void) setZeroSymbol:(NSString *)newZero
 {
-	return _SetSymbol(self, UNUM_ZERO_DIGIT_SYMBOL, newZero);
+	_SetSymbol(self, UNUM_ZERO_DIGIT_SYMBOL, newZero);
 }
-
-#if 0
-- (NSDictionary *) textAttributesForNegativeInfinity
-{
-}
-
-- (NSDictionary *) textAttributesForNegativeValues
-{
-}
-
-- (NSDictionary *) textAttributesForNil
-{
-}
-
-- (NSDictionary *) textAttributesForNotANumber
-{
-}
-
-- (NSDictionary *) textAttributesForPositiveInfinity
-{
-}
-
-- (NSDictionary *) textAttributesForPositiveValues
-{
-}
-
-- (NSDictionary *) textAttributesForZero
-{
-}
-#endif
 
 - (bool) usesGroupingSeparator
 {
@@ -669,13 +630,13 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	[str getCharacters:buffer range:NSMakeRange(0, MIN(BUFFER_SIZE, strLength))];
 	if ([self allowsFloats])
 	{
-		double d = unum_parseDouble(_private->_unf, buffer, BUFFER_SIZE-1, &parsePos, &ec);
+		double d = unum_parseDouble(_unf, buffer, BUFFER_SIZE-1, &parsePos, &ec);
 		if (U_SUCCESS(ec))
 			*obj = [NSNumber numberWithDouble:d];
 	}
 	else
 	{
-		int64_t i64 = unum_parseInt64(_private->_unf, buffer, BUFFER_SIZE-1, &parsePos, &ec);
+		int64_t i64 = unum_parseInt64(_unf, buffer, BUFFER_SIZE-1, &parsePos, &ec);
 		if (U_SUCCESS(ec))
 			*obj = [NSNumber numberWithLongLong:i64];
 	}
@@ -692,9 +653,9 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 {
 	NSNumberFormatter *fmtr = [NSNumberFormatter new];
 	[fmtr setNumberStyle:numberStyle];
+	[fmtr setLocale:[NSLocale currentLocale]];
 	
 	NSString *s = [fmtr stringFromNumber:num];
-	[fmtr release];
 	return s;
 }
 
@@ -707,19 +668,39 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 	return n;
 }
 
+- (NSString *)stringForObjectValue:(id)val
+{
+	if (val == nil)
+	{
+		return [self nilSymbol];
+	}
+	else if ([val isKindOfClass:[NSNumber class]])
+	{
+		return [self stringFromNumber:val];
+	}
+
+	return [self notANumberSymbol];
+}
+
 - (NSString *) stringFromNumber:(NSNumber *)number
 {
 	UChar buffer[BUFFER_SIZE];
 	UErrorCode ec = U_ZERO_ERROR;
 	int len;
 	_InitPrivate(self);
+
+	if (number == nil)
+	{
+		return [self nilSymbol];
+	}
+
 	if ([self allowsFloats])
 	{
-		len = unum_formatDouble(_private->_unf, [number doubleValue], buffer, BUFFER_SIZE-1, NULL, &ec);
+		len = unum_formatDouble(_unf, [number doubleValue], buffer, BUFFER_SIZE-1, NULL, &ec);
 	}
 	else
 	{
-		len = unum_formatInt64(_private->_unf, [number longLongValue], buffer, BUFFER_SIZE-1, NULL, &ec);
+		len = unum_formatInt64(_unf, [number longLongValue], buffer, BUFFER_SIZE-1, NULL, &ec);
 	}
 	return [NSString stringWithCharacters:buffer length:len];
 }
@@ -733,6 +714,5 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self, UNumberFormatAtt
 {
 	_SetIntAttribute(self, UNUM_PARSE_INT_ONLY, !allowFloats);
 }
-
 
 @end

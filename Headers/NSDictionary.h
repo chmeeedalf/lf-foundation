@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -80,8 +80,8 @@
  * \param keys NSArray of keys to associate with the objects.
  * \param count NSNumber of key/object pairs.
  */
-+(id)dictionaryWithObjects:(id *)objects forKeys:(id *)keys
-	count:(unsigned int)count;
++(id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys
+	count:(NSUInteger)count;
 
 /*!
  * \brief Creates and returns an NSDictionary object that associates objects
@@ -130,7 +130,7 @@
  * \param keys NSArray of keys to associate with the objects.
  * \param count NSNumber of key/object pairs.
  */
--(id)initWithObjects:(id *)objects forKeys:(id *)keys
+-(id)initWithObjects:(const id [])objects forKeys:(const id [])keys
 	count:(unsigned int)count;
 
 -(id)initWithContentsOfURI:(NSURI *)uri;
@@ -141,20 +141,23 @@
  * if the receiver is empty.
  */
 -(NSArray *)allKeys;
--(NSArray *)keysSortedByValueUsingSelector:(SEL)sel;
-- (NSArray *) keysSortedByValueWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
-
-#if __has_feature(blocks)
-- (NSSet *) keysOfEntriesPassingTest:(bool (^)(id key, id obj, bool *stop))predicate;
-- (NSSet *) keysOfEntriesWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id key, id obj, bool *stop))predicate;
-#endif
-
+- (NSArray *) allKeysForObject:(id)obj;
 
 /*!
  * \brief Returns an NSArray containing all values from the receiver, or an
  * empty array if the receiver is empty.
  */
 -(NSArray *)allValues;
+
+- (void) getObjects:(id[])objects andKeys:(id[])keys;
+
+/*!
+ * \brief Returns the object associated with the given key.
+ * \param aKey Key to search for.
+ * \return The associated object.
+ */
+-(id)objectForKey:(id)aKey;
+-(NSArray *)objectsForKeys:(NSArray *)keys notFoundMarker:(id)marker;
 
 /*!
  * \brief Returns an NSEnumerator that lets you access each of the receiver's
@@ -173,19 +176,21 @@
 - (void) enumerateKeysAndObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id key, id obj, bool *stop))block;
 #endif
 
-/*!
- * \brief Returns the object associated with the given key.
- * \param aKey Key to search for.
- * \return The associated object.
- */
--(id)objectForKey:(id)aKey;
--(NSArray *)objectsForKeys:(NSArray *)keys notFoundMarker:(id)marker;
+-(NSArray *)keysSortedByValueUsingSelector:(SEL)sel;
+- (NSArray *) keysSortedByValueUsingComparator:(NSComparator)cmp;
+- (NSArray *) keysSortedByValueWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
+
+#if __has_feature(blocks)
+- (NSSet *) keysOfEntriesPassingTest:(bool (^)(id key, id obj, bool *stop))predicate;
+- (NSSet *) keysOfEntriesWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id key, id obj, bool *stop))predicate;
+#endif
+
 
 /// \category Counting entries
 /*!
  * \brief Returns the number of key-value pairs in the receiver.
  */
--(NSIndex)count;
+-(NSUInteger)count;
 
 // Comparing dictionaries
 /*!

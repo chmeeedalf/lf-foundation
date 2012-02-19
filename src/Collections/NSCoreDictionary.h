@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -58,14 +58,8 @@
 #import <Foundation/NSMapTable.h>
 #import "internal.h"
 #ifdef __cplusplus
-#include <Alepha/Objective/Object.h>
-#if __GNUC_MINOR__ == 2
-#include <tr1/unordered_map>
-typedef std::tr1::unordered_map<Alepha::Objective::Object<id>,Alepha::Objective::Object<id>> _map_table;
-#else
 #include <unordered_map>
-typedef std::unordered_map<Alepha::Objective::Object<id>,Alepha::Objective::Object<id>> _map_table;
-#endif
+typedef std::unordered_map<id,id> _map_table;
 #else
 typedef struct _map_table *_map_table;
 #endif

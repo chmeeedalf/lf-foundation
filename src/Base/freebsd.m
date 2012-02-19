@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -44,7 +44,6 @@
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSApplication.h>
 #import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>
@@ -107,6 +106,7 @@ void TimerSetTimeout(NSTimeInterval timeoutInt)
 		NSLog(@"Can't set timer.  Error code: %d", errno);
 }
 
+#if 0
 /// {{{ Threaded Signal Handling
 struct handledSignalFrame {
 	SEL filter;
@@ -170,6 +170,7 @@ static void handleAllSignals(int sig, siginfo_t *si, void *ignore)
 }
 @end
 ///}}}
+#endif
 
 /*
  * args can be any object, with some considerations:
@@ -196,7 +197,6 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 	const char *progname;
 	const char *defaultArgs[] = { NULL, NULL, NULL };
 	bool retval;
-	NSAutoreleasePool *pool;
 	uint32_t	pid;
 
 	/* Sanity checking */
@@ -204,87 +204,87 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 		return false;
 
 	/* A temporary pool to hold all the strings created */
-	pool = [NSAutoreleasePool new];
 
-	progname = [[identifier path] UTF8String];
-	if ([args isKindOfClass:[NSDictionary class]])
-	{
-		size_t length = [args count];
-		argv = malloc(sizeof(char *) * (length + 2));
-		length = 1;
-		for (id key in args)
+	@autoreleasepool {
+		progname = [[identifier path] UTF8String];
+		if ([args isKindOfClass:[NSDictionary class]])
 		{
-			if ([args objectForKey:key] == [NSNull null])
-				argv[length++] = [[key description] UTF8String];
-			else
+			size_t length = [args count];
+			argv = malloc(sizeof(char *) * (length + 2));
+			length = 1;
+			for (id key in args)
 			{
-				id obj = [args objectForKey:key];
-				NSString *desc = [obj description];
-				NSString *keyDesc = [key description];
-				if ([keyDesc length] == 1)
-					argv[length++] = [[NSString stringWithFormat:@"-%@%@", keyDesc, desc] UTF8String];
-				else if ([desc length] == 0)
-					argv[length++] = [[NSString stringWithFormat:@"--%@",keyDesc] UTF8String];
+				if ([args objectForKey:key] == [NSNull null])
+					argv[length++] = [[key description] UTF8String];
 				else
-					argv[length++] = [[NSString stringWithFormat:@"--%@=%@", keyDesc, desc] UTF8String];
+				{
+					id obj = [args objectForKey:key];
+					NSString *desc = [obj description];
+					NSString *keyDesc = [key description];
+					if ([keyDesc length] == 1)
+						argv[length++] = [[NSString stringWithFormat:@"-%@%@", keyDesc, desc] UTF8String];
+					else if ([desc length] == 0)
+						argv[length++] = [[NSString stringWithFormat:@"--%@",keyDesc] UTF8String];
+					else
+						argv[length++] = [[NSString stringWithFormat:@"--%@=%@", keyDesc, desc] UTF8String];
+				}
+				argv[length] = NULL;
 			}
-			argv[length] = NULL;
 		}
-	}
-	else if ([args respondsToSelector:@selector(enumerator)])
-	{
-		id item;
+		else if ([args respondsToSelector:@selector(enumerator)])
+		{
+			id item;
+			NSIndex size = 0;
+
+			for (item in args)
+			{
+				size++;
+			}
+			argv = malloc(sizeof(char *) * (size + 2));
+			size = 1;
+
+			for (item in args)
+			{
+				argv[size++] = [[item description] UTF8String];
+			}
+			argv[size] = NULL;
+		}
+		else
+		{
+			argv = defaultArgs;
+			if (args != nil)
+				argv[1] = [[args description] UTF8String];
+		}
+		argv[0] = progname;
+
+		if (env == nil)
+		{
+			env = [[NSProcessInfo processInfo] environment];
+		}
 		NSIndex size = 0;
 
-		for (item in args)
+		environ = malloc(sizeof(char *) * ([env count] + 1));
+		for (NSString *key in env)
 		{
-			size++;
+			environ[size++] = [[NSString stringWithFormat:@"%@=%@",key,[env objectForKey:key]] UTF8String];
 		}
-		argv = malloc(sizeof(char *) * (size + 2));
-		size = 1;
-
-		for (item in args)
+		switch ((pid = vfork()))
 		{
-			argv[size++] = [[item description] UTF8String];
+			case -1:
+				NSLog(@"Can't fork!");
+				retval = false;
+				break;
+			case 0:
+				execve(progname, (char * const *)argv, (char * const *)environ);
+				_exit(errno);
+				break;
+			default:
+				targetUUID->parts[3] = pid;
+				retval = true;
+				break;
 		}
-		argv[size] = NULL;
-	}
-	else
-	{
-		argv = defaultArgs;
-		if (args != nil)
-			argv[1] = [[args description] UTF8String];
-	}
-	argv[0] = progname;
 
-	if (env == nil)
-	{
-		env = [[NSProcessInfo processInfo] environment];
 	}
-	NSIndex size = 0;
-
-	environ = malloc(sizeof(char *) * ([env count] + 1));
-	for (NSString *key in env)
-	{
-		environ[size++] = [[NSString stringWithFormat:@"%@=%@",key,[env objectForKey:key]] UTF8String];
-	}
-	switch ((pid = vfork()))
-	{
-		case -1:
-			NSLog(@"Can't fork!");
-			retval = false;
-			break;
-		case 0:
-			execve(progname, (char * const *)argv, (char * const *)environ);
-			_exit(errno);
-			break;
-		default:
-			targetUUID->parts[3] = pid;
-			retval = true;
-			break;
-	}
-
-	[pool release];
 	return retval;
 }
 
@@ -369,12 +369,10 @@ void _AsyncUnwatchDescriptor(int fd, bool writing)
 	FD_CLR(fd, &readers);
 	if (writing)
 	{
-		[fd_invoke_write[fd] release];
 		fd_invoke_write[fd] = nil;
 	}
 	else
 	{
-		[fd_invoke_read[fd] release];
 		fd_invoke_read[fd] = nil;
 	}
 }

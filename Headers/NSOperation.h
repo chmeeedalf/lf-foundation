@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,8 +41,6 @@ typedef enum {
 
 @interface NSOperation	:	NSObject
 {
-@private
-	struct _NSOperationPrivate *_private;
 }
 @property(readonly) bool isCancelled;
 @property(readonly) bool isFinished;
@@ -88,12 +86,12 @@ enum
 {
 @private
 	void *_private;
-	NSString *_name;
 	bool _suspended;
 	NSInteger _maxConcurrentOperationCount;
 	NSMutableArray *_operations;
 }
 @property NSInteger maxConcurrentOperationCount;
+@property NSString *name;
 
 + (id) currentQueue;
 + (id) mainQueue;
@@ -103,11 +101,9 @@ enum
 - (void) cancelAllOperations;
 - (bool) isSuspended;
 - (NSInteger) maxConcurrentOperationCount;
-- (NSString *) name;
 - (NSUInteger) operationCount;
 - (NSArray *) operations;
 - (void) setMaxConcurrentOperationCount:(NSInteger)count;
-- (void) setName:(NSString *)name;
 - (void) setSuspended:(bool)suspend;
 - (void) waitUntilAllOperationsAreFinished;
 @end

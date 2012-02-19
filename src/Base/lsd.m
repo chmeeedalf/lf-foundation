@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2006	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,7 +36,6 @@
 #include <SysCall.h>
 #include <Event.h>
 #import <Foundation/NSApplication.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSMethodSignature.h>
@@ -130,81 +129,80 @@ void eventHandler (Event_t *_eventPage)
 	char *types_out;
 	SEL messageSel = (SEL)_eventPage->message;
 
-	CREATE_AUTORELEASE_POOL(pool);
+	@autoreleasepool {
 
-	if (App == nil)
-		App = [NSApplication new];
+		if (App == nil)
+			App = [NSApplication new];
 
-	// If the message selector is NULL, the message is a NUL-terminated string
-	// at the start of the payload.
-	if (messageSel == 0)
-	{
-		messageSel = sel_getUid((char *)_eventPage->payload);
-		/* Re-point the start of the data payload to the first aligned word
-		 * after the selector string.
+		// If the message selector is NULL, the message is a NUL-terminated string
+		// at the start of the payload.
+		if (messageSel == 0)
+		{
+			messageSel = sel_getUid((char *)_eventPage->payload);
+			/* Re-point the start of the data payload to the first aligned word
+			 * after the selector string.
+			 */
+			data_ptr = (_eventPage->payload +
+					((strlen((char *)_eventPage->payload) +
+					  sizeof(unsigned long) - 1) & ~(sizeof(unsigned long) - 1)));
+		}
+		m = class_getInstanceMethod([App class], (SEL)_eventPage->message);
+
+		if (m == NULL)
+			return;
+
+		types = method_getTypeEncoding(m);
+		/* We're not adding any because, although we need to append a ^v to it, we
+		 * are also removing multiple numbers from it (3 or more).
 		 */
-		data_ptr = (_eventPage->payload +
-				((strlen((char *)_eventPage->payload) +
-				sizeof(unsigned long) - 1) & ~(sizeof(unsigned long) - 1)));
-	}
-	m = class_getInstanceMethod([App class], (SEL)_eventPage->message);
-	
-	if (m == NULL)
-		return;
+		types_out = calloc(sizeof(char), strlen(types) + 1);
+		if (types_out == NULL)
+			abort();
 
-	types = method_getTypeEncoding(m);
-	/* We're not adding any because, although we need to append a ^v to it, we
-	 * are also removing multiple numbers from it (3 or more).
-	 */
-	types_out = calloc(sizeof(char), strlen(types) + 1);
-	if (types_out == NULL)
-		abort();
-
-	/* This block needs some explaining:  Count the number of arguments in the
-	 * real message, while simultaneously adding a final, hidden argument, a
-	 * pointer to the raw event buffer.
-	 */
-	{
-		unsigned long numArgs = method_getNumberOfArguments(m);
-		size_t len = strlen(types);
-
-		char *types2;
-		method_getReturnType(m, types_out, len);
-		types2 = types_out + strlen(types_out);
-		len -= strlen(types_out);
-		for (unsigned long i = 0; i < numArgs; i++)
+		/* This block needs some explaining:  Count the number of arguments in the
+		 * real message, while simultaneously adding a final, hidden argument, a
+		 * pointer to the raw event buffer.
+		 */
 		{
-			method_getArgumentType(m, i, types2, len);
-			len -= strlen(types2);
-			types2 += strlen(types2);
+			unsigned long numArgs = method_getNumberOfArguments(m);
+			size_t len = strlen(types);
+
+			char *types2;
+			method_getReturnType(m, types_out, len);
+			types2 = types_out + strlen(types_out);
+			len -= strlen(types_out);
+			for (unsigned long i = 0; i < numArgs; i++)
+			{
+				method_getArgumentType(m, i, types2, len);
+				len -= strlen(types2);
+				types2 += strlen(types2);
+			}
+			strcat(types_out, "^v");
+
+			appInvocation = [[_LSDPrivateInvocation alloc]
+				initWithMethodSignature:[NSMethodSignature
+				 signatureWithObjCTypes:types_out]];
+
+			free(types_out);
+
+			[appInvocation setTarget:App];
+			[appInvocation setSelector:messageSel];
+			for (unsigned long i = 2; i < numArgs; i++)
+			{
+				char types[len];
+				method_getArgumentType(m, i, types, sizeof(types));
+				if (*types == _C_ARY_B)
+					[appInvocation setArgument:&data_ptr atIndex:i];
+				else
+					[appInvocation setArgument:data_ptr atIndex:i];
+			}
+			data_ptr = _eventPage;
+			[appInvocation setArgument:&data_ptr atIndex:numArgs];
 		}
-		strcat(types_out, "^v");
-
-		appInvocation = [[_LSDPrivateInvocation alloc]
-			initWithMethodSignature:[NSMethodSignature
-			signatureWithObjCTypes:types_out]];
-
-		free(types_out);
-
-		[appInvocation setTarget:App];
-		[appInvocation setSelector:messageSel];
-		for (unsigned long i = 2; i < numArgs; i++)
 		{
-			char types[len];
-			method_getArgumentType(m, i, types, sizeof(types));
-			if (*types == _C_ARY_B)
-				[appInvocation setArgument:&data_ptr atIndex:i];
-			else
-				[appInvocation setArgument:data_ptr atIndex:i];
+			[appInvocation invoke];
 		}
-		data_ptr = _eventPage;
-		[appInvocation setArgument:&data_ptr atIndex:numArgs];
 	}
-	{
-		[appInvocation invoke];
-		[appInvocation release];
-	}
-	RELEASE(pool);
 }
 
 // This will take 2 system requests

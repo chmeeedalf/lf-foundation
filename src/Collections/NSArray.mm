@@ -1,7 +1,7 @@
 /*
    NSArray.m
 
-   Copyright (C) 2005	Gold Project
+   Copyright (C) 2005-2012	Gold Project
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -26,7 +26,6 @@
 #import <Foundation/NSArray.h>
 #import "NSCoreArray.h"
 
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSIndexSet.h>
@@ -76,12 +75,12 @@ static Class CoreArrayClass;
 
 + (id)array
 {
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 
 + (id)arrayWithObject:(id)anObject
 {
-	return [[[self alloc] initWithObjects:&anObject count:1] autorelease];
+	return [[self alloc] initWithObjects:&anObject count:1];
 }
 
 + (id)arrayWithObjects:(id)firstObj,...
@@ -99,18 +98,18 @@ static Class CoreArrayClass;
 	va_end(list);
 
 	array = [[self alloc] initWithObjects:&objects[0] count:objects.size()];
-	return [array autorelease];
+	return array;
 }
 
 + (id)arrayWithArray:(NSArray*)anotherArray
 {
-	return [[[self alloc] initWithArray:anotherArray] autorelease];
+	return [[self alloc] initWithArray:anotherArray];
 }
 
 + (id)arrayWithObjects:(const id[])objects count:(unsigned int)count
 {
-	return [[[self alloc]
-			initWithObjects:objects count:count] autorelease];
+	return [[self alloc]
+			initWithObjects:objects count:count];
 }
 
 - (id)init
@@ -133,18 +132,10 @@ static Class CoreArrayClass;
 	{
 		objects.push_back(flag
 			? [[anotherArray objectAtIndex:i]
-							 copyWithZone:NSZoneOf(self)]
+							 copyWithZone:NULL]
 			: [anotherArray objectAtIndex:i]);
 	}
 	self = [self initWithObjects:&objects[0] count:count];
-
-	if (flag)
-	{
-		for (; i > 0; i--)
-		{
-			[objects[i-1] release];
-		}
-	}
 
 	return self;
 }
@@ -221,10 +212,116 @@ static Class CoreArrayClass;
 	return NSNotFound;
 }
 
+- (NSIndex) indexOfObjectPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+{
+	return [self indexOfObjectWithOptions:0 passingTest:predicate];
+}
+
+- (NSIndex) indexOfObjectWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+{
+	return [self indexOfObjectAtIndexes:[NSIndexSet
+		indexSetWithIndexesInRange:NSMakeRange(0, [self count])] options:opts
+		passingTest:predicate];
+}
+
+- (NSIndex) indexOfObjectAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+{
+	__block NSIndex i = NSNotFound;
+
+	[indexSet enumerateIndexesWithOptions:opts usingBlock:^(NSUInteger idx, bool
+			*stop){
+		if (predicate([self objectAtIndex:idx], idx, stop))
+		{
+			*stop = true;
+			i = idx;
+		}
+	}
+	];
+	return i;
+}
+
+- (NSIndexSet *) indexesOfObjectsPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+{
+	return [self indexesOfObjectsWithOptions:0 passingTest:predicate];
+}
+
+- (NSIndexSet *) indexesOfObjectsWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+{
+	return [self indexesOfObjectsAtIndexes:[NSIndexSet
+		indexSetWithIndexesInRange:NSMakeRange(0, [self count])] options:opts
+		passingTest:predicate];
+}
+
+- (NSIndexSet *) indexesOfObjectsAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+{
+	NSMutableIndexSet *iset = [NSMutableIndexSet indexSet];
+
+	[indexSet enumerateIndexesWithOptions:opts usingBlock:^(NSUInteger idx, bool
+			*stop){
+		if (predicate([self objectAtIndex:idx], idx, stop))
+		{
+			[iset addIndex:idx];
+		}
+	}
+	];
+	return iset;
+}
+
+- (NSIndex) indexOfObject:(id)obj inSortedRange:(NSRange)srange
+options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
+{
+	NSIndex i = srange.location + (srange.length / 2);
+	int delta = srange.length / 4;	// How far to move
+	NSComparisonResult result;
+	NSIndex goodFound = NSNotFound;
+
+	while (1)
+	{
+		result = cmp(obj, [self objectAtIndex:i]);
+
+		if (result == NSOrderedSame)
+		{
+			goodFound = i;
+
+			/* Treat it as either 'greater than' or 'less than' if a search
+			 * specifier is given.
+			 */
+			if (opts & NSBinarySearchingFirstEqual)
+				result = NSOrderedDescending;
+			else if (opts & NSBinarySearchingLastEqual)
+				result = NSOrderedAscending;
+			else
+				break;
+		}
+
+		if (result == NSOrderedAscending)
+		{
+			i += delta;
+		}
+		else
+		{
+			i -= delta;
+		}
+		delta /= 2;
+	}
+	return goodFound;
+}
+
 - (id)firstObject
 {
 	NSIndex count = [self count];
 	return count ? [self objectAtIndex:0] : nil;
+}
+
+- (void) getObjects:(id *)objs range:(NSRange)range
+{
+	if (NSMaxRange(range) > [self count])
+	{
+		@throw([NSRangeException exceptionWithReason:@"Range arguement beyond length of array" userInfo:nil]);
+	}
+
+	for (unsigned int i = range.location; i < NSMaxRange(range); i++)
+		objs[i - range.location] = [self objectAtIndex:i];
 }
 
 - (id)lastObject
@@ -242,14 +339,14 @@ static Class CoreArrayClass;
 
 - (NSEnumerator*)objectEnumerator
 {
-	return [[[_ArrayEnumerator alloc]
-			initWithArray:self reverse:false] autorelease];
+	return [[_ArrayEnumerator alloc]
+			initWithArray:self reverse:false];
 }
 
 - (NSEnumerator*)reverseObjectEnumerator
 {
-	return [[[_ArrayEnumerator alloc]
-			initWithArray:self reverse:true] autorelease];
+	return [[_ArrayEnumerator alloc]
+			initWithArray:self reverse:true];
 }
 
 /* Sending Messages to Elements */
@@ -280,6 +377,36 @@ static Class CoreArrayClass;
 			withObject:anObject2];
 	}
 }
+
+- (void) enumerateObjectsUsingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block
+{
+	NSIndex i = 0;
+	bool stop = false;
+
+	for (id obj in self)
+	{
+		block(obj, i, &stop);
+		if (stop)
+			return;
+		i++;
+	}
+}
+
+- (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block
+{
+	[self enumerateObjectsAtIndexes:[NSIndexSet
+		indexSetWithIndexesInRange:NSMakeRange(0, [self count])] options:0
+		usingBlock:block];
+}
+
+- (void) enumerateObjectsAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block
+{
+	[indexSet enumerateIndexesWithOptions:opts usingBlock:
+		^(NSUInteger idx, bool *stop){
+			block([self objectAtIndex:idx], idx, stop);
+		}];
+}
+
 
 /* Comparing Arrays */
 
@@ -342,7 +469,7 @@ static Class CoreArrayClass;
 		objects.push_back([self objectAtIndex:range.location+index]);
 	}
 
-	array = [[[NSArray alloc] initWithObjects:&objects[0] count:range.length] autorelease];
+	array = [[NSArray alloc] initWithObjects:&objects[0] count:range.length];
 	return array;
 }
 
@@ -364,28 +491,22 @@ static Class CoreArrayClass;
 		SEL sel;
 		IMP imp;
 		bool first = true;
-		CREATE_AUTORELEASE_POOL(pool);
 
 		sel = @selector(appendString:);
 		imp = [string methodForSelector:sel];
 
 		for (id elem in self)
 		{
-			if (![elem isKindOfClass:[NSString class]])
-			{
-				elem = [elem description];
-			}
 			if (!first)
 			{
-				(*imp)(string, sel, separator);
+				[string appendString:separator];
 			}
+			[string appendString:[elem description]];
 			(*imp)(string, sel, elem);
 			first = false;
 		}
 		retString = [string copy];
-		[pool release];
-		[string release];
-		return [retString autorelease];
+		return retString;
 	}
 
 	return nil;
@@ -405,7 +526,6 @@ indent:(unsigned int)indent;
 	{
 		id stringRepresentation;
 		NSMutableString* description = [NSMutableString stringWithString:@"(\n"];
-		CREATE_AUTORELEASE_POOL(pool);
 		NSMutableArray *descrArray = [NSArray array];
 
 		for (id object in self)
@@ -432,7 +552,6 @@ indent:(unsigned int)indent;
 		if (indent)
 			[description appendString:[NSString stringWithFormat:[NSString stringWithFormat:@"%%%dc",indent],' ']];
 		[description appendString:@")"];
-		[pool release];
 		return description;
 	}
 	return [indentation stringByAppendingString:@"()"];
@@ -533,7 +652,7 @@ indent:(unsigned int)indent;
 		}
 	}
 
-	array = [[[[self class] alloc] initWithObjects:&objects[0] count:m] autorelease];
+	array = [[[self class] alloc] initWithObjects:&objects[0] count:m];
 	return array;
 }
 
@@ -591,7 +710,7 @@ indent:(unsigned int)indent;
 		}
 	}
 
-	array = [[[[self class] alloc] initWithObjects:&objects[0] count:m] autorelease];
+	array = [[[self class] alloc] initWithObjects:&objects[0] count:m];
 	return array;
 }
 
@@ -636,10 +755,11 @@ indent:(unsigned int)indent;
 		else
 			[a addObject:[NSNull null]];
 	}
-	return [a autorelease];
+	return a;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	NSIndex i = 0;
 	NSIndex j = 0;
@@ -661,6 +781,20 @@ indent:(unsigned int)indent;
 	}
 	state->extra[0] = i;
 	return j;
+}
+
+- (NSArray *) sortedArrayUsingComparator:(NSComparator)cmp
+{
+	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
+	[a sortUsingComparator:cmp];
+	return a;
+}
+
+- (NSArray *) sortedArrayWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
+{
+	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
+	[a sortWithOptions:opts usingComparator:cmp];
+	return a;
 }
 
 - (NSArray *) sortedArrayUsingDescriptors:(NSArray *)descriptors
@@ -731,7 +865,7 @@ static Class MutableArrayClass;
 
 + (id)arrayWithCapacity:(unsigned int)aNumItems
 {
-	return [[[self alloc] initWithCapacity:aNumItems] autorelease];
+	return [[self alloc] initWithCapacity:aNumItems];
 }
 
 - (id)init
@@ -824,7 +958,6 @@ static Class MutableArrayClass;
 		i++;
 	}
 	[self removeObjectsAtIndexes:indices];
-	[indices release];
 }
 
 static int __cmp_unsigned_ints(unsigned int* i1, unsigned int* i2)
@@ -980,13 +1113,9 @@ static int __cmp_unsigned_ints(unsigned int* i1, unsigned int* i2)
 				id b = [self objectAtIndex:d];
 				if ((*comparator)(a, b, context) == NSOrderedAscending)
 				{
-					(void)[a retain];
-					(void)[b retain];
 					[self replaceObjectAtIndex:d + stride withObject:b];
 					[self replaceObjectAtIndex:d withObject:a];
 					d -= stride;		// jump by stride factor
-					[a release];
-					[b release];
 				}
 				else found = true;
 			}
@@ -1001,7 +1130,7 @@ static NSComparisonResult selector_compare(id elem1, id elem2, void* comparator)
 
 static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparator)
 {
-	NSArray *descriptors = (NSArray *)comparator;
+	NSArray *descriptors = (__bridge NSArray *)comparator;
 	int len = [descriptors count];
 	for (int i = 0; i < len; i++)
 	{
@@ -1031,12 +1160,20 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 		}
 	}
 	[self removeObjectsAtIndexes:indexes];
-	[indexes release];
 }
 
 - (void) sortUsingDescriptors:(NSArray *)descriptors
 {
-	[self sortUsingFunction:descriptor_compare context:(void*)descriptors];
+	[self sortUsingFunction:descriptor_compare context:(__bridge void*)descriptors];
+}
+
+- (void) sortUsingComparator:(NSComparator)cmp
+{
+	return [self sortWithOptions:0 usingComparator:cmp];
+}
+
+- (void) sortWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp
+{
 }
 
 - (void) exchangeObjectAtIndex:(NSIndex)idx1 withObjectAtIndex:(NSIndex)idx2
@@ -1068,17 +1205,11 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 	unsigned count = [anArray count];
 
 	reverse = isReverse;
-	array = [anArray retain];
+	array = anArray;
 	index = (reverse)
 		? (count ? count - 1 : NSNotFound)
 		: (count ? 0 : NSNotFound);
 	return self;
-}
-
-- (void)dealloc
-{
-	[array release];
-	[super dealloc];
 }
 
 - (id)nextObject

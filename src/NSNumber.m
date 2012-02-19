@@ -73,7 +73,6 @@
 #define TempNum(type, name) \
 	- (id) initWith##name:(type)value \
 	{ \
-		(void)AUTORELEASE(self); \
 		return (id)[[NS##name##Number alloc] initValue:&value withObjCType:NULL]; \
 	} struct hack
 
@@ -109,13 +108,13 @@ TempNum(double, Double);
 #define FactoryNum(type, name, retName) \
 	+ (NSNumber *)numberWith##name:(type)value \
 	{ \
-		return [[[NS##name##Number alloc] initValue:&value withObjCType:NULL] autorelease]; \
+		return [[NS##name##Number alloc] initValue:&value withObjCType:NULL]; \
 	} \
 	- (id) initWith##name:(type)value \
 	{ \
 		[self subclassResponsibility:_cmd]; \
-		[self release]; \
-		return nil; \
+		self = nil; \
+		return self; \
 	} \
 	- (type) retName##Value \
 	{ \

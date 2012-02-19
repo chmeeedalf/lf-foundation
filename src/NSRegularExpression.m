@@ -1,3 +1,33 @@
+/*
+ * Copyright (c) 2011-2012	Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
+/* Copyright (c) 2011 David Chisnall */
+
 #include "unicode/uregex.h"
 #import "Foundation/NSRegularExpression.h"
 #import "Foundation/NSTextCheckingResult.h"
@@ -12,23 +42,22 @@
                                              options: (NSRegularExpressionOptions)opts
                                                error: (NSError**)e
 {
-	return [[[self alloc] initWithPattern: aPattern options: opts error: e] autorelease];
+	return [[self alloc] initWithPattern: aPattern options: opts error: e];
 }
-- initWithPattern: (NSString*)aPattern
+- (id) initWithPattern: (NSString*)aPattern
           options: (NSRegularExpressionOptions)opts
             error: (NSError**)e
 {
 	uint32_t flags = opts;
 	UText p = UTEXT_INITIALIZER;
 	UTextInitWithNSString(&p, aPattern);
-	UParseError pe = {0};
+	UParseError pe = {};
 	UErrorCode s = 0;
 	regex = uregex_openUText(&p, flags, &pe, &s);
 	utext_close(&p);
 	if (U_FAILURE(s))
 	{
 		// FIXME: Do something sensible with the error parameter.
-		[self release];
 		return nil;
 	}
 	options = opts;
@@ -45,15 +74,15 @@
 	GSUTextString *str = [GSUTextString new];
 	utext_clone(&str->txt, t, FALSE, TRUE, &s);
 	utext_close(t);
-	return [str autorelease];
+	return str;
 }
 
 static UBool callback(const void *context, int32_t steps)
 {
 	if (NULL == context) { return FALSE; }
-	BOOL stop = NO;
-	GSRegexBlock block = (GSRegexBlock)context;
-	CALL_BLOCK(block, nil, NSMatchingProgress, &stop);
+	bool stop = false;
+	NSRegexBlock block = (__bridge NSRegexBlock)context;
+	block(nil, NSMatchingProgress, &stop);
 	return stop;
 }
 /**
@@ -69,13 +98,13 @@ static URegularExpression *setupRegex(URegularExpression *regex,
                                       UText *txt,
                                       NSMatchingOptions options,
                                       NSRange range,
-                                      GSRegexBlock block)
+                                      NSRegexBlock block)
 {
 	UErrorCode s = 0;
 	URegularExpression *r = uregex_clone(regex, &s);
 	if (options & NSMatchingReportProgress)
 	{
-		uregex_setMatchCallback(r, callback, block, &s);
+		uregex_setMatchCallback(r, callback, (__bridge void *)block, &s);
 	}
 	UTextInitWithNSString(txt, string);
 	uregex_setUText(r, txt, &s);
@@ -126,11 +155,11 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 - (void)enumerateMatchesInString: (NSString*)string
                          options: (NSMatchingOptions)opts
                            range: (NSRange)range
-                      usingBlock: (GSRegexBlock)block
+                      usingBlock: (NSRegexBlock)block
 {
 	UErrorCode s = 0;
 	UText txt = UTEXT_INITIALIZER;
-	BOOL stop = NO;
+	bool stop = false;
 	URegularExpression *r = setupRegex(regex, string, &txt, opts, range, block);
 	NSUInteger groups = [self numberOfCaptureGroups] + 1;
 	NSRange ranges[groups];
@@ -146,7 +175,7 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 				[NSTextCheckingResult regularExpressionCheckingResultWithRanges: ranges
 				                                                          count: groups
 				                                              regularExpression: self];
-			CALL_BLOCK(block, result, flags, &stop);
+			block(result, flags, &stop);
 		}
 	}
 	else
@@ -158,12 +187,12 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 				[NSTextCheckingResult regularExpressionCheckingResultWithRanges: ranges
 				                                                          count: groups
 				                                              regularExpression: self];
-			CALL_BLOCK(block, result, flags, &stop);
+			block(result, flags, &stop);
 		}
 	}
 	if (opts & NSMatchingCompleted)
 	{
-		CALL_BLOCK(block, nil, NSMatchingCompleted, &stop);
+		block(nil, NSMatchingCompleted, &stop);
 	}
 	utext_close(&txt);
 	uregex_close(r);
@@ -180,8 +209,8 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	__block NSUInteger count = 0;
 	opts &= ~NSMatchingReportProgress;
 	opts &= ~NSMatchingReportCompletion;
-	GSRegexBlock block = 
-		^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+	NSRegexBlock block = 
+		^(NSTextCheckingResult *result, NSMatchingFlags flags, bool *stop)
 		{
 			count++;
 		};
@@ -198,11 +227,11 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	__block NSTextCheckingResult *r = nil;
 	opts &= ~NSMatchingReportProgress;
 	opts &= ~NSMatchingReportCompletion;
-	GSRegexBlock block = 
-		^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+	NSRegexBlock block = 
+		^(NSTextCheckingResult *result, NSMatchingFlags flags, bool *stop)
 		{
 			r = result;
-			*stop = YES;
+			*stop = true;
 		};
 	[self enumerateMatchesInString: string
 	                       options: opts
@@ -217,8 +246,8 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	NSMutableArray *array = [NSMutableArray array];
 	opts &= ~NSMatchingReportProgress;
 	opts &= ~NSMatchingReportCompletion;
-	GSRegexBlock block = 
-		^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+	NSRegexBlock block = 
+		^(NSTextCheckingResult *result, NSMatchingFlags flags, bool *stop)
 		{
 			[array addObject: result];
 		};
@@ -235,11 +264,11 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	__block NSRange r;
 	opts &= ~NSMatchingReportProgress;
 	opts &= ~NSMatchingReportCompletion;
-	GSRegexBlock block = 
-		^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+	NSRegexBlock block = 
+		^(NSTextCheckingResult *result, NSMatchingFlags flags, bool *stop)
 		{
 			r= [result range];
-			*stop = YES;
+			*stop = true;
 		};
 	[self enumerateMatchesInString: string
 	                       options: opts
@@ -255,7 +284,7 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 #define FAKE_BLOCK_HACK(failRet, code) \
 	UErrorCode s = 0;\
 	UText txt = UTEXT_INITIALIZER;\
-	BOOL stop = NO;\
+	bool stop = false;\
 	URegularExpression *r = setupRegex(regex, string, &txt, opts, range, 0);\
 	if (NULL == r) { return failRet; }\
 	if (opts & NSMatchingAnchored)\
@@ -300,7 +329,7 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 				[NSTextCheckingResult regularExpressionCheckingResultWithRanges: ranges
 				                                                          count: groups
 				                                              regularExpression: self];
-			stop = YES;
+			stop = true;
 		});
 	return result;
 }
@@ -330,7 +359,7 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	FAKE_BLOCK_HACK(result,
 		{
 			prepareResult(self, r, &result, 1, &s);
-			stop = YES;
+			stop = true;
 		});
 	return result;
 }
@@ -355,7 +384,6 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	UText *output = uregex_replaceAllUText(r, &replacement, NULL, &s);
 	utext_clone(&ret->txt, output, TRUE, TRUE, &s);
 	[string setString: ret];
-	[ret release];
 	uregex_close(r);
 
 	utext_close(&txt);
@@ -427,7 +455,6 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 - (void)dealloc
 {
 	uregex_close(regex);
-	[super dealloc];
 }
 - (void)encodeWithCoder: (NSCoder*)aCoder
 {
@@ -442,7 +469,7 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 		[aCoder encodeObject: [self pattern]];
 	}
 }
-- initWithCoder: (NSCoder*)aCoder
+- (id) initWithCoder: (NSCoder*)aCoder
 {
 	NSString *pattern;
 	if ([aCoder allowsKeyedCoding])
@@ -457,17 +484,18 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	}
 	return [self initWithPattern: pattern options: options error: NULL];
 }
-- copyWithZone: (NSZone*)aZone
+- (id) copyWithZone: (NSZone*)aZone
 {
+	NSRegularExpression *newregex;
 	NSRegularExpressionOptions opts = options;
 	UErrorCode s = 0;
 	URegularExpression *r = uregex_clone(regex, &s);
 	if (0 != s) { return nil; }
 
-	self = [[self class] allocWithZone: aZone];
-	if (nil == self) { return nil; }
-	options = opts;
-	regex = r;
-	return self;
+	newregex = [[self class] allocWithZone: aZone];
+	if (nil == newregex) { return nil; }
+	newregex->options = opts;
+	newregex->regex = r;
+	return newregex;
 }
 @end

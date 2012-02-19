@@ -51,10 +51,11 @@
    or in connection with the use or performance of this software.
 */
 
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSMethodSignature.h>
+#import <Foundation/NSValue.h>
 #include <stdlib.h>
 #include <string.h>
 #import "internal.h"
@@ -71,12 +72,7 @@
 
 @implementation NSMethodSignature
 
-+ (NSMethodSignature*)signatureWithObjCTypes:(const char*)_types
-{
-	return [self signatureWithObjCTypes:_types reposition:true];
-}
-
-+ (NSMethodSignature *)signatureWithObjCTypes:(const char *)_types reposition:(bool)repos
++ (NSMethodSignature *)signatureWithObjCTypes:(const char *)_types
 {
 	NSMethodSignature   *signature;
 	//const char *p;
@@ -87,7 +83,7 @@
 			userInfo:nil];
 	}
 
-	signature = AUTORELEASE([NSMethodSignature alloc]);
+	signature = [NSMethodSignature alloc];
 	NSAssert(signature, @"couldn't allocate method signature");
 
 	signature->types = strdup(_types);
@@ -104,7 +100,6 @@
 - (void)dealloc
 {
 	free(types);
-	[super dealloc];
 }
 
 - (NSHashCode)hash
@@ -122,23 +117,23 @@
 {
 	const char *typesInd = types;
 	const char *end;
-	char *type;
 
 	if (_index > numberOfArguments)
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Index out of range"
+			userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+				[NSNumber numberWithUnsignedInt:_index],@"index",
+				[NSNumber numberWithUnsignedInt:numberOfArguments],@"Number of arguments",
+				nil]];
 		return NULL;
+	}
 
 	for (;_index > 0; _index--)
 	{
 		typesInd = objc_skip_argspec(typesInd);
 	}
 	end = objc_skip_argspec(typesInd);
-
-	type = malloc((size_t)(end - typesInd) + 1);
-	memcpy(type, typesInd, (end - typesInd));
-	type[(end - typesInd)] = 0;
-
-	[NSAutoreleasedPointer autoreleasePointer:type];
-	return type;
+	return end;
 }
 
 - (unsigned)frameLength
@@ -169,7 +164,6 @@
 
 - (bool) isOneway
 {
-	return false;
 	return objc_get_type_qualifiers(types) & _F_ONEWAY;
 }
 

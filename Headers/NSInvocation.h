@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -150,12 +150,6 @@
  * \brief Returns the frame for the return value of the invoked method.
  */
 - (retval_t) returnFrame;
-
-/*!
- * \brief NSSet the entire argument frame.
- * \param args New argument frame to set.
- */
-- (void) setArgumentFrame:(arglist_t)args;
 
 @end
 

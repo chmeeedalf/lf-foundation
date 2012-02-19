@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,6 +27,7 @@
  * 
  */
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSPort.h>
 #import <Foundation/NSPortMessage.h>
 
@@ -35,25 +36,14 @@
 - (id) init
 {
 	[self notImplemented:_cmd];
-	[self release];
 	return nil;
 }
 
 - (id) initWithSendPort:(NSPort *)sender receivePort:(NSPort *)receiver
 			 components:(NSArray *)components
 {
-	_send = [sender retain];
-	_receive = [receiver retain];
 	_components = [components copy];
 	return self;
-}
-
-- (void) dealloc
-{
-	[_send release];
-	[_receive release];
-	[_components release];
-	[super dealloc];
 }
 
 - (bool) sendBeforeDate:(NSDate *)date

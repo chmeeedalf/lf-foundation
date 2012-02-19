@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,9 +32,8 @@
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSCharacterSet.h>
-#import <Foundation/NSData.h>
 #import <Foundation/NSCoder.h>
-#import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSData.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSLocale.h>
 #include <stdlib.h>
@@ -47,43 +46,11 @@
 
 @implementation NSConstantString
 
-- (oneway void)release
-{
-}
-
-- (oneway void)release:(bool)nothing
-{
-}
-
-- retain
-{
-	return self;
-}
-
-- (unsigned)retainCount
-{
-	return 1;
-}
-
-- autorelease
-{
-	return self;
-}
-
-- (void)dealloc
-{
-	return;
-	// WILL NOT GET HERE
-	// The following inserted to shut up the compiler
-	if (0)
-		[super dealloc];
-}
-
 -(id)copyWithZone:(NSZone *)zone
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return [self retain];
+		return self;
 	}
 
 	{
@@ -128,6 +95,12 @@
 @end /* NXConstantString */
 
 @implementation NSCoreString
+{
+	NSHashCode hash;
+	UnicodeString *str;
+	bool freeWhenDone;
+	NSStringEncoding encoding;
+}
 
 - init
 {
@@ -163,7 +136,6 @@
 	}
 	if (str == NULL)
 	{
-		[self release];
 		self = nil;
 	}
 	if (flag)
@@ -248,28 +220,6 @@
 	return str->charAt(index);
 }
 
-- (const char *)cStringUsingEncoding:(NSStringEncoding)enc
-{
-	char *s;
-
-	if (enc == [self fastestEncoding])
-	{
-		return reinterpret_cast<const char *>(str->getBuffer());
-	}
-	else
-	{
-		const char *convertString =
-			[[NSString localizedNameOfStringEncoding:enc] UTF8String];
-		int32_t outLen = str->extract(0, str->length(), NULL, convertString);
-
-		s = (char *)malloc((outLen + 1) * sizeof(char));
-		outLen = str->extract(0, str->length(), s, convertString);
-		s[outLen] = 0;
-	}
-	[NSAutoreleasedPointer autoreleasePointer:s];
-	return s;
-}
-
 - (void)getCharacters:(NSUniChar*)buffer range:(NSRange)aRange
 {
 	str->extract(aRange.location, aRange.length, (UChar *)buffer);
@@ -315,7 +265,6 @@
 - (void) dealloc
 {
 	delete str;
-	[super dealloc];
 }
 
 @end // NSCoreMutableString

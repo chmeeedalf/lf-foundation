@@ -152,7 +152,7 @@
 
 #if __has_feature(blocks)
 - (void) enumerateObjectsUsingBlock:(void (^)(id obj, bool *stop))block;
-- (void) enumerateObjectWithOptions:(NSEnumerationOptions)opts SUsingBlock:(void (^)(id obj, bool *stop))block;
+- (void) enumerateObjectWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, bool *stop))block;
 - (NSSet *) objectsPassingTest:(bool (^)(id obj, bool *stop))predicate;
 - (NSSet *) objectsWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, bool *stop))predicate;
 #endif
@@ -278,10 +278,6 @@
  * \class CountedSet
  */
 @interface NSCountedSet	: NSMutableSet
-{
-	void *table;
-}
-
 // Allocating and initializing a set
 
 /*!

@@ -71,9 +71,6 @@ void NSLogv(NSString *format, va_list args)
 	f = [header UTF8String];
 
 	NSLogRaw(f);
-	[message release];
-	[date release];
-	[header release];
 }
 
 void NSLogRaw(const char *message)
@@ -94,8 +91,8 @@ NSString *NSStringFromSelector(SEL aSelector)
 		return nil;
 	}
 
-	return [[[NSString alloc] initWithBytesNoCopy:c length:strlen(c) 
-		encoding:NSASCIIStringEncoding freeWhenDone:false] autorelease];
+	return [[NSString alloc] initWithBytesNoCopy:c length:strlen(c) 
+		encoding:NSASCIIStringEncoding freeWhenDone:false];
 }
 
 NSString *NSStringFromClass(Class aClass)
@@ -107,8 +104,8 @@ NSString *NSStringFromClass(Class aClass)
 	}
 	name = class_getName(aClass);
 
-	return [[[NSString alloc] initWithBytesNoCopy:name length:strlen(name)
-		encoding:NSASCIIStringEncoding freeWhenDone:false] autorelease];
+	return [[NSString alloc] initWithBytesNoCopy:name length:strlen(name)
+		encoding:NSASCIIStringEncoding freeWhenDone:false];
 }
 
 Class NSClassFromString(NSString *aString)

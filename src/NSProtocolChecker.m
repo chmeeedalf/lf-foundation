@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,14 +34,14 @@
 #import <Foundation/NSString.h>
 
 @implementation NSProtocolChecker
-+ protocolCheckerWithTarget:(id)target protocol:(Protocol *)protocol
++ (id) protocolCheckerWithTarget:(id)target protocol:(Protocol *)protocol
 {
-	return [[[self alloc] initWithTarget:target protocol:protocol] autorelease];
+	return [[self alloc] initWithTarget:target protocol:protocol];
 }
 
-- initWithTarget:(id)target protocol:(Protocol *)protocol
+- (id) initWithTarget:(id)target protocol:(Protocol *)protocol
 {
-	_target = [target retain];
+	_target = target;
 	_protocol = protocol;
 	return self;
 }
@@ -51,7 +51,7 @@
 	return [_protocol conformsToProtocol:protocol];
 }
 
-- target
+- (id) target
 {
 	return _target;
 }
@@ -85,9 +85,13 @@
 	if (*[[inv methodSignature] methodReturnType] == _C_ID)
 	{
 		id ret;
+		void *retp;
 		[inv getReturnValue:&ret];
 		if (ret == _target)
-			[inv setReturnValue:&self];
+		{
+			retp = (__bridge void *)self;
+			[inv setReturnValue:&retp];
+		}
 	}
 }
 @end

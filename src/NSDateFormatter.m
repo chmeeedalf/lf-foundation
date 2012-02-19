@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2005,2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,7 +48,6 @@
 -(void) dealloc
 {
 	udat_close(_udf);
-	[super dealloc];
 }
 @end
 
@@ -111,10 +110,6 @@ static NSArray *_GetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType typ
 		}
 	}
 	NSArray *retval = [NSArray arrayWithObjects:returns count:count];
-	for (int i = 0; i < count; i++)
-	{
-		[returns[i] release];
-	}
 
 	return retval;
 }
@@ -164,13 +159,6 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 - init
 {
 	return self;
-}
-
-- (void) dealloc
-{
-	[_private release];
-	[_locale release];
-	[super dealloc];
 }
 
 - (NSString *)AMSymbol
@@ -410,8 +398,6 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 
 - (void) setLocale:(NSLocale *)newLocale
 {
-	[newLocale retain];
-	[_locale release];
 	_locale = newLocale;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005-2008	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -150,6 +150,7 @@ __BEGIN_DECLS
  */
 -(bool)respondsToSelector:(SEL)aSelector;
 
+#if !__has_feature(objc_arc)
 // Managing reference counts
 /*!
  * \brief Add the object to the autorelease pool.
@@ -172,6 +173,7 @@ __BEGIN_DECLS
  * \brief Increment the reference count on the object.
  */
 -(id)retain;
+#endif
 
 // Describing the object
 /*!
@@ -232,6 +234,7 @@ __BEGIN_DECLS
 }
 
 + (void) initialize;
++ (void) load;
 
 // creating and destroying instances
 /*!
@@ -252,12 +255,11 @@ __BEGIN_DECLS
 +(id)allocWithZone:(NSZone*)zone;
 
 /*!
- \brief Allocate a new object.
+ \brief Initialize an object.
 
- \details Allocates a new object and initializes it.  Shorthand for
- [[NSObject alloc] init].
+ \details Initializes the memory of an object.
  */
-+(id)new;
+-(id)init;
 
 /*!
  \brief Clones this object.
@@ -269,15 +271,6 @@ __BEGIN_DECLS
 -(id)copy;
 
 /*!
- \brief Clones this object for modification.
-
- \details Creates a copy of this object.  Actual copy depends on class,
- since immutable objects may decide to just copy the reference, while mutable
- objects copy the referenced memory.
- */
--(id)mutableCopy;
-
-/*!
  \brief Returns self.
  \param zone Zone into which to copy.
 
@@ -287,16 +280,28 @@ __BEGIN_DECLS
 +(id)copyWithZone:(NSZone *)zone;
 
 /*!
+ \brief Clones this object for modification.
+
+ \details Creates a copy of this object.  Actual copy depends on class,
+ since immutable objects may decide to just copy the reference, while mutable
+ objects copy the referenced memory.
+ */
+-(id) mutableCopy;
++(id) mutableCopyWithZone:(NSZone *)zone;
+
+/*!
  \brief Deallocates an object and cleans up its instance variables.
  */
 -(void)dealloc;
 
 /*!
- \brief Initialize an object.
+ \brief Allocate a new object.
 
- \details Initializes the memory of an object.
+ \details Allocates a new object and initializes it.  Shorthand for
+ [[NSObject alloc] init].
  */
--(id)init;
++(id)new;
+
 
 // ideintifying classes
 /*!
@@ -327,22 +332,21 @@ __BEGIN_DECLS
 // Obtaining method information
 /*!
  \brief Returns the method for the given selector.
- \param aSelector Selector to get the method for.
-
- \details Returns the method for the given selector, or NULL if it doesn't
- exist.
- */
-+(IMP)instanceMethodForSelector:(SEL)aSelector;
-
-
-/*!
- \brief Returns the method for the given selector.
  \param aSelector Selector to get the method of.
 
  Returns the method for the given selector, or NULL if it doesn't
  exist.
  */
 -(IMP)methodForSelector:(SEL)aSelector;
+
+/*!
+ \brief Returns the method for the given selector.
+ \param aSelector Selector to get the method for.
+
+ \details Returns the method for the given selector, or NULL if it doesn't
+ exist.
+ */
++(IMP)instanceMethodForSelector:(SEL)aSelector;
 
 /*!
  \brief Returns a description of the aSelector method, or nil if it
@@ -367,7 +371,11 @@ __BEGIN_DECLS
  */
 +(NSString *)description;
 
-// NSError handling
+// Discardable Content Proxy Support
+
+- (id) autoContentAccessingProxy;
+
+// Error handling
 /*!
  \brief Handle selectors the object does not respond to.
  \param aSelector Selector the class does not respond to.
@@ -386,7 +394,23 @@ __BEGIN_DECLS
 -(void)forwardInvocation:(NSInvocation *)anInvocation;
 - (id) forwardingTargetForSelector:(SEL)sel;
 
+// Dynamically Resolving Methods
++ (bool) resolveClassMethod:(SEL)selector;
++ (bool) resolveInstanceMethod:(SEL)selector;
+
 // Archiving
+- (id) awakeAfterUsingCoder:(NSCoder *)coder;
+- (Class) classForArchiver;
+- (Class) classForCoder;
+- (Class) classForKeyedArchiver;
++ (NSArray *) classFallbacksForKeyedArchiver;
++ (Class) classForKeyedUnarchiver;
+- (Class) classForPortCoder;
+- (id) replacementObjectForArchiver:(NSArchiver *)archiver;
+- (id) replacementObjectForCoder:(NSCoder *)coder;
+- (id) replacementObjectForKeyedArchiver:(NSKeyedArchiver *)archiver;
+- (id) replacementObjectForPortCoder:(NSPortCoder *)coder;
+
 /*!
  \brief NSSet the current version of the class.
  \param version New class version.
@@ -398,27 +422,11 @@ __BEGIN_DECLS
  */
 +(int)version;
 
+// Scripting support
 /*!
  * \brief Return a string representation of the receiver's class name.
  */
 -(NSString *)className;
-
-- (id) autoContentAccessingProxy;
-
-+ (bool) resolveClassMethod:(SEL)selector;
-+ (bool) resolveInstanceMethod:(SEL)selector;
-
-- (id) awakeAfterUsingCoder:(NSCoder *)coder;
-- (Class) classForArchiver;
-- (Class) classForCoder;
-- (Class) classForKeyedArchiver;
-- (Class) classForPortCoder;
-+ (Class) classForKeyedUnarchiver;
-+ (NSArray *) classFallbacksForKeyedArchiver;
-- (id) replacementObjectForArchiver:(NSArchiver *)archiver;
-- (id) replacementObjectForCoder:(NSCoder *)coder;
-- (id) replacementObjectForKeyedArchiver:(NSKeyedArchiver *)archiver;
-- (id) replacementObjectForPortCoder:(NSPortCoder *)coder;
 
 @end
 
@@ -662,108 +670,6 @@ SYSTEM_EXPORT void NSLogv(NSString *format, va_list args);
  */
 SYSTEM_EXPORT void NSLogRaw(const char *message);
 
-// The following is from libFoundation
-
-/*!
- * \brief Perform a safe assignment.
- * \param object NSObject variable to assign to.
- * \param value New value to assign to \e object.
- */
-#define ASSIGN(object, value) \
-	{if (value) [value retain]; \
-	if (object) [object release]; \
-		object = value;}
-
-/*!
- * \brief Retain the given object.
- * \param object NSObject to retain.
- *
- * \details If/when garbage collection is used, this becomes a No-op.
- */
-#define RETAIN(object) [object retain]
-
-/*!
- * \brief Release the given object.
- * \param object NSObject to release.
- *
- * \details If/when garbage collection is used, this becomes a No-op.
- */
-#define RELEASE(object) [object release]
-
-/*!
- * \brief Autorelease the given object.
- * \param object NSObject to autorelease.
- *
- * \details If/when garbage collection is used, this becomes a No-op.
- */
-#define AUTORELEASE(object) [object autorelease]
-
-/*!
- * \brief Create an autorelease pool.
- * \param pool Name of pool to create.
- *
- * \details This should rarely be needed.
- */
-#define CREATE_AUTORELEASE_POOL(pool) \
-	id pool = [[NSAutoreleasePool alloc] init]
-
-/*!
- * \brief Define a managed union.
- * \param name Name of union to create.
- * \param type Union type name.
- *
- * \details The Gold object system uses managed unions and arrays for low-level
- * storage of union and array types that shouldn't be contained as object.  The
- * \e unionType entity is a lexical index into the union.  For example:
- 
- \code
- UNION(foo,{int x; char *y}) fooUn;
-
- enum { IntType = 0, CharPointerType = 1 };
- 
- UnionSet(fooUn, x, 1, IntType);
- UnionGetType(fooUn);	// Returns IntType
- UnionGet(fooUn, x);	// Valid, because it's an IntType
- \endcode
- */
-#define UNION(name, type) \
-	struct ManagedUnion$##name { \
-		int unionType; \
-		type un; \
-	} name
-
-/*!
- * \brief NSSet the type for the union.
- * \param un Managed union to manipulate.
- * \param type Type to set.  Should be an integer index into the union's
- * structure, by type.
- * \sa UNION
- */
-#define UnionSetType(un, type)  (un.unionType = (type))
-
-/*!
- * \brief Returns the type for the union.
- * \param un Managed union to read.
- * \sa UNION
- */
-#define UnionGetType(un)	(un.unionType)
-
-/*!
- * \brief Assign a value to a member in the union.
- * \param aun Managed union to manipulate.
- * \param member Member to assign.
- * \param val New value to assign to member.
- * \param type Type index of the member.
- */
-#define UnionSet(aun, member, val, type) \
-				(aun.un.member = (val), aun.unionType = (type))
-
-/*!
- * \brief Returns the value of the given member of a managed union.
- * \param aun Managed union to read.
- * \param member Member to return.
- */
-#define UnionGet(aun, member) ((aun).un.member)
 __END_DECLS
 
 /*

@@ -27,7 +27,7 @@
 - (id) initWithCollection:(id)aCollection
 {
 //	SELFINIT;
-	collection = [aCollection retain];
+	collection = aCollection;
 	return self;
 }
 
@@ -41,12 +41,6 @@
 		}
 	}
 	return [super methodSignatureForSelector:aSelector];
-}
-
-- (void) dealloc
-{
-	[collection release];
-	[super dealloc];
 }
 @end
 
@@ -67,7 +61,6 @@
 			[mappedArray addObject:mapped];
 		}
 	}
-	[mappedArray autorelease];
 	[anInvocation setReturnValue:&mappedArray];
 }
 
@@ -99,23 +92,23 @@
 @implementation NSArray (Functional)
 - (id) map
 {
-	return [[[ArraySetMapProxy alloc] initWithCollection:self] autorelease];
+	return [[ArraySetMapProxy alloc] initWithCollection:self];
 }
 
 - (id) filter
 {
-	return [[[ArraySetFilterProxy alloc] initWithCollection:self] autorelease];
+	return [[ArraySetFilterProxy alloc] initWithCollection:self];
 }
 @end
 
 @implementation NSSet (Functional)
 - (id) map
 {
-	return [[[ArraySetMapProxy alloc] initWithCollection:self] autorelease];
+	return [[ArraySetMapProxy alloc] initWithCollection:self];
 }
 
 - (id) filter
 {
-	return [[[ArraySetFilterProxy alloc] initWithCollection:self] autorelease];
+	return [[ArraySetFilterProxy alloc] initWithCollection:self];
 }
 @end

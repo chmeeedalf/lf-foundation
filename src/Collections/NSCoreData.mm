@@ -90,11 +90,6 @@
 	return bytes.size();
 }
 
-- (void)dealloc
-{
-	[super dealloc];
-}
-
 - (void)setLength:(unsigned int)_length
 {
 	bytes.resize(_length);

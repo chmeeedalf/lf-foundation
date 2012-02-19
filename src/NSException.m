@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -69,8 +69,7 @@
 reason:(NSString*)_reason
 userInfo:(NSDictionary*)_userInfo
 {
-	return [[[self alloc] initWithName:_name reason:_reason userInfo:_userInfo]
-		autorelease];
+	return [[self alloc] initWithName:_name reason:_reason userInfo:_userInfo];
 }
 
 - (id)initWithName:(NSString*)_name
@@ -105,10 +104,6 @@ userInfo:(NSDictionary*)_userInfo
 
 - (void)dealloc
 {
-	RELEASE(name);
-	RELEASE(reason);
-	RELEASE(userInfo);
-	[super dealloc];
 }
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
@@ -128,7 +123,7 @@ userInfo:(NSDictionary*)_userInfo
 
 -(id)copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 - (NSString*)errorString
@@ -216,7 +211,7 @@ static id currentHandler = nil;
 	NSLogv(format, ap);
 	va_end(ap);
 	@throw([NSInternalInconsistencyException
-			exceptionWithReason:[[[NSString alloc] initWithFormat:format arguments:ap] autorelease]
+			exceptionWithReason:[[NSString alloc] initWithFormat:format arguments:ap]
 			userInfo:nil]);
 }
 
@@ -234,7 +229,7 @@ static id currentHandler = nil;
 	NSLogv(format, ap);
 	va_end(ap);
 	@throw([NSInternalInconsistencyException
-			exceptionWithReason:[[[NSString alloc] initWithFormat:format arguments:ap] autorelease]
+			exceptionWithReason:[[NSString alloc] initWithFormat:format arguments:ap]
 					   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:object,@"NSObject",nil,nil]]);
 }
 
@@ -254,7 +249,7 @@ static id currentHandler = nil;
 	NSLogv(format, ap);
 	va_end(ap);
 	@throw([exceptCls
-			exceptionWithReason:[[[NSString alloc] initWithFormat:format arguments:ap] autorelease]
+			exceptionWithReason:[[NSString alloc] initWithFormat:format arguments:ap]
 				userInfo:uinfo]);
 }
 

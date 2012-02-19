@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,18 +32,10 @@
 #import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
 
-#ifdef __FreeBSD__
-#include <bsd.h>
-#endif
-
 @interface _NSSocketPrivate	: NSObject
 {
 @public
-#ifdef __FreeBSD__
 	int socket;
-#else
-	UUID socket;
-#endif
 	int port;
 	NSHost *target;
 	NSNetworkAddress *addrInfo;

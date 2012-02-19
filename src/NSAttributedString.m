@@ -52,14 +52,12 @@
 - initWithString:(NSString *)str attributes:(NSDictionary *)attributes
 {
 	[self subclassResponsibility:_cmd];
-	[self release];
 	return nil;
 }
 
 - initWithAttributedString:(NSAttributedString *)str
 {
 	[self subclassResponsibility:_cmd];
-	[self release];
 	return nil;
 }
 
@@ -162,7 +160,7 @@
 		else
 			i++;
 	}
-	return [str autorelease];
+	return str;
 }
 
 - (id) attribute:(NSString *)attrib atIndex:(NSIndex)idx effectiveRange:(NSRange *)range
@@ -209,6 +207,92 @@
 	}
 	*range = NSIntersectionRange(*range, inRange);
 	return obj;
+}
+
+- (void) enumerateAttribute:(NSString *)attrName inRange:(NSRange)range options:(NSAttributedStringEnumerationOptions)opts usingBlock:(void (^)(id value, NSRange range, bool *stop))block
+{
+	NSUInteger i;
+	NSUInteger end;
+	int offset;
+
+	if (opts & NSAttributedStringEnumerationReverse)
+	{
+		i = NSMaxRange(range);
+		end = range.location;
+		offset = -1;
+	}
+	else
+	{
+		i = range.location;
+		end = NSMaxRange(range);
+	}
+	for (;i != end;)
+	{
+		NSRange r;
+		id val;
+		bool stop;
+		
+		if (opts & NSAttributedStringEnumerationLongestEffectiveRangeNotRequired)
+			val = [self attribute:attrName atIndex:i effectiveRange:&r];
+		else
+			val = [self attribute:attrName atIndex:i longestEffectiveRange:&r inRange:range];
+		r = NSIntersectionRange(r, range);
+		if (val == nil || NSMaxRange(r) == 0)
+		{
+			i++;
+			continue;
+		}
+		block(val, r, &stop);
+		if (opts & NSAttributedStringEnumerationReverse)
+			i = r.location;
+		else
+			i = NSMaxRange(r);
+		if (stop)
+			break;
+	}
+}
+
+- (void) enumerateAttributesInRange:(NSRange)range options:(NSAttributedStringEnumerationOptions)opts usingBlock:(void (^)(id value, NSRange range, bool *stop))block
+{
+	NSUInteger i;
+	NSUInteger end;
+	int offset;
+
+	if (opts & NSAttributedStringEnumerationReverse)
+	{
+		i = NSMaxRange(range);
+		end = range.location;
+		offset = -1;
+	}
+	else
+	{
+		i = range.location;
+		end = NSMaxRange(range);
+	}
+	for (;i != end;)
+	{
+		NSRange r;
+		id attrs;
+		bool stop;
+		
+		if (opts & NSAttributedStringEnumerationLongestEffectiveRangeNotRequired)
+			attrs = [self attributesAtIndex:i effectiveRange:&r];
+		else
+			attrs = [self attributesAtIndex:i longestEffectiveRange:&r inRange:range];
+		r = NSIntersectionRange(r, range);
+		if (attrs == nil || NSMaxRange(r) == 0)
+		{
+			i++;
+			continue;
+		}
+		block(attrs, r, &stop);
+		if (opts & NSAttributedStringEnumerationReverse)
+			i = r.location;
+		else
+			i = NSMaxRange(r);
+		if (stop)
+			break;
+	}
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder
@@ -297,14 +381,12 @@
 		[self setAttributes:d range:NSIntersectionRange(tmpRange, r)];
 		loc += NSIntersectionRange(tmpRange, r).length;
 	}
-	[d release];
 }
 
 - (void) addAttribute:(NSString *)attrib value:(id)val range:(NSRange)r
 {
 	NSDictionary *d = [[NSDictionary alloc] initWithObjects:&val forKeys:&attrib count:1];
 	[self addAttributes:d range:r];
-	[d release];
 }
 
 - (void) removeAttribute:(NSString *)attrib range:(NSRange)r

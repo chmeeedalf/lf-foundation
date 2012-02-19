@@ -61,30 +61,19 @@ typedef enum
 @class NSString, NSLocale, NSNumber;
 
 @interface NSNumberFormatter	:	NSFormatter
-{
-@private
-	id _private;
-@protected
-	NSString *_multiplier;
-	NSString *_format;
-	NSString *_zeroSym;
-	NSString *_nilSym;
-	NSString *_negFormat;
-	NSString *_posFormat;
-	NSLocale *_locale;
-	NSNumberFormatterStyle _style;
-	NSNumberFormatterRoundingMode _round;
-	NSNumberFormatterPadPosition _pad;
-	NSNumber *_maximum;
-	NSNumber *_minimum;
-	bool _userMultiplier;
-	bool _partialValidate;
-}
+/* These are not properties in Cocoa, but are here, because they're ancillary */
+@property (strong,nonatomic) NSDictionary *textAttributesForZero;
+@property (strong,nonatomic) NSDictionary *textAttributesForNegativeInfinity;
+@property (strong,nonatomic) NSDictionary *textAttributesForPositiveInfinity;
+@property (strong,nonatomic) NSDictionary *textAttributesForNegativeValues;
+@property (strong,nonatomic) NSDictionary *textAttributesForPositiveValues;
+@property (strong,nonatomic) NSDictionary *textAttributesForNil;
+@property (strong,nonatomic) NSDictionary *textAttributesForNotANumber;
+/* Unused for now. */
+@property bool generatesDecimalNumbers;
 
 - (void) setNumberStyle:(NSNumberFormatterStyle)newStyle;
 - (NSNumberFormatterStyle) numberStyle;
-- (void) setGeneratesDecimalNumbers:(bool)flag;
-- (bool) generatesDecimalNumbers;
 
 - (bool) getObjectValue:(out id *)obj forString:(NSString *)str range:(inout NSRange *)rangep error:(out NSError **)err;
 + (NSString *) localizedStringFromNumber:(NSNumber *)num numberStyle:(NSNumberFormatterStyle)numberStyle;
@@ -94,130 +83,59 @@ typedef enum
 - (void) setLocale:(NSLocale *)locale;
 - (NSLocale *) locale;
 
-- (void) setRoundingIncrement:(NSNumber *)newRound;
-- (NSNumber *) roundingIncrememt;
-- (void) setRoundingMode:(NSNumberFormatterRoundingMode)mode;
-- (NSNumberFormatterRoundingMode) roundingMode;
+@property NSNumber *roundingIncrement;
+@property NSNumberFormatterRoundingMode roundingMode;
 
-- (void) setFormatWidth:(unsigned long)newWidth;
-- (unsigned long) formatWidth;
-- (void) setNegativeFormat:(NSString *)negForm;
-- (NSString *) negativeFormat;
-- (void) setPositiveFormat:(NSString *)posForm;
-- (NSString *) positiveFormat;
-- (void) setMultiplier:(NSNumber *)newMult;
-- (NSNumber *) multiplier;
+@property NSUInteger formatWidth;
+@property (copy) NSString *negativeFormat;
+@property NSNumber *multiplier;
 
-- (void) setPercentSymbol:(NSString *)newPercent;
-- (NSString *) percentSymbol;
-- (void) setPerMillSymbol:(NSString *)newPerMill;
-- (NSString *) perMillSymbol;
-- (void) setMinusSign:(NSString *)newMinus;
-- (NSString *) minusSign;
-- (void) setPlusSign:(NSString *)newPlus;
-- (NSString *) plusSign;
-- (void) setExponentSymbol:(NSString *)newSym;
-- (NSString *) exponentSymbol;
-- (void) setZeroSymbol:(NSString *)newZero;
-- (NSString *) zeroSymbol;
-- (void) setNilSymbol:(NSString *)newNil;
-- (NSString *) nilSymbol;
-- (void) setNotANumberSymbol:(NSString *)newSym;
-- (NSString *) notANumberSymbol;
-- (void) setNegativeInfinitySymbol:(NSString *)newNeg;
-- (NSString *) negativeInfinitySymbol;
-- (void) setPositiveInfinitySymbol:(NSString *)newPos;
-- (NSString *) positiveInfinitySymbol;
+@property NSString *percentSymbol;
+@property NSString *perMillSymbol;
+@property NSString *minusSign;
+@property NSString *plusSign;
+@property NSString *exponentSymbol;
+@property NSString *zeroSymbol;
+@property NSString *nilSymbol;
+@property NSString *notANumberSymbol;
+@property NSString *negativeInfinitySymbol;
+@property NSString *positiveInfinitySymbol;
 
-- (void) setCurrencySymbol:(NSString *)newSym;
-- (NSString *) currencySymbol;
-- (void) setCurrencyCode:(NSString *)newCode;
-- (NSString *) currencyCode;
-- (void) setInternationalCurrencySymbol:(NSString *)newSym;
-- (NSString *) internationalCurrencySymbol;
-- (void) setCurrencyGroupingSeparator:(NSString *)newSep;
-- (NSString *) currencyGroupingSeparator;
+@property NSString *currencySymbol;
+@property NSString *currencyCode;
+@property NSString *internationalCurrencySymbol;
+@property NSString *currencyGroupingSeparator;
 
-- (void) setPositivePrefix:(NSString *)newPosPref;
-- (NSString *) positivePrefix;
-- (void) setPositiveSuffix:(NSString *)newPosSuff;
-- (NSString *) positiveSuffix;
-- (void) setNegativePrefix:(NSString *)newNegPref;
-- (NSString *) negativePrefix;
-- (void) setNegativeSuffix:(NSString *)newNegSuff;
-- (NSString *) negativeSuffix;
+@property NSString *positivePrefix;
+@property NSString *positiveSuffix;
+@property NSString *negativePrefix;
+@property NSString *negativeSuffix;
 
-- (void) setTextAttributesForNegativeValues:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForNegativeValues;
-- (void) setTextAttributesForPositiveValues:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForPositiveValues;
-- (void) setAttributedStringForZero:(NSAttributedString *)newAttrStr;
-- (NSAttributedString *) attributedStringForZero;
-- (void) setTextAttributesForZero:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForZero;
-- (void) setAttributedStringForNil:(NSAttributedString *)newAttrStr;
-- (NSAttributedString *) attributedStringForNil;
-- (void) setTextAttributesForNil:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForNil;
-- (void) setAttributedStringForNotANumber:(NSAttributedString *)newAttrStr;
-- (NSAttributedString *) attributedStringForNotANumber;
-- (void) setTextAttributesForNotANumber:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForNotANumber;
-- (void) setTextAttributesForPositiveInfinity:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForPositiveInfinity;
-- (void) setTextAttributesForNegativeInfinity:(NSDictionary *)newAttribs;
-- (NSDictionary *) textAttributesForNegativeInfinity;
+@property NSString *groupingSeparator;
+@property bool usesGroupingSeparator;
+@property NSString *decimalSeparator;
+@property bool alwaysShowsDecimalSeparator;
+@property NSString *currencyDecimalSeparator;
+@property NSUInteger groupingSize;
+@property NSUInteger secondaryGroupingSize;
 
-- (void) setGroupingSeparator:(NSString *)newSep;
-- (NSString *) groupingSeparator;
-- (void) setUsesGroupingSeparator:(bool)useGroup;
-- (bool) usesGroupingSeparator;
-- (void) setThousandSeparator:(NSString *)newSep;
-- (NSString *) thousandSeparator;
-- (void) setHasThousandSeparators:(bool)useGroup;
-- (bool) hasThousandSeparators;
-- (void) setDecimalSeparator:(NSString *)newSep;
-- (NSString *) decimalSeparator;
-- (void) setAlwaysShowsDecimalSeparator:(bool)alwaysShow;
-- (bool) alwaysShowsDecimalSeparator;
-- (void) setCurrencyDecimalSeparator:(NSString *)newSep;
-- (NSString *) currencyDecimalSeparator;
-- (void) setGroupingSize:(unsigned long)newSize;
-- (unsigned long) groupingSize;
-- (void) setSecondaryGroupingSize:(unsigned long) newGroup;
-- (unsigned long) secondaryGroupingSize;
+@property NSString *paddingCharacter;
+@property NSNumberFormatterPadPosition paddingPosition;
 
-- (void) setPaddingCharacter:(NSString *)newPad;
-- (NSString *) paddingCharacter;
-- (void) setPaddingPosition:(NSNumberFormatterPadPosition)newPos;
-- (NSNumberFormatterPadPosition) paddingPosition;
+@property bool allowsFloats;
+@property NSNumber *minimum;
+@property NSNumber *maximum;
+@property NSUInteger minimumIntegerDigits;
+@property NSUInteger maximumIntegerDigits;
+@property NSUInteger minimumFractionDigits;
+@property NSUInteger maximumFractionDigits;
+@property NSUInteger minimumSignificantDigits;
+@property NSUInteger maximumSignificantDigits;
 
-- (void) setAllowsFloats:(bool)allowFloats;
-- (bool) allowsFloats;
-- (void) setMinimum:(NSNumber *)newMin;
-- (NSNumber *) minimum;
-- (void) setMaximum:(NSNumber *)newMax;
-- (NSNumber *) maximum;
-- (void) setMinimumIntegerDigits:(unsigned long)newMinInt;
-- (unsigned long) minimumIntegerDigits;
-- (void) setMinimumFractionDigits:(unsigned long)newMinFrac;
-- (unsigned long) minimumFractionDigits;
-- (void) setMaximumIntegerDigits:(unsigned long)newMaxInt;
-- (unsigned long) maximumIntegerDigits;
-- (void) setMaximumFractionDigits:(unsigned long)newMaxFrac;
-- (unsigned long) maximumFractionDigits;
+@property bool usesSignificantDigits;
 
-- (void) setUsesSignificantDigits:(bool)useSigFigs;
-- (bool) usesSignificantDigits;
-- (void) setMinimumSignificantDigits:(unsigned long)minSigFig;
-- (unsigned long) minimumSignificantDigits;
-- (void) setMaximumSignificantDigits:(unsigned long)maxSigFig;
-- (unsigned long) maximumSignificantDigits;
+@property (setter=setLenient:) bool isLenient;
 
-- (void) setLenient:(bool)lenient;
-- (bool) isLenient;
-
-- (void) setPartialStringValidationEnabled:(bool)enabled;
-- (bool) isPartialStringValidationEnabled;
+@property (setter=setPartialStringValidationEnabled:) bool isPartialStringValidationEnabled;
 
 @end

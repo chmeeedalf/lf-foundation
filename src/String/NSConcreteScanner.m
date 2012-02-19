@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -60,7 +60,7 @@
 
 - (id)initWithString:(NSString*)_string
 {
-    ASSIGN(string, _string);
+	string = _string;
     return self;
 }
 
@@ -76,12 +76,12 @@
 
 - (void)setCharactersToBeSkipped:(NSCharacterSet*)_skipSet
 {
-    ASSIGN(skipSet, _skipSet);
+    skipSet = _skipSet;
 }
 
 - (void)setLocale:(NSLocale*)_locale
 {
-    ASSIGN(locale, _locale);
+    locale = _locale;
 }
 
 - (NSString*)string				{ return string; }

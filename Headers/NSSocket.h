@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008	Gold Project
+ * Copyright (c) 2008-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSStream.h>
 #import <Foundation/NSRunLoop.h>
-#import <Event.h>
+//#import <Event.h>
 
 /* Gold only supports the IP family, not UNIX domain sockets, even though for
  * now it's based on FreeBSD.
@@ -254,10 +254,11 @@ typedef enum NSSocketType
 @interface NSSocket	:	NSStream <NSEventSource>
 {
 	_NSSocketPrivate *_private;	/*!< \brief Private socket data. */
-	id<NSSocketDelegate>	_delegate;
+	__weak id<NSSocketDelegate>	_delegate;
 	bool isAsynchronous;
 }
-@property(assign) id<NSSocketDelegate> delegate;
+
+@property(weak) id<NSSocketDelegate> delegate;
 @property bool isAsynchronous;
 
 /*!

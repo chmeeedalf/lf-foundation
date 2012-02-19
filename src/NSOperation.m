@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 #include <dispatch/dispatch.h>
 
-struct _NSOperationPrivate
+@implementation NSOperation
 {
 	dispatch_semaphore_t wait_sema;
 	NSMutableArray *dependencies;
@@ -50,9 +50,7 @@ struct _NSOperationPrivate
 	bool _isExecuting;
 	bool _isCancelled;
 	bool _isReady;
-};
-
-@implementation NSOperation
+}
 
 + (bool) automaticallyNotifiesObserversForKey:(NSString *)key
 {
@@ -61,41 +59,38 @@ struct _NSOperationPrivate
 
 - init
 {
-	_private = malloc(sizeof(*_private));
-	_private->wait_sema = dispatch_semaphore_create(0);
-	_private->dependencies = [NSMutableArray new];
-	_private->_isReady = true;
-	_private->_threadPriority = 0.5;
+	wait_sema = dispatch_semaphore_create(0);
+	dependencies = [NSMutableArray new];
+	_isReady = true;
+	_threadPriority = 0.5;
 	return self;
 }
 
 - (void) dealloc
 {
-	dispatch_release(_private->wait_sema);
-	free(_private);
-	[super dealloc];
+	dispatch_release(wait_sema);
 }
 
 - (void) setThreadPriority:(double)prio
 {
-	_private->_threadPriority = prio;
+	_threadPriority = prio;
 }
 
 - (double) threadPriority
 {
-	return _private->_threadPriority;
+	return _threadPriority;
 }
 
 - (void) start
 {
 	double prio = [NSThread threadPriority];
-	[NSThread setThreadPriority:_private->_threadPriority];
+	[NSThread setThreadPriority:_threadPriority];
 	@try
 	{
 		if (![self isCancelled])
 			[self main];
 		[self willChangeValueForKey:@"isFinished"];
-		_private->_isFinished = true;
+		_isFinished = true;
 		[self didChangeValueForKey:@"isFinished"];
 	}
 	@finally
@@ -111,23 +106,23 @@ struct _NSOperationPrivate
 
 - (bool) isCancelled
 {
-	return _private->_isCancelled;
+	return _isCancelled;
 }
 
 - (void) cancel
 {
-	if (!_private->_isCancelled)
+	if (!_isCancelled)
 	{
 		@synchronized(self)
 		{
-			if (!_private->_isCancelled)
+			if (!_isCancelled)
 			{
 				[self willChangeValueForKey:@"isCancelled"];
-				_private->_isCancelled = true;
-				if (!_private->_isReady)
+				_isCancelled = true;
+				if (!_isReady)
 				{
 					[self willChangeValueForKey:@"isReady"];
-					_private->_isReady = true;
+					_isReady = true;
 					[self didChangeValueForKey:@"isReady"];
 				}
 				[self didChangeValueForKey:@"isCancelled"];
@@ -143,22 +138,22 @@ struct _NSOperationPrivate
 
 - (bool) isExecuting
 {
-	return _private->_isExecuting;
+	return _isExecuting;
 }
 
 - (bool) isFinished
 {
-	return _private->_isFinished;
+	return _isFinished;
 }
 
 - (bool) isReady
 {
-	return _private->_isReady;
+	return _isReady;
 }
 
 - (NSOperationQueuePriority) queuePriority
 {
-	return _private->_priority;
+	return _priority;
 }
 
 - (void) setQueuePriority:(NSOperationQueuePriority)newPrio
@@ -176,14 +171,14 @@ struct _NSOperationPrivate
 	else
 		newPrio = NSOperationQueuePriorityVeryHigh;
 
-	if (newPrio != _private->_priority)
+	if (newPrio != _priority)
 	{
 		@synchronized(self)
 		{
-			if (newPrio == _private->_priority)
+			if (newPrio == _priority)
 				return;
 			[self willChangeValueForKey:@"queuePriority"];
-			_private->_priority = newPrio;
+			_priority = newPrio;
 			[self didChangeValueForKey:@"queuePriority"];
 		}
 	}
@@ -191,25 +186,25 @@ struct _NSOperationPrivate
 
 - (NSArray *) dependencies
 {
-	return [[_private->dependencies copy] autorelease];
+	return [dependencies copy];
 }
 
 - (void) addDependency:(NSOperation *)dep
 {
 	@synchronized(self)
 	{
-		if ([_private->dependencies indexOfObjectIdenticalTo:dep] == NSNotFound)
+		if ([dependencies indexOfObjectIdenticalTo:dep] == NSNotFound)
 		{
 			[self willChangeValueForKey:@"dependencies"];
-			[_private->dependencies addObject:dep];
+			[dependencies addObject:dep];
 			if (![dep isFinished] && ![self isCancelled] && ![self isExecuting] && ![self isFinished])
 			{
 				[dep addObserver:self forKeyPath:@"isFinished"
 						options:NSKeyValueObservingOptionNew context:NULL];
-				if (_private->_isReady)
+				if (_isReady)
 				{
 					[self willChangeValueForKey:@"isReady"];
-					_private->_isReady = false;
+					_isReady = false;
 					[self didChangeValueForKey:@"isReady"];
 				}
 			}
@@ -220,11 +215,11 @@ struct _NSOperationPrivate
 
 - (void) removeDependency:(NSOperation *)dep
 {
-	NSParameterAssert([_private->dependencies indexOfObjectIdenticalTo:dep] != NSNotFound);
+	NSParameterAssert([dependencies indexOfObjectIdenticalTo:dep] != NSNotFound);
 
 	@synchronized(self)
 	{
-		[_private->dependencies removeObjectIdenticalTo:dep];
+		[dependencies removeObjectIdenticalTo:dep];
 		// Fake a key-path change, because removing this dependency may cause this
 		// operation to be ready.
 		[self observeValueForKeyPath:@"isFinished" ofObject:dep change:nil context:NULL];
@@ -235,7 +230,7 @@ struct _NSOperationPrivate
 {
 	if (![self isFinished])
 	{
-		dispatch_semaphore_wait(_private->wait_sema, DISPATCH_TIME_FOREVER);
+		dispatch_semaphore_wait(wait_sema, DISPATCH_TIME_FOREVER);
 	}
 }
 
@@ -245,7 +240,7 @@ struct _NSOperationPrivate
 	[obj removeObserver:self forKeyPath:@"isFinished"];
 	if (obj == self)
 	{
-		dispatch_semaphore_signal(_private->wait_sema);
+		dispatch_semaphore_signal(wait_sema);
 		return;
 	}
 
@@ -259,7 +254,7 @@ struct _NSOperationPrivate
 			}
 		}
 		[self willChangeValueForKey:@"isReady"];
-		_private->_isReady = true;
+		_isReady = true;
 		[self didChangeValueForKey:@"isReady"];
 	}
 }
@@ -278,7 +273,7 @@ struct _NSOperationPrivate
 	inv = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:sel]];
 	[inv setTarget:target];
 	[inv setSelector:sel];
-	[inv setArgument:object atIndex:2];
+	[inv setArgument:(__bridge void *)object atIndex:2];
 	return [self initWithInvocation:inv];
 }
 
@@ -287,7 +282,7 @@ struct _NSOperationPrivate
 	if ((self = [super init]) == nil)
 		return nil;
 
-	_inv = [inv retain];
+	_inv = inv;
 	return self;
 }
 
@@ -320,7 +315,7 @@ struct _NSOperationPrivate
 	}
 	@catch (id except)
 	{
-		_except = [except retain];
+		_except = except;
 	}
 }
 
@@ -345,6 +340,7 @@ struct _NSOperationPrivate
  * - Thread priority on operations.
  */
 @synthesize maxConcurrentOperationCount = _maxConcurrentOperationCount;
+@synthesize name;
 
 static NSOperationQueue *mainQueue = nil;
 static NSString * const mainQueueKey = @"_NSOperationQueueMainQueryKey";
@@ -358,7 +354,7 @@ static void queue_operation(void *ctx);
 
 + (id) currentQueue
 {
-	return dispatch_get_context(dispatch_get_current_queue());
+	return (__bridge id)dispatch_get_context(dispatch_get_current_queue());
 }
 
 + (id) mainQueue
@@ -381,30 +377,13 @@ static void queue_operation(void *ctx);
 {
 	_private = dispatch_queue_create(NULL, NULL);
 	_operations = [NSMutableArray new];
-	dispatch_set_context(_private, self);
+	dispatch_set_context(_private, (__bridge void *)self);
 	return self;
 }
 
 - (void) dealloc
 {
 	dispatch_release(_private);
-	[super dealloc];
-}
-
-- (NSString *) name
-{
-	return _name;
-}
-
-- (void) setName:(NSString *)name
-{
-	@synchronized(self)
-	{
-		[self willChangeValueForKey:@"name"];
-		[_name autorelease];
-		_name = [name copy];
-		[self didChangeValueForKey:@"name"];
-	}
 }
 
 
@@ -417,7 +396,7 @@ static char assocObjKey;
 		objc_setAssociatedObject(op, &assocObjKey, self, OBJC_ASSOCIATION_RETAIN);
 		[_operations addObject:op];
 	}
-	dispatch_async_f(_private, op, queue_operation);
+	dispatch_async_f(_private, (__bridge void *)op, queue_operation);
 }
 
 - (void) _validateOperation:(NSOperation *)op
@@ -482,7 +461,7 @@ static char assocObjKey;
 
 - (NSArray *) operations
 {
-	return [[_operations copy] autorelease];
+	return [_operations copy];
 }
 
 - (bool) isSuspended
@@ -520,10 +499,9 @@ static char assocObjKey;
 		// releasing it.
 		@synchronized(self)
 		{
-			op = [[_operations lastObject] retain];
+			op = [_operations lastObject];
 		}
 		[op waitUntilFinished];
-		[op release];
 	} while (op != nil);
 }
 
@@ -545,7 +523,7 @@ static char assocObjKey;
 	{
 		if ([obj isReady])
 		{
-			dispatch_async_f(_private, obj, queue_operation);
+			dispatch_async_f(_private, (__bridge void *)obj, queue_operation);
 		}
 	}
 }
@@ -553,14 +531,14 @@ static char assocObjKey;
 /* This actually runs the operation on the appropriate global queue. */
 static void run_operation(void *ctx)
 {
-	NSOperation *op = ctx;
+	NSOperation *op = (__bridge NSOperation *)ctx;
 	[op start];
 }
 
 /* This processes an NSOperation on the NSOperationQueue's dispatch_queue. */
 static void queue_operation(void *ctx)
 {
-	NSOperation *op = ctx;
+	NSOperation *op = (__bridge NSOperation *)ctx;
 	int queue;
 
 	if (![op isReady])
@@ -580,6 +558,6 @@ static void queue_operation(void *ctx)
 			queue = DISPATCH_QUEUE_PRIORITY_DEFAULT;
 			break;
 	}
-	dispatch_async_f(dispatch_get_global_queue(queue, 0), op, run_operation);
+	dispatch_async_f(dispatch_get_global_queue(queue, 0), (__bridge void *)op, run_operation);
 }
 @end

@@ -32,7 +32,6 @@
 #import "internal.h"
 #import <Foundation/NSApplication.h>
 #import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
@@ -62,7 +61,8 @@
 NSString* NSThreadWillExitNotification = @"NSThreadWillExitNotification";
 
 /* Global thread variables */
-__thread id currentThread __private = nil;
+static pthread_key_t curThreadKey;
+
 static NSThread *mainThread;
 
 @interface NSApplication (private)
@@ -86,33 +86,43 @@ static NSThread *mainThread;
 
 void *runThread(void *thread)
 {
-	NSThread *thr = thread;
+	NSThread *thr = (__bridge NSThread *)thread;
 
 	[thr __startThread];
-	return thr;
+	return (__bridge void *)thr;
 }
 
 static void cleanupThread(void *thrId)
 {
-	NSThread *thr = thrId;
+	NSThread *thr = (__bridge NSThread *)thrId;
 
 	[thr exit];
+}
+
++ (void) initialize
+{
+	static bool initialized = false;
+
+	if (!initialized)
+	{
+		pthread_key_create(&curThreadKey, cleanupThread);
+		initialized = true;
+	}
 }
 
 - (void) __startThread
 {
 	__sync_fetch_and_add(&numThreads, 1);
-	pthread_cleanup_push(cleanupThread, self);
 	if (base == NULL)
 		base = pthread_self();
-	currentThread = self;
+	pthread_setspecific(curThreadKey, (__bridge void *)self);
 	if (pthread_main_np() == 1)
 		mainThread = self;
 	isRunning = true;
-	objc_autoreleasePoolPush();
-	[App addThread:self];
-	[self main];
-	pthread_cleanup_pop(1);
+	@autoreleasepool {
+		[App addThread:self];
+		[self main];
+	}
 }
 
 /*
@@ -131,7 +141,6 @@ static void cleanupThread(void *thrId)
 
 - initWithTarget:(id)target selector:(SEL)sel object:(id)argument
 {
-	[self release];
 	return [[_NSTargetedThread alloc] initWithTarget:target selector:sel object:argument];
 }
 
@@ -140,7 +149,7 @@ static void cleanupThread(void *thrId)
 	self = [self init];
 
 	// NSSet running parameters
-	arg = RETAIN(anArgument);
+	arg = anArgument;
 	return self;
 }
 
@@ -185,7 +194,7 @@ static void cleanupThread(void *thrId)
 	NSAssert(!isFinished, @"Attempted to start a finished thread.");
 	NSAssert(!canceled, @"Attempted to start a cancelled thread.");
 	//spawn(self);
-	pthread_create(&self->base, NULL, runThread, self);
+	pthread_create(&self->base, NULL, runThread, (__bridge void *)self);
 }
 
 - (void)exit
@@ -239,10 +248,6 @@ static void cleanupThread(void *thrId)
 			exceptionWithReason:@"cannot deallocate NSThread object for a running thread"
 			userInfo:nil];
 	}
-
-	[privateThreadData release];
-	RELEASE(arg);
-	[super dealloc];
 }
 
 /*
@@ -251,7 +256,7 @@ static void cleanupThread(void *thrId)
 
 + (NSThread*)currentThread
 {
-	return currentThread;
+	return (__bridge NSThread *)pthread_getspecific(curThreadKey);
 }
 
 + (NSThread *)mainThread
@@ -358,9 +363,9 @@ static void cleanupThread(void *thrId)
 {
 	if ((self = [super init]) != NULL)
 	{
-		target = [targ retain];
+		target = targ;
 		selector = sel;
-		arg = [argument retain];
+		arg = argument;
 	}
 	return self;
 }
@@ -370,10 +375,4 @@ static void cleanupThread(void *thrId)
 	[target performSelector:selector withObject:arg];
 }
 
-- (void) dealloc
-{
-	[target release];
-	[arg release];
-	[super dealloc];
-}
 @end

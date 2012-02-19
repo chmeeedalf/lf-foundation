@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,7 +47,6 @@
 {
 	if (pattern)
 		delete pattern;
-	[super dealloc];
 }
 @end
 
@@ -58,22 +57,22 @@
 @end
 
 @interface NSRegexMatcher()
-- initWithPattern:(NSRegexPattern *)pattern string:(NSString *)str;
+- (id) initWithPattern:(NSRegexPattern *)pattern string:(NSString *)str;
 - (void) setString:(NSString *)str;
 @end
 
 @implementation NSRegexPattern
-+ compiledPatternWithString:(NSString *)str
++ (id) compiledPatternWithString:(NSString *)str
 {
 	return [self compiledPatternWithString:str flags:0];
 }
 
-+ compiledPatternWithString:(NSString *)str flags:(NSRegexFlags)flags
++ (id) compiledPatternWithString:(NSString *)str flags:(NSRegexFlags)flags
 {
-	return [[[self alloc] initWithStringPattern:str flags:flags] autorelease];
+	return [[self alloc] initWithStringPattern:str flags:flags];
 }
 
-- initWithStringPattern:(NSString *)str flags:(NSRegexFlags)flags
+- (id) initWithStringPattern:(NSString *)str flags:(NSRegexFlags)flags
 {
 	NSUniChar *outstr_unicode = new NSUniChar[[str length] + 1];
 	UParseError pe = {};
@@ -92,18 +91,17 @@
 
 - (NSRegexMatcher *)matcherForString:(NSString *)str
 {
-	return [[[NSRegexMatcher alloc] initWithPattern:self string:str] autorelease];
+	return [[NSRegexMatcher alloc] initWithPattern:self string:str];
 }
 
 - (NSRegexMatcher *)matcher
 {
-	return [[[NSRegexMatcher alloc] initWithPattern:self string:nil] autorelease];
+	return [[NSRegexMatcher alloc] initWithPattern:self string:nil];
 }
 
 - (void) dealloc
 {
 	delete _private->pattern;
-	[super dealloc];
 }
 
 - (icu::RegexPattern *)_icuPattern
@@ -140,7 +138,6 @@
 		delete matcher;
 	if (input)
 		delete input;
-	[super dealloc];
 }
 @end
 
@@ -149,12 +146,12 @@
 /* regex is weakly referenced, held on only by referencing the source pattern,
  * which must contain the regex.
  */
-- initWithPattern:(NSRegexPattern *)pattern string:(NSString *)str
+- (id) initWithPattern:(NSRegexPattern *)pattern string:(NSString *)str
 {
 	UErrorCode ec = U_ZERO_ERROR;
 	_private = [_RegexMatcherPrivate new];
 	_private->matcher = [pattern _icuPattern]->matcher(ec);
-	sourcePattern = [pattern retain];
+	sourcePattern = pattern;
 	[self setString:str];
 	return self;
 }
@@ -254,17 +251,11 @@
 
 	for (i = 0; i < max; i++)
 	{
-		[strings[i] release];
+		strings[i];
 	}
 	return ret;
 }
 
-- (void) dealloc
-{
-	[sourcePattern release];
-	[_private release];
-	[super dealloc];
-}
 @end
 
 #undef _private

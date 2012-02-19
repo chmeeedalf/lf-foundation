@@ -56,13 +56,6 @@ typedef struct {
  */
 +(NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
 
-/*!
- * \brief Creates a method signature object given the encoded method return and argument type string.
- * \param types Type string.
- * \param repos Recalculate position information, if it exists.
- */
-+(NSMethodSignature *)signatureWithObjCTypes:(const char *)types reposition:(bool)repos;
-
 // Querying a method signature
 
 /*!

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,6 +29,7 @@
 
 #import <Foundation/NSPortCoder.h>
 #import <Foundation/NSConnection.h>
+#import <objc/encoding.h>
 
 @class NSPort,NSConnection,NSArray;
 
@@ -37,20 +38,12 @@
 -initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
 {
 	_conn = [[NSConnection alloc] initWithReceivePort:receivePort sendPort:sendPort];
-	_components = [components retain];
 	return self;
 }
 
 +portCoderWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
 {
-	return [[[self alloc] initWithReceivePort:receivePort sendPort:sendPort components:components] autorelease];
-}
-
-- (void) dealloc
-{
-	[_conn release];
-	[_components release];
-	[super dealloc];
+	return [[self alloc] initWithReceivePort:receivePort sendPort:sendPort components:components];
 }
 
 -(NSConnection *)connection
@@ -78,7 +71,7 @@
 	{
 		case _C_ID:
 			{
-				[self encodeObject:*(id *)address];
+				[self encodeObject:(__bridge id)*(void **)address];
 			}
 	}
 }

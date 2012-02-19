@@ -1,6 +1,7 @@
 /* 
    NSComparisonPredicate.m
 
+   Copyright (C) 2010-2012, Gold Project
    Copyright (C) 2005, Helge Hess
    All rights reserved.
 
@@ -35,8 +36,8 @@
   rightExpression:(NSExpression *)_rhs
   customSelector:(SEL)_selector
 {
-	return [[[self alloc] initWithLeftExpression:_lhs rightExpression:_rhs
-								  customSelector:_selector] autorelease];
+	return [[self alloc] initWithLeftExpression:_lhs rightExpression:_rhs
+								  customSelector:_selector];
 }
 
 + (NSPredicate *)predicateWithLeftExpression:(NSExpression *)_lhs
@@ -45,9 +46,9 @@
 	type:(NSPredicateOperatorType)_type
 	options:(unsigned)_options
 {
-	return [[[self alloc] initWithLeftExpression:_lhs rightExpression:_rhs
+	return [[self alloc] initWithLeftExpression:_lhs rightExpression:_rhs
 										modifier:_modifier type:_type 
-										 options:_options] autorelease];
+										 options:_options];
 }
 
 - (id)initWithLeftExpression:(NSExpression *)_lhs
@@ -56,8 +57,8 @@
 {
 	if ((self = [super init]) != nil)
 	{
-		self->lhs      = [_lhs retain];
-		self->rhs      = [_rhs retain];
+		self->lhs      = _lhs;
+		self->rhs      = _rhs;
 		self->opSel = _selector;
 		self->op = NSCustomSelectorPredicateOperatorType;
 	}
@@ -71,8 +72,8 @@
 	options:(unsigned)_options
 {
 	NSAssert(_type != NSCustomSelectorPredicateOperatorType, @"NSPredicate type must not be custom selector.");
-	lhs = [_lhs retain];
-	rhs = [_rhs retain];
+	lhs = _lhs;
+	rhs = _rhs;
 	modifier = _modifier;
 	op = _type;
 	options = _options;
@@ -83,13 +84,6 @@
 {
 	return [self initWithLeftExpression:nil rightExpression:nil
 						 customSelector:NULL];
-}
-
-- (void)dealloc
-{
-	[self->lhs release];
-	[self->rhs release];
-	[super dealloc];
 }
 
 /* accessors */
@@ -373,7 +367,6 @@
 	NSMutableDictionary *ctx = [NSMutableDictionary new];
 	id lobj = [left expressionValueWithObject:obj context:ctx];
 	id robj = [right expressionValueWithObject:obj context:ctx];
-	[ctx release];
 
 	if (modifier == NSDirectPredicateModifier)
 	{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007	Gold Project
+ * Copyright (c) 2007-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -106,7 +106,6 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 
 	if (U_FAILURE(ec))
 	{
-		[self release];
 		return nil;
 	}
 	ec = U_ZERO_ERROR;
@@ -117,17 +116,15 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 	delete[] localeName;
 	if ([localeCache objectForKey:localeStr] != nil)
 	{
-		[self release];
-		self = [[localeCache objectForKey:localeStr] retain];
+		self = [localeCache objectForKey:localeStr];
 	}
 	else
 	{
-		localeID = [localeStr retain];
+		localeID = localeStr;
 		[localeCache setObject:self forKey:localeID];
 		localeDict = [NSMutableDictionary new];
 		locale = new icu::Locale(localeName);
 	}
-	[localeStr release];
 	return self;
 }
 
@@ -135,12 +132,6 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 {
 	if (locale)
 		delete locale;
-	if (locData)
-		ulocdata_close(locData);
-	if (localeDict)
-		[localeDict release];
-	[localeID release];
-	[super dealloc];
 }
 
 - objectForKey:(NSString *)key
@@ -188,11 +179,10 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 			}
 			else
 			{
-				[set release];
 				set = nil;
 			}
 		}
-		output = [set autorelease];
+		output = set;
 	}
 	if ([key isEqualToString:NSLocaleCalendar])
 	{
@@ -209,7 +199,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 			calName = [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
 		}
 
-		output = [[[NSCalendar alloc] initWithCalendarIdentifier:calName] autorelease];
+		output = [[NSCalendar alloc] initWithCalendarIdentifier:calName];
 	}
 	if ([key isEqualToString:NSLocaleUsesMetricSystem])
 	{
@@ -235,8 +225,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 		if (!U_SUCCESS(err))
 			return nil;
 		icu::UnicodeString us = dfs.getSymbol(icu::DecimalFormatSymbols::kDecimalSeparatorSymbol);
-		output = [[[NSCoreString alloc] initWithUnicodeString:&us]
-			autorelease];
+		output = [[NSCoreString alloc] initWithUnicodeString:&us];
 	}
 	if ([key isEqualToString:NSLocaleGroupingSeparator])
 	{
@@ -246,8 +235,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 			return nil;
 		icu::UnicodeString us =
 			dfs.getSymbol(icu::DecimalFormatSymbols::kGroupingSeparatorSymbol);
-		output = [[[NSCoreString alloc] initWithUnicodeString:&us]
-			autorelease];
+		output = [[NSCoreString alloc] initWithUnicodeString:&us];
 	}
 	if ([key isEqualToString:NSLocaleCurrencySymbol])
 	{
@@ -257,8 +245,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 			return nil;
 		icu::UnicodeString us =
 			dfs.getSymbol(icu::DecimalFormatSymbols::kCurrencySymbol);
-		output = [[[NSCoreString alloc] initWithUnicodeString:&us]
-			autorelease];
+		output = [[NSCoreString alloc] initWithUnicodeString:&us];
 	}
 	if ([key isEqualToString:NSLocaleCurrencyCode])
 	{
@@ -267,7 +254,6 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 		[fm setLocale:self];
 		
 		output = [fm currencyCode];
-		[fm release];
 	}
 	if ([key isEqualToString:NSLocaleCollatorIdentifier])
 	{
@@ -308,7 +294,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 
 	locale->getDisplayName(us);
 
-	return [[[NSCoreString alloc] initWithUnicodeString:&us] autorelease];
+	return [[NSCoreString alloc] initWithUnicodeString:&us];
 }
 
 @end

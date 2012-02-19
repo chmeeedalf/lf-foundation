@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -176,23 +176,23 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 + (NSCharacterSet*)characterSetWithBitmapRepresentation:(NSData*)data
 {
-	return AUTORELEASE([[_NSICUCharacterSet alloc]
-			initWithBitmapRepresentation:data inverted:false]);
+	return [[_NSICUCharacterSet alloc]
+			initWithBitmapRepresentation:data inverted:false];
 }
 
 + (NSCharacterSet*)characterSetWithCharactersInString:(NSString*)aString
 {
-	return [[[_NSICUCharacterSet alloc] initWithString:aString inverted:false] autorelease];
+	return [[_NSICUCharacterSet alloc] initWithString:aString inverted:false];
 }
 
 + (NSCharacterSet*)characterSetWithPattern:(NSString *)pattern
 {
-	return [[[_NSICUCharacterSet alloc] initWithPattern:pattern inverted:false] autorelease];
+	return [[_NSICUCharacterSet alloc] initWithPattern:pattern inverted:false];
 }
 
 + (NSCharacterSet*)characterSetWithRange:(NSRange)aRange
 {
-	return AUTORELEASE([[_NSICUCharacterSet alloc] initWithRange:aRange inverted:false]);
+	return [[_NSICUCharacterSet alloc] initWithRange:aRange inverted:false];
 }
 
 // Getting a Binary Representation
@@ -228,7 +228,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 - (NSCharacterSet*)invertedSet
 {
-	return [[[_NSICUCharacterSet alloc] initWithBitmapRepresentation:[self bitmapRepresentation] inverted:true] autorelease];
+	return [[_NSICUCharacterSet alloc] initWithBitmapRepresentation:[self bitmapRepresentation] inverted:true];
 }
 
 // Copying
@@ -237,8 +237,9 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
-	} else
+		return self;
+	}
+	else
 	{
 		id data = [self bitmapRepresentation];
 		return [[_NSICUCharacterSet alloc] initWithBitmapRepresentation:data inverted:false];
@@ -262,67 +263,67 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 + (NSCharacterSet*)alphanumericCharacterSet
 {
-	return [[[NSCharacterSet alphanumericCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)controlCharacterSet
 {
-	return [[[NSCharacterSet controlCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet controlCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)decimalDigitCharacterSet
 {
-	return [[[NSCharacterSet decimalDigitCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet decimalDigitCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet *)illegalCharacterSet
 {
-	return [[[NSCharacterSet illegalCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet illegalCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)letterCharacterSet
 {
-	return [[[NSCharacterSet letterCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet letterCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)lowercaseLetterCharacterSet
 {
-	return [[[NSCharacterSet lowercaseLetterCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet lowercaseLetterCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)newlineCharacterSet
 {
-	return [[[NSCharacterSet newlineCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet newlineCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)symbolCharacterSet
 {
-	return [[[NSCharacterSet symbolCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet symbolCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)uppercaseLetterCharacterSet
 {
-	return [[[NSCharacterSet uppercaseLetterCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet uppercaseLetterCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)whitespaceAndNewlineCharacterSet
 {
-	return [[[NSCharacterSet whitespaceAndNewlineCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet whitespaceAndNewlineCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)whitespaceCharacterSet
 {
-	return [[[NSCharacterSet whitespaceCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet whitespaceCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)punctuationCharacterSet
 {
-	return [[[NSCharacterSet punctuationCharacterSet] mutableCopy] autorelease];
+	return [[NSCharacterSet punctuationCharacterSet] mutableCopy];
 }
 
 + (NSCharacterSet*)emptyCharacterSet
 {
-	return [[_NSICUCharacterSet new] autorelease];
+	return [_NSICUCharacterSet new];
 }
 
 - (void) addCharactersInRange:(NSRange)r

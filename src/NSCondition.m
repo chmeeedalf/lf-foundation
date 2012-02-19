@@ -48,7 +48,6 @@
 	self.name = nil;
 	pthread_cond_destroy(&condition);
 	pthread_mutex_destroy(&mutex);
-	[super dealloc];
 }
 
 - (void) wait
@@ -59,7 +58,7 @@
 - (bool) waitUntilDate:(NSDate *)date
 {
 	struct timespec spec;
-	TimeInterval ti = [date timeIntervalSinceNow];
+	NSTimeInterval ti = [date timeIntervalSinceNow];
 	spec.tv_sec = trunc(ti);
 	spec.tv_nsec = trunc(fmod(ti, 1) * 1000000000);
 	return (pthread_cond_timedwait(&condition, &mutex, &spec) == 0);

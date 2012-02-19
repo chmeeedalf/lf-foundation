@@ -55,14 +55,14 @@ NSString * const NSUserErrorDomain = @"NSUserErrorDomain";
 
 + errorWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo
 {
-	return [[[self alloc] initWithDomain:dom code:code userInfo:userInfo] autorelease];
+	return [[self alloc] initWithDomain:dom code:code userInfo:userInfo];
 }
 
 - initWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo
 {
-	_domain = [dom retain];
+	_domain = dom;
 	_code = code;
-	_userInfo = [userInfo retain];
+	_userInfo = userInfo;
 	return self;
 }
 

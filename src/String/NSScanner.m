@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -73,7 +73,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else {
 		return [[NSScanner alloc] initWithString:[self string]];
 	}
@@ -81,8 +81,8 @@
 
 + (id)scannerWithString:(NSString*)string
 {
-	NSScanner* scanner = AUTORELEASE([[NSConcreteScanner alloc]
-			initWithString:string]);
+	NSScanner* scanner = [[NSConcreteScanner alloc]
+			initWithString:string];
 	[scanner setCharactersToBeSkipped:
 		[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 	return scanner;

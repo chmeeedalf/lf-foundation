@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,7 +57,7 @@ typedef enum NSResourceDomain {
   components of the resource.  Each level of the path must respond to the
   -objectForKey: message.
  */
-- resourceWithName:(NSString *)name;
+- (id)resourceWithName:(NSString *)name;
 
 /*!
   \brief Return the resource associated with the given name in the given domain.
@@ -69,7 +69,7 @@ typedef enum NSResourceDomain {
   components of the resource.  Each level of the path must respond to the
   -objectForKey: message.
  */
-- resourceWithName:(NSString *)name inDomain:(NSResourceDomain)domain;
+- (id)resourceWithName:(NSString *)name inDomain:(NSResourceDomain)domain;
 
 /*!
  * \brief Add a resource dictionary to the runtime resource list.

@@ -28,7 +28,6 @@
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSFileManager.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSRange.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -58,44 +57,42 @@
 
 + (id)allocWithZone:(NSZone*)zone
 {
-    return NSAllocateObject(((self == [NSData class]) ?
-	    [NSCoreData class] : (Class)self), 0, zone);
+	return NSAllocateObject(((self == [NSData class]) ?
+				[NSCoreData class] : (Class)self), 0, zone);
 }
 
 + (id)data
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-                           initWithBytes:NULL length:0] autorelease];
+	return [[self allocWithZone:NULL] initWithBytes:NULL length:0];
 }
 
 + (id)dataWithBytes:(const void*)bytes
     length:(unsigned int)length
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-                           initWithBytes:bytes length:length] autorelease];
+    return [[self allocWithZone:NULL] initWithBytes:bytes length:length];
 }
 
 + (id)dataWithBytesNoCopy:(void*)bytes
     length:(unsigned int)length
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-                           initWithBytesNoCopy:bytes
-                           length:length] autorelease];
+	return [[self allocWithZone:NSDefaultAllocZone()]
+			initWithBytesNoCopy:bytes
+						 length:length];
 }
 
 + (id)dataWithBytesNoCopy:(void*)bytes
     length:(unsigned int)length
 	freeWhenDone:(bool)flag
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-		initWithBytesNoCopy:bytes
-		length:length
-		freeWhenDone:flag] autorelease];
+	return [[self allocWithZone:NSDefaultAllocZone()]
+			 initWithBytesNoCopy:bytes
+						  length:length
+					freeWhenDone:flag];
 }
 
 + (id)dataWithData:(NSData *)source
 {
-	return [[[self alloc] initWithData:source] autorelease];
+	return [[self alloc] initWithData:source];
 }
 
 + (id) dataWithContentsOfURI:(NSURI *)uri
@@ -107,7 +104,7 @@
 	options:(NSDataReadingOptions)options
 	  error:(NSError **)errorp
 {
-	return [[[self allocWithZone:NULL] initWithContentsOfURI:uri options:options error:errorp] autorelease];
+	return [[self allocWithZone:NULL] initWithContentsOfURI:uri options:options error:errorp];
 }
 
 - (id)initWithBytes:(const void*)bytes
@@ -139,7 +136,6 @@
 	TODO;	// initWithContentsOfURI:options:error:
 
 	[self notImplemented:_cmd];
-	[self release];
 	return nil;
 }
 
@@ -150,7 +146,7 @@
 
 - (id)copyWithZone:(NSZone*)zone
 {
-	return [self retain];
+	return self;
 }
 
 - (id) mutableCopyWithZone:(NSZone *)zone
@@ -186,8 +182,8 @@
 		*temp++ = possibleBytes[(bytes[i] & 0xF0) >> 4];
 		*temp++ = possibleBytes[bytes[i] & 0x0F];
 	}
-	return [[[NSString alloc] initWithBytesNoCopy:description length:(final_length - 1)
-		encoding:NSASCIIStringEncoding freeWhenDone:true] autorelease];
+	return [[NSString alloc] initWithBytesNoCopy:description length:(final_length - 1)
+		encoding:NSASCIIStringEncoding freeWhenDone:true];
 }
 
 - (void)getBytes:(void*)buffer
@@ -215,8 +211,7 @@
 	char* buffer = malloc(aRange.length);
 
     [self getBytes:buffer range:aRange];
-    return [[[NSData alloc] initWithBytesNoCopy:buffer length:aRange.length]
-		autorelease];
+    return [[NSData alloc] initWithBytesNoCopy:buffer length:aRange.length];
 }
 
 - (NSHashCode)hash
@@ -262,62 +257,61 @@
 	}
 
 	/* In case memory is allocated.  Generally isn't, but can't be too careful.  */
-	CREATE_AUTORELEASE_POOL(pool);
+	@autoreleasepool {
 
-	const unsigned char *ourBytes = [self bytes] + searchRange.location;
-	const unsigned char *theirBytes = [subData bytes];
+		const unsigned char *ourBytes = [self bytes] + searchRange.location;
+		const unsigned char *theirBytes = [subData bytes];
 
-	if (mask & NSDataSearchAnchored)
-	{
-		if (mask & NSDataSearchBackwards)
+		if (mask & NSDataSearchAnchored)
 		{
-			ourBytes = (ourBytes + selfLength - theirLength);
-		}
-		if (memcmp(ourBytes, theirBytes, theirLength) == 0)
-		{
-			result = NSMakeRange((mask&NSDataSearchBackwards ? selfLength - theirLength : 0) + searchRange.location, theirLength);
-		}
-		else
-		{
-			result = NSMakeRange(NSNotFound, 0);
-		}
-	}
-	else
-	{
-		if (mask & NSDataSearchBackwards)
-		{
-			long start = selfLength - theirLength;
-
-			while (start >= 0)
+			if (mask & NSDataSearchBackwards)
 			{
-				const unsigned char *s = memrchr(ourBytes, theirBytes[0], start);
-				if (s == NULL)
-				{
-					break;
-				}
-
-				start = s - ourBytes;
-				if (memcmp(s, theirBytes, theirLength) == 0)
-				{
-					result = NSMakeRange(start + searchRange.location, theirLength);
-					break;
-				}
-
-				start--;
+				ourBytes = (ourBytes + selfLength - theirLength);
+			}
+			if (memcmp(ourBytes, theirBytes, theirLength) == 0)
+			{
+				result = NSMakeRange((mask&NSDataSearchBackwards ? selfLength - theirLength : 0) + searchRange.location, theirLength);
+			}
+			else
+			{
+				result = NSMakeRange(NSNotFound, 0);
 			}
 		}
 		else
 		{
-			unsigned char *resultStart = memmem(ourBytes, selfLength, theirBytes, theirLength);
-
-			if (resultStart != NULL)
+			if (mask & NSDataSearchBackwards)
 			{
-				result = NSMakeRange(resultStart - ourBytes + searchRange.location, theirLength);
+				long start = selfLength - theirLength;
+
+				while (start >= 0)
+				{
+					const unsigned char *s = memrchr(ourBytes, theirBytes[0], start);
+					if (s == NULL)
+					{
+						break;
+					}
+
+					start = s - ourBytes;
+					if (memcmp(s, theirBytes, theirLength) == 0)
+					{
+						result = NSMakeRange(start + searchRange.location, theirLength);
+						break;
+					}
+
+					start--;
+				}
+			}
+			else
+			{
+				unsigned char *resultStart = memmem(ourBytes, selfLength, theirBytes, theirLength);
+
+				if (resultStart != NULL)
+				{
+					result = NSMakeRange(resultStart - ourBytes + searchRange.location, theirLength);
+				}
 			}
 		}
 	}
-
-	[pool drain];
 	return result;
 }
 
@@ -414,20 +408,17 @@
 
 + (id)data
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-                           initWithBytes:NULL length:0] autorelease];
+    return [[self allocWithZone:NULL] initWithBytes:NULL length:0];
 }
 
 + (id)dataWithCapacity:(unsigned int)numBytes
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-                           initWithCapacity:numBytes] autorelease];
+    return [[self allocWithZone:NULL] initWithCapacity:numBytes];
 }
 
 + (id)dataWithLength:(unsigned int)length
 {
-    return [[[self allocWithZone:NSDefaultAllocZone()]
-                           initWithLength:length] autorelease];
+    return [[self allocWithZone:NULL] initWithLength:length];
 }
 
 - (id)initWithCapacity:(unsigned int)capacity

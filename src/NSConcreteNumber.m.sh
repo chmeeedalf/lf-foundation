@@ -24,7 +24,7 @@ cat <<EOF
 
 - initValue:(const void*)value withObjCType:(const char*)type;
 {
-	[super init];
+	self = [super init];
 	data = *(${C}*)value;
 	return self;
 }
@@ -158,7 +158,7 @@ cat <<EOF
 {
 	if ([self zone] == zone)
 	{
-		return RETAIN(self);
+		return self;
 	} else {
 		return [[[NS${NAME}Number class] alloc]
 			initValue:&data withObjCType:@encode(${C})];

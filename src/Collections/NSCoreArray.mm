@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,8 +42,6 @@
  * NSCoreArray class
  */
 
-static_assert(sizeof(Alepha::Objective::Object<objc_object *>) == sizeof(objc_object *),
-		"size of object not size of pointer");
 @implementation NSCoreArray
 
 - (id)init
@@ -84,11 +82,6 @@ static_assert(sizeof(Alepha::Objective::Object<objc_object *>) == sizeof(objc_ob
 		items.push_back([anotherArray objectAtIndex:i]);
 	}
 	return self;
-}
-
-- (void)dealloc
-{
-	[super dealloc];
 }
 
 - (NSIndex)count
@@ -171,19 +164,27 @@ static_assert(sizeof(Alepha::Objective::Object<objc_object *>) == sizeof(objc_ob
 	items.erase(items.begin() + index);
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
+	unsigned long idx = 0;
+
 	if (state->state == 0)
 	{
 		state->state = 1;
-		if (items.size() > 0)
-			state->mutationsPtr = (unsigned long *)(id)items[0];
-		else
-			state->mutationsPtr = 0;
-		state->itemsPtr = (id *)&items[0];
-		return items.size();
 	}
-	return 0;
+	else
+	{
+		idx = state->extra[1];
+	}
+	if (items.size() > 0)
+		state->mutationsPtr = &state->extra[0];
+	else
+		state->mutationsPtr = 0;
+	len = std::min(len, (unsigned long)items.size());
+	std::copy(&items[idx], &items[idx + len], stackBuf);
+	state->extra[1] += len;
+	return len;
 }
 
 @end

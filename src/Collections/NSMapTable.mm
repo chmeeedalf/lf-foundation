@@ -1,12 +1,31 @@
-/* Copyright (c) 2006-2007 Christopher J. W. Lloyd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
-
-// Original - Christopher Lloyd <cjwl@objc.net>
+/*
+ * Copyright (c) 2008-2012	Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
 
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSException.h>
@@ -17,13 +36,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
-#if __GNUC_MINOR__ == 2
-#import <tr1/unordered_map>
-typedef std::tr1::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern_map;
-#else
 #import <unordered_map>
 typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern_map;
-#endif
 #import "internal.h"
 
 #define NSStrongObjects \
@@ -64,38 +78,33 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 
 + mapTableWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts
 {
-	return [[[self alloc] initWithKeyOptions:keyOpts
+	return [[self alloc] initWithKeyOptions:keyOpts
 		valueOptions:valOpts
-		capacity:0]
-		autorelease];
+		capacity:0];
 }
 
 + mapTableWithStrongToStrongObjects
 {
-	return [[[self alloc] initWithKeyOptions:NSStrongObjects
-		valueOptions:NSStrongObjects capacity:0]
-		autorelease];
+	return [[self alloc] initWithKeyOptions:NSStrongObjects
+		valueOptions:NSStrongObjects capacity:0];
 }
 
 + mapTableWithWeakToStrongObjects
 {
-	return [[[self alloc] initWithKeyOptions:NSWeakObjects
-		valueOptions:NSStrongObjects capacity:0]
-		autorelease];
+	return [[self alloc] initWithKeyOptions:NSWeakObjects
+		valueOptions:NSStrongObjects capacity:0];
 }
 
 + mapTableWithStrongToWeakObjects
 {
-	return [[[self alloc] initWithKeyOptions:NSStrongObjects
-		valueOptions:NSWeakObjects capacity:0]
-		autorelease];
+	return [[self alloc] initWithKeyOptions:NSStrongObjects
+		valueOptions:NSWeakObjects capacity:0];
 }
 
 + mapTableWithWeakToWeakObjects
 {
-	return [[[self alloc] initWithKeyOptions:NSWeakObjects
-		valueOptions:NSWeakObjects capacity:0]
-		autorelease];
+	return [[self alloc] initWithKeyOptions:NSWeakObjects
+		valueOptions:NSWeakObjects capacity:0];
 }
 
 
@@ -124,7 +133,8 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 
 - (const void *)pointerForKey:(const void *)key
 {
-	return [self subclassResponsibility:_cmd];
+	[self subclassResponsibility:_cmd];
+	return NULL;
 }
 
 - (NSEnumerator *)keyEnumerator
@@ -184,8 +194,6 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	}
 
 	dictRep = [NSDictionary dictionaryWithObjects:objs forKeys:keys];
-	[objs release];
-	[keys release];
 	return dictRep;
 }
 
@@ -200,7 +208,8 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	return [self subclassResponsibility:_cmd];
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id *)stackBuf count:(unsigned long)len
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -215,8 +224,8 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 
 	for (id key in self)
 	{
-		const void *val = [self pointerForKey:key];
-		[other setPointer:val forKey:key];
+		const void *val = [self pointerForKey:(__bridge const void *)key];
+		[other setPointer:val forKey:(__bridge void *)key];
 	}
 
 	return other;
@@ -242,11 +251,11 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 - (id) objectForKey:(id)key
 {
-	intern_map::iterator iter = table.find(key);
+	intern_map::iterator iter = table.find((__bridge const void *)key);
 
 	if (iter != table.end())
 	{
-		return reinterpret_cast<id>(iter->second);
+		return (__bridge id)(iter->second);
 	}
 	return nil;
 }
@@ -264,8 +273,8 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 - (void) setObject:(id)obj forKey:(id)key
 {
-	table[keyFuncs.acquireFunction(key, keyFuncs.sizeFunction, false)] =
-		valFuncs.acquireFunction(obj, valFuncs.sizeFunction, false);
+	table[keyFuncs.acquireFunction((__bridge void *)key, keyFuncs.sizeFunction, false)] =
+		valFuncs.acquireFunction((__bridge void *)obj, valFuncs.sizeFunction, false);
 }
 
 - (size_t) count
@@ -281,7 +290,7 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 - (void) removeObjectForKey:(id)key
 {
-	intern_map::iterator iter = table.find(key);
+	intern_map::iterator iter = table.find((__bridge const void *)key);
 
 	if (iter != table.end())
 	{
@@ -293,25 +302,26 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 - (NSPointerFunctions *) keyPointerFunctions
 {
-	return [[keyFuncs copy] autorelease];
+	return [keyFuncs copy];
 }
 
 - (NSPointerFunctions *) valuePointerFunctions
 {
-	return [[valFuncs copy] autorelease];
+	return [valFuncs copy];
 }
 
 - (NSEnumerator *) keyEnumerator
 {
-	return [[[_MapTableEnumerator alloc] initWithTable:self iterateValues:false] autorelease];
+	return [[_MapTableEnumerator alloc] initWithTable:self iterateValues:false];
 }
 
 - (NSEnumerator *) objectEnumerator
 {
-	return [[[_MapTableEnumerator alloc] initWithTable:self iterateValues:true] autorelease];
+	return [[_MapTableEnumerator alloc] initWithTable:self iterateValues:true];
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	intern_map::const_iterator i;
 	unsigned long j = 0;
@@ -322,15 +332,15 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	}
 	else
 	{
-		i = table.find((id)state->extra[1]);
+		i = table.find((const void *)state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != table.end(); j++, i++)
-		state->itemsPtr[j] = (id)i->first;
+		state->itemsPtr[j] = (__bridge id)i->first;
 	state->mutationsPtr = (unsigned long *)&table;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != table.end())
-		state->extra[1] = (unsigned long)(id)i->first;
+		state->extra[1] = (unsigned long)(const void *)i->first;
 	return j;
 }
 
@@ -340,16 +350,10 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 - initWithTable:(NSConcreteMapTable *)_table iterateValues:(bool)iterVals;
 {
-	table = [_table retain];
+	table = _table;
 	iter = table->table.begin();
 	second = iterVals;
 	return self;
-}
-
-- (void) dealloc
-{
-	[table release];
-	[super dealloc];
 }
 
 - nextObject
@@ -363,11 +367,11 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 	if (second)
 	{
-		obj = (id)iter->second;
+		obj = (__bridge id)iter->second;
 	}
 	else
 	{
-		obj = (id)iter->first;
+		obj = (__bridge id)iter->first;
 	}
 
 	iter++;

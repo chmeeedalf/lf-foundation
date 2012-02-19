@@ -36,20 +36,21 @@
 
 static size_t objectSize(const void *obj)
 {
-	return class_getInstanceSize(object_getClass((id)obj));
+	return class_getInstanceSize(object_getClass((__bridge id)obj));
 }
 
 static void *objectAcquire(const void *item, NSSizeFunction sizeFunc, bool shouldCopy)
 {
 	if (shouldCopy)
-		return [(id)item copy];
+		return (__bridge void *)[(__bridge id)item copy];
 	else
-		return [(id)item retain];
+		return (__bridge_retained void *)(__bridge id)item;
 }
 
 static void objectRelinquish(const void *obj, NSSizeFunction sizeFunc)
 {
-	[(id)obj release];
+	id relObj = (__bridge_transfer id)obj;
+	(void)relObj;
 }
 
 static void *mallocAcquire(const void *item, NSSizeFunction sizeFunc, bool shouldCopy)
@@ -80,7 +81,7 @@ static void nullRelinquish(const void *obj, NSSizeFunction sizeFunc)
 
 static NSString *objectDescription(const void *item)
 {
-	return [(id)item description];
+	return [(__bridge id)item description];
 }
 
 static NSString *pointerDescription(const void *item)
@@ -100,7 +101,7 @@ static NSString *integerDescription(const void *item)
 
 static NSHashCode objectHash(const void *item, NSSizeFunction sizeFunc)
 {
-	return [(id)item hash];
+	return [(__bridge id)item hash];
 }
 
 static NSHashCode pointerHash(const void *item, NSSizeFunction sizeFunc)
@@ -125,7 +126,7 @@ static NSHashCode cstringHash(const void *item, NSSizeFunction sizeFunc)
 
 static bool objectIsEqual(const void *obj1, const void *obj2, NSSizeFunction sizeFunc)
 {
-	return [(id)obj1 isEqual:(id)obj2];
+	return [(__bridge id)obj1 isEqual:(__bridge id)obj2];
 }
 
 static bool directIsEqual(const void *obj1, const void *obj2, NSSizeFunction sizeFunc)
@@ -157,7 +158,7 @@ static bool memoryIsEqual(const void *obj1, const void *obj2, NSSizeFunction siz
 
 + (id) pointerFunctionsWithOptions:(NSPointerFunctionsOptions)options
 {
-	return [[[self alloc] initWithOptions:options] autorelease];
+	return [[self alloc] initWithOptions:options];
 }
 
 - (id) initWithOptions:(NSPointerFunctionsOptions)options

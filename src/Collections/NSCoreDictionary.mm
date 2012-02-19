@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2010	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -69,18 +69,11 @@
 	return self;
 }
 
-- (void)dealloc
-{
-	[self removeAllObjects];
-	[super dealloc];
-}
-
 /* Accessing keys and values */
 
 - (NSEnumerator *)keyEnumerator
 {
-	return AUTORELEASE([[_CoreDictionaryEnumerator alloc]
-			initWithDictionary:self]);
+	return [[_CoreDictionaryEnumerator alloc] initWithDictionary:self];
 }
 
 - (id)objectForKey:(id)aKey
@@ -127,7 +120,6 @@ count:(unsigned int)count
 		}
 		key = [keys[count] copy];
 		table[key] = objects[count];
-		[key release];
 	}
 	return self;
 }
@@ -161,7 +153,8 @@ count:(unsigned int)count
 	table.clear();
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackBuf count:(unsigned long)len
+- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	_map_table::const_iterator i;
 	unsigned long j = 0;
@@ -172,7 +165,7 @@ count:(unsigned int)count
 	}
 	else
 	{
-		i = table.find((id)state->extra[1]);
+		i = table.find((__bridge id)(void *)state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != table.end(); j++, i++)
@@ -180,7 +173,7 @@ count:(unsigned int)count
 	state->mutationsPtr = (unsigned long *)&table;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != table.end())
-		state->extra[1] = (unsigned long)(id)i->first;
+		state->extra[1] = (unsigned long)(__bridge void *)(id)i->first;
 	return j;
 }
 
@@ -198,11 +191,6 @@ count:(unsigned int)count
 	table = [d __dictObject];
 	i = table->begin();
 	return self;
-}
-
-- (void)dealloc
-{
-	[super dealloc];
 }
 
 - nextObject

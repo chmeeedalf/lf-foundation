@@ -1,6 +1,6 @@
 /*	$Id$	*/
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -100,6 +100,34 @@ typedef enum NSRectEdge {
 	NSMaxYEdge	/*!< \brief Measure from the top edge of the rectangle. */
 } NSRectEdge;
 
+enum : unsigned long long {
+	NSAlignMinXInward = 1ULL << 0,
+	NSAlignMinYInward = 1ULL << 1,
+	NSAlignMaxXInward = 1ULL << 2,
+	NSAlignMaxYInward = 1ULL << 3,
+	NSAlignWidthInward = 1ULL << 4,
+	NSAlignHeightInward = 1ULL << 5,
+	NSAlignMinXOutward = 1ULL << 8,
+	NSAlignMinYOutward = 1ULL << 9,
+	NSAlignMaxXOutward = 1ULL << 10,
+	NSAlignMaxYOutward = 1ULL << 11,
+	NSAlignWidthOutward = 1ULL << 12,
+	NSAlignHeightOutward = 1ULL << 13,
+	NSAlignMinXNearest = 1ULL << 16,
+	NSAlignMinYNearest = 1ULL << 17,
+	NSAlignMaxXNearest = 1ULL << 18,
+	NSAlignMaxYNearest = 1ULL << 19,
+	NSAlignWidthNearest = 1ULL << 20,
+	NSAlignHeightNearest = 1ULL << 21,
+	NSAlignRectFlipped = 1ULL << 63,
+
+	NSAlignAllEdgesInward = NSAlignMinXInward|NSAlignMinYInward|NSAlignMaxXInward|NSAlignMaxYInward,
+	NSAlignAllEdgesOutward = NSAlignMinXOutward|NSAlignMinYOutward|NSAlignMaxXOutward|NSAlignMaxYOutward,
+	NSAlignAllEdgesNearest = NSAlignMinXNearest|NSAlignMinYNearest|NSAlignMaxXNearest|NSAlignMaxYNearest,
+};
+
+typedef unsigned long long NSAlignmentOptions;
+
 /*!
  *  Predefined NSPoint at (0.0,0.0).
  */
@@ -121,7 +149,7 @@ SYSTEM_EXPORT const NSSize NSZeroSize;
  * \param y The Y coordinate of the point.
  * \return The point at the given coordinates.
  */
-STATIC_INLINE NSPoint NSMakePoint(double x, double y) {
+NS_INLINE NSPoint NSMakePoint(double x, double y) {
 	NSPoint pt;
 	pt.x = x;
 	pt.y = y;
@@ -134,7 +162,7 @@ STATIC_INLINE NSPoint NSMakePoint(double x, double y) {
  * \param h Height.
  * \return The size object of width w, and height h.
  */
-STATIC_INLINE NSSize NSMakeSize(double w, double h) {
+NS_INLINE NSSize NSMakeSize(double w, double h) {
 	NSSize pt;
 	pt.width = w;
 	pt.height = h;
@@ -149,7 +177,7 @@ STATIC_INLINE NSSize NSMakeSize(double w, double h) {
  * \param h Height of the rectangl.
  * \return Rectangle of given dimensions.
  */
-STATIC_INLINE NSRect NSMakeRect(double x, double y, double w, double h) {
+NS_INLINE NSRect NSMakeRect(double x, double y, double w, double h) {
 	NSRect pt;
 	pt.origin.x = x;
 	pt.origin.y = y;
@@ -163,7 +191,7 @@ STATIC_INLINE NSRect NSMakeRect(double x, double y, double w, double h) {
  * \param aRect Rectangle to get the max X coordinate of.
  * \return NSMax X coordinate of the rectangle.
  */
-STATIC_INLINE double NSMaxX(NSRect aRect)
+NS_INLINE double NSMaxX(NSRect aRect)
 {
 	return aRect.origin.x + aRect.size.width;
 }
@@ -173,7 +201,7 @@ STATIC_INLINE double NSMaxX(NSRect aRect)
  * \param aRect Rectangle to get the max Y coordinate of.
  * \return NSMax Y coordinate of the rectangle.
  */
-STATIC_INLINE double NSMaxY(NSRect aRect)
+NS_INLINE double NSMaxY(NSRect aRect)
 {
 	return aRect.origin.y + aRect.size.height;
 }
@@ -183,7 +211,7 @@ STATIC_INLINE double NSMaxY(NSRect aRect)
  * \param aRect Rectangle to get the mid X coordinate of.
  * \return Mid X coordinate of the rectangle.
  */
-STATIC_INLINE double NSMidX(NSRect aRect)
+NS_INLINE double NSMidX(NSRect aRect)
 {
 	return aRect.origin.x + aRect.size.width / 2.0;
 }
@@ -193,7 +221,7 @@ STATIC_INLINE double NSMidX(NSRect aRect)
  * \param aRect Rectangle to get the mid Y coordinate of.
  * \return Mid Y coordinate of the rectangle.
  */
-STATIC_INLINE double NSMidY(NSRect aRect)
+NS_INLINE double NSMidY(NSRect aRect)
 {
 	return aRect.origin.y + aRect.size.height / 2.0;
 }
@@ -203,7 +231,7 @@ STATIC_INLINE double NSMidY(NSRect aRect)
  * \param aRect Rectangle to get the min X coordinate of.
  * \return Min X coordinate of the rectangle.
  */
-STATIC_INLINE double NSMinX(NSRect aRect)
+NS_INLINE double NSMinX(NSRect aRect)
 {
 	return aRect.origin.x;
 }
@@ -213,7 +241,7 @@ STATIC_INLINE double NSMinX(NSRect aRect)
  * \param aRect Rectangle to get the min Y coordinate of.
  * \return Min Y coordinate of the rectangle.
  */
-STATIC_INLINE double NSMinY(NSRect aRect)
+NS_INLINE double NSMinY(NSRect aRect)
 {
 	return aRect.origin.y;
 }
@@ -223,7 +251,7 @@ STATIC_INLINE double NSMinY(NSRect aRect)
  * \param aRect rectangle to get the width of.
  * \return Width of the rectangle.
  */
-STATIC_INLINE double NSWidth(NSRect aRect)
+NS_INLINE double NSWidth(NSRect aRect)
 {
 	return aRect.size.width;
 }
@@ -233,7 +261,7 @@ STATIC_INLINE double NSWidth(NSRect aRect)
  * \param aRect rectangle to get the height of.
  * \return Height of the rectangle.
  */
-STATIC_INLINE double NSHeight(NSRect aRect)
+NS_INLINE double NSHeight(NSRect aRect)
 {
 	return aRect.size.height;
 }
@@ -245,7 +273,7 @@ STATIC_INLINE double NSHeight(NSRect aRect)
  * \param dY NSValue on Y axis to decrease size by.
  * \return Smaller rectangle, inset of aRect by dX and dY.
  */
-STATIC_INLINE NSRect NSInsetRect(NSRect aRect, double dX, double dY)
+NS_INLINE NSRect NSInsetRect(NSRect aRect, double dX, double dY)
 {
 	NSRect rect = aRect;
 	rect.origin.x += dX;
@@ -262,7 +290,7 @@ STATIC_INLINE NSRect NSInsetRect(NSRect aRect, double dX, double dY)
  * \param dY Y offset.
  * \return Rectangle of same size as aRect, translated (+dX,+dY).
  */
-STATIC_INLINE NSRect NSOffsetRect(NSRect aRect, double dX, double dY)
+NS_INLINE NSRect NSOffsetRect(NSRect aRect, double dX, double dY)
 {
 	NSRect rect = aRect;
 	rect.origin.x += dX;
@@ -289,18 +317,20 @@ SYSTEM_EXPORT void NSDivideRect(NSRect inRect,
  * \param aRect Rectangle to integrate.
  * \return Rectangle with integer size and origin, just large enough to hold aRect.
  */
-STATIC_INLINE NSRect NSIntegralRect(NSRect aRect)
+NS_INLINE NSRect NSIntegralRect(NSRect aRect)
 {
 	return NSMakeRect(floor(NSMinX(aRect)),floor(NSMinY(aRect)),
 		ceil(NSWidth(aRect)), ceil(NSHeight(aRect)));
 }
+
+extern NSRect NSIntegralRectWithOptions(NSRect rect, NSAlignmentOptions options);
 
 /*!
  * \brief Returns true if a rectangle is empty.
  * \param aRect Rectangle to check.
  * \return true if the rectangle is empty, false if it is not.
  */
-STATIC_INLINE bool NSIsEmptyRect(NSRect aRect)
+NS_INLINE bool NSIsEmptyRect(NSRect aRect)
 {
 	if (aRect.size.width <= 0.0 || aRect.size.height <= 0.0)
 		return true;
@@ -313,7 +343,7 @@ STATIC_INLINE bool NSIsEmptyRect(NSRect aRect)
  * \param bRect Second rectangle to fit in the result.
  * \return Rectangle large enough to hold both rectangles.
  */
-STATIC_INLINE NSRect NSUnionRect(NSRect aRect, NSRect bRect)
+NS_INLINE NSRect NSUnionRect(NSRect aRect, NSRect bRect)
 {
 	NSRect rect;
 
@@ -337,7 +367,7 @@ STATIC_INLINE NSRect NSUnionRect(NSRect aRect, NSRect bRect)
  * \param bRect The other rectangle.
  * \return Intersection rectangle of aRect and bRect.
  */
-STATIC_INLINE NSRect NSIntersectionRect(NSRect aRect, NSRect bRect)
+NS_INLINE NSRect NSIntersectionRect(NSRect aRect, NSRect bRect)
 {
 	NSRect rect;
 
@@ -373,7 +403,7 @@ STATIC_INLINE NSRect NSIntersectionRect(NSRect aRect, NSRect bRect)
  * \param bSize NSSize to compare with.
  * \return true if they are equal, false if they are not.
  */
-STATIC_INLINE bool NSEqualSizes(NSSize aSize, NSSize bSize)
+NS_INLINE bool NSEqualSizes(NSSize aSize, NSSize bSize)
 {
 	if (aSize.width == bSize.width && aSize.height == bSize.height)
 		return true;
@@ -386,7 +416,7 @@ STATIC_INLINE bool NSEqualSizes(NSSize aSize, NSSize bSize)
  * \param bPoint NSPoint to compare with.
  * \return true if they are equal, false if they are not.
  */
-STATIC_INLINE bool NSEqualPoints(NSPoint aPoint, NSPoint bPoint)
+NS_INLINE bool NSEqualPoints(NSPoint aPoint, NSPoint bPoint)
 {
 	if (aPoint.x == bPoint.x && aPoint.y == bPoint.y)
 		return true;
@@ -399,7 +429,7 @@ STATIC_INLINE bool NSEqualPoints(NSPoint aPoint, NSPoint bPoint)
  * \param bRect The rectangle to compare with.
  * \return true if they are equal, false if they are not.
  */
-STATIC_INLINE bool NSEqualRects(NSRect aRect, NSRect bRect)
+NS_INLINE bool NSEqualRects(NSRect aRect, NSRect bRect)
 {
 	if (NSEqualPoints(aRect.origin, bRect.origin) &&
 			NSEqualSizes(aRect.size, bRect.size))
@@ -410,7 +440,7 @@ STATIC_INLINE bool NSEqualRects(NSRect aRect, NSRect bRect)
 
 /*!
  */
-STATIC_INLINE bool NSIntersectsRect(NSRect aRect, NSRect bRect)
+NS_INLINE bool NSIntersectsRect(NSRect aRect, NSRect bRect)
 {
 	return (!NSEqualRects(NSIntersectionRect(aRect, bRect), NSZeroRect));
 }
@@ -422,7 +452,7 @@ STATIC_INLINE bool NSIntersectsRect(NSRect aRect, NSRect bRect)
  * \param flipped Whether to flip the Y-axis so that positive goes 'down'.
  * \return true if aPoint is in aRect, false otherwise.
  */
-STATIC_INLINE bool NSMouseInRect(NSPoint aPoint, NSRect aRect, bool flipped)
+NS_INLINE bool NSMouseInRect(NSPoint aPoint, NSRect aRect, bool flipped)
 {
 	if (flipped)
 		return (aPoint.x >= NSMinX(aRect) &&
@@ -442,7 +472,7 @@ STATIC_INLINE bool NSMouseInRect(NSPoint aPoint, NSRect aRect, bool flipped)
  * \param aRect Enclosing rectangle.
  * \return true if aPoint is in aRect, false otherwise.
  */
-STATIC_INLINE bool NSPointInRect(NSPoint aPoint, NSRect aRect)
+NS_INLINE bool NSPointInRect(NSPoint aPoint, NSRect aRect)
 {
 	return NSMouseInRect(aPoint, aRect, true);
 }
@@ -453,7 +483,7 @@ STATIC_INLINE bool NSPointInRect(NSPoint aPoint, NSRect aRect)
  * \param bRect Enclosed rectangle.
  * \return true if bRect is completely contained in aRect, not touching any edge, false otherwise.
  */
-STATIC_INLINE bool NSContainsRect(NSRect aRect, NSRect bRect)
+NS_INLINE bool NSContainsRect(NSRect aRect, NSRect bRect)
 {
 	if (NSIsEmptyRect(bRect) || NSIsEmptyRect(aRect) ||
 		(NSMinX(bRect) <= NSMinX(aRect)) || (NSMinY(bRect) <= NSMinY(aRect)) ||

@@ -1,7 +1,7 @@
 /*
    ProcessInfo.m
 
-   Copyright (C) 2005 Gold project
+   Copyright (C) 2005-2012 Gold project
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -93,7 +93,7 @@ unsigned int numThreads __private = 0;
 	}
 	else
 	{
-		arguments = [[NSArray alloc] initWithObject:@"unknown"];
+		arguments = [[NSArray alloc] initWithObjects:@"unknown",nil];
 	}
 
 	delete[] args;
@@ -126,13 +126,12 @@ unsigned int numThreads __private = 0;
 
 - (NSDictionary*)environment
 {
-	return [[environment retain] autorelease];
+	return environment;
 }
 
 - (void)addEnvironmentVariable:(NSString *)var withValue:(NSString *)val
 {
-	[environment setObject:[[val copy] autorelease]
-				   forKey:var];
+	[environment setObject:[val copy] forKey:var];
 }
 
 - (void)setEnvironment:(NSDictionary *)newEnv
@@ -171,7 +170,6 @@ unsigned int numThreads __private = 0;
 		   [[NSDate date] timeIntervalSince1970],
 		   o,
 		   count];
-	[o release];
 	return s;
 }
 
@@ -179,7 +177,7 @@ unsigned int numThreads __private = 0;
 {
 	if (aName && [aName length])
 	{
-		ASSIGN(processName, aName);
+		processName = aName;
 	}
 }
 
@@ -191,21 +189,6 @@ unsigned int numThreads __private = 0;
 /*
  * internal class that cannot be deleted
  */
-
-- (id)autorelease
-{
-	return self;
-}
-
-- (oneway void)release
-{
-	return;
-}
-
-- (id)retain
-{
-	return self;
-}
 
 - (pid_t) processIdentifier
 {

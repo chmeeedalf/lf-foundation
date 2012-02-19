@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007	Gold Project
+ * Copyright (c) 2007-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -116,10 +116,10 @@ static NSLocale *currentLocale = nil;
 	{
 		if (systemLocale == nil)
 		{
-			systemLocale = [[self localeWithIdentifier:[[NSSettingsManager
-				defaultSettingsManager] objectForKey:@"SystemLocale"]] retain];
+			systemLocale = [self localeWithIdentifier:[[NSSettingsManager
+				defaultSettingsManager] objectForKey:@"SystemLocale"]];
 			if (systemLocale == nil)
-				systemLocale = [[NSConcreteLocale fallbackLocale] retain];
+				systemLocale = [NSConcreteLocale fallbackLocale];
 		}
 	}
 	return systemLocale;
@@ -142,9 +142,51 @@ static NSLocale *currentLocale = nil;
 		currentLocale = locale;
 }
 
++ (NSLocaleLanguageDirection) characterDirectionForLanguage:(NSString *)lang
+{
+	const char *locID = [lang UTF8String];
+	UErrorCode err = U_ZERO_ERROR;
+	ULayoutType dir = uloc_getCharacterOrientation(locID, &err);
+
+	switch (dir)
+	{
+		case ULOC_LAYOUT_LTR:
+			return NSLocaleLanguageDirectionLeftToRight;
+		case ULOC_LAYOUT_RTL:
+			return NSLocaleLanguageDirectionRightToLeft;
+		case ULOC_LAYOUT_TTB:
+			return NSLocaleLanguageDirectionTopToBottom;
+		case ULOC_LAYOUT_BTT:
+			return NSLocaleLanguageDirectionBottomToTop;
+		default:
+			return NSLocaleLanguageDirectionUnknown;
+	}
+}
+
++ (NSLocaleLanguageDirection) lineDirectionForLanguage:(NSString *)lang
+{
+	const char *locID = [lang UTF8String];
+	UErrorCode err = U_ZERO_ERROR;
+	ULayoutType dir = uloc_getLineOrientation(locID, &err);
+
+	switch (dir)
+	{
+		case ULOC_LAYOUT_LTR:
+			return NSLocaleLanguageDirectionLeftToRight;
+		case ULOC_LAYOUT_RTL:
+			return NSLocaleLanguageDirectionRightToLeft;
+		case ULOC_LAYOUT_TTB:
+			return NSLocaleLanguageDirectionTopToBottom;
+		case ULOC_LAYOUT_BTT:
+			return NSLocaleLanguageDirectionBottomToTop;
+		default:
+			return NSLocaleLanguageDirectionUnknown;
+	}
+}
+
 + localeWithIdentifier:(NSString *)localeName
 {
-	return [[[NSConcreteLocale alloc] initWithIdentifier:localeName] autorelease];
+	return [[NSConcreteLocale alloc] initWithIdentifier:localeName];
 }
 
 - initWithIdentifier:(NSString *)localeName
@@ -261,7 +303,6 @@ static NSLocale *currentLocale = nil;
 	{
 		NSString *s = [[NSString alloc] initWithCString:uloc_getAvailable(i) encoding:NSASCIIStringEncoding];
 		[retIdents addObject:s];
-		[s release];
 	}
 
 	return retIdents;
@@ -292,7 +333,7 @@ static NSLocale *currentLocale = nil;
 		[str appendString:@"_"];
 		[str appendString:variant];
 	}
-	return [str autorelease];
+	return str;
 }
 
 + (NSDictionary *)componentsFromLocaleIdentifier:(NSString *)identifier
@@ -308,7 +349,6 @@ static NSLocale *currentLocale = nil;
 	{
 		NSString *s = [[NSString alloc] initWithCString:buf encoding:NSUTF8StringEncoding];
 		[components setObject:s forKey:NSLocaleLanguageCode];
-		[s release];
 	}
 	ec = U_ZERO_ERROR;
 	len = uloc_getScript(locID, buf, sizeof(buf), &ec);
@@ -316,7 +356,6 @@ static NSLocale *currentLocale = nil;
 	{
 		NSString *s = [[NSString alloc] initWithCString:buf encoding:NSUTF8StringEncoding];
 		[components setObject:s forKey:NSLocaleScriptCode];
-		[s release];
 	}
 	ec = U_ZERO_ERROR;
 	len = uloc_getCountry(locID, buf, sizeof(buf), &ec);
@@ -324,7 +363,6 @@ static NSLocale *currentLocale = nil;
 	{
 		NSString *s = [[NSString alloc] initWithCString:buf encoding:NSUTF8StringEncoding];
 		[components setObject:s forKey:NSLocaleCountryCode];
-		[s release];
 	}
 	ec = U_ZERO_ERROR;
 	len = uloc_getVariant(locID, buf, sizeof(buf), &ec);
@@ -332,7 +370,6 @@ static NSLocale *currentLocale = nil;
 	{
 		NSString *s = [[NSString alloc] initWithCString:buf encoding:NSUTF8StringEncoding];
 		[components setObject:s forKey:NSLocaleVariantCode];
-		[s release];
 	}
 
 	UEnumeration *locEnum = uloc_openKeywords(locID, &ec);
@@ -346,11 +383,9 @@ static NSLocale *currentLocale = nil;
 			NSString *key = [[NSString alloc] initWithCString:locKey encoding:NSASCIIStringEncoding];
 			NSString *value = [[NSString alloc] initWithCString:valBuf encoding:NSASCIIStringEncoding];
 			[components setObject:value forKey:key];
-			[key release];
-			[value release];
 		}
 	}
-	return [components autorelease];
+	return components;
 }
 
 - (NSString *)displayNameForKey:(id)key value:(id)value

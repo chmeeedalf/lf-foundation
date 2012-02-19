@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2011	Gold Project
+ * Copyright (c) 2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -52,19 +52,19 @@ NSMakeSymbol(NSXMLParserErrorDomain);
 
 static void startDocumentHandler(void *ctx)
 {
-	NSXMLParser *parserObj = ctx;
+	NSXMLParser *parserObj = (__bridge NSXMLParser *)ctx;
 	[parserObj->delegate parserDidStartDocument:parserObj];
 }
 
 static void endDocumentHandler(void *ctx)
 {
-	NSXMLParser *parserObj = ctx;
+	NSXMLParser *parserObj = (__bridge NSXMLParser *)ctx;
 	[parserObj->delegate parserDidEndDocument:parserObj];
 }
 
 static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URI, int nb_namespace, const xmlChar **namespaces, int nb_attributes, int nb_defaulted, const xmlChar **attributes)
 {
-	NSXMLParser *parser = ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *ocName = [[NSString alloc] initWithUTF8String:(const char *)name];
 	NSString *ocPrefix = [[NSString alloc] initWithUTF8String:(const char *)prefix];
 	NSString *ocURI = [[NSString alloc] initWithUTF8String:(const char *)URI];
@@ -77,8 +77,6 @@ static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar 
 			NSString *ocNSPrefix = [[NSString alloc] initWithUTF8String:(const char *)namespaces[i]];
 			NSString *ocNS = [[NSString alloc] initWithUTF8String:(const char *)namespaces[i + 1]];
 			[parser->delegate parser:parser didStartMappingPrefix:ocNSPrefix toURI:ocNS];
-			[ocNS release];
-			[ocNSPrefix release];
 		}
 	}
 
@@ -87,71 +85,55 @@ static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar 
 		NSString *key = [[NSString alloc] initWithUTF8String:(const char *)attributes[i]];
 		NSString *value = [[NSString alloc] initWithBytes:attributes[i+3] length:((size_t)(attributes[i+4] - attributes[i+3])) encoding:NSUTF8StringEncoding];
 		[ocAttribs setObject:value forKey:key];
-		[value release];
-		[key release];
 	}
 	[parser->delegate parser:parser didStartElement:ocName namespaceURI:ocURI qualifiedName:ocPrefix attributes:ocAttribs];
-	[ocAttribs release];
-	[ocURI release];
-	[ocPrefix release];
-	[ocName release];
 }
 
 static void endElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URI)
 {
-	NSXMLParser *parser = ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *ocName = [[NSString alloc] initWithUTF8String:(const char *)name];
 	NSString *ocPrefix = [[NSString alloc] initWithUTF8String:(const char *)prefix];
 	NSString *ocURI = [[NSString alloc] initWithUTF8String:(const char *)URI];
 
 	[parser->delegate parser:parser didEndElement:ocName namespaceURI:ocURI qualifiedName:ocPrefix];
-
-	[ocURI release];
-	[ocPrefix release];
-	[ocName release];
 }
 
 static void foundCharactersHandler(void *ctx, const xmlChar *chars, int len)
 {
-	NSXMLParser *parser = (NSXMLParser *)ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *nsChars = [[NSString alloc] initWithBytes:chars length:len encoding:NSUTF8StringEncoding];
 	[parser->delegate parser:parser foundCharacters:nsChars];
-	[nsChars release];
 }
 
 static void ignorableWhitespaceHandler(void *ctx, const xmlChar *ch, int len)
 {
-	NSXMLParser *parser = (NSXMLParser *)ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *wsChars = [[NSString alloc] initWithBytes:ch length:len encoding:NSUTF8StringEncoding];
 	[parser->delegate parser:parser foundIgnorableWhitespace:wsChars];
-	[wsChars release];
 }
 
 static void processingInstructionHandler(void *ctx, const xmlChar *target, const xmlChar *data)
 {
 	NSString *nsTarget = [[NSString alloc] initWithUTF8String:(const char *)target];
 	NSString *nsData = [[NSString alloc] initWithUTF8String:(const char *)data];
-	NSXMLParser *parser = ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 
 	[parser->delegate parser:parser foundProcessingInstructionWithTarget:nsTarget data:nsData];
-	[nsTarget release];
-	[nsData release];
 }
 
 static void commentHandler(void *ctx, const xmlChar *value)
 {
-	NSXMLParser *parser = ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *comment = [[NSString alloc] initWithUTF8String:(const char *)value];
 	[parser->delegate parser:parser foundComment:comment];
-	[comment release];
 }
 
 static void cdataHandler(void *ctx, const xmlChar *value, int len)
 {
-	NSXMLParser *parser = (NSXMLParser *)ctx;
+	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *wsCDATA = [[NSString alloc] initWithBytes:value length:len encoding:NSUTF8StringEncoding];
 	[parser->delegate parser:parser foundIgnorableWhitespace:wsCDATA];
-	[wsCDATA release];
 }
 
 static void errorHandler(void *ctx, const char *msg, ...)
@@ -162,18 +144,16 @@ static void errorHandler(void *ctx, const char *msg, ...)
 	NSString *errstr;
 	xmlError *lastErr;
 
-	parser = ctx;
+	parser = (__bridge NSXMLParser *)ctx;
 	lastErr = xmlCtxtGetLastError(parser->parser);
 	va_start(args, msg);
 	fmt = [[NSString alloc] initWithUTF8String:msg];
 	errstr = [[NSString alloc] initWithFormat:fmt arguments:args];
-	[fmt release];
 	va_end(args);
 
 	parser->error = [[NSError alloc] initWithDomain:NSXMLParserErrorDomain code:lastErr->code userInfo:[NSDictionary dictionaryWithObjectsAndKeys:errstr,NSLocalizedDescriptionKey]];
 
 	[parser->delegate parser:parser parseErrorOccurred:parser->error];
-	[errstr release];
 }
 
 - (id)initWithContentsOfURI:(NSURI *)url
@@ -189,7 +169,7 @@ static void errorHandler(void *ctx, const char *msg, ...)
 		shouldProcessNamespaces = false;
 		shouldReportNamespacePrefixes = false;
 		
-		data = [stream retain];
+		data = stream;
 	}
 	return self;
 }
@@ -202,10 +182,6 @@ static void errorHandler(void *ctx, const char *msg, ...)
 -(void)dealloc
 {
 	xmlFreeParserCtxt(parser);
-	[data release];
-	[delegate release];
-	//[error release];
-	[super dealloc];
 }
 
 - (void)setShouldProcessNamespaces:(bool)flag
@@ -256,7 +232,7 @@ static void errorHandler(void *ctx, const char *msg, ...)
 	handler.processingInstruction = processingInstructionHandler;
 	handler.error = errorHandler;
 	
-	parser = xmlCreatePushParserCtxt(&handler, self, NULL, 0, NULL);
+	parser = xmlCreatePushParserCtxt(&handler, (__bridge void *)self, NULL, 0, NULL);
 
 	while ([data hasBytesAvailable])
 	{

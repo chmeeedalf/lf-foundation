@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -83,33 +83,32 @@ static NSDate *distantPast = nil;
 
 + (NSDate*)date
 {
-	return AUTORELEASE([[self alloc] init]);
+	return [[self alloc] init];
 }
 
 + (NSDate*)dateWithTimeIntervalSinceNow:(NSTimeInterval)secs
 {
-	return AUTORELEASE([[self alloc] initWithTimeIntervalSinceNow:secs]);
+	return [[self alloc] initWithTimeIntervalSinceNow:secs];
 }
 
 + (NSDate*)dateWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secs
 {
-	return AUTORELEASE([[self alloc]
-			initWithTimeIntervalSinceReferenceDate:secs]);
+	return [[self alloc] initWithTimeIntervalSinceReferenceDate:secs];
 }
 
 + (NSDate*)dateWithTimeIntervalSince1970:(NSTimeInterval)seconds
 {
-	return AUTORELEASE([[self alloc] initWithTimeIntervalSince1970:seconds]);
+	return [[self alloc] initWithTimeIntervalSince1970:seconds];
 }
 
 + (NSDate *) dateWithTimeInterval:(NSTimeInterval)seconds sinceDate:(NSDate *)date
 {
-	return [[[self alloc] initWithTimeInterval:seconds sinceDate:date] autorelease];
+	return [[self alloc] initWithTimeInterval:seconds sinceDate:date];
 }
 
 + (NSDate *)dateWithString:(NSString *)str
 {
-	return AUTORELEASE([[self alloc] initWithString:str]);
+	return [[self alloc] initWithString:str];
 }
 
 + (NSDate*)distantFuture
@@ -170,7 +169,6 @@ static NSDate *distantPast = nil;
 	return self;
 
 error:
-	[self release];
 	return nil;
 }
 
@@ -183,15 +181,13 @@ sinceDate:(NSDate*)anotherDate
 
 - (NSDate*)initWithTimeIntervalSinceNow:(NSTimeInterval)secsToBeAddedToNow
 {
-	[self initWithTimeIntervalSinceReferenceDate:
+	return [self initWithTimeIntervalSinceReferenceDate:
 		(secsToBeAddedToNow + [NSDate timeIntervalSinceReferenceDate])];
-	return self;
 }
 
 - (NSDate *)initWithTimeIntervalSince1970:(NSTimeInterval)seconds
 {
-	[self initWithTimeIntervalSinceReferenceDate: seconds + UNIX_OFFSET];
-	return self;
+	return [self initWithTimeIntervalSinceReferenceDate: seconds + UNIX_OFFSET];
 }
 
 /* Copying */
@@ -371,7 +367,6 @@ sinceDate:(NSDate*)anotherDate
 {
 	NSTimeInterval ti;
 
-	[self dealloc];
 	if ([coder allowsKeyedCoding])
 	{
 		ti = [coder decodeDoubleForKey:@"G.time"];
@@ -383,11 +378,11 @@ sinceDate:(NSDate*)anotherDate
 
 	if (ti == DISTANT_PAST)
 	{
-		return [[NSDate distantPast] retain];
+		return [NSDate distantPast];
 	}
 	else if (ti == DISTANT_FUTURE)
 	{
-		return [[NSDate distantFuture] retain];
+		return [NSDate distantFuture];
 	}
 	return [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:ti];
 }

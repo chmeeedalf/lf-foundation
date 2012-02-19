@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,9 +34,9 @@
 	id			 _target;
 	Protocol	*_protocol;
 }
-+ protocolCheckerWithTarget:(id)target protocol:(Protocol *)protocol;
-- initWithTarget:(id)target protocol:(Protocol *)protocol;
++ (id) protocolCheckerWithTarget:(id)target protocol:(Protocol *)protocol;
+- (id) initWithTarget:(id)target protocol:(Protocol *)protocol;
 
-- target;
+- (id) target;
 - (Protocol *)protocol;
 @end

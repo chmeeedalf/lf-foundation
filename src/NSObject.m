@@ -55,20 +55,20 @@
 
 #include <string.h>
 #include <stdlib.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSInvocation.h>
+#import <Foundation/NSArchiver.h>
+#import <Foundation/NSClassDescription.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSDistantObject.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSInvocation.h>
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSMethodSignature.h>
 #import <Foundation/NSPortCoder.h>
-#import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
-#import <Foundation/NSArchiver.h>
-#import <Foundation/NSKeyedArchiver.h>
 #import <objc/objc-arc.h>
+#import "internal.h"
 
 @interface _Autoproxy	:	NSProxy
 {
@@ -87,6 +87,12 @@
 // For ARC compatibility in libobjc
 - (void)_ARCCompliantRetainRelease
 {
+}
+
+extern bool objc_create_block_classes_as_subclasses_of(Class);
++ (void) load
+{
+	objc_create_block_classes_as_subclasses_of(self);
 }
 
 // creating and destroying instances
@@ -234,20 +240,6 @@
 	[self doesNotRecognizeSelector:[anInvocation selector]];
 }
 
--(retval_t)forward:(SEL)selector :(arglist_t)args
-{
-	NSInvocation *inv = [[NSInvocation new] autorelease];
-	void *result;
-
-	[inv setArgumentFrame:args];
-	[inv setSelector:selector];
-
-	[self forwardInvocation:inv];
-	result = [inv returnFrame];
-
-	return result;
-}
-
 + (bool) resolveClassMethod:(SEL)selector
 {
 	return false;
@@ -310,7 +302,7 @@
 // Determining allocation zones
 -(NSZone *)zone
 {
-	return NSZoneOf(self);
+	return NULL;
 }
 
 // sending messages determined at runtime
@@ -405,41 +397,13 @@
 }
 
 // Managing reference counts
--(id)autorelease
-{
-	return objc_autorelease(self);
-}
-
 +(id)autorelease
 {
 	return self;
 }
 
--(oneway void)release
-{
-	objc_release(self);
-}
-
--(oneway void)release:(bool)autorelease
-{
-	if (autorelease)
-	{
-		NSDecrementAutoreleaseRefCount(self);
-	}
-	[self release];
-}
-
 + (void) release
 {
-}
-
-+ (oneway void) release:(bool)unused
-{
-}
-
--(id)retain
-{
-	return objc_retain(self);
 }
 
 +(id)retain
@@ -497,7 +461,7 @@
 {
 	if ([self conformsToProtocol:@protocol(NSDiscardableContent)] &&
 			![(id<NSDiscardableContent>)self isContentDiscarded])
-		return [[[_Autoproxy alloc] initWithObject:self] autorelease];
+		return [[_Autoproxy alloc] initWithObject:self];
 	return self;
 }
 
@@ -542,11 +506,11 @@ static NSString *_inspectVariable(Ivar var, id obj)
 	{
 
 		default:
-			return [[NSValue valueWithBytes:((char *)obj + ivar_getOffset(var)) objCType:type] description];
+			return [[NSValue valueWithBytes:((char *)(__bridge void *)obj + ivar_getOffset(var)) objCType:type] description];
 		case _C_ID:
 			{
 				id objvar;
-				object_getInstanceVariable(obj, ivar_getName(var), (void **)&objvar);
+				object_getInstanceVariable(obj, ivar_getName(var), (__bridge void *)objvar);
 				if (objvar == nil)
 					return @"<nil>";
 				return [NSString stringWithFormat:@"<%s %p>",object_getClassName(objvar),objvar];
@@ -563,7 +527,7 @@ static NSMutableString *inspectObject(id self, Class startAt)
 	NSMutableString *ret;
 	/* NSObject has no superclass or instance variables */
 	if ([startAt superclass] == Nil)
-		ret = [[NSMutableString new] autorelease];
+		ret = [NSMutableString new];
 	else
 		ret = inspectObject(self, [startAt superclass]);
 
@@ -581,7 +545,6 @@ static NSMutableString *inspectObject(id self, Class startAt)
 		{
 			NSString *temp = [[NSString alloc] initWithFormat:@"%s=%@",ivar_getName(var),_inspectVariable(var,self)];
 			[ret appendString:temp];
-			[temp release];
 		}
 	}
 	return ret;
@@ -590,7 +553,7 @@ static NSMutableString *inspectObject(id self, Class startAt)
 - (NSString *) inspect
 {
 	NSMutableString *ret;
-	ret = [inspectObject(self, [self class]) autorelease];
+	ret = inspectObject(self, [self class]);
 	return [NSString stringWithFormat:@"{<%@>: %@}",[self className], ret];
 }
 @end
@@ -655,8 +618,6 @@ static NSMutableString *inspectObject(id self, Class startAt)
 - (void) dealloc
 {
 	[obj endContentAccess];
-	[obj release];
-	[super dealloc];
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)sel

@@ -135,9 +135,9 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
     invocation:(NSInvocation*)anInvocation
     repeats:(bool)_repeats
 {
-	id timer = AUTORELEASE([[self alloc]
+	id timer = [[self alloc]
 			initWith:seconds invocation:anInvocation
-			userInfo:nil repeat:_repeats]);
+			userInfo:nil repeat:_repeats];
 	return timer;
 }
 
@@ -147,7 +147,7 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
     userInfo:(id)anArgument
     repeats:(bool)_repeats
 {
-	return [[[self alloc] initWithFireDate:nil interval:seconds target:anObject selector:aSelector userInfo:anArgument repeats:_repeats] autorelease];
+	return [[self alloc] initWithFireDate:nil interval:seconds target:anObject selector:aSelector userInfo:anArgument repeats:_repeats];
 }
 
 - initWithFireDate:(NSDate *)date interval:(NSTimeInterval)seconds target:(id)target selector:(SEL)aSelector userInfo:(id)arg repeats:(bool)repeat
@@ -165,18 +165,13 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
 	}
 	self = [self initWith:seconds invocation:anInvocation userInfo:arg repeat:repeat];
 	
-	fireDate = [date retain];
-	[anInvocation release];
+	fireDate = date;
 	return self;
 }
 
 - (void)dealloc
 {
 	[self invalidate];
-	RELEASE(fireDate);
-	RELEASE(invocation);
-	RELEASE(userInfo);
-	[super dealloc];
 }
 
 - (NSString*)description
@@ -200,7 +195,6 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
 			[self invalidate];
 		}
 	}
-	[fireDate release];
 	fireDate = nil;
 }
 
@@ -239,7 +233,6 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
 	running = run;
 	if (!running)
 	{
-		[fireDate release];
 		fireDate = nil;
 	}
 	else if (fireDate == nil)
@@ -259,8 +252,8 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
     userInfo:(id)anObject repeat:(bool)_repeats
 {
 	timeInterval = seconds;
-	invocation = RETAIN(anInvocation);
-	userInfo = RETAIN(anObject);
+	invocation = anInvocation;
+	userInfo = anObject;
 	repeats = _repeats;
 	isValid = true;
 	running = false;

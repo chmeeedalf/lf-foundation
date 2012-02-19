@@ -1,6 +1,7 @@
 /* 
    NSCompoundPredicate.m
 
+   Copyright (C) 2010-2012, Gold Project
    Copyright (C) 2005, Helge Hess
    All rights reserved.
 
@@ -31,18 +32,15 @@
 
 + (NSPredicate *)andPredicateWithSubpredicates:(NSArray *)_subs
 {
-	return [[[self alloc] initWithType:NSAndPredicateType subpredicates:_subs]
-		autorelease];
+	return [[self alloc] initWithType:NSAndPredicateType subpredicates:_subs];
 }
 + (NSPredicate *)orPredicateWithSubpredicates:(NSArray *)_subs
 {
-	return [[[self alloc] initWithType:NSOrPredicateType subpredicates:_subs]
-		autorelease];
+	return [[self alloc] initWithType:NSOrPredicateType subpredicates:_subs];
 }
 + (NSPredicate *)notPredicateWithSubpredicate:(NSPredicate *)_subs
 {
-	return [[[self alloc] initWithType:NSNotPredicateType subpredicates:[NSArray arrayWithObject:_subs]] 
-		autorelease];
+	return [[self alloc] initWithType:NSNotPredicateType subpredicates:[NSArray arrayWithObject:_subs]];
 }
 
 - (id)initWithType:(NSCompoundPredicateType)_type subpredicates:(NSArray *)_s
@@ -57,12 +55,6 @@
 - (id)init
 {
 	return [self initWithType:NSNotPredicateType subpredicates:nil];
-}
-
-- (void)dealloc
-{
-	[self->subs release];
-	[super dealloc];
 }
 
 /* accessors */
@@ -132,7 +124,7 @@
 - (NSPredicate *) predicateWithSubstitutionVariables:(NSDictionary *)subVars
 {
 	id newsubs = [[subs map] predicateWithSubstitutionVariables:subVars];
-	return [[[NSCompoundPredicate alloc] initWithType:type subpredicates:newsubs] autorelease];
+	return [[NSCompoundPredicate alloc] initWithType:type subpredicates:newsubs];
 }
 
 - (NSString *) predicateFormat
@@ -157,7 +149,6 @@
 						[joiner addObject:[obj predicateFormat]];
 					}
 					id retval = [NSString stringWithFormat:@"(%@)",[joiner componentsJoinedByString:@") OR ("]];
-					[joiner release];
 					return retval;
 				}
 			}
@@ -175,7 +166,6 @@
 						[joiner addObject:[obj predicateFormat]];
 					}
 					id retval = [NSString stringWithFormat:@"(%@)",[joiner componentsJoinedByString:@") AND ("]];
-					[joiner release];
 					return retval;
 				}
 			}
@@ -196,7 +186,7 @@
 	if ((self = [super initWithCoder:aDecoder]) != nil)
 	{
 	 [aDecoder decodeValueOfObjCType:@encode(int) at:&(self->type)];
-	 self->subs = [[aDecoder decodeObject] retain];
+	 self->subs = [aDecoder decodeObject];
 	}
 	return self;
 }

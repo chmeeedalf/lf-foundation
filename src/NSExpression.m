@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -69,11 +69,10 @@
 		[coll isKindOfClass:[NSSet class]] ||
 		[coll isKindOfClass:[NSDictionary class]])
 	{
-		collection = [coll retain];
+		collection = coll;
 	}
 	else
 	{
-		[self release];
 		self = nil;
 	}
 	return self;
@@ -102,7 +101,7 @@
 			id value = [[collection valueForKey:i] expressionValueWithObject:object context:context];
 			[retExpr setObject:value forKey:key];
 		}
-		return [retExpr autorelease];
+		return retExpr;
 	}
 }
 
@@ -127,15 +126,8 @@
 			[retColl setObject:value forKey:key];
 		}
 		retExpr = [NSExpression expressionForAggregate:retColl];
-		[retColl release];
 	}
 	return retExpr;
-}
-
-- (void) dealloc
-{
-	[collection release];
-	[super dealloc];
 }
 @end /* }}} */
 
@@ -152,7 +144,7 @@
 	self = [super initWithExpressionType:NSEvaluatedObjectExpressionType];
 	if (self == nil)
 		return nil;
-	value = [val retain];
+	value = val;
 	return self;
 }
 
@@ -164,12 +156,6 @@
 - expressionValueWithObject:object context:(NSMutableDictionary *)context
 {
 	return value;
-}
-
-- (void) dealloc
-{
-	[value release];
-	[super dealloc];
 }
 @end/*}}}*/
 
@@ -294,7 +280,6 @@
 		}
 	}
 
-	[s release];
 	return mode;
 }
 
@@ -406,9 +391,9 @@
 {
 	if ((self = [super initWithExpressionType:NSFunctionExpressionType]) == nil)
 		return nil;
-	target = [op retain];
+	target = op;
 	selector = sel;
-	arguments = [args retain];
+	arguments = args;
 	return self;
 }
 
@@ -423,7 +408,7 @@
 	[inv setSelector:selector];
 	for (i = 0; i < count; i++)
 	{
-		[inv setArgument:[[arguments objectAtIndex:i] expressionValueWithObject:obj context:context] atIndex:i+2];
+		[inv setArgument:(__bridge void *)[[arguments objectAtIndex:i] expressionValueWithObject:obj context:context] atIndex:i+2];
 	}
 	if (i < [[inv methodSignature] numberOfArguments])
 	{
@@ -457,13 +442,6 @@
 	return arguments;
 }
 
-- (void) dealloc
-{
-	[target release];
-	[arguments release];
-	[super dealloc];
-}
-
 @end/*}}}*/
 
 @interface _VariableExpression	:	NSExpression/*{{{*/
@@ -491,11 +469,6 @@
 	return [context valueForKey:variable];
 }
 
-- (void) dealloc
-{
-	[variable release];
-	[super dealloc];
-}
 @end/*}}}*/
 
 @interface _SetExpression	:	NSExpression/*{{{*/
@@ -510,8 +483,8 @@
 {
 	if ((self = [super initWithExpressionType:t]) == nil)
 		return nil;
-	left = [l retain];
-	right = [r retain];
+	left = l;
+	right = r;
 	return self;
 }
 
@@ -544,14 +517,7 @@
 		default:
 			break;
 	}
-	return [l autorelease];
-}
-
-- (void) dealloc
-{
-	[left release];
-	[right release];
-	[super dealloc];
+	return l;
 }
 @end/*}}}*/
 
@@ -559,42 +525,42 @@
 
 + expressionForConstantValue:value
 {
-	return [[[_ConstantValueExpression alloc] initWithConstantValue:value] autorelease];
+	return [[_ConstantValueExpression alloc] initWithConstantValue:value];
 }
 
 + expressionForEvaluatedObject
 {
-	return [[[_SelfExpression alloc] init] autorelease];
+	return [[_SelfExpression alloc] init];
 }
 
 + expressionForKeyPath:(NSString *)keyPath
 {
-	return [[[_KeyPathExpression alloc] initWithKeyPath:keyPath] autorelease];
+	return [[_KeyPathExpression alloc] initWithKeyPath:keyPath];
 }
 
 + expressionForVariable:(NSString *)variable
 {
-	return [[[_VariableExpression alloc] initWithVariable:variable] autorelease];
+	return [[_VariableExpression alloc] initWithVariable:variable];
 }
 
 + expressionForAggregate:(NSArray *)aggregate
 {
-	return [[[_AggregateExpression alloc] initWithCollection:aggregate] autorelease];
+	return [[_AggregateExpression alloc] initWithCollection:aggregate];
 }
 
 + expressionForUnionSet:(NSExpression *)left with:(NSExpression *)right
 {
-	return [[[_SetExpression alloc] initWithExpressionType:NSUnionSetExpressionType left:left right:right] autorelease];
+	return [[_SetExpression alloc] initWithExpressionType:NSUnionSetExpressionType left:left right:right];
 }
 
 + expressionForIntersectSet:(NSExpression *)left with:(NSExpression *)right
 {
-	return [[[_SetExpression alloc] initWithExpressionType:NSIntersectSetExpressionType left:left right:right] autorelease];
+	return [[_SetExpression alloc] initWithExpressionType:NSIntersectSetExpressionType left:left right:right];
 }
 
 + expressionForMinusSet:(NSExpression *)left with:(NSExpression *)right
 {
-	return [[[_SetExpression alloc] initWithExpressionType:NSMinusSetExpressionType left:left right:right] autorelease];
+	return [[_SetExpression alloc] initWithExpressionType:NSMinusSetExpressionType left:left right:right];
 }
 
 + expressionForSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)var predicate:(id)pred
@@ -607,7 +573,6 @@
 {
 	NSExpression *e = [_FunctionExpressionTarget new];
 	NSExpression *fe = [self expressionForFunction:e selectorName:func arguments:args];
-	[e release];
 	return fe;
 }
 
@@ -615,7 +580,7 @@
 {
 	NSParameterAssert(NSSelectorFromString(sel) != NULL);
 	SEL s = NSSelectorFromString(sel);
-	return [[[_FunctionExpression alloc] initWithOperand:target selector:s arguments:args] autorelease];
+	return [[_FunctionExpression alloc] initWithOperand:target selector:s arguments:args];
 }
 
 - initWithExpressionType:(NSExpressionType)type

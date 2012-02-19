@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004,2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -158,7 +158,6 @@
 - (void)dealloc
 {
 	free(objctype);
-	[super dealloc];
 }
 
 // Copying
@@ -167,7 +166,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else
 	{
 		return [[NSConcreteObjCValue allocForType:objctype zone:zone]
@@ -266,7 +265,7 @@
 
 - initValue:(const void*)value withObjCType:(const char*)type
 {
-	data = *(id*)value;
+	data = (__bridge id)*(const void**)value;
 	return self;
 }
 
@@ -283,7 +282,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else
 	{
 		return [[NSNonretainedObjectValue alloc]
@@ -306,7 +305,7 @@
 			userInfo:nil];
 	} else
 	{
-		*(id*)value = data;
+		*(void **)value = (__bridge void *)data;
 	}
 }
 
@@ -352,7 +351,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else
 	{
 		return [[NSNonretainedObjectValue alloc]
@@ -421,7 +420,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else
 	{
 		return [[NSRectValue alloc]
@@ -491,7 +490,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	}
 	else
 	{
@@ -568,7 +567,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	}
 	else
 	{
@@ -645,7 +644,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else
 	{
 		return [[NSPointValue alloc]

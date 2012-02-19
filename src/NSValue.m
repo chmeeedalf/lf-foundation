@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -59,6 +59,7 @@
 
 #import "NSConcreteValue.h"
 #import "NSConcreteNumber.h"
+#import <objc/encoding.h>
 
 @implementation NSValue
 
@@ -111,55 +112,56 @@
 
 + (NSValue*)valueWithBytes:(const void*)value objCType:(const char*)type
 {
-	return [[[self alloc] initWithBytes:value objCType:type] autorelease];
+	return [[self alloc] initWithBytes:value objCType:type];
 }
 
 + (NSValue*)valueWithNonretainedObject:(id)anObject
 {
-	return AUTORELEASE([[NSNonretainedObjectValue alloc]
-			initValue:&anObject withObjCType:@encode(id)]);
+	return [[NSNonretainedObjectValue alloc]
+			initValue:&anObject withObjCType:@encode(id)];
 }
 
 + (NSValue*)valueWithPointer:(const void*)pointer
 {
-	return AUTORELEASE([[NSPointerValue alloc]
-			initValue:&pointer withObjCType:@encode(void*)]);
+	return [[NSPointerValue alloc]
+			initValue:&pointer withObjCType:@encode(void*)];
 }
 
 + (NSValue*)valueWithPoint:(NSPoint)point
 {
-	return AUTORELEASE([[NSPointValue alloc]
-			initValue:&point withObjCType:@encode(NSPoint)]);
+	return [[NSPointValue alloc]
+			initValue:&point withObjCType:@encode(NSPoint)];
 }
 
 + (NSValue*)valueWithRange:(NSRange)range
 {
-	return AUTORELEASE([[NSRangeValue alloc]
-			initValue:&range withObjCType:@encode(NSRange)]);
+	return [[NSRangeValue alloc]
+			initValue:&range withObjCType:@encode(NSRange)];
 }
 
 + (NSValue*)valueWithRect:(NSRect)rect
 {
-	return AUTORELEASE([[NSRectValue alloc]
-			initValue:&rect withObjCType:@encode(NSRect)]);
+	return [[NSRectValue alloc]
+			initValue:&rect withObjCType:@encode(NSRect)];
 }
 
 + (NSValue*)valueWithSize:(NSSize)size
 {
-	return AUTORELEASE([[NSSizeValue alloc]
-			initValue:&size withObjCType:@encode(NSSize)]);
+	return [[NSSizeValue alloc]
+			initValue:&size withObjCType:@encode(NSSize)];
 }
 
 - initWithBytes:(const void*)value objCType:(const char*)type
 {
 	Class theClass = [[self class] concreteClassForObjCType:type];
 
-	(void)AUTORELEASE(self);
 	if (theClass)
-		return [[theClass alloc] initValue:value withObjCType:type];
+		self = [[theClass alloc] initValue:value withObjCType:type];
 	else
-		return [[NSConcreteValue allocForType:type zone:NULL]
+		self = [[NSConcreteValue allocForType:type zone:NULL]
 			initValue:value withObjCType:type];
+
+	return self;
 }
 
 - (bool)isEqual:aValue
@@ -188,7 +190,7 @@
 - (id)copyWithZone:(NSZone*)zone
 {
 	if (NSShouldRetainWithZone(self, zone))
-		return RETAIN(self);
+		return self;
 	else
 	{
 		Class theClass = [[self class] concreteClassForObjCType:[self objCType]];
@@ -201,7 +203,8 @@
 
 - (void*)valueBytes
 {
-	return [self subclassResponsibility:_cmd];
+	[self subclassResponsibility:_cmd];
+	return NULL;
 }
 
 - (void)getValue:(void*)value
@@ -222,7 +225,8 @@
 
 - (void*)pointerValue
 {
-	return [self subclassResponsibility:_cmd];
+	[self subclassResponsibility:_cmd];
+	return NULL;
 }
 
 - (NSRange)rangeValue

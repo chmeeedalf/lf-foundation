@@ -1,7 +1,7 @@
 /*
    Notification.m
 
-   Copyright (C) 2005 Gold Project
+   Copyright (C) 2005-2012 Gold Project
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -55,16 +55,8 @@
 
 	name = [aName copyWithZone:zone];
 	userInfo = [anUserInfo copyWithZone:zone];
-	object = RETAIN(anObject);
+	object = anObject;
 	return self;
-}
-
-- (void)dealloc
-{
-	RELEASE(name);
-	RELEASE(userInfo);
-	RELEASE(object);
-	[super dealloc];
 }
 
 - (NSString *)name { return name; }
@@ -82,7 +74,7 @@
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
-		return RETAIN(self);
+		return self;
 	} else {
 		return [[[self class] alloc]
 			initWithName:name object:object userInfo:userInfo];
@@ -107,26 +99,25 @@
 
 + (NSNotification *)notificationWithName:(NSString *)name object:object
 {
-	return AUTORELEASE([[self alloc]
+	return [[self alloc]
 			initWithName:(NSString*)name
 			object:object
-			userInfo:nil]);
+			userInfo:nil];
 }
 
 + (NSNotification *)notificationWithName:(NSString *)aName
   object:(id)anObject userInfo:(NSDictionary *)anUserInfo
 {
-	return AUTORELEASE([[self alloc]
+	return [[self alloc]
 			initWithName:(NSString*)aName
 			object:anObject
-			userInfo:anUserInfo]);
+			userInfo:anUserInfo];
 }
 
 - (id)initWithName:(NSString*)_name object:(id)_object
 	userInfo:(NSDictionary*)anUserInfo
 {
 	[self subclassResponsibility:_cmd];
-	[self release];
 	return nil;
 }
 
@@ -172,7 +163,6 @@
 	object = [coder decodeObject];
 	userInfo = [coder decodeObject];
 
-	[self release];
 	self = [[NSNotification alloc] initWithName:name object:object userInfo:userInfo];
 	return self;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -60,14 +60,14 @@
 
 - initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded
 {
-	[super init];
+	self = [super init];
 	timeSinceRef = secsToBeAdded;
 	return self;
 }
 
 - init
 {
-	[super init];
+	self = [super init];
 	timeSinceRef = [NSDate timeIntervalSinceReferenceDate];
 	return self;
 }
@@ -76,7 +76,7 @@
 {
 	if ([self zone] == zone)
 	{
-		return RETAIN(self);
+		return self;
 	}
 	return [[[self class] allocWithZone:zone]
 		initWithTimeIntervalSinceReferenceDate:timeSinceRef];

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006	Gold Project
+ * Copyright (c) 2006-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,7 +61,7 @@ static NSTimeZone *systemTimeZone = nil;
 			defaultTimeZone = [self systemTimeZone];
 		}
 	}
-	return [[defaultTimeZone retain] autorelease];
+	return defaultTimeZone;
 }
 
 +(NSTimeZone *)systemTimeZone
@@ -73,14 +73,13 @@ static NSTimeZone *systemTimeZone = nil;
 			systemTimeZone = [NSConcreteTimeZone defaultTimeZone];
 		}
 	}
-	return [[systemTimeZone retain] autorelease];
+	return systemTimeZone;
 }
 
 + (void) resetSystemTimeZone
 {
 	@synchronized(self)
 	{
-		[systemTimeZone release];
 		systemTimeZone = nil;
 	}
 }
@@ -92,18 +91,17 @@ static NSTimeZone *systemTimeZone = nil;
 		return nil;
 	NSString *str = [[NSString alloc] initWithFormat:@"GMT%+.3d",(seconds/3600)];
 	NSTimeZone *tz = [NSConcreteTimeZone timeZoneWithName:str];
-	[str release];
 	return tz;
 }
 
 +(NSTimeZone *)timeZoneWithAbbreviation:(NSString *)abbreviation
 {
-	return [[[NSConcreteTimeZone alloc] initWithName:abbreviation] autorelease];
+	return [[NSConcreteTimeZone alloc] initWithName:abbreviation];
 }
 
 +(NSTimeZone *)timeZoneWithName:(NSString *)aTimeZoneName
 {
-	return [[[NSConcreteTimeZone alloc] initWithName:aTimeZoneName] autorelease];
+	return [[NSConcreteTimeZone alloc] initWithName:aTimeZoneName];
 }
 
 // Managing time zones
@@ -120,10 +118,8 @@ static NSTimeZone *systemTimeZone = nil;
 
 	if (!U_SUCCESS(ec))
 		return;
-	[aTimeZone retain];
 	@synchronized(self)
 	{
-		[defaultTimeZone autorelease];
 		defaultTimeZone = aTimeZone;
 	}
 }
@@ -144,7 +140,6 @@ static NSTimeZone *systemTimeZone = nil;
 - (id) initWithName:(NSString *)name
 {
 	[self subclassResponsibility:_cmd];
-	[self release];
 	return nil;
 }
 
@@ -181,7 +176,6 @@ static NSTimeZone *systemTimeZone = nil;
 {
 	NSDate *d = [NSDate new];
 	NSString *abbrev = [self abbreviationForDate:d];
-	[d release];
 	return abbrev;
 }
 
@@ -195,7 +189,6 @@ static NSTimeZone *systemTimeZone = nil;
 {
 	NSDate *d = [NSDate new];
 	bool isDST = [self isDaylightSavingTimeForDate:d];
-	[d release];
 	return isDST;
 }
 
@@ -209,7 +202,6 @@ static NSTimeZone *systemTimeZone = nil;
 {
 	NSDate *d = [NSDate new];
 	int s = [self secondsFromGMTForDate:d];
-	[d release];
 	return s;
 }
 
@@ -223,7 +215,6 @@ static NSTimeZone *systemTimeZone = nil;
 {
 	NSDate *d = [NSDate new];
 	NSDate *nextDST = [self nextDaylightSavingTimeTransitionAfterDate:d];
-	[d release];
 	return nextDST;
 }
 
@@ -235,14 +226,13 @@ static NSTimeZone *systemTimeZone = nil;
 /* This is read-only so it doesn't matter what zone we're in. */
 - copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 - (NSTimeInterval)daylightSavingTimeOffset
 {
 	NSDate *d = [NSDate new];
 	NSTimeInterval s = [self daylightSavingTimeOffsetForDate:d];
-	[d release];
 	return s;
 }
 
@@ -311,7 +301,6 @@ static NSTimeZone *systemTimeZone = nil;
 			[a addObject:[NSString stringWithCString:name encoding:NSASCIIStringEncoding]];
 		}
 		zones = [[NSArray alloc] initWithArray:a];
-		[a release];
 	}
 	return zones;
 }

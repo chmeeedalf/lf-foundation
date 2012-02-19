@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -106,12 +106,6 @@ enum {
    - Core32BitString - UTF-32 (Full unicode)
  */
 @interface NSCoreString : NSString
-{
-	NSHashCode hash;
-	UnicodeString *str;
-	bool freeWhenDone;
-	NSStringEncoding encoding;
-}
 
 - initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
 - initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
@@ -129,8 +123,6 @@ enum {
 	encoding:(NSStringEncoding)enc copy:(bool)copy freeWhenDone:(bool)flag;
 - initWithUnicodeString:(UnicodeString *)src;
 - (UnicodeString *)_unicodeString;
-
-- (const char *)cStringUsingEncoding:(NSStringEncoding)enc;
 
 @end	// NSCoreString
 

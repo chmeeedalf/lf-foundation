@@ -14,7 +14,7 @@ static const NSUInteger chunkSize = 32;
  */
 static int64_t UTextNSStringNativeLength(UText *ut)
 {
-	return [(NSString*)ut->p length];
+	return [(__bridge NSString*)ut->p length];
 }
 
 
@@ -22,10 +22,10 @@ static int64_t UTextNSStringNativeLength(UText *ut)
  * Loads a group of characters into the buffer that can be directly accessed by
  * users of the UText.  This is used for iteration but UText users.
  */
-UBool UTextNSStringAccess(UText *ut, int64_t nativeIndex, UBool forward)
+static UBool UTextNSStringAccess(UText *ut, int64_t nativeIndex, UBool forward)
 {
 	// Cast is necessary to remove constness warning.
-	NSString *str = (NSString *)ut->p;
+	NSString *str = (__bridge NSString *)ut->p;
 	NSUInteger length = [str length];
 	if (nativeIndex >= length) { return FALSE; }
 	// Special case if the chunk already contains this index
@@ -33,10 +33,10 @@ UBool UTextNSStringAccess(UText *ut, int64_t nativeIndex, UBool forward)
 	    && nativeIndex < (ut->chunkNativeStart + ut->chunkLength))
 	{
 		ut->chunkOffset = nativeIndex - ut->chunkNativeStart;
-		return TRUE;
+		return true;
 	}
 	NSRange r = {nativeIndex, chunkSize};
-	forward = TRUE;
+	forward = true;
 	if (forward)
 	{
 		if (nativeIndex + chunkSize > length)
@@ -62,7 +62,7 @@ UBool UTextNSStringAccess(UText *ut, int64_t nativeIndex, UBool forward)
 	ut->chunkNativeLimit = r.location + r.length;
 	ut->chunkLength = r.length;
 	ut->chunkOffset = 0;
-	return TRUE;
+	return true;
 }
 
 /**
@@ -75,7 +75,7 @@ static int32_t UTextNSMutableStringReplace(UText *ut,
                                            int32_t replacmentLength,
                                            UErrorCode *status)
 {
-	NSMutableString *str = (NSMutableString*)ut->p;
+	NSMutableString *str = (__bridge NSMutableString*)ut->p;
 	NSRange r = NSMakeRange(nativeStart, nativeLimit-nativeStart);
 	NSString *replacement = [NSString alloc];
 	if (replacmentLength < 0)
@@ -94,10 +94,9 @@ static int32_t UTextNSMutableStringReplace(UText *ut,
 	// Setting the chunk length to 0 here forces UTextNSStringAccess to fetch
 	// the data from the string object.
 	ut->chunkLength = 0;
-	UTextNSStringAccess(ut, r.location + [replacement length] + 1, TRUE);
+	UTextNSStringAccess(ut, r.location + [replacement length] + 1, true);
 	ut->chunkOffset++;
 	
-	[replacement release];
 	if (NULL != status)
 	{
 		*status = 0;
@@ -123,19 +122,19 @@ static int32_t UTextNSStringExtract(UText *ut,
 		return nativeLimit - nativeStart;
 	}
 	// Cast is necessary to remove constness warning.
-	NSString *str = (NSString *)ut->p;
+	NSString *str = (__bridge NSString *)ut->p;
 	NSUInteger length = [str length];
 	if (nativeLimit > length)
 	{
 		nativeLimit = length;
 	}
 	NSRange r = NSMakeRange(nativeStart, nativeLimit - nativeStart );
-	if (destCapacity < r.length)
+	if ((uint32_t)destCapacity < r.length)
 	{
 		r.length = destCapacity;
 	}
 	[str getCharacters: dest range: r];
-	if (destCapacity > r.length)
+	if ((uint32_t)destCapacity > r.length)
 	{
 		dest[r.length] = 0;
 	}
@@ -145,7 +144,7 @@ static int32_t UTextNSStringExtract(UText *ut,
 /**
  * Copy or move some characters within a UText.
  */
-void UTextNSStringCopy(UText *ut,
+static void UTextNSStringCopy(UText *ut,
                        int64_t nativeStart,
                        int64_t nativeLimit,
                        int64_t nativeDest,
@@ -153,7 +152,7 @@ void UTextNSStringCopy(UText *ut,
                        UErrorCode *status)
 {
 	// Cast is necessary to remove constness warning.
-	NSMutableString *str = (NSMutableString *)ut->p;
+	NSMutableString *str = (__bridge NSMutableString *)ut->p;
 	NSUInteger length = [str length];
 	if (nativeLimit > length)
 	{
@@ -181,9 +180,10 @@ void UTextNSStringCopy(UText *ut,
  */
 static void UTextNStringClose(UText *ut)
 {
+	id p = (__bridge_transfer id)ut->p;
 	ut->chunkContents = NULL;
-	[(NSString*)ut->p release];
 	ut->p = NULL;
+	p = nil;
 }
 
 /**
@@ -192,16 +192,16 @@ static void UTextNStringClose(UText *ut)
  * Typically, this should not actually copy the underlying storage, because it
  * is immutable.
  */
-UText* UTextNSStringClone(UText *dest,
+static UText* UTextNSStringClone(UText *dest,
                           const UText *src,
                           UBool deep,
                           UErrorCode *status)
 {
 	// Cast is necessary to remove constness warning.
-	NSString *str = (NSString *)src->p;
+	NSString *str = (__bridge NSString *)src->p;
 	if (deep)
 	{
-		str = [[str copy] autorelease];
+		str = [str copy];
 	}
 	return UTextInitWithNSString(dest, str);
 }
@@ -209,28 +209,26 @@ UText* UTextNSStringClone(UText *dest,
 /**
  * Copies the UText object, optionally copying the NSMutableString.
  */
-UText* UTextNSMutableStringClone(UText *dest,
+static UText* UTextNSMutableStringClone(UText *dest,
                                  const UText *src,
                                  UBool deep,
                                  UErrorCode *status)
 {
 	// Cast is necessary to remove constness warning.
-	NSMutableString *str = (NSMutableString *)src->p;
+	NSMutableString *str = (__bridge NSMutableString *)src->p;
 	UText *utxt;
 	if (deep)
 	{
 		str = [str mutableCopy];
 	}
 	utxt = UTextInitWithNSMutableString(dest, str);
-	if (deep)
-		[str release];
 	return utxt;
 }
 
 /**
  * Returns the index of the current character in the temporary buffer.
  */
-int64_t UTextNSStringMapOffsetToNative(const UText *ut)
+static int64_t UTextNSStringMapOffsetToNative(const UText *ut)
 {
 	return ut->chunkNativeStart + ut->chunkOffset;
 }
@@ -280,7 +278,7 @@ UText* UTextInitWithNSMutableString(UText *txt, NSMutableString *str)
 
 	if (U_FAILURE(status)) { return NULL; }
 
-	txt->p = [str retain];
+	txt->p = (__bridge_retained void *)str;
 	txt->pFuncs = &NSMutableStringFuncs;
 	txt->chunkContents = txt->pExtra;
 	txt->nativeIndexingLimit = INT32_MAX;
@@ -297,7 +295,7 @@ UText* UTextInitWithNSString(UText *txt, NSString *str)
 
 	if (U_FAILURE(status)) { return NULL; }
 
-	txt->p = [str retain];
+	txt->p = (__bridge_retained void *)str;
 	txt->pFuncs = &NSStringFuncs;
 	txt->chunkContents = txt->pExtra;
 	txt->nativeIndexingLimit = INT32_MAX;
@@ -306,7 +304,7 @@ UText* UTextInitWithNSString(UText *txt, NSString *str)
 }
 
 @implementation GSUTextString
-- init
+- (id) init
 {
 	if (nil == (self = [super init])) { return nil; }
 	UText t = UTEXT_INITIALIZER;
@@ -336,12 +334,11 @@ UText* UTextInitWithNSString(UText *txt, NSString *str)
 - (void)dealloc
 {
 	utext_close(&txt);
-	[super dealloc];
 }
 @end
 
 @implementation GSUTextMutableString
-- init
+- (id) init
 {
 	if (nil == (self = [super init])) { return nil; }
 	UText t = UTEXT_INITIALIZER;
@@ -383,6 +380,5 @@ UText* UTextInitWithNSString(UText *txt, NSString *str)
 - (void)dealloc
 {
 	utext_close(&txt);
-	[super dealloc];
 }
 @end

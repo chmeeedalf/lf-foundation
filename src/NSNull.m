@@ -56,29 +56,6 @@ static NSNull *sharedNull = nil;
 	return @"<null>";
 }
 
-- (id) autorelease
-{
-	// Don't add this to an autorelease pool, it's not necessary.
-	return self;
-}
-
-- (id) retain
-{
-	return self;
-}
-
-- (oneway void) release
-{
-	// NOTHING
-}
-
-- (void) dealloc
-{
-	// Appease gcc 4.x, which wants [super dealloc] for all subclasses
-	if (0)
-		[super dealloc];
-}
-
 - (id) copyWithZone:(NSZone *)zone
 {
 	return self;

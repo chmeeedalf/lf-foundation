@@ -54,13 +54,12 @@
 #import <Foundation/NSSet.h>
 #import <Foundation/NSEnumerator.h>
 #ifdef __cplusplus
-#include <Alepha/Objective/Object.h>
 #if __GNUC_MINOR__ == 2
 #include <tr1/unordered_set>
-typedef std::tr1::unordered_set<Alepha::Objective::Object<id>,size_t(*)(id),bool(*)(id,id)> intern_set;
+typedef std::tr1::unordered_set<id,size_t(*)(id),bool(*)(id,id)> intern_set;
 #else
 #include <unordered_set>
-typedef std::unordered_set<Alepha::Objective::Object<id>,size_t(*)(id),bool(*)(id,id)> intern_set;
+typedef std::unordered_set<id,size_t(*)(id),bool(*)(id,id)> intern_set;
 #endif
 #endif
 

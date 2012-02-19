@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,6 +28,7 @@
  */
 
 #import <Foundation/NSSortDescriptor.h>
+#import <Foundation/NSString.h>
 
 #import <Foundation/NSKeyValueCoding.h>
 
@@ -35,12 +36,12 @@
 
 + sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector
 {
-	return [[[self alloc] initWithKey:key ascending:ascending selector:selector] autorelease];
+	return [[self alloc] initWithKey:key ascending:ascending selector:selector];
 }
 
 + sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending
 {
-	return [[[self alloc] initWithKey:key ascending:ascending] autorelease];
+	return [[self alloc] initWithKey:key ascending:ascending];
 }
 
 - initWithKey:(NSString *)key ascending:(bool)ascending
@@ -84,6 +85,6 @@
 
 - (id)reversedSortDescriptor
 {
-	return [[[[self class] alloc] initWithKey:_key ascending:(!_ascending) selector:_selector] autorelease];
+	return [[[self class] alloc] initWithKey:_key ascending:(!_ascending) selector:_selector];
 }
 @end

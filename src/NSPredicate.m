@@ -1,6 +1,7 @@
 /* 
    NSPredicate.m
 
+   Copyright (C) 2010-2012	Gold Project
    Copyright (C) 2005, Helge Hess
    All rights reserved.
 
@@ -22,7 +23,6 @@
    or in connection with the use or performance of this software.
 */
 
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSIndexSet.h>
 #import <Foundation/NSPredicate.h>
 #import <Foundation/NSString.h>
@@ -59,15 +59,15 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     /* NSPredicate objects are immutable! */
-    return [self retain];
+    return self;
 }
 
 + (NSPredicate *) predicateWithValue:(bool)val
 {
 	if (val)
-		return [[NSTruePredicate new] autorelease];
+		return [NSTruePredicate new];
 	else
-		return [[NSFalsePredicate new] autorelease];
+		return [NSFalsePredicate new];
 }
 
 - (NSString *) predicateFormat
@@ -103,7 +103,7 @@
 
 - (id) copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 @end /* NSTruePredicate */
@@ -124,7 +124,7 @@
 
 - (id) copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 @end /* NSFalsePredicate */
@@ -134,25 +134,23 @@
 
 - (NSArray *)filteredArrayUsingPredicate:(NSPredicate *)_predicate
 {
-	NSAutoreleasePool *pool;
 	NSMutableArray *array = nil;
 	NSArray  *result;
 	unsigned count;
 
-	pool = [[NSAutoreleasePool alloc] init];
-
-	count = [self count];
-	array = [NSMutableArray arrayWithCapacity:count];
-	for (id o in self)
-	{
-		if ([_predicate evaluateWithObject:o])
+	@autoreleasepool {
+		count = [self count];
+		array = [NSMutableArray arrayWithCapacity:count];
+		for (id o in self)
 		{
-			[array addObject:o];
+			if ([_predicate evaluateWithObject:o])
+			{
+				[array addObject:o];
+			}
 		}
+		result = [array copy];
 	}
-	result = [array copy];
-	[pool release];
-	return [result autorelease];
+	return result;
 }
 
 @end /* NSArray(NSPredicate) */
@@ -161,25 +159,22 @@
 
 - (void)filterArrayUsingPredicate:(NSPredicate *)_predicate
 {
-	NSAutoreleasePool *pool;
 	NSMutableIndexSet *indexes = [NSMutableIndexSet new];
 	size_t count;
 
-	pool = [[NSAutoreleasePool alloc] init];
-
-	count = 0;
-	for (id o in self)
-	{
-		if (![_predicate evaluateWithObject:o])
+	@autoreleasepool {
+		count = 0;
+		for (id o in self)
 		{
-			[indexes addIndex:count];
+			if (![_predicate evaluateWithObject:o])
+			{
+				[indexes addIndex:count];
+			}
+			count++;
 		}
-		count++;
-	}
 
-	[self removeObjectsAtIndexes:indexes];
-	[indexes release];
-	[pool release];
+		[self removeObjectsAtIndexes:indexes];
+	}
 }
 
 @end /* NSMutableArray(NSPredicate) */

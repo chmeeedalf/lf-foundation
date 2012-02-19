@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -56,7 +56,6 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSRange.h>
 #include <vector>
-#include <Alepha/Objective/Object.h>
 
 @class NSString;
 
@@ -66,7 +65,7 @@
 
 @interface NSCoreArray : NSMutableArray
 {
-	std::vector<Alepha::Objective::Object<id> > items;
+	std::vector<id> items;
 }
 
 - (id)init;

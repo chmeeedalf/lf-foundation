@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -49,10 +49,10 @@ typedef NSUInteger NSRegexFlags;
 	id _private;
 	NSString *patternString;
 }
-+ compiledPatternWithString:(NSString *)str;
-+ compiledPatternWithString:(NSString *)str flags:(NSRegexFlags)flags;
++ (id) compiledPatternWithString:(NSString *)str;
++ (id) compiledPatternWithString:(NSString *)str flags:(NSRegexFlags)flags;
 
-- initWithStringPattern:(NSString *)str flags:(NSRegexFlags)flags;
+- (id) initWithStringPattern:(NSString *)str flags:(NSRegexFlags)flags;
 - (NSString *) pattern;
 - (bool) isEqualToPattern:(NSRegexPattern *)other;
 @end

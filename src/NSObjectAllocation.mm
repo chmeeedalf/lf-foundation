@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -89,41 +89,6 @@ void NSDeallocateObject(id<NSObject> anObject)
 bool NSShouldRetainWithZone(id<NSObject> anObject, NSZone* requestedZone)
 {
 	return true;
-}
-
-/*
- * Modify the number of References to an Object
- */
-
-void NSDecrementAutoreleaseRefCount(id anObject)
-{
-#if 0
-	struct RefObjectLayout* p = OBJ2PTR(anObject);
-	--(p->autoref_count);
-	return;
-#endif
-}
-
-void NSIncrementAutoreleaseRefCount(id anObject)
-{
-#if 0
-	struct RefObjectLayout* p = OBJ2PTR(anObject);
-
-	(p->autoref_count)++;
-#endif
-}
-
-unsigned NSGetAutoreleaseRefCount(id anObject)
-{
-#if 0
-	int r;
-
-	struct RefObjectLayout* p = OBJ2PTR(anObject);
-	r = p->autoref_count;
-
-	return r;
-#endif
-	return 0;
 }
 
 @implementation FREED_OBJECT
