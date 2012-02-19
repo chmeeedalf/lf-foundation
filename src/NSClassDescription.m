@@ -51,7 +51,7 @@ static NSMutableDictionary *classDescriptionTable;
 				break;
 			}
 		}
-		return ret;
+		return [ret new];
 	}
 }
 
