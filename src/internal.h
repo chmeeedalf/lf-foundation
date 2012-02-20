@@ -161,7 +161,6 @@ __BEGIN_DECLS
 NSHashCode hashjb(const char* name, int len) __private;
 
 extern unsigned int numThreads __private;
-extern __thread id currentThread __private;
 
 void birthingEventHandler(Event_t *eventPage);
 void spawnBirthingEventHandler(Event_t *eventPage);
