@@ -1,7 +1,7 @@
 /*
    NSData.m
 
-   Copyright (C) 2005 Gold Project
+   Copyright (C) 2005-2012 Gold Project
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -203,7 +203,7 @@
 		@throw [NSRangeException exceptionWithReason:nil userInfo:nil];
 	}
 
-    memcpy(buffer, [self bytes] + aRange.location, aRange.length);
+    memcpy(buffer, (char *)[self bytes] + aRange.location, aRange.length);
 }
 
 - (NSData*)subdataWithRange:(NSRange)aRange
@@ -259,7 +259,7 @@
 	/* In case memory is allocated.  Generally isn't, but can't be too careful.  */
 	@autoreleasepool {
 
-		const unsigned char *ourBytes = [self bytes] + searchRange.location;
+		const unsigned char *ourBytes = (const unsigned char *)[self bytes] + searchRange.location;
 		const unsigned char *theirBytes = [subData bytes];
 
 		if (mask & NSDataSearchAnchored)
@@ -450,12 +450,12 @@
 - (void)appendBytes:(const void*)_bytes
     length:(unsigned int)_length
 {
-	void *bytes;
+	char *bytes;
 	size_t len = [self length];
 
 	[self setLength:len + _length];
 	bytes = [self mutableBytes];
-	memcpy(bytes + len, _bytes, _length);
+	memcpy(bytes + len, (char *)_bytes, _length);
 }
 
 - (void)appendData:(NSData*)other
