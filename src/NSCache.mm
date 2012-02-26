@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011	Gold Project
+ * Copyright (c) 2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,22 +28,11 @@
  */
 
 #import <Foundation/NSCache.h>
-#include <Alepha/Objective/Object.h>
-#if __GNUC_MINOR__ == 2
-#include <tr1/unordered_map>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/locks.hpp>
-using std::tr1::unordered_map;
-using boost::mutex;
-using boost::lock_guard;
-#else
 #include <unordered_map>
 #include <mutex>
 using std::unordered_map;
 using std::mutex;
 using std::lock_guard;
-#endif
-#include <boost/intrusive/list.hpp>
 #include <vector>
 #import "internal.h"
 
@@ -60,8 +49,8 @@ struct cached_object
 	cached_object(id inobj, NSUInteger _cost, NSUInteger _accTime, id k) :
 		obj(inobj), key(k), cost(_cost), count(0), lastAccess(_accTime) {}
 	cached_object() : obj(nil), key(nil), cost(0), count(0), lastAccess(0) {}
-	Alepha::Objective::Object<id> obj;
-	id key;	// Weak reference to the key.
+	__strong id obj;
+	__weak id key;	// Weak reference to the key.
 	NSUInteger cost;
 	NSUInteger count;
 	NSUInteger lastAccess;
@@ -69,7 +58,7 @@ struct cached_object
 
 struct __NSCachePrivate {
 	mutex mtx;
-	typedef unordered_map<Alepha::Objective::Object<id>, cached_object> table_type;
+	typedef unordered_map<id, cached_object> table_type;
 	table_type table;
 	NSUInteger currentAccess;
 	NSUInteger currentCost;
