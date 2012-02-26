@@ -32,17 +32,12 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-#include <Alepha/Objective/Object.h>
-#if __GNUC_MINOR__ == 2
-#include <tr1/functional>
-#endif
 #include <functional>
 #endif
 #include <SysCall.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <objc/encoding.h>
 #include <Foundation/primitives.h>
-#include <Event.h>
 #ifdef __OBJC__
 #import <Foundation/NSCalendar.h>
 #import <Foundation/NSConnection.h>
@@ -107,21 +102,10 @@ namespace std
 			return [obj isEqual:other];
 		}
 	};
-	template<>
-		struct equal_to<Alepha::Objective::Object<id> >
-	{
-		bool operator()(id other, id obj) const
-		{
-			return [obj isEqual:other];
-		}
-	};
 }
 
 namespace std
 {
-#if __GNUC_MINOR__ == 2
-namespace tr1 {
-#endif
 	template<>
 	struct hash<id>
 	{
@@ -130,17 +114,6 @@ namespace tr1 {
 			return [obj hash];
 		}
 	};
-	template<>
-		struct hash<Alepha::Objective::Object<id> >
-	{
-		size_t operator()(id obj) const
-		{
-			return [obj hash];
-		}
-	};
-#if __GNUC_MINOR__ == 2
-}
-#endif
 }
 #endif
 
