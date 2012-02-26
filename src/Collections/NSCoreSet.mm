@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2011	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,25 +28,23 @@
  */
 
 #import "internal.h"
-#import <Foundation/NSArray.h>
-
 #import "NSCoreSet.h"
+#import <Foundation/NSArray.h>
+#include <unordered_set>
+typedef std::unordered_set<id> intern_set;
 
 /*
  * NSCoreSet
  */
 
-static bool obj_isEqual(id other, id obj)
-{
-	return [obj isEqual:other];
-}
-
-static size_t obj_hash(id obj)
-{
-	return [obj hash];
-}
+@interface NSCoreSet ()
+- (intern_set *)__setObject;
+@end
 
 @implementation NSCoreSet
+{
+	intern_set set;
+}
 
 - (id)init
 {
@@ -55,7 +53,7 @@ static size_t obj_hash(id obj)
 
 - (id)initWithCapacity:(unsigned)_capacity
 {
-	set = intern_set(10, obj_hash, obj_isEqual);
+	set = intern_set(_capacity);
 	return self;
 }
 
@@ -153,6 +151,11 @@ static size_t obj_hash(id obj)
  */
 
 @implementation _ConcreteSetEnumerator
+{
+	NSCoreSet *set;
+	intern_set *table;
+	intern_set::iterator i;
+}
 
 - initWithSet:(NSCoreSet*)_set
 {

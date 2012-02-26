@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -414,6 +414,49 @@ static Class CoreSetClass;
 	}
 	return i;
 #endif
+}
+
+- (void) enumerateObjectsUsingBlock:(void (^)(id obj, bool *stop))block
+{
+	for (id obj in self)
+	{
+		bool stop = false;
+		block(obj, &stop);
+		if (stop)
+		{
+			break;
+		}
+	}
+}
+
+- (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, bool *stop))block
+{
+}
+
+- (NSSet *) objectsPassingTest:(bool (^)(id obj, bool *stop))predicate
+{
+	__block NSMutableSet *newSet = [NSMutableSet new];
+
+	[self enumerateObjectsUsingBlock:^(id obj, bool *stop){
+		if (predicate(obj, stop))
+		{
+			[newSet addObject:obj];
+		}
+	}];
+	return newSet;
+}
+
+- (NSSet *) objectsWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, bool *stop))predicate
+{
+	__block NSMutableSet *newSet = [NSMutableSet new];
+
+	[self enumerateObjectsWithOptions:opts usingBlock:^(id obj, bool *stop){
+		if (predicate(obj, stop))
+		{
+			[newSet addObject:obj];
+		}
+	}];
+	return newSet;
 }
 
 - (NSArray *) sortedArrayUsingDescriptors:(NSArray *)descriptors

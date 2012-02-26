@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -152,7 +152,7 @@
 
 #if __has_feature(blocks)
 - (void) enumerateObjectsUsingBlock:(void (^)(id obj, bool *stop))block;
-- (void) enumerateObjectWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, bool *stop))block;
+- (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, bool *stop))block;
 - (NSSet *) objectsPassingTest:(bool (^)(id obj, bool *stop))predicate;
 - (NSSet *) objectsWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, bool *stop))predicate;
 #endif

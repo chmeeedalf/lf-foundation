@@ -53,29 +53,12 @@
 
 #import <Foundation/NSSet.h>
 #import <Foundation/NSEnumerator.h>
-#ifdef __cplusplus
-#if __GNUC_MINOR__ == 2
-#include <tr1/unordered_set>
-typedef std::tr1::unordered_set<id,size_t(*)(id),bool(*)(id,id)> intern_set;
-#else
-#include <unordered_set>
-typedef std::unordered_set<id,size_t(*)(id),bool(*)(id,id)> intern_set;
-#endif
-#endif
 
 /*
  * Conre class for NSSet
  */
 
 @interface NSCoreSet : NSMutableSet
-{
-#ifdef __cplusplus
-	intern_set set;
-#else
-	void *set;
-#endif
-}
-
 /* Allocating and Initializing */
 
 - (id)init;
@@ -93,11 +76,6 @@ typedef std::unordered_set<id,size_t(*)(id),bool(*)(id,id)> intern_set;
 - (void)removeObject:(id)object;
 - (void)removeAllObjects;
 
-/* Private methods */
-#ifdef __cplusplus
-- (intern_set *)__setObject;
-#endif
-
 @end
 
 /*
@@ -107,13 +85,6 @@ typedef std::unordered_set<id,size_t(*)(id),bool(*)(id,id)> intern_set;
 typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 
 @interface _ConcreteSetEnumerator : NSEnumerator
-{
-	NSCoreSet *set;
-#ifdef __cplusplus
-	intern_set *table;
-	intern_set::iterator i;
-#endif
-}
 
 - initWithSet:(NSCoreSet*)_set;
 - nextObject;

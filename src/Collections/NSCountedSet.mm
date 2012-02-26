@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,13 +31,8 @@
 #import <Foundation/NSSet.h>
 #import <Foundation/NSEnumerator.h>
 #import "internal.h"
-#if __GNUC_MINOR__ == 2
-#include <tr1/unordered_set>
-typedef std::tr1::unordered_multiset<id> _map_table;
-#else
 #include <unordered_set>
 typedef std::unordered_multiset<id> _map_table;
-#endif
 
 @interface _CountedSetEnumerator :	NSEnumerator
 {
