@@ -135,13 +135,9 @@ NSHashCode hashjb(const char* name, int len) __private;
 
 extern unsigned int numThreads __private;
 
-void birthingEventHandler(Event_t *eventPage);
-void spawnBirthingEventHandler(Event_t *eventPage);
 typedef int		 (*cmp_t)(const void *, const void *);
 void *runThread(void *thr) __private;
 void class_insert_class (Class class_ptr) __private;
-
-void eventHandler (Event_t *_eventPage);
 
 #ifdef __OBJC__
 @class NSProxy;
