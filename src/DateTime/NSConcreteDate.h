@@ -70,8 +70,8 @@
     NSTimeInterval timeSinceRef;
 }
 
-- init;
-- initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded;
+- (id) init;
+- (id) initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded;
 - (id) copyWithZone:(NSZone*)zone;
 - (NSTimeInterval)timeIntervalSinceReferenceDate;
 

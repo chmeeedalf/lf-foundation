@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,10 +40,10 @@
 @interface NSHashTable	:	NSObject<NSFastEnumeration>
 {
 }
-+ hashTableWithOptions:(NSPointerFunctionsOptions)options;
-+ hashTableWithWeakObjects;
-- initWithOptions:(NSPointerFunctionsOptions)options capacity:(size_t)cap;
-- initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap;
++ (id) hashTableWithOptions:(NSPointerFunctionsOptions)options;
++ (id) hashTableWithWeakObjects;
+- (id) initWithOptions:(NSPointerFunctionsOptions)options capacity:(size_t)cap;
+- (id) initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap;
 
 - (NSArray *)allObjects;
 - (id)anyObject;

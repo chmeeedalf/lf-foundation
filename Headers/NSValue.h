@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -240,78 +240,78 @@
 /*!
  * \brief initializes a number object representing a value of the type <b>bool</b>.
  */
-- initWithBool:(bool)value;
+- (id)initWithBool:(bool)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>char</b>.
  */
-- initWithChar:(char)value;
+- (id)initWithChar:(char)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>double</b>.
  */
-- initWithDouble:(double)value;
+- (id)initWithDouble:(double)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>float</b>.
  */
-- initWithFloat:(float)value;
+- (id)initWithFloat:(float)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>int</b>.
  */
-- initWithInt:(int)value;
+- (id)initWithInt:(int)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>NSInteger</b>.
  */
-- initWithInteger:(NSInteger)value;
+- (id)initWithInteger:(NSInteger)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>long</b>.
  */
-- initWithLong:(long)value;
+- (id)initWithLong:(long)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>long long</b>.
  */
-- initWithLongLong:(long long)value;
+- (id)initWithLongLong:(long long)value;
 
 /*!
  * \brief initializes a number object representing a value of the type <b>short</b>.
  */
-- initWithShort:(short)value;
+- (id)initWithShort:(short)value;
 
 /*!
  * \brief initializes a number object representing a value of the
  * type <b>unsigned char</b>.
  */
-- initWithUnsignedChar:(unsigned char)value;
+- (id)initWithUnsignedChar:(unsigned char)value;
 
 /*!
  * \brief initializes a number object representing a value of the
  * type <b>unsigned int</b>.
  */
-- initWithUnsignedInt:(unsigned int)value;
-- initWithUnsignedInteger:(NSUInteger)value;
+- (id)initWithUnsignedInt:(unsigned int)value;
+- (id)initWithUnsignedInteger:(NSUInteger)value;
 
 /*!
  * \brief initializes a number object representing a value of the
  * type <b>unsigned long</b>.
  */
-- initWithUnsignedLong:(unsigned long)value;
+- (id)initWithUnsignedLong:(unsigned long)value;
 
 /*!
  * \brief initializes a number object representing a value of the
  * type <b>unsigned long long</b>.
  */
-- initWithUnsignedLongLong:(unsigned long long)value;
+- (id)initWithUnsignedLongLong:(unsigned long long)value;
 
 /*!
  * \brief initializes a number object representing a value of the
  * type <b>unsigned short</b>.
  */
-- initWithUnsignedShort:(unsigned short)value;
+- (id)initWithUnsignedShort:(unsigned short)value;
 
 // Accessing data
 /*!

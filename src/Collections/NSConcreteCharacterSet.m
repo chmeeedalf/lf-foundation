@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,7 +48,7 @@
 
 @implementation _NSICUCharacterSet
 
-- init
+- (id) init
 {
 	self = [super init];
 	if (self != nil)
@@ -58,7 +58,7 @@
 	return self;
 }
 
-- initWithRange:(NSRange)aRange inverted:(bool)inv
+- (id) initWithRange:(NSRange)aRange inverted:(bool)inv
 {
 	self = [self init];
 	if (self != nil)
@@ -70,7 +70,7 @@
 	return self;
 }
 
-- initWithString:(NSString *)string inverted:(bool)inv
+- (id) initWithString:(NSString *)string inverted:(bool)inv
 {
 	self = [super init];
 	if (self != nil)
@@ -86,7 +86,7 @@
 	return self;
 }
 
-- initWithPattern:(NSString *)_pattern inverted:(bool)inv
+- (id) initWithPattern:(NSString *)_pattern inverted:(bool)inv
 {
 	NSUniChar		*pat;
 	int32_t		patternLength;
@@ -99,7 +99,7 @@
 	return self;
 }
 
-- initWithCharacterType:(uint32_t)_mask inverted:(bool)inv
+- (id) initWithCharacterType:(uint32_t)_mask inverted:(bool)inv
 {
 	self = [self init];
 
@@ -113,7 +113,7 @@
 	return self;
 }
 
-- initWithMask:(uint32_t)_mask inverted:(bool)inv
+- (id) initWithMask:(uint32_t)_mask inverted:(bool)inv
 {
 	self = [self init];
 
@@ -127,7 +127,7 @@
 	return self;
 }
 
-- initWithProperty:(uint32_t)_mask inverted:(bool)inv
+- (id) initWithProperty:(uint32_t)_mask inverted:(bool)inv
 {
 	self = [self init];
 
@@ -141,7 +141,7 @@
 	return self;
 }
 
-- initWithBitmapRepresentation:(NSData *)bitmap inverted:(bool)inv
+- (id) initWithBitmapRepresentation:(NSData *)bitmap inverted:(bool)inv
 {
 	self = [self init];
 
@@ -152,7 +152,7 @@
 
 		if (bytes != NULL)
 		{
-			for (int i = 0; i < (len * 8); i++)
+			for (size_t i = 0; i < (len * 8); i++)
 			{
 				if ((bytes[i >> 3] & (1 << (i & 7))) != 0)
 				{
@@ -188,6 +188,17 @@
 	return uset_contains(set, aCharacter);
 }
 
+- (bool)hasMemberInPlane:(uint8_t)plane
+{
+	// Each plane is 65536 characters, 16 bits
+	USet *testSet = uset_open(plane << 16, (plane + 1) << 16 - 1);
+	bool isMember;
+
+	isMember = uset_containsSome(set, testSet);
+	uset_close(testSet);
+	return isMember;
+}
+
 - (NSCharacterSet *)invertedSet
 {
 	_NSICUCharacterSet *newSet;
@@ -202,7 +213,7 @@
 
 // Copying
 
-- copyWithZone:(NSZone*)zone
+- (id) copyWithZone:(NSZone*)zone
 {
 	_NSICUCharacterSet *newSet;
 

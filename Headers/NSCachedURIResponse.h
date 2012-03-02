@@ -24,8 +24,8 @@ typedef enum
 	NSURICacheStoragePolicy _storagePolicy;
 }
 
--initWithResponse:(NSURIResponse *)response data:(NSData *)data userInfo:(NSDictionary *)userInfo storagePolicy:(NSURICacheStoragePolicy)storagePolicy;
--initWithResponse:(NSURIResponse *)response data:(NSData *)data;
+- (id) initWithResponse:(NSURIResponse *)response data:(NSData *)data userInfo:(NSDictionary *)userInfo storagePolicy:(NSURICacheStoragePolicy)storagePolicy;
+- (id) initWithResponse:(NSURIResponse *)response data:(NSData *)data;
 
 -(NSURIResponse *)response;
 -(NSData *)data;

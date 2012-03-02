@@ -106,7 +106,7 @@ static int32_t do_write_string(const void *p, UChar *chars, int32_t len)
 	{
 		return [s length];
 	}
-	[s getCharacters:chars range:NSMakeRange(0,MIN([s length], len))];
+	[s getCharacters:chars range:NSMakeRange(0,MIN([s length], (unsigned int)len))];
 
 	return [s length];
 }
@@ -311,6 +311,22 @@ static Class MutableStringClass;
 	return (self == StringClass) ?
 		[NSTemporaryString allocWithZone:zone]
 		: NSAllocateObject(self, 0, zone);
+}
+
++(id)localizedStringWithFormat:(NSString *)format,...
+{
+	va_list ap;
+	NSString *ret;
+
+	if (format == nil)
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Nil format argument" userInfo:nil];
+	}
+
+	va_start(ap, format);
+	ret = [[self allocWithZone:NULL] initWithFormat:format locale:[NSLocale currentLocale] arguments:ap];
+	va_end(ap);
+	return ret;
 }
 
 + (id)stringWithFormat:(NSString*)format locale:(NSLocale *)locale,...
@@ -1072,7 +1088,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 
 	while (target != targetEnd && fromRange.length > 0)
 	{
-		int buflen = MIN(BYTES_BUFSIZE, fromRange.length);
+		size_t buflen = MIN(BYTES_BUFSIZE, fromRange.length);
 		UErrorCode err;
 		const UChar *buf = internalBuffer;
 		[self getCharacters:internalBuffer range:NSMakeRange(fromRange.location, buflen)];
@@ -1376,7 +1392,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	return [self _composedStringUsingNormalizationMode:UNORM_NFD];
 }
 
-static inline const int hexval(char digit)
+static inline int hexval(char digit)
 {
 	if (digit > 'a')
 		return 10 + (digit - 'a');
@@ -1488,7 +1504,7 @@ static inline const int hexval(char digit)
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	size_t count;
 
@@ -1526,7 +1542,7 @@ static inline const int hexval(char digit)
 	return [self stringWithCapacity:0];
 }
 
-- initWithCapacity:(unsigned int)capacity
+- (id) initWithCapacity:(unsigned int)capacity
 {
 	[self subclassResponsibility:_cmd];
 	return nil;
@@ -1617,7 +1633,7 @@ static NSTemporaryString *zoneStrings = nil;
 	}
 }
 
-+ allocWithZone:(NSZone*)zone
++ (id) allocWithZone:(NSZone*)zone
 {
 	NSTemporaryString* obj = nil;
 
@@ -1660,33 +1676,33 @@ static NSTemporaryString *zoneStrings = nil;
  * Methods that return strings
  */
 
-- init
+- (id) init
 {
 	id str = @"";
 
 	return str;
 }
 
-- initWithBytes:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytes:(const void *)bytes length:(NSIndex)length
 	encoding:(NSStringEncoding)enc
 {
 	return (id)[[NSCoreString alloc] initWithBytes:bytes length:length encoding:enc copy:true
 		freeWhenDone:false];
 }
 
-- initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
 	encoding:(NSStringEncoding)encoding freeWhenDone:(bool)flag
 {
 	return (id)[[NSCoreString alloc] initWithBytesNoCopy:bytes length:length
 		encoding:encoding freeWhenDone:flag];
 }
 
-- initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length
+- (id) initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length
 {
 	return (id)[[NSCoreString alloc] initWithCharacters:chars length:length];
 }
 
-- initWithCharactersNoCopy:(const NSUniChar*)chars
+- (id) initWithCharactersNoCopy:(const NSUniChar*)chars
 length:(NSIndex)length freeWhenDone:(bool)flag
 {
 	// UNICODE
@@ -1694,7 +1710,7 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 		freeWhenDone:flag];
 }
 
-- initWithCString:(const char*)byteString encoding:(NSStringEncoding)enc
+- (id) initWithCString:(const char*)byteString encoding:(NSStringEncoding)enc
 {
 	if (byteString == NULL)
 		return [self init];
@@ -1707,18 +1723,18 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	return str;
 }
 
-- initWithUTF8String:(const char *)utf8Str
+- (id) initWithUTF8String:(const char *)utf8Str
 {
 	return [self initWithCString:utf8Str encoding:NSUTF8StringEncoding];
 }
 
-- initWithString:(NSString*)aString
+- (id) initWithString:(NSString*)aString
 {
 	id str = [[NSCoreString allocWithZone:_zone] initWithString:aString];
 	return str;
 }
 
-- initWithFormat:(NSString*)format, ...
+- (id) initWithFormat:(NSString*)format, ...
 {
 	id str;
 	va_list va;
@@ -1729,12 +1745,12 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	return str;
 }
 
-- initWithFormat:(NSString*)format arguments:(va_list)argList
+- (id) initWithFormat:(NSString*)format arguments:(va_list)argList
 {
 	return [self initWithFormat:format locale:nil arguments:argList];
 }
 
-- initWithFormat:(NSString*)format
+- (id) initWithFormat:(NSString*)format
 	locale:(NSLocale*)locale, ...
 {
 	id str;
@@ -1746,7 +1762,7 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	return str;
 }
 
-- initWithFormat:(NSString*)format
+- (id) initWithFormat:(NSString*)format
 		locale:(NSLocale*)locale arguments:(va_list)argList
 {
 	id str = Avsprintf(format, locale, argList);
@@ -1754,7 +1770,7 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	return str;
 }
 
-- initWithData:(NSData*)data encoding:(NSStringEncoding)encoding
+- (id) initWithData:(NSData*)data encoding:(NSStringEncoding)encoding
 {
 	// UNICODE
 	id str = [[NSCoreString allocWithZone:_zone]

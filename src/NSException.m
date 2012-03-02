@@ -76,7 +76,7 @@ userInfo:(NSDictionary*)_userInfo
 reason:(NSString*)_reason
 userInfo:(NSDictionary*)_userInfo
 {
-	uintptr_t retaddr;
+	NSInteger retaddr;
 	NSArray *callstack;
 	NSIndex i = 0;
 
@@ -147,7 +147,7 @@ userInfo:(NSDictionary*)_userInfo
 @end /* NSException (Extensions) */
 
 @implementation NSStandardException : NSException
-+exceptionWithReason:(NSString *)_reason userInfo:(NSDictionary *)_info
++(id)exceptionWithReason:(NSString *)_reason userInfo:(NSDictionary *)_info
 {
 	return [super exceptionWithName:NSStringFromClass(self)
 		reason:_reason

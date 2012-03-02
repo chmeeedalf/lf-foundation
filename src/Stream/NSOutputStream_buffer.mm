@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,16 +34,11 @@
 
 @implementation NSOutputStream_buffer
 
-- initToBuffer:(uint8_t *)buf capacity:(size_t)bufLen;
+- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)bufLen
 {
 	buffer = buf;
 	bufferLen = bufLen;
 	return self;
-}
-
-- (void) dealloc
-{
-	[super dealloc];
 }
 
 - (void) open

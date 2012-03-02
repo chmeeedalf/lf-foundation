@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @implementation NSKVCMutableArray
 -(id)initWithKey:(id)theKey forProxyObject:(id)object
 {
-	[super init];
+	self = [super init];
 
-    proxyObject = [object retain];
-	key = [theKey retain];
+    proxyObject = object;
+	key = theKey;
 	const char *ukey=[[key capitalizedString] cStringUsingEncoding:NSASCIIStringEncoding];
 	char *selname;
 
@@ -76,28 +76,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		[proxyObject setValue:object forKey:key];
 }
 
--(void)dealloc
-{
-	[key release];
-	[proxyObject release];
-	[super dealloc];
-}
-
-- (unsigned)count;
+- (unsigned)count
 {
 	if(count)
 		return (int)count(proxyObject, countSel);
 	return [[self _representedObject] count];
 }
 
-- (id)objectAtIndex:(unsigned)index;
+- (id)objectAtIndex:(unsigned)index
 {
 	if(objectAtIndex)
 		return objectAtIndex(proxyObject, objectAtIndexSel, index);
 	return [[self _representedObject] objectAtIndex:index];
 }
 
-- (void)addObject:(id)anObject;
+- (void)addObject:(id)anObject
 {
 	if(insert)
 		insert(proxyObject, insertSel, anObject, [self count]); 
@@ -106,11 +99,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		id target=[[self _representedObject] copy];
 		[target addObject:anObject];
 		[self _setRepresentedObject:target];
-		[target release];
 	}
 }
 
-- (void)insertObject:(id)anObject atIndex:(unsigned)index;
+- (void)insertObject:(id)anObject atIndex:(unsigned)index
 {
 	if(insert)
 	{
@@ -121,11 +113,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		id target=[[self _representedObject] copy];
 		[target insertObject:anObject atIndex:index];
 		[self _setRepresentedObject:target];
-		[target release];
 	}
 }
 
-- (void)removeLastObject;
+- (void)removeLastObject
 {
 	if(remove)
 		remove(proxyObject, removeSel, [self count]-1); 
@@ -134,11 +125,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		id target=[[self _representedObject] copy];
 		[target removeLastObject];
 		[self _setRepresentedObject:target];
-		[target release];
 	}
 }
 
-- (void)removeObjectAtIndex:(unsigned)index;
+- (void)removeObjectAtIndex:(unsigned)index
 {
 	if(remove)
 		remove(proxyObject, removeSel, index); 
@@ -147,11 +137,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		id target=[[self _representedObject] copy];
 		[target removeObjectAtIndex:index];
 		[self _setRepresentedObject:target];
-		[target release];
 	}
 }
 
-- (void)replaceObjectAtIndex:(unsigned)index withObject:(id)anObject;
+- (void)replaceObjectAtIndex:(unsigned)index withObject:(id)anObject
 {
 	if(replace)
 		replace(proxyObject, replaceSel, index, anObject);
@@ -160,7 +149,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		id target=[[self _representedObject] copy];
 		[target replaceObjectAtIndex:index withObject:anObject];
 		[self _setRepresentedObject:target];
-		[target release];
 	}
 }
 

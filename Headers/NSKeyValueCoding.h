@@ -1,3 +1,31 @@
+/*-
+ * Copyright (c) 2012 Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
 /* Copyright (c) 2006-2007 Johannes Fortmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -19,6 +47,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @class NSDictionary;
 @class NSArray;
 @class NSError;
+@class NSMutableOrderedSet;
+
+extern NSString * const NSUnknownUserInfoKey;
+extern NSString * const NSTargetObjectUserInfoKey;
+
+extern NSString * const NSAverageKeyValueOperator;
+extern NSString * const NSCountKeyValueOperator;
+extern NSString * const NSDistinctUnionOfArraysKeyValueOperator;
+extern NSString * const NSDistinctUnionOfObjectsKeyValueOperator;
+extern NSString * const NSDistinctUnionOfSetsKeyValueOperator;
+extern NSString * const NSMaximumKeyValueOperator;
+extern NSString * const NSMinimumKeyValueOperator;
+extern NSString * const NSSumKeyValueOperator;
+extern NSString * const NSUnionOfArraysKeyValueOperator;
+extern NSString * const NSUnionOfObjectsKeyValueOperator;
+extern NSString * const NSUnionOfSetsKeyValueOperator;
 
 @interface NSKeyValueCodingException : NSStandardException
 @end
@@ -40,15 +84,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 +(bool)accessInstanceVariablesDirectly;
 
-/*!
- * \brief Initialize an object with the given dictionary.
- * \param dict NSDictionary of key-value pairs to initialize the object with.
- *
- * \details Each key must correspond to a setter or instance variable, and the
- * corresponding value in the dictionary must be of the acceptable type for that
- * instance variable.
- */
-- (id)initWithDictionary:(NSDictionary *)dict;
 // primitive methods
 /*!
  * \brief Returns an object-encoded value for the given key.
@@ -69,7 +104,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * \param key Key of property to validate against.
  * \retval outError NSError that occurs in the validation.
  */
--(bool)validateValue:(id *)ioValue forKey:(NSString *)key error:(NSError **)outError;
+-(bool)validateValue:(id *)ioValue forKey:(NSString *)key error:(out NSError **)outError;
 
 // key path methods
 /*!
@@ -91,7 +126,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * \param keyPath Key path to property to validate against.
  * \retval outError NSError that occurs in the validation.
  */
--(bool)validateValue:(id *)ioValue forKeyPath:(NSString *)keyPath error:(NSError **)outError;
+-(bool)validateValue:(id *)ioValue forKeyPath:(NSString *)keyPath error:(out NSError **)outError;
 
 // dictionary methods
 /*!
@@ -140,14 +175,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * objects at the given key.
  * \param key Key for array.
  */
--(id)mutableArrayValueForKey:(id)key;
+-(NSMutableArray *)mutableArrayValueForKey:(id)key;
 
 /*!
  * \brief Returns an array that provides read-write access to an ordered list of
  * objects at the given key path.
  * \param keyPath Key path for array.
  */
--(id)mutableArrayValueForKeyPath:(id)keyPath;
+-(NSMutableArray *)mutableArrayValueForKeyPath:(id)keyPath;
+
+- (NSMutableOrderedSet *) mutableOrderedSetValueForKey:(NSString *)key;
+- (NSMutableOrderedSet *) mutableOrderedSetValueForKeyPath:(NSString *)key;
+- (NSMutableSet *) mutableSetValueForKey:(NSString *)key;
+- (NSMutableSet *) mutableSetValueForKeyPath:(NSString *)key;
 @end
 
 @interface NSArray(NSKeyValueCoding)

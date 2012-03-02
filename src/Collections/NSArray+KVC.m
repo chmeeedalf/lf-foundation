@@ -212,7 +212,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	}
 }
 
--(void)addObserver:(id)observer forKeyPath:(NSString*)keyPath options:(NSKeyValueObservingOptions)options context:(void*)context;
+-(void)addObserver:(id)observer forKeyPath:(NSString*)keyPath options:(NSKeyValueObservingOptions)options context:(void*)context
 {
 	if([object_getClass(self) instanceMethodForSelector:_cmd]==[NSArray instanceMethodForSelector:_cmd])
 		@throw [NSInvalidArgumentException exceptionWithReason:[NSString stringWithFormat:@"%@ not supported for key path %@ (observer was %@)", NSStringFromSelector(_cmd), keyPath, observer] userInfo:nil];
@@ -223,7 +223,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 				   context:context];
 }
 
--(void)removeObserver:(id)observer forKeyPath:(NSString*)keyPath;
+-(void)removeObserver:(id)observer forKeyPath:(NSString*)keyPath
 {
 	if([object_getClass(self) instanceMethodForSelector:_cmd]==[NSArray instanceMethodForSelector:_cmd])
 		@throw [NSInvalidArgumentException exceptionWithReason:[NSString stringWithFormat:@"not supported for key path %@ (observer was %@)", keyPath, observer] userInfo:nil];

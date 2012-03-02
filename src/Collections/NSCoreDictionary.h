@@ -110,8 +110,8 @@ typedef struct _map_table *_map_table;
 	bool valEnum;
 }
 
-- initWithDictionary:(NSCoreDictionary*)_dict;
-- nextObject;
+- (id) initWithDictionary:(NSCoreDictionary*)_dict;
+- (id) nextObject;
 
 @end /* _ConcreteDictionaryEnumerator */
 

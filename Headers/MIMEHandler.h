@@ -49,7 +49,7 @@
  * \param _data MIME encoded source data.
  * \param enc MIME format of the encoded data.
  */
-- initWithData:(NSData *)_data MIMEEncoding:(NSString *)enc;
+- (id) initWithData:(NSData *)_data MIMEEncoding:(NSString *)enc;
 
 /*!
  * \brief Encode the receiver to a given MIME type, returning the actual encoding.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  * * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -249,14 +249,12 @@ static inline NSString *_hostname(NSUniChar **strp)
 			break;
 		else
 		{
-			[prevStr release];
 			prevStr = lastStr;
 		}
 		(*strp)++;
 	}
 
 	len = [prevStr length];
-	[prevStr release];
 
 	if (*strp > str && !_alpha(*(*strp - len)))
 	{
@@ -342,7 +340,6 @@ static inline int _ipv6end(NSUniChar *strp)
 			return n;
 	}
 	n = [(str = (_ipv4AddressInt(&strp))) length];
-	[str release];
 	return n;
 }
 
@@ -444,7 +441,7 @@ static inline bool _hostPort(NSURI *self, NSUniChar **strp)
 		return false;
 	}
 
-	self->host = [h retain];
+	self->host = h;
 	self->hostName = hostName;
 
 	if (**strp == ':')
@@ -546,7 +543,6 @@ static inline NSURI *hostPath(NSURI *self, NSUniChar **strp)
 	NSUniChar *start = *strp;
 	if (**strp != '/')
 	{
-		[self release];
 		return nil;
 	}
 
@@ -574,7 +570,7 @@ static inline NSURI *netPath(NSURI *self, NSUniChar **strp)
 	str += 2;
 	if (*str != '/')
 	{
-		if (!parseAuthority(self, &str) && ![[self scheme] isEqual:@"file"])
+		if (!parseAuthority(self, &str) && ![self isFileURI])
 			return nil;
 	}
 
@@ -675,32 +671,37 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 	return true;
 }
 
-+ URIWithString:(NSString *)string
++ (id) URIWithString:(NSString *)string
 {
-	return [[[self alloc] initWithString:string] autorelease];
+	return [[self alloc] initWithString:string];
 }
 
-+ fileURIWithPath:(NSString *)path
++ (id) fileURIWithPath:(NSString *)path
 {
-	return [[[self alloc] initFileURIWithPath:path] autorelease];
+	return [[self alloc] initFileURIWithPath:path];
 }
 
-+ fileURIWithPathComponents:(NSArray *)components
++ (id) fileURIWithPathComponents:(NSArray *)components
 {
 	return [self fileURIWithPath:[NSString pathWithComponents:components]];
 }
 
-+ URIWithString:(NSString *)string relativeToURI:(NSURI *)baseURI
++ (id) fileURIWithPath:(NSString *)path isDirectory:(bool)isDir
 {
-	return [[[self alloc] initWithString:string relativeToURI:baseURI] autorelease];
+	return [[self alloc] initFileURIWithPath:path isDirectory:isDir];
 }
 
-- initWithString:(NSString *)string
++ (id) URIWithString:(NSString *)string relativeToURI:(NSURI *)baseURI
+{
+	return [[self alloc] initWithString:string relativeToURI:baseURI];
+}
+
+- (id) initWithString:(NSString *)string
 {
 	return [self initWithString:string relativeToURI:nil];
 }
 
-- initWithString:(NSString *)string relativeToURI:(NSURI *)base
+- (id) initWithString:(NSString *)string relativeToURI:(NSURI *)base
 {
 	// we can mess with this pointer, it's autoreleased
 	NSUniChar *str;
@@ -711,7 +712,6 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 	str = malloc(len * sizeof(NSUniChar));
 	if (str == NULL)
 	{
-		[self release];
 		return nil;
 	}
 	[string getCharacters:str range:range];
@@ -726,12 +726,10 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 	}
 	else
 	{
-
 		if (!_hierPart(self, str))
 		{
 			if (!_opaquePart(self, str))
 			{
-				[self release];
 				self = nil;
 			}
 			else
@@ -752,7 +750,7 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 	return self;
 }
 
-- initWithScheme:(NSString *)s host:(NSString *)h path:(NSString *)p
+- (id) initWithScheme:(NSString *)s host:(NSString *)h path:(NSString *)p
 {
 	scheme = [s copy];
 	hostName = [h copy];
@@ -760,18 +758,32 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 	return self;
 }
 
-- initFileURIWithPath:(NSString *)fPath
+- (id) initFileURIWithPath:(NSString *)fPath
 {
 	return [self initWithScheme:@"file" host:nil path:fPath];
 }
 
+- (id) initFileURIWithPath:(NSString *)path isDirectory:(bool)isDir
+{
+	TODO; // -[NSURI initFileURIWithPath:isDirectory:];
+	return nil;
+}
+
 - (id) copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 - (NSString *) absoluteString
 {
+	TODO; // -[NSURI absoluteString]
+	return nil;
+}
+
+- (NSURI *) absoluteURI
+{
+	TODO; // -[NSURI absoluteURI]
+	return nil;
 }
 
 - (NSURI *) baseURI
@@ -784,8 +796,26 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 	// If this URI was built by -[initWithScheme:host:path:] build the result
 	// manually.
 	if (srcString == nil)
-		srcString = [[self description] retain];
+		srcString = [self description];
 	return srcString;
+}
+
+- (NSString *) relativePath
+{
+	TODO; // -[NSURI relativePath]
+	return nil;
+}
+
+- (NSURI *) standardizedURI
+{
+	TODO; // -[NSURI standardizedURI]
+	return nil;
+}
+
+- (NSString *) resourceSpecifier
+{
+	TODO; // -[NSURI resourceSpecifier]
+	return nil;
 }
 
 - (NSString *)scheme
@@ -796,6 +826,24 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 - (NSString *)path
 {
 	return path;
+}
+
+- (NSString *) parameterString
+{
+	TODO; // -[NSURI parameterString]
+	return nil;
+}
+
+- (NSString *) user
+{
+	TODO; // -[NSURI user]
+	return nil;
+}
+
+- (NSString *) password
+{
+	TODO; // -[NSURI password]
+	return nil;
 }
 
 - (NSHost *) host
@@ -858,7 +906,7 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 
 - (NSURI *) URIByResolvingSymlinksInPath
 {
-	if ([[self scheme] isEqual:@"file"])
+	if ([self isFileURI])
 	{
 		return [self _URIWithNewPath:[[self path] stringByResolvingSymlinksInPath]];
 	}
@@ -867,11 +915,16 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 
 - (NSURI *) URIByStandardizingPath
 {
-	if ([[self scheme] isEqual:@"file"])
+	if ([self isFileURI])
 	{
 		return [self _URIWithNewPath:[[self path] stringByStandardizingPath]];
 	}
 	return self;
+}
+
+- (bool) isFileURI
+{
+	return [[self scheme] isEqual:@"file"];
 }
 
 - (NSURI *) URIByDeletingPathExtension
@@ -892,6 +945,12 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 - (NSURI *) URIByAppendingPathComponent:(NSString *)comp
 {
 	return [self _URIWithNewPath:[[self path] stringByAppendingPathComponent:comp]];
+}
+
+- (NSURI *) URIByAppendingPathComponent:(NSString *)component isDirectory:(bool)isDir
+{
+	TODO; // -[NSURI URIByAppendingPathComponent:isDirectory:]
+	return nil;
 }
 
 - (NSArray *) pathComponents
@@ -951,11 +1010,46 @@ static inline bool _hierPart(NSURI *self, NSUniChar *str)
 - (NSURI *) _URIWithNewPath:(NSString *)newPath
 {
 	NSURI *newURI = [[NSURI alloc] initWithScheme:scheme host:hostName path:newPath];
-	newURI->fragment = [fragment retain];
-	newURI->query = [query retain];
-	newURI->port = [port retain];
-	newURI->userInfo = [userInfo retain];
-	return [newURI autorelease];
+	newURI->fragment = fragment;
+	newURI->query = query;
+	newURI->port = port;
+	newURI->userInfo = userInfo;
+	return newURI;
+}
+
+- (id) initWithCoder:(NSCoder *)coder
+{
+	NSURI *base;
+	NSString *relString;
+
+	if ([coder allowsKeyedCoding])
+	{
+		base = [coder decodeObjectForKey:@"base"];
+		relString = [coder decodeObjectForKey:@"relative"];
+	}
+	else
+	{
+		base = [coder decodeObject];
+		relString = [coder decodeObject];
+	}
+	if (relString == nil)
+		relString = @"";
+
+	return [self initWithString:relString relativeToURI:base];
+}
+
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+	if ([coder allowsKeyedCoding])
+	{
+		[coder encodeObject:baseURI forKey:@"base"];
+		[coder encodeObject:srcString forKey:@"relative"];
+	}
+	else
+	{
+		[coder encodeObject:baseURI];
+		[coder encodeObject:srcString];
+	}
 }
 
 @end
@@ -982,12 +1076,12 @@ static NSString * _convertIDNA(NSString *source, int32_t (*converter)(const UCha
 	return retStr;
 }
 
-- ASCIIString
+- (NSString *) ASCIIString
 {
 	return _convertIDNA(self, uidna_IDNToASCII);
 }
 
-- PunycodeString
+- (NSString *) punycodeString
 {
 	return _convertIDNA(self, uidna_IDNToUnicode);
 }

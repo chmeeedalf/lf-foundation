@@ -100,14 +100,14 @@ SYSTEM_EXPORT NSString *NSThreadWillExitNotification;
  * \brief Initialize the thread data.  This is the designated initializer.
  * Every subclass must call this if it implements an init method.
  */
-- init;
+- (id) init;
 
 /*!
  * \brief Initialize the thread with a target object.
  * \param obj "Argument" object to pass to the thread.
  */
-- initWithObject:(id)obj;
-- initWithTarget:(id)target selector:(SEL)selector object:(id)argument;
+- (id) initWithObject:(id)obj;
+- (id) initWithTarget:(id)target selector:(SEL)selector object:(id)argument;
 
 /*!
  \brief Has the receiver sleep until the specified time.

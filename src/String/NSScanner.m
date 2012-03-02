@@ -185,7 +185,7 @@ enum ParseIntType {
 };
 
 /* This is to support scanInt, scanLongLong, scanFloat, and scanDouble. */
-bool scanNumber(int numType, void *dest, NSScanner *self)
+static bool scanNumber(int numType, void *dest, NSScanner *self)
 {
 	NSCharacterSet* decimals = nil;
 	NSString *string = [self string];
@@ -355,7 +355,7 @@ static inline bool ScanHexInteger(NSScanner *self, unsigned long long *result)
 
 - (bool) scanHexDouble:(double *)value
 {
-	double d = 0.0;
+//	double d = 0.0;
 
 	[self scanCharactersFromSet:[self charactersToBeSkipped] intoString:NULL];
 

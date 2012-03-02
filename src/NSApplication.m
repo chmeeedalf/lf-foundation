@@ -49,13 +49,13 @@ NSApplication *App = nil;
 	return App;
 }
 
-- init
+- (id) init
 {
 	threadList = [NSMutableArray new];
 	return self;
 }
 
-- run
+- (id) run
 {
 	id thr = [threadList objectAtIndex:0];
 	runThread((__bridge void *)thr);

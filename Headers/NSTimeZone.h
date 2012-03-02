@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006	Gold Project
+ * Copyright (c) 2006-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -90,7 +90,7 @@ typedef enum
  */
 +(NSTimeZone *)timeZoneWithName:(NSString *)aTimeZoneName;
 
-- initWithName:(NSString *)tzID;
+- (id) initWithName:(NSString *)tzID;
 
 + (NSString *)timeZoneDataVersion;
 

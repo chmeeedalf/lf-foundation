@@ -44,7 +44,7 @@
 	rightExpression:(NSExpression *)_rhs
 	modifier:(NSComparisonPredicateModifier)_modifier
 	type:(NSPredicateOperatorType)_type
-	options:(unsigned)_options
+	options:(NSComparisonPredicateOptions)_options
 {
 	return [[self alloc] initWithLeftExpression:_lhs rightExpression:_rhs
 										modifier:_modifier type:_type 
@@ -69,7 +69,7 @@
 	rightExpression:(NSExpression *)_rhs
 	modifier:(NSComparisonPredicateModifier)_modifier
 	type:(NSPredicateOperatorType)_type
-	options:(unsigned)_options
+	options:(NSComparisonPredicateOptions)_options
 {
 	NSAssert(_type != NSCustomSelectorPredicateOperatorType, @"NSPredicate type must not be custom selector.");
 	lhs = _lhs;

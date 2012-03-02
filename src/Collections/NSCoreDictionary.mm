@@ -156,16 +156,15 @@ count:(unsigned int)count
 - (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
 	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
-	_map_table::const_iterator i;
+	_map_table::const_iterator i = table.cbegin();
 	unsigned long j = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;
-		i = table.begin();
 	}
 	else
 	{
-		i = table.find((__bridge id)(void *)state->extra[1]);
+		advance(i, state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != table.end(); j++, i++)
@@ -173,7 +172,7 @@ count:(unsigned int)count
 	state->mutationsPtr = (unsigned long *)&table;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != table.end())
-		state->extra[1] = (unsigned long)(__bridge void *)(id)i->first;
+		state->extra[1] = std::distance(table.cbegin(), i);
 	return j;
 }
 
@@ -185,7 +184,7 @@ count:(unsigned int)count
 
 @implementation _CoreDictionaryEnumerator
 
-- initWithDictionary:(NSCoreDictionary*)_dict
+- (id) initWithDictionary:(NSCoreDictionary*)_dict
 {
 	d = _dict;
 	table = [d __dictObject];
@@ -193,7 +192,7 @@ count:(unsigned int)count
 	return self;
 }
 
-- nextObject
+- (id) nextObject
 {
 	id obj;
 

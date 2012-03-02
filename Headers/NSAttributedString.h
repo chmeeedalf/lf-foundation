@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2011	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,9 +37,9 @@ typedef NSUInteger NSAttributedStringEnumerationOptions;
 
 @class NSString, NSMutableString, NSDictionary;
 @interface NSAttributedString	:	NSObject<NSCoding,NSCopying,NSMutableCopying>
-- initWithString:(NSString *)str;
-- initWithString:(NSString *)str attributes:(NSDictionary *)attributes;
-- initWithAttributedString:(NSAttributedString *)str;
+- (id) initWithString:(NSString *)str;
+- (id) initWithString:(NSString *)str attributes:(NSDictionary *)attributes;
+- (id) initWithAttributedString:(NSAttributedString *)str;
 
 - (NSString *) string;
 - (size_t) length;

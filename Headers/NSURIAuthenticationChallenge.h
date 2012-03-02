@@ -22,9 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	id                    _sender;
 }
 
--initWithProtectionSpace:(NSURIProtectionSpace *)space proposedCredential:(NSURICredential *)credential previousFailureCount:(int)failureCount failureResponse:(NSURIResponse *)failureResponse error:(NSError *)error sender:(id <NSURIAuthenticationChallengeSender>)sender;
+-(id) initWithProtectionSpace:(NSURIProtectionSpace *)space proposedCredential:(NSURICredential *)credential previousFailureCount:(int)failureCount failureResponse:(NSURIResponse *)failureResponse error:(NSError *)error sender:(id <NSURIAuthenticationChallengeSender>)sender;
 
--initWithAuthenticationChallenge:(NSURIAuthenticationChallenge *)challenge sender:(id <NSURIAuthenticationChallengeSender>)sender;
+-(id) initWithAuthenticationChallenge:(NSURIAuthenticationChallenge *)challenge sender:(id <NSURIAuthenticationChallengeSender>)sender;
 
 -(NSURIProtectionSpace *)protectionSpace;
 -(NSURICredential *)proposedCredential;

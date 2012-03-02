@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008	Gold Project
+ * Copyright (c) 2008-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -66,9 +66,9 @@ typedef enum
  * settings.
  * \sa [NSTask initWithIdentifier:object:environment:]
  */
-+ spawnedTaskWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env;
++ (id)spawnedTaskWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env;
 
-- init;
+- (id)init;
 /*!
  * \brief Initialize a task object that executes with a given environment, and a
  * collection of arguments.
@@ -89,7 +89,7 @@ typedef enum
  * 		- If the associated value is not empty, it is appended with an '=' to
  * 		the key's string.
  */
-- initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env;
+- (id)initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env;
 
 /*!
  * \brief Spawn the process.

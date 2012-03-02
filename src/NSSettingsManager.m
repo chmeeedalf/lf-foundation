@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007	Gold Project
+ * Copyright (c) 2007-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -66,7 +66,7 @@ NSString * const NSSettingsDidChangeNotification = @"NSSettingsDidChangeNotifica
 }
 
 // Retrieving settings
-- objectForKey:(NSString *)key
+- (id) objectForKey:(NSString *)key
 {
 	@synchronized(self)
 	{
@@ -82,7 +82,7 @@ NSString * const NSSettingsDidChangeNotification = @"NSSettingsDidChangeNotifica
 	}
 }
 
-- valueForKey:(NSString *)key
+- (id) valueForKey:(NSString *)key
 {
 	return [self objectForKey:key];
 }

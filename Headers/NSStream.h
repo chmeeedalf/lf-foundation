@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -75,7 +75,7 @@ typedef enum
 + (void)getStreamsToHost:(NSHost *)host port:(NSInteger)port inputStream:(NSInputStream **)inputStream outputStream:(NSOutputStream **)outputStream;
 
 /* Methods to override. */
-- propertyForKey:(NSString *)key;
+- (id) propertyForKey:(NSString *)key;
 - (oneway void) setProperty:(id)prop forKey:(NSString *)key;
 - (id<NSStreamDelegate>) delegate;
 - (oneway void) setDelegate:(id<NSStreamDelegate>)delegate;
@@ -93,11 +93,11 @@ typedef enum
 @interface NSInputStream	:	NSStream<NSInputStream>
 {
 }
-+ inputStreamWithData:(NSData *)d;
-+ inputStreamWithURI:(NSURI *)uri;
++ (id) inputStreamWithData:(NSData *)d;
++ (id) inputStreamWithURI:(NSURI *)uri;
 
-- initWithData:(NSData *)d;
-- initWithURI:(NSURI *)uri;
+- (id) initWithData:(NSData *)d;
+- (id) initWithURI:(NSURI *)uri;
 
 - (size_t) read:(uint8_t *)buf maxLength:(size_t)max;
 - (bool) getBuffer:(uint8_t **)buf length:(size_t *)len;
@@ -108,13 +108,13 @@ typedef enum
 {
 }
 
-+ outputStreamToMemory;
-+ outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap;
-+ outputStreamWithURI:(NSURI *)uri append:(bool)append;
++ (id) outputStreamToMemory;
++ (id) outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap;
++ (id) outputStreamWithURI:(NSURI *)uri append:(bool)append;
 
-- initToMemory;
-- initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
-- initWithURI:(NSURI *)uri append:(bool)append;
+- (id) initToMemory;
+- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
+- (id) initWithURI:(NSURI *)uri append:(bool)append;
 
 - (size_t) write:(const uint8_t *)buf maxLength:(size_t)max;
 - (bool) hasSpaceAvailable;

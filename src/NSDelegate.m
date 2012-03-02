@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2011	Gold Project
+ * Copyright (c) 2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@
 
 @implementation NSDelegate
 
-- initWithProtocol:(Protocol *)proto
+- (id) initWithProtocol:(Protocol *)proto
 {
 	protocol = proto;
 	return self;

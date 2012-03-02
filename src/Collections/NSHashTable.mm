@@ -58,7 +58,7 @@ typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
 	intern_set::iterator i;
 }
 
-- initWithHashTable:(NSConcreteHashTable *)tbl;
+- (id) initWithHashTable:(NSConcreteHashTable *)tbl;
 @end
 
 @implementation NSHashTable
@@ -71,32 +71,32 @@ static Class ConcreteHashTableClass;
 	ConcreteHashTableClass = [NSConcreteHashTable class];
 }
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	if (self == HashTableClass)
 		return NSAllocateObject(ConcreteHashTableClass, 0, zone);
 	return [super allocWithZone:zone];
 }
 
-+ hashTableWithOptions:(NSPointerFunctionsOptions)options
++ (id) hashTableWithOptions:(NSPointerFunctionsOptions)options
 {
 	return [[self alloc] initWithOptions:options capacity:0];
 }
 
-+ hashTableWithWeakObjects
++ (id) hashTableWithWeakObjects
 {
 	return [[self alloc] initWithOptions:(NSPointerFunctionsObjectPersonality |
 			NSPointerFunctionsZeroingWeakMemory) capacity:0];
 }
 
-- initWithOptions:(NSPointerFunctionsOptions)options capacity:(size_t)cap
+- (id) initWithOptions:(NSPointerFunctionsOptions)options capacity:(size_t)cap
 {
 	NSPointerFunctions *pf = [[NSPointerFunctions alloc] initWithOptions:options];
 	self = [self initWithPointerFunctions:pf capacity:cap];
 	return self;
 }
 
-- initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
+- (id) initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
 {
 	[self subclassResponsibility:_cmd];
 	return nil;
@@ -244,7 +244,7 @@ static Class ConcreteHashTableClass;
 
 @implementation NSConcreteHashTable
 
-- initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
+- (id) initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
 {
 	callbacks=[pfuncts copy];
 	[callbacks _fixupEmptyFunctions];
@@ -315,7 +315,7 @@ static Class ConcreteHashTableClass;
 	return string;
 }
 
-- objectEnumerator
+- (id) objectEnumerator
 {
 	return [[_ConcreteHashEnumerator alloc] initWithHashTable:self];
 }
@@ -350,14 +350,14 @@ static Class ConcreteHashTableClass;
 
 @implementation _ConcreteHashEnumerator
 
-- initWithHashTable:(NSConcreteHashTable *)tbl
+- (id) initWithHashTable:(NSConcreteHashTable *)tbl
 {
 	table = &tbl->table;
 	i = table->begin();
 	return self;
 }
 
-- nextObject
+- (id) nextObject
 {
 	if (i == table->end())
 		return nil;

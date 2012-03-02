@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006	Gold Project
+ * Copyright (c) 2004-2007,2009,2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,6 +28,7 @@
  */
 
 #include "System/primitives.h"
+#include <Foundation/NSString.h>
 #include <unicode/uchar.h>
 
 #define PUNCTUATION_MASK 0x200

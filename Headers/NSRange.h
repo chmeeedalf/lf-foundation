@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -79,7 +79,7 @@ __BEGIN_DECLS
  * \param length Length of range.
  * \result NSRange object of given location and length.
  */
-STATIC_INLINE NSRange NSMakeRange(unsigned int location, unsigned int length)
+NS_INLINE NSRange NSMakeRange(unsigned int location, unsigned int length)
 {
 	NSRange r;
 	r.location = location;
@@ -93,7 +93,7 @@ STATIC_INLINE NSRange NSMakeRange(unsigned int location, unsigned int length)
  * \param range2 NSRange to compare with range1.
  * \result true if they are equal, false if they are not.
  */
-STATIC_INLINE bool NSEqualRanges(ConstRangeArg range1, ConstRangeArg range2)
+NS_INLINE bool NSEqualRanges(ConstRangeArg range1, ConstRangeArg range2)
 {
 	return (range1.location == range2.location && 
 		range1.length == range2.length);
@@ -104,7 +104,7 @@ STATIC_INLINE bool NSEqualRanges(ConstRangeArg range1, ConstRangeArg range2)
  * \param range NSRange to get the max value of.
  * \result Maximum range of the range (1 + Maximum value).
  */
-STATIC_INLINE unsigned int NSMaxRange(ConstRangeArg range)
+NS_INLINE unsigned int NSMaxRange(ConstRangeArg range)
 {
 	return range.location + range.length;
 }
@@ -115,7 +115,7 @@ STATIC_INLINE unsigned int NSMaxRange(ConstRangeArg range)
  * \param range NSRange to check in.
  * \result true if location is in the range, false otherwise.
  */
-STATIC_INLINE bool NSLocationInRange(unsigned int location, ConstRangeArg range)
+NS_INLINE bool NSLocationInRange(unsigned int location, ConstRangeArg range)
 {
 	return (location >= range.location) &&
 			(location - range.location < range.length);
@@ -127,7 +127,7 @@ STATIC_INLINE bool NSLocationInRange(unsigned int location, ConstRangeArg range)
  * \param range2 The other range of the union.
  * \result The lowest location, and the maximum range of the two ranges.
  */
-STATIC_INLINE NSRange NSUnionRange(ConstRangeArg range1, ConstRangeArg range2)
+NS_INLINE NSRange NSUnionRange(ConstRangeArg range1, ConstRangeArg range2)
 {
 	NSRange range = range1;
 	if ( range1.location > range2.location )
@@ -145,7 +145,7 @@ STATIC_INLINE NSRange NSUnionRange(ConstRangeArg range1, ConstRangeArg range2)
  * \param range2 The range to intersect with range1.
  * \result The intersection range of the two ranges.
  */
-STATIC_INLINE NSRange NSIntersectionRange(ConstRangeArg range1, ConstRangeArg range2)
+NS_INLINE NSRange NSIntersectionRange(ConstRangeArg range1, ConstRangeArg range2)
 {
 	NSRange range;
 	

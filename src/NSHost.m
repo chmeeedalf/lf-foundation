@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,9 +46,9 @@
 #include <netdb.h>
 
 @interface NSHost()
-- resolve;
-- initWithName:(NSString*)name;
-- initWithAddressString:(NSString*)address;
+- (id) resolve;
+- (id) initWithName:(NSString*)name;
+- (id) initWithAddressString:(NSString*)address;
 - (void) _resolveHost;
 @end
 
@@ -61,19 +61,12 @@
 
 + (NSHost *)hostWithName:(NSString *)name
 {
-    return AUTORELEASE([[NSHost alloc] initWithName:name]);
+    return [[NSHost alloc] initWithName:name];
 }
 
 + (NSHost *)hostWithAddress:(NSString *)address
 {
-    return AUTORELEASE([[NSHost alloc] initWithAddressString:address]);
-}
-
-- (void) dealloc
-{
-    RELEASE(names);
-    RELEASE(addresses);
-    [super dealloc];
+    return [[NSHost alloc] initWithAddressString:address];
 }
 
 - (bool)isEqualToHost:(NSHost *)aHost
@@ -123,17 +116,16 @@
 	return addresses;
 }
 
-- initWithName:(NSString*)name
+- (id) initWithName:(NSString*)name
 {
 	names = [[NSMutableArray alloc] initWithObjects:name,nil];
 	return self;
 }
 
-- initWithAddressString:(NSString*)address
+- (id) initWithAddressString:(NSString*)address
 {
 	NSInetAddress *addr = [[NSInetAddress alloc] initWithString:address];
 	addresses = [[NSMutableArray alloc] initWithObjects:addr,nil];
-	[addr release];
 
 	return self;
 }
@@ -144,7 +136,6 @@
 	struct addrinfo ai_hints = { .ai_flags = AI_CANONNAME | AI_ADDRCONFIG };
 
 	const char *name = [[names objectAtIndex:0] UTF8String];
-	[addresses release];
 	addresses = [NSMutableArray new];
 	if (getaddrinfo(name, NULL, &ai_hints, &addrinfo) < 0)
 		return;
@@ -170,7 +161,6 @@
 		{
 			[addresses addObject:addr];
 		}
-		[addr release];
 	}
 
 	freeaddrinfo(addrinfo);
@@ -184,7 +174,6 @@
 	[[addresses objectAtIndex:0] _sockaddrRepresentation:&sa];
 	if (getnameinfo((struct sockaddr *)&sa, sa.ss_len, hostname, sizeof(hostname), NULL, 0, 0) < 0)
 		return;
-	[names release];
 	names = [NSMutableArray new];
 	[names addObject:[NSString stringWithCString:hostname encoding:NSASCIIStringEncoding]];
 }
@@ -201,7 +190,7 @@
 	}
 }
 
-- resolveWithTarget:(id)targetObj selector:(SEL)sel
+- (id) resolveWithTarget:(id)targetObj selector:(SEL)sel
 {
 	bool found = false;
 	// Do something to resolve...
@@ -213,7 +202,7 @@
 	return self;
 }
 
-- resolve
+- (id) resolve
 {
 	return [self resolveWithTarget:nil selector:NULL];
 }

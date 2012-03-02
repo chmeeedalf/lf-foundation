@@ -25,8 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 +(NSURIConnection *)connectionWithRequest:(NSURIRequest *)request delegate:(id<NSURIConnectionDelegate>)delegate;
 
--initWithRequest:(NSURIRequest *)request delegate:(id<NSURIConnectionDelegate>)delegate startImmediately:(bool)startLoading;
--initWithRequest:(NSURIRequest *)request delegate:(id<NSURIConnectionDelegate>)delegate;
+-(id)initWithRequest:(NSURIRequest *)request delegate:(id<NSURIConnectionDelegate>)delegate startImmediately:(bool)startLoading;
+-(id)initWithRequest:(NSURIRequest *)request delegate:(id<NSURIConnectionDelegate>)delegate;
 
 -(void)start;
 -(void)cancel;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,7 +61,7 @@ static NSLock *transDictLock;
 	[transDictLock unlock];
 }
 
-+ valueTransformerForName:(NSString *) name
++ (id) valueTransformerForName:(NSString *) name
 {
 	return [transformers objectForKey:name];
 }
@@ -80,12 +80,12 @@ static NSLock *transDictLock;
 	return Nil;
 }
 
-- transformedValue:(id)val
+- (id) transformedValue:(id)val
 {
 	return [self subclassResponsibility:_cmd];
 }
 
-- reverseTransformedValue:(id)value
+- (id) reverseTransformedValue:(id)value
 {
 	return nil;
 }

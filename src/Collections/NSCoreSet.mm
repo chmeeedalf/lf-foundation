@@ -126,14 +126,14 @@ typedef std::unordered_set<id> intern_set;
 {
 	intern_set::const_iterator i;
 	unsigned long j = 0;
+	i = set.cbegin();
 	if (state->state == 0)
 	{
 		state->state = 1;
-		i = set.begin();
 	}
 	else
 	{
-		i = set.find((__bridge id)(void *)state->extra[1]);
+		advance(i, state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != set.end(); j++, i++)
@@ -141,7 +141,7 @@ typedef std::unordered_set<id> intern_set;
 	state->mutationsPtr = (unsigned long *)&set;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != set.end())
-		state->extra[1] = (unsigned long)(id)*i;
+		state->extra[1] = std::distance(set.cbegin(), i);
 	return j;
 }
 @end /* NSCoreSet */
@@ -157,7 +157,7 @@ typedef std::unordered_set<id> intern_set;
 	intern_set::iterator i;
 }
 
-- initWithSet:(NSCoreSet*)_set
+- (id) initWithSet:(NSCoreSet*)_set
 {
 	set = _set;
 	table = [_set __setObject];
@@ -166,7 +166,7 @@ typedef std::unordered_set<id> intern_set;
 	return self;
 }
 
-- nextObject
+- (id) nextObject
 {
 	id obj;
 	if (i == table->end())

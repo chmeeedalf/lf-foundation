@@ -93,7 +93,7 @@ static NSLocale *currentLocale = nil;
 	[self setCurrentLocale:[self systemLocale]];
 }
 
-+ autoupdatingCurrentLocale
++ (id) autoupdatingCurrentLocale
 {
 	static NSLocale *autoupdatingLocale = nil;
 
@@ -110,7 +110,7 @@ static NSLocale *currentLocale = nil;
 	return autoupdatingLocale;
 }
 
-+ systemLocale
++ (id) systemLocale
 {
 	@synchronized(self)
 	{
@@ -125,7 +125,7 @@ static NSLocale *currentLocale = nil;
 	return systemLocale;
 }
 
-+ currentLocale
++ (id) currentLocale
 {
 	if (currentLocale == nil)
 	{
@@ -184,17 +184,17 @@ static NSLocale *currentLocale = nil;
 	}
 }
 
-+ localeWithIdentifier:(NSString *)localeName
++ (id) localeWithIdentifier:(NSString *)localeName
 {
 	return [[NSConcreteLocale alloc] initWithIdentifier:localeName];
 }
 
-- initWithIdentifier:(NSString *)localeName
+- (id) initWithIdentifier:(NSString *)localeName
 {
 	return self;
 }
 
-- objectForKey:(NSString *)key
+- (id) objectForKey:(NSString *)key
 {
 	[self subclassResponsibility:_cmd];
 	return nil;

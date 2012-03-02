@@ -13,30 +13,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 @implementation NSURIAuthenticationChallenge
 
--initWithProtectionSpace:(NSURIProtectionSpace *)space proposedCredential:(NSURICredential *)credential previousFailureCount:(int)failureCount failureResponse:(NSURIResponse *)failureResponse error:(NSError *)error sender:(id <NSURIAuthenticationChallengeSender>)sender
+-(id)initWithProtectionSpace:(NSURIProtectionSpace *)space proposedCredential:(NSURICredential *)credential previousFailureCount:(int)failureCount failureResponse:(NSURIResponse *)failureResponse error:(NSError *)error sender:(id <NSURIAuthenticationChallengeSender>)sender
 {
-	_protectionSpace=[space copy];
-	_proposedCredential=[credential copy];
-	_failureCount=failureCount;
-	_failureResponse=[failureResponse copy];
-	_sender=[sender retain];
+	_protectionSpace = [space copy];
+	_proposedCredential = [credential copy];
+	_failureCount = failureCount;
+	_failureResponse = [failureResponse copy];
+	_sender = sender;
 	return self;
 }
 
--initWithAuthenticationChallenge:(NSURIAuthenticationChallenge *)challenge sender:(id <NSURIAuthenticationChallengeSender>)sender
+-(id)initWithAuthenticationChallenge:(NSURIAuthenticationChallenge *)challenge sender:(id <NSURIAuthenticationChallengeSender>)sender
 {
 	return [self initWithProtectionSpace:[challenge protectionSpace] proposedCredential:[challenge proposedCredential] previousFailureCount:[challenge previousFailureCount] failureResponse:[challenge failureResponse] error:[challenge error] sender:sender];
 	return self;
-}
-
--(void)dealloc
-{
-	[_protectionSpace release];
-	[_proposedCredential release];
-	[_failureResponse release];
-	[_error release];
-	[_sender release];
-	[super dealloc];
 }
 
 -(NSURIProtectionSpace *)protectionSpace

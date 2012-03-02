@@ -40,6 +40,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <Event.h>
 
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSApplication.h>
@@ -56,6 +57,8 @@
 #import <Foundation/NSURI.h>
 #import "DateTime/NSConcreteDate.h"	/* for UNIX_OFFSET */
 #import "internal.h"
+
+extern void eventHandler (Event_t *_eventPage);
 
 /* Emulation of the Gold APIs */
 
@@ -91,19 +94,6 @@ int64_t SystemTime(void)
 	theTime += tp.tv_sec + tp.tv_usec / 1000000;
 
 	return theTime;
-}
-
-void TimerSetTimeout(NSTimeInterval timeoutInt)
-{
-	struct itimerval timeout;
-	int err;
-
-	memset(&timeout, 0, sizeof(timeout));
-	timeout.it_value.tv_sec = (int)timeoutInt;
-	timeout.it_value.tv_usec = (timeoutInt - timeout.it_value.tv_sec) * 1000000;
-
-	if ((err = setitimer(0, &timeout, NULL)) < 0)
-		NSLog(@"Can't set timer.  Error code: %d", errno);
 }
 
 #if 0
@@ -288,7 +278,7 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 	return retval;
 }
 
-void handle_sigchld(int sig, siginfo_t *info, void *data)
+static void handle_sigchld(int sig, siginfo_t *info, void *data)
 {
 	UUID child;
 	wait4(info->si_pid, NULL, WNOHANG, NULL);
@@ -304,12 +294,12 @@ static NSInvocation *fd_invoke_write[FD_SETSIZE];
 static NSInvocation *fd_invoke_read[FD_SETSIZE];
 static NSArray *sigio_filters = nil;
 
-void handle_sigio(int sig)
+static void handle_sigio(int sig)
 {
 	struct timeval tv = {0, 0};
 	fd_set readers_copy;
 	fd_set writers_copy;
-	int i = [sigio_filters count];
+	size_t i = [sigio_filters count];
 
 	/* First run through the watched filters */
 	for (; i > 0; i--)
@@ -344,7 +334,7 @@ void _AsyncWatchDescriptor(int fd, id obj, SEL sel, bool writing)
 		FD_ZERO(&readers);
 		FD_ZERO(&writers);
 	}
-	if (fd > FD_SETSIZE)
+	if ((size_t)fd > FD_SETSIZE)
 		@throw [NSInternalInconsistencyException exceptionWithReason:@"File descriptor for async too big" userInfo:nil];
 
 	inv = [[NSInvocation alloc] initWithMethodSignature:[obj methodSignatureForSelector:sel]];

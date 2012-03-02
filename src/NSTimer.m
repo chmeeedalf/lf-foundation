@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -95,10 +95,8 @@ TODO:
 #import <Foundation/NSThread.h>
 #import <Foundation/NSTimer.h>
 
-void TimerSetTimeout(NSTimeInterval timeoutInt);
-
 @interface NSTimer(TimerImplementation)
-- initWith:(NSTimeInterval)seconds invocation:(NSInvocation*)anInvocation
+- (id) initWith:(NSTimeInterval)seconds invocation:(NSInvocation*)anInvocation
     userInfo:(id)anObject repeat:(bool)_repeats;
 @end
 
@@ -150,7 +148,7 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
 	return [[self alloc] initWithFireDate:nil interval:seconds target:anObject selector:aSelector userInfo:anArgument repeats:_repeats];
 }
 
-- initWithFireDate:(NSDate *)date interval:(NSTimeInterval)seconds target:(id)target selector:(SEL)aSelector userInfo:(id)arg repeats:(bool)repeat
+- (id) initWithFireDate:(NSDate *)date interval:(NSTimeInterval)seconds target:(id)target selector:(SEL)aSelector userInfo:(id)arg repeats:(bool)repeat
 {
 	id anInvocation;
 	
@@ -223,7 +221,7 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
 	[[NSRunLoop currentRunLoop] addTimer:self forMode:NSDefaultRunLoopMode];
 }
 
-- userInfo		{ return userInfo; }
+- (id) userInfo		{ return userInfo; }
 - (bool)isValid		{ return isValid; }
 - (bool)repeats		{ return repeats; }
 - (bool)running	{ return running; }
@@ -248,7 +246,7 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
  */
 
 @implementation NSTimer(TimerImplementation)
-- initWith:(NSTimeInterval)seconds invocation:(NSInvocation*)anInvocation
+- (id) initWith:(NSTimeInterval)seconds invocation:(NSInvocation*)anInvocation
     userInfo:(id)anObject repeat:(bool)_repeats
 {
 	timeInterval = seconds;
@@ -264,11 +262,6 @@ void TimerSetTimeout(NSTimeInterval timeoutInt);
 - (NSThread *)ownerThread
 {
 	return ownerThread;
-}
-
-- (void) handleEvent:(struct kevent *)unused
-{
-	[self fire];
 }
 
 @end

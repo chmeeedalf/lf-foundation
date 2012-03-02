@@ -34,26 +34,39 @@
 
 @implementation NSSortDescriptor
 
-+ sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector
++ (id) sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector
 {
 	return [[self alloc] initWithKey:key ascending:ascending selector:selector];
 }
 
-+ sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending
++ (id) sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending
 {
 	return [[self alloc] initWithKey:key ascending:ascending];
 }
 
-- initWithKey:(NSString *)key ascending:(bool)ascending
++ (id) sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending comparator:(NSComparator)comparator
+{
+	return [[self alloc] initWithKey:key ascending:ascending comparator:comparator];
+}
+
+- (id) initWithKey:(NSString *)key ascending:(bool)ascending
 {
 	return [self initWithKey:key ascending:ascending selector:@selector(compare:)];
 }
 
-- initWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector
+- (id) initWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector
 {
 	_key = [key copy];
 	_ascending = ascending;
 	_selector = selector;
+	return self;
+}
+
+- (id) initWithKey:(NSString *)key ascending:(bool)ascending comparator:(NSComparator)comparator
+{
+	_key = [key copy];
+	_ascending = ascending;
+	_comparator = [comparator copy];
 	return self;
 }
 
@@ -86,5 +99,12 @@
 - (id)reversedSortDescriptor
 {
 	return [[[self class] alloc] initWithKey:_key ascending:(!_ascending) selector:_selector];
+}
+
+- (NSComparator) comparator
+{
+	return [^(id lhs, id rhs){
+		return [self compareObject:lhs toObject:rhs];
+	} copy];
 }
 @end

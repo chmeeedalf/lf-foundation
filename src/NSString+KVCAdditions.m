@@ -13,16 +13,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @implementation NSString (KVCPrivateAdditions)
 -(id)_KVC_setterKeyNameFromSelectorName
 {
-	NSString* keyName=[self substringWithRange:MakeRange(3, [self length]-4)];
+	NSString* keyName=[self substringWithRange:NSMakeRange(3, [self length]-4)];
 	return [NSString stringWithFormat:@"%C%@", tolower([keyName characterAtIndex:1]), [keyName substringFromIndex:1]]; 
 }
 
--(bool)_KVC_setterKeyName:(NSString**)ret forSelectorNameStartingWith:(id)start endingWith:(id)end;
+-(bool)_KVC_setterKeyName:(NSString**)ret forSelectorNameStartingWith:(id)start endingWith:(id)end
 {
 	*ret=nil;
 	if([self hasPrefix:start] && [self hasSuffix:end])
 	{
-		NSString* keyName=[self substringWithRange:MakeRange([start length], [self length]-[end length]-[start length])];
+		NSString* keyName=[self substringWithRange:NSMakeRange([start length], [self length]-[end length]-[start length])];
 		if(![keyName length])
 			return false;
 		*ret = [NSString stringWithFormat:@"%C%@", tolower([keyName characterAtIndex:1]), [keyName substringFromIndex:1]]; 
@@ -31,10 +31,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	return false;
 }
 
--(void)_KVC_partBeforeDot:(NSString**)before afterDot:(NSString**)after;
+-(void)_KVC_partBeforeDot:(NSString**)before afterDot:(NSString**)after
 {
 	NSRange range=[self rangeOfString:@"."];
-	if(range.location!=NotFound)
+	if(range.location != NSNotFound)
 	{
 		*before=[self substringToIndex:range.location];
 		*after=[self substringFromIndex:range.location+1];

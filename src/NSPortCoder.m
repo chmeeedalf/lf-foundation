@@ -35,13 +35,13 @@
 
 @implementation NSPortCoder
 
--initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
+- (id) initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
 {
 	_conn = [[NSConnection alloc] initWithReceivePort:receivePort sendPort:sendPort];
 	return self;
 }
 
-+portCoderWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
++ (id) portCoderWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
 {
 	return [[self alloc] initWithReceivePort:receivePort sendPort:sendPort components:components];
 }

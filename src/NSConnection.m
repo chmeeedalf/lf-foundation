@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -88,8 +88,8 @@ static NSMutableSet *allConnections;
 - (id) initWithReceivePort:(NSPort *)rPort sendPort:(NSPort *)sPort
 {
 	self = [self init];
-	receivePort = [rPort retain];
-	sendPort = [sPort retain];
+	receivePort = rPort;
+	sendPort = sPort;
 
 	return self;
 }
@@ -97,12 +97,6 @@ static NSMutableSet *allConnections;
 - (void) dealloc
 {
 	[allConnections removeObject:self];
-	[receivePort release];
-	[sendPort release];
-	[served release];
-	[localProxies release];
-	[proxies release];
-	[super dealloc];
 }
 
 // Establishing a connection...
@@ -127,12 +121,12 @@ static NSMutableSet *allConnections;
 
 + (NSConnection *) connectionWithReceivePort:(NSPort *)recvPort sendPort:(NSPort *)sendPort
 {
-	return [[[self alloc] initWithReceivePort:recvPort sendPort:sendPort] autorelease];
+	return [[self alloc] initWithReceivePort:recvPort sendPort:sendPort];
 }
 
 + (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *)name host:(NSString *)host
 {
-	return [[[[self connectionWithRegisteredName:name host:host] rootProxy] retain] autorelease];
+	return [[self connectionWithRegisteredName:name host:host] rootProxy];
 }
 
 // Determining connections
@@ -253,7 +247,7 @@ static NSMutableSet *allConnections;
 	return receivePort;
 }
 
-+ currentConversation
++ (id) currentConversation
 {
 	TODO;	// +currentConversation
 	return nil;

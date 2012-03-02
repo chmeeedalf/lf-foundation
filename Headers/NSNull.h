@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,12 +37,12 @@
 /*!
  * \brief Return the Null singleton.
  */
-+ null;
++ (NSNull *) null;
 
 /*!
  * \brief Return a description of the Null singleton.
  */
-- description;
+- (NSString *)description;
 
 @end
 

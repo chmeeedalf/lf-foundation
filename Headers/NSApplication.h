@@ -59,7 +59,7 @@
  * \internal
  * \brief Run the application.
  */
-- run;
+- (id) run;
 
 /*! 
  *  \internal 

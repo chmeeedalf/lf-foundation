@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,15 +36,9 @@
  * optimize away the [d length] calls into a constant.
  */
 
-- initToMemory
+- (id) initToMemory
 {
 	return self;
-}
-
-- (void) dealloc
-{
-	[d release];
-	[super dealloc];
 }
 
 - (void) open

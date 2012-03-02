@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,17 +41,17 @@ static NSNull *sharedNull = nil;
 		sharedNull = (NSNull *)NSAllocateObject([NSNull class], 0, NULL);
 }
 
-+ null
++ (id) null
 {
 	return sharedNull;
 }
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	return sharedNull;
 }
 
-- description
+- (id) description
 {
 	return @"<null>";
 }

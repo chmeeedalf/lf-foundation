@@ -38,7 +38,7 @@
 
 @implementation NSCoreAttributedString
 
-- initWithString:(NSString *)string attributes:(NSDictionary *)attributes
+- (id) initWithString:(NSString *)string attributes:(NSDictionary *)attributes
 {
 	str = string;
 	_AttributedRange *r = [_AttributedRange new];
@@ -48,12 +48,12 @@
 	return self;
 }
 
-- initWithAttributedString:(NSAttributedString *)string
+- (id) initWithAttributedString:(NSAttributedString *)string
 {
 	str = [[string string] copy];
 	NSMutableArray *a = [NSMutableArray new];
 	size_t len = [str length];
-	for (int i = 0; i < len;)
+	for (size_t i = 0; i < len;)
 	{
 		NSRange r;
 		NSDictionary *d;
@@ -68,7 +68,7 @@
 	return self;
 }
 
-- string
+- (NSString *) string
 {
 	return str;
 }
@@ -105,7 +105,7 @@
 
 - (void) _fixRange:(NSRange)r length:(size_t)len
 {
-	int i = 0;
+	size_t i = 0;
 	int delind[[attributeRanges count]];
 	for (_AttributedRange *ar in attributeRanges)
 	{

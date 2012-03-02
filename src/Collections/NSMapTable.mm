@@ -63,12 +63,12 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	intern_map::const_iterator iter;
 	bool second;
 }
-- initWithTable:(NSConcreteMapTable *)table iterateValues:(bool)useValues;
+- (id) initWithTable:(NSConcreteMapTable *)table iterateValues:(bool)useValues;
 @end
 
 @implementation NSMapTable
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	if (self == [NSMapTable class])
 		return NSAllocateObject([NSConcreteMapTable class], 0, zone);
@@ -76,39 +76,39 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 		return [super allocWithZone:zone];
 }
 
-+ mapTableWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts
++ (id) mapTableWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts
 {
 	return [[self alloc] initWithKeyOptions:keyOpts
 		valueOptions:valOpts
 		capacity:0];
 }
 
-+ mapTableWithStrongToStrongObjects
++ (id) mapTableWithStrongToStrongObjects
 {
 	return [[self alloc] initWithKeyOptions:NSStrongObjects
 		valueOptions:NSStrongObjects capacity:0];
 }
 
-+ mapTableWithWeakToStrongObjects
++ (id) mapTableWithWeakToStrongObjects
 {
 	return [[self alloc] initWithKeyOptions:NSWeakObjects
 		valueOptions:NSStrongObjects capacity:0];
 }
 
-+ mapTableWithStrongToWeakObjects
++ (id) mapTableWithStrongToWeakObjects
 {
 	return [[self alloc] initWithKeyOptions:NSStrongObjects
 		valueOptions:NSWeakObjects capacity:0];
 }
 
-+ mapTableWithWeakToWeakObjects
++ (id) mapTableWithWeakToWeakObjects
 {
 	return [[self alloc] initWithKeyOptions:NSWeakObjects
 		valueOptions:NSWeakObjects capacity:0];
 }
 
 
-- initWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts capacity:(size_t)cap
+- (id) initWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts capacity:(size_t)cap
 {
 	NSPointerFunctions *keyFuncs = [NSPointerFunctions
 		pointerFunctionsWithOptions:keyOpts];
@@ -119,7 +119,7 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 		capacity:cap];
 }
 
-- initWithKeyPointerFunctions:(NSPointerFunctions *)keyFuncts valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
+- (id) initWithKeyPointerFunctions:(NSPointerFunctions *)keyFuncts valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 {
 	// Nothing to do here, move along.
 	return self;
@@ -215,7 +215,7 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	return 0;
 }
 
-- copyWithZone:(NSZone *)zone
+- (id) copyWithZone:(NSZone *)zone
 {
 	NSMapTable *other = [[NSMapTable allocWithZone:zone]
 		initWithKeyPointerFunctions:[self keyPointerFunctions]
@@ -231,10 +231,20 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	return other;
 }
 
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+	[self subclassResponsibility:_cmd]; // -[NSMapTable encodeWithCoder:]
+}
+
+- (id) initWithCoder:(NSCoder *)coder
+{
+	[self subclassResponsibility:_cmd]; // -[NSMapTable encodeWithCoder:]
+	return nil;
+}
 @end
 
 @implementation NSConcreteMapTable
-- initWithKeyPointerFunctions:(NSPointerFunctions *)keyFuncts
+- (id) initWithKeyPointerFunctions:(NSPointerFunctions *)keyFuncts
 valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 {
 	keyFuncs = [keyFuncts copy];
@@ -348,7 +358,7 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 @implementation _MapTableEnumerator
 
-- initWithTable:(NSConcreteMapTable *)_table iterateValues:(bool)iterVals;
+- (id) initWithTable:(NSConcreteMapTable *)_table iterateValues:(bool)iterVals
 {
 	table = _table;
 	iter = table->table.begin();
@@ -356,7 +366,7 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	return self;
 }
 
-- nextObject
+- (id) nextObject
 {
 	id obj;
 	

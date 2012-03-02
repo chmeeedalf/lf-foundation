@@ -119,14 +119,14 @@ typedef enum NSSocketType
  * \details This will return whichever subclass (IPv4 or IPv6) is necessary to
  * parse the given string.  Calls -initWithString:.
  */
-+ inetAddressWithString:(NSString *)addr;
++ (id) inetAddressWithString:(NSString *)addr;
 
 /*!
  * \brief Create an InetAddress subclass from the string.
  * \details This will return whichever subclass (IPv4 or IPv6) is necessary to
  * parse the given string.
  */
-- initWithString:(NSString *)addr;
+- (id) initWithString:(NSString *)addr;
 @end
 
 /*!
@@ -141,12 +141,12 @@ typedef enum NSSocketType
 /*!
  * \brief The "any" IPv4 address (0.0.0.0).
  */
-+ anyInet4Address;
++ (id) anyInet4Address;
 
 /*!
  * \brief The "localhost" address, usually (127.0.0.1).
  */
-+ localhostInet4Address;
++ (id) localhostInet4Address;
 
 /*!
  * \brief Initialize the object with the given encoded address.
@@ -154,7 +154,7 @@ typedef enum NSSocketType
  *
  * \details The address must be in network-endian byte order.
  */
-- initWithAddress:(uint8_t *)_addr;
+- (id) initWithAddress:(uint8_t *)_addr;
 
 /*!
  * \brief Initialize the object with the given string encoded IPv4 address.
@@ -162,7 +162,7 @@ typedef enum NSSocketType
  *
  * \details This will fail if the address is not IPv4.
  */
-- initWithString:(NSString *)_addr;
+- (id) initWithString:(NSString *)_addr;
 @end
 
 /*!
@@ -179,12 +179,12 @@ typedef enum NSSocketType
 /*!
  * \brief The "any" IPv6 address (::).
  */
-+ anyInet6Address;
++ (id) anyInet6Address;
 
 /*!
  * \brief The "localhost" IPv6 address (::1).
  */
-+ localhostInet6Address;
++ (id) localhostInet6Address;
 
 /*!
  * \brief Initialize the object with the given encoded address.
@@ -192,7 +192,7 @@ typedef enum NSSocketType
  *
  * \details The address must be in network-endian byte order.
  */
-- initWithAddress:(uint8_t *)addrBytes;
+- (id) initWithAddress:(uint8_t *)addrBytes;
 
 /*!
  * \brief Initialize the object with the given string encoded IPv6 address.
@@ -200,7 +200,7 @@ typedef enum NSSocketType
  *
  * \details This will fail if the address is not IPv6.
  */
-- initWithString:(NSString *)addrString;
+- (id) initWithString:(NSString *)addrString;
 @end
 
 /*!
@@ -269,7 +269,7 @@ typedef enum NSSocketType
  * \param protocol Protocol to create with.  Some address types support multiple
  * protocols.
  */
-- initWithAddress:(NSNetworkAddress*)addr socketType:(NSSocketType)type protocol:(int)protocol;
+- (id) initWithAddress:(NSNetworkAddress*)addr socketType:(NSSocketType)type protocol:(int)protocol;
 
 /*!
  * \brief Initialize the socket to connect to a host with a set protocol and
@@ -281,12 +281,12 @@ typedef enum NSSocketType
  * \param protocol Protocol to create with.  Some address types support multiple
  * protocols.
  */
-- initRemoteWithHost:(NSHost *)host family:(NSAddressFamily)family type:(NSSocketType)type protocol:(int)protocol;
+- (id) initRemoteWithHost:(NSHost *)host family:(NSAddressFamily)family type:(NSSocketType)type protocol:(int)protocol;
 
 /*!
  * \brief Create a NSSocket using a connected BSD socket.
  */
-- initWithConnectedSocket:(int)sockfd;
+- (id) initWithConnectedSocket:(int)sockfd;
 
 /*!
  * \brief Send raw data over this socket.
@@ -329,20 +329,20 @@ typedef enum NSSocketType
  * \param addr Remote address of this socket.
  * \param port TCP port of this socket.
  */
-- initWithAddress:(NSNetworkAddress *)addr port:(int)port;
+- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)port;
 
 /*!
  * \brief Initialize the socket with a specific host and TCP port.
  * \param host Remote host of this socket.  Will use any address from the host.
  * \param port TCP port of this socket.
  */
-- initWithHost:(NSHost *)host port:(int)port;
+- (id) initWithHost:(NSHost *)host port:(int)port;
 
 /*!
  * \brief Initialize the socket to listen on any address and the given port.
  * \param port Port to listen on.
  */
-- initForListeningWithPort:(int)port;
+- (id) initForListeningWithPort:(int)port;
 
 /*!
  * \brief Change the port this socket is on.
@@ -365,20 +365,20 @@ typedef enum NSSocketType
  * \param addr Remote address of this socket.
  * \param port UDP port of this socket.
  */
-- initWithAddress:(NSNetworkAddress *)addr port:(int)port;
+- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)port;
 
 /*!
  * \brief Initialize the socket with a specific host and UDP port.
  * \param host Remote host of this socket.  Will use any address from the host.
  * \param port UDP port of this socket.
  */
-- initWithHost:(NSHost *)host port:(int)port;
+- (id) initWithHost:(NSHost *)host port:(int)port;
 
 /*!
  * \brief Initialize the socket to listen on any address and the given port.
  * \param port Port to listen on.
  */
-- initForListeningWithPort:(int)port;
+- (id) initForListeningWithPort:(int)port;
 
 /*!
  * \brief Change the port this socket is on.

@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,7 +32,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSDate.h>
 
-@class NSDate, NSLocale, NSString, NSTimeZone;
+@class NSCalendar, NSDate, NSLocale, NSString, NSTimeZone;
 
 enum {
 	NSUndefinedDateComponent = LONG_MAX,
@@ -52,6 +52,9 @@ typedef enum {
 	NSWeekOfMonthCalendarUnit = 1 << 11,
 	NSWeekOfYearhCalendarUnit = 1 << 12,
 	NSYearForWeekOfYearCalendarUnit = 1 << 13,
+	NSQuarterCalendarUnit = 1 << 14,
+	NSCalendarCalendarUnit = 1 << 20,
+	NSTimeZoneCalendarUnit = 1 << 21,
 } NSCalendarUnit;
 
 @interface NSDateComponents	:	NSObject<NSCoding,NSCopying>
@@ -72,10 +75,12 @@ typedef enum {
 	NSInteger weekOfYear;
 	NSInteger yearForWeekOfYear;
 }
+@property NSCalendar *calendar;
+@property NSTimeZone *timeZone;
 @property NSInteger era;
 @property NSInteger year;
 @property NSInteger month;
-@property(retain,nonatomic) NSDate *date;
+@property(readonly) NSDate *date;
 @property NSInteger day;
 @property NSInteger hour;
 @property NSInteger minute;
@@ -92,10 +97,10 @@ typedef enum {
 @interface NSCalendar	:	NSObject<NSCoding,NSCopying>
 {
 }
-+ currentCalendar;
-+ autoupdatingCurrentCalendar;
++ (id) currentCalendar;
++ (id) autoupdatingCurrentCalendar;
 
-- initWithCalendarIdentifier:(NSString *)calIdent;
+- (id) initWithCalendarIdentifier:(NSString *)calIdent;
 - (void) setLocale:(NSLocale *)loc;
 - (void) setTimeZone:(NSTimeZone *)newTz;
 - (void) setFirstWeekday:(unsigned long)weekday;

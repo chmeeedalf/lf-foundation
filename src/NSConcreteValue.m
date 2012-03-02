@@ -68,7 +68,7 @@
 
 @implementation NSConcreteValue
 
-+ allocForType:(const char*)type zone:(NSZone*)zone
++ (id)allocForType:(const char*)type zone:(NSZone*)zone
 {
 	int dataSize = objc_sizeof_type(type);
 	id  value = NSAllocateObject([NSConcreteObjCValue class], dataSize, zone);
@@ -76,7 +76,7 @@
 	return value;
 }
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(__unused const void*)value withObjCType:(__unused const char*)type
 {
 	[self subclassResponsibility:_cmd];
 	return self;
@@ -138,7 +138,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(const char*)type
 {
 	int	size;
 
@@ -174,7 +174,7 @@
 	}
 }
 
-// Accessing NSData
+// Accessing Data
 
 - (void*)valueBytes
 {
@@ -263,7 +263,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	data = (__bridge id)*(const void**)value;
 	return self;
@@ -314,7 +314,7 @@
 	return @encode(id);
 }
 
--(id)nonretainedObjectValue;
+-(id)nonretainedObjectValue
 {
 	return data;
 }
@@ -339,7 +339,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	data = *(void**)value;
 	return self;
@@ -383,7 +383,7 @@
 	return @encode(void*);
 }
 
-- (void*)pointerValue;
+- (void*)pointerValue
 {
 	return data;
 }
@@ -408,7 +408,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	data = *(NSRect*)value;
 	return self;
@@ -452,7 +452,7 @@
 	return @encode(NSRect);
 }
 
-- (NSRect)rectValue;
+- (NSRect)rectValue
 {
 	return data;
 }
@@ -478,7 +478,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	data = *(NSSize*)value;
 	return self;
@@ -524,12 +524,12 @@
 	return @encode(NSSize);
 }
 
-- (NSPoint)pointValue;
+- (NSPoint)pointValue
 {
 	return NSMakePoint(data.width, data.height);
 }
 
-- (NSSize)sizeValue;
+- (NSSize)sizeValue
 {
 	return data;
 }
@@ -555,7 +555,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	data = *(NSPoint*)value;
 	return self;
@@ -601,12 +601,12 @@
 	return @encode(NSPoint);
 }
 
-- (NSPoint)pointValue;
+- (NSPoint)pointValue
 {
 	return data;
 }
 
-- (NSSize)sizeValue;
+- (NSSize)sizeValue
 {
 	return NSMakeSize(data.x, data.y);
 }
@@ -632,7 +632,7 @@
 
 // Allocating and Initializing
 
-- initValue:(const void*)value withObjCType:(const char*)type
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	data = *(NSRange*)value;
 	return self;

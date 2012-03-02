@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2006	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -129,7 +129,7 @@ static void cleanupThread(void *thrId)
  * Instance Methods
  */
 
-- init
+- (id) init
 {
 	// Not yet running
 	isRunning = false;
@@ -139,12 +139,12 @@ static void cleanupThread(void *thrId)
 	return self;
 }
 
-- initWithTarget:(id)target selector:(SEL)sel object:(id)argument
+- (id) initWithTarget:(id)target selector:(SEL)sel object:(id)argument
 {
 	return [[_NSTargetedThread alloc] initWithTarget:target selector:sel object:argument];
 }
 
-- initWithObject:(id)anArgument
+- (id) initWithObject:(id)anArgument
 {
 	self = [self init];
 
@@ -359,7 +359,7 @@ static void cleanupThread(void *thrId)
 @end /* NSThread */
 
 @implementation _NSTargetedThread
-- initWithTarget:(id)targ selector:(SEL)sel object:(id)argument
+- (id) initWithTarget:(id)targ selector:(SEL)sel object:(id)argument
 {
 	if ((self = [super init]) != NULL)
 	{

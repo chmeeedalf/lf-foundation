@@ -39,7 +39,7 @@ typedef std::unordered_multiset<id> _map_table;
 	_map_table::iterator i;
 	_map_table *t;
 }
-- initWithTable:(_map_table *)t;
+- (id) initWithTable:(_map_table *)t;
 @end
 
 @implementation NSCountedSet
@@ -153,14 +153,14 @@ typedef std::unordered_multiset<id> _map_table;
 @end
 
 @implementation _CountedSetEnumerator
-- initWithTable:(_map_table *)table
+- (id) initWithTable:(_map_table *)table
 {
 	t = table;
 	i = t->begin();
 	return self;
 }
 
-- nextObject
+- (id) nextObject
 {
 	if (i == t->end())
 		return nil;

@@ -37,6 +37,7 @@
 #import <Foundation/NSThread.h>
 #include <Alepha/System/SysCtl.h>
 #include <string>
+#include <memory>
 
 /*
  * Static global vars
@@ -82,14 +83,14 @@ unsigned int numThreads __private = 0;
 				argc++;
 		}
 
-		NSString *argptrs[argc];
-		size_t j = 0;
-		for (i = 0,j=0; i < count;j++)
+		NSMutableArray *tmpArgs;
+
+		tmpArgs = [[NSMutableArray alloc] initWithCapacity:argc];
+		for (i = 0; i < count;)
 		{
-			argptrs[j] = [NSString stringWithUTF8String:&args[i]];
+			[tmpArgs addObject:[NSString stringWithUTF8String:&args[i]]];
 			i += strlen(&args[i]) + 1;
 		}
-		arguments = [[NSArray alloc] initWithObjects:argptrs count:argc];
 	}
 	else
 	{
@@ -99,7 +100,7 @@ unsigned int numThreads __private = 0;
 	delete[] args;
 }
 
-+ allocWithZone:(NSZone *)_zone
++ (id) allocWithZone:(NSZone *)_zone
 {
 	return processInfo;
 }
@@ -197,10 +198,11 @@ unsigned int numThreads __private = 0;
 
 - (NSString *) hostName
 {
-	char hostname[sysconf(_SC_HOST_NAME_MAX)];
-	if (gethostname(hostname, sizeof(hostname)) < 0)
+	size_t len = sysconf(_SC_HOST_NAME_MAX);
+	std::unique_ptr<char[]> hostname(new char[len]);
+	if (gethostname(&hostname[0], len) < 0)
 		return nil;
-	return [NSString stringWithCString:hostname encoding:NSASCIIStringEncoding];
+	return [NSString stringWithCString:&hostname[0] encoding:NSASCIIStringEncoding];
 }
 
 - (NSTimeInterval) systemUptime

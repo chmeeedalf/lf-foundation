@@ -44,68 +44,68 @@
 /*!
  * \brief Returns a character set containing the alphanumeric characters.
  */
-+(NSCharacterSet *)alphanumericCharacterSet;
++(id)alphanumericCharacterSet;
 
-+ (NSCharacterSet *) capitalizedLetterCharacterSet;
++ (id) capitalizedLetterCharacterSet;
 
 /*!
  * \brief Returns a character set containing the control characters.
  */
-+(NSCharacterSet *)controlCharacterSet;
++(id)controlCharacterSet;
 
 /*!
  * \brief Returns a character set containing only decimal digits.
  */
-+(NSCharacterSet *)decimalDigitCharacterSet;
++(id)decimalDigitCharacterSet;
 
-+ (NSCharacterSet *) decomposableCharacterSet;
++ (id) decomposableCharacterSet;
 
 /*!
  * \brief Returns a character set containing illegal characters.
  */
-+ (NSCharacterSet*)illegalCharacterSet;
++ (id)illegalCharacterSet;
 
 /*!
  * \brief Returns a character set containing all upper- and lowercase alphabetic characters.
  */
-+(NSCharacterSet *)letterCharacterSet;
++(id)letterCharacterSet;
 
 /*!
  * \brief Returns a character set containing all lowercase alphabetic characters.
  */
-+(NSCharacterSet *)lowercaseLetterCharacterSet;
++(id)lowercaseLetterCharacterSet;
 
 /*!
  * \brief Returns a character set containing all newline characters.
  */
-+(NSCharacterSet *)newlineCharacterSet;
++(id)newlineCharacterSet;
 
-+ (NSCharacterSet *) nonBaseCharacterSet;
++ (id) nonBaseCharacterSet;
 
 /*!
  * \brief Returns a character set containing punctionation symbols.
  */
-+(NSCharacterSet *)punctuationCharacterSet;
++(id)punctuationCharacterSet;
 
 /*!
  * \brief Returns a character set containing all symbols ($, ., etc).
  */
-+(NSCharacterSet *)symbolCharacterSet;
++(id)symbolCharacterSet;
 
 /*!
  * \brief Returns a character set containing all uppercase alphabetic characters.
  */
-+(NSCharacterSet *)uppercaseLetterCharacterSet;
++(id)uppercaseLetterCharacterSet;
 
 /*!
  * \brief Returns a character set containing only whitespace and newline characters.
  */
-+(NSCharacterSet *)whitespaceAndNewlineCharacterSet;
++(id)whitespaceAndNewlineCharacterSet;
 
 /*!
  * \brief Returns a character set containing only whitespace characters.
  */
-+(NSCharacterSet *)whitespaceCharacterSet;
++(id)whitespaceCharacterSet;
 
 // Creating a custom character set
 /*!
@@ -113,20 +113,20 @@
  * \param data Bitmap representation of the character set.
  * result Returns the character set determined by the bitmap representation.
  */
-+(NSCharacterSet *)characterSetWithBitmapRepresentation:(NSData *)data;
++(id)characterSetWithBitmapRepresentation:(NSData *)data;
 
 /*!
  * \brief Returns a character set containing the characters in the given string.
  * \param aString The string of characters to put in the character set, must not be nil.
  * \return Returns a string containing the characters of aString, the empty set if aString is empty.
  */
-+(NSCharacterSet *)characterSetWithCharactersInString:(NSString *)aString;
++(id)characterSetWithCharactersInString:(NSString *)aString;
 
 /*!
  * \brief Returns a character set containing characters with unicode values in a given range.
  * \param aRange NSRange of unicode values for the character set.
  */
-+(NSCharacterSet *)characterSetWithRange:(NSRange)aRange;
++(id)characterSetWithRange:(NSRange)aRange;
 
 // Getting a binary representation
 /*!

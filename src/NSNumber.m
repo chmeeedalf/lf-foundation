@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -110,7 +110,7 @@ TempNum(double, Double);
 	{ \
 		return [[NS##name##Number alloc] initValue:&value withObjCType:NULL]; \
 	} \
-	- (id) initWith##name:(type)value \
+	- (id) initWith##name:(__unused type)value \
 	{ \
 		[self subclassResponsibility:_cmd]; \
 		self = nil; \
@@ -148,7 +148,7 @@ FactoryNum(NSUInteger, UnsignedInteger, unsignedInteger);
 	return [self unsignedIntValue];
 }
 
-- (NSComparisonResult)compare:(NSNumber*)otherNumber
+- (NSComparisonResult)compare:(__unused NSNumber*)otherNumber
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -159,7 +159,7 @@ FactoryNum(NSUInteger, UnsignedInteger, unsignedInteger);
 	return [self compare:aNumber] == NSOrderedSame;
 }
 
-- (bool)isEqual:aNumber
+- (bool)isEqual:(id)aNumber
 {
 	return [aNumber isKindOfClass:[NSNumber class]]
 		&& [self isEqualToNumber:aNumber];
@@ -170,7 +170,7 @@ FactoryNum(NSUInteger, UnsignedInteger, unsignedInteger);
 	return [self descriptionWithLocale:nil];
 }
 
-- (NSString*)descriptionWithLocale:(NSLocale*)locale
+- (NSString*)descriptionWithLocale:(__unused NSLocale*)locale
 {
 	return [self subclassResponsibility:_cmd];
 }

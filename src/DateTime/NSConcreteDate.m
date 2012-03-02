@@ -58,14 +58,14 @@
 
 @implementation NSConcreteDate
 
-- initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded
+- (id) initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded
 {
 	self = [super init];
 	timeSinceRef = secsToBeAdded;
 	return self;
 }
 
-- init
+- (id) init
 {
 	self = [super init];
 	timeSinceRef = [NSDate timeIntervalSinceReferenceDate];

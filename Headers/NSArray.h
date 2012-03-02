@@ -154,7 +154,7 @@ enum
 
 /*!
  */
-- (void) getObjects:(id *)objs range:(NSRange)range;
+- (void) getObjects:(id [])objs range:(NSRange)range;
 
 /*!
  * @brief Returns the first object in the array.

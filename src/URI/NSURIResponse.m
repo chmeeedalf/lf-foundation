@@ -11,29 +11,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 @implementation NSURIResponse
 
--initWithURI:(NSURI *)url MIMEType:(NSString *)mimeType expectedContentLength:(long)expectedLength textEncodingName:(NSString *)encoding
+-(id)initWithURI:(NSURI *)url MIMEType:(NSString *)mimeType expectedContentLength:(long)expectedLength textEncodingName:(NSString *)encoding
 {
-	_url=[url retain];
-	_mimeType=[mimeType retain];
-	_expectedContentLength=expectedLength;
-	_encoding=[encoding retain];
+	_url=url;
+	_mimeType = mimeType;
+	_expectedContentLength = expectedLength;
+	_encoding = encoding;
 	return self;
 }
 
--(void)dealloc
+-(id)copyWithZone:(NSZone *)zone
 {
-	[_url release];
-	[_mimeType release];
-	[_encoding release];
-	[super dealloc];
+	return self;
 }
 
--copyWithZone:(NSZone *)zone
-{
-	return [self retain];
-}
-
--initWithCoder:(NSCoder *)coder
+-(id)initWithCoder:(NSCoder *)coder
 {
 	[self notImplemented:_cmd];
 	return nil;

@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,13 +32,13 @@
 #import <Foundation/NSPointerFunctions.h>
 
 @interface NSPointerArray	:	NSObject
-+ pointerArrayWithOptions:(NSPointerFunctionsOptions)options;
-+ pointerArrayWithPointerFunctions:(NSPointerFunctions *)functions;
-+ pointerArrayWithStrongObjects;
-+ pointerArrayWithWeakObjects;
++ (id) pointerArrayWithOptions:(NSPointerFunctionsOptions)options;
++ (id) pointerArrayWithPointerFunctions:(NSPointerFunctions *)functions;
++ (id) pointerArrayWithStrongObjects;
++ (id) pointerArrayWithWeakObjects;
 
-- initWithOptions:(NSPointerFunctionsOptions)options;
-- initWithPointerFunctions:(NSPointerFunctions *)functions;
+- (id) initWithOptions:(NSPointerFunctionsOptions)options;
+- (id) initWithPointerFunctions:(NSPointerFunctions *)functions;
 
 - (size_t) count;
 - (void) setCount:(size_t)count;

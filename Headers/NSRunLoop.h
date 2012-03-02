@@ -60,14 +60,6 @@ SYSTEM_EXPORT NSString * const NSDefaultRunLoopMode;
 SYSTEM_EXPORT NSString * const NSRunLoopCommonModes;
 
 @interface NSRunLoop	:	NSObject
-{
-	@private
-		ARunLoop *rl;
-		volatile bool	isCanceled;
-		volatile bool	isTerminated;
-		int		kernelQueue;	/* kqueue ID. */
-		id		currentMode;
-}
 + (id) currentRunLoop;
 - (NSString *) currentMode;
 - (NSDate *) limitDateForMode:(NSString *)mode;
@@ -105,7 +97,7 @@ SYSTEM_EXPORT NSString * const NSRunLoopCommonModes;
 @interface NSObject(RunLoopAdditions)
 + (void) cancelPreviousPerformRequestsWithTarget:(id)target;
 + (void) cancelPreviousPerformRequestsWithTarget:(id)target selector:(SEL)sel object:(id)arg;
-- (void) performSelector:(SEL)sel withObject:(id)obj afterDelay:(NSTimeInterval)delay inModes:(NSArray *)modes;
 - (void) performSelector:(SEL)sel withObject:(id)obj afterDelay:(NSTimeInterval)delay;
+- (void) performSelector:(SEL)sel withObject:(id)obj afterDelay:(NSTimeInterval)delay inModes:(NSArray *)modes;
 @end
 

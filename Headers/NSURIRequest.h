@@ -30,11 +30,11 @@ typedef enum
 	bool                    _handleCookies;
 }
 
--initWithURI:(NSURI *)url;
--initWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
+-(id)initWithURI:(NSURI *)url;
+-(id)initWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
 
-+requestWithURI:(NSURI *)url;
-+requestWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
++(id)requestWithURI:(NSURI *)url;
++(id)requestWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
 
 -(NSURI *)NSURI;
 -(NSURIRequestCachePolicy)cachePolicy;

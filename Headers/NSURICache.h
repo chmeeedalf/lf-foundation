@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 +(NSURICache *)sharedURICache;
 +(void)setSharedURICache:(NSURICache *)cache;
 
--initWithMemoryCapacity:(unsigned long)memoryCapacity diskCapacity:(unsigned long)diskCapacity diskPath:(NSString *)diskPath;
+-(id)initWithMemoryCapacity:(unsigned long)memoryCapacity diskCapacity:(unsigned long)diskCapacity diskPath:(NSString *)diskPath;
 
 -(unsigned long)memoryCapacity;
 -(unsigned long)diskCapacity;

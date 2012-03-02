@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	return true;
 }
 
--initWithRequest:(NSURIRequest *)request delegate:(id<NSURIDownloadDelegate>)delegate
+-(id)initWithRequest:(NSURIRequest *)request delegate:(id<NSURIDownloadDelegate>)delegate
 {
 	_request=[request copy];
 	_delegate=delegate;
@@ -31,7 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	return self;
 }
 
--initWithResumeData:(NSData *)data delegate:(id<NSURIDownloadDelegate>)delegate path:(NSString *)path
+-(id)initWithResumeData:(NSData *)data delegate:(id<NSURIDownloadDelegate>)delegate path:(NSString *)path
 {
 	[self notImplemented:_cmd];
 	return false;

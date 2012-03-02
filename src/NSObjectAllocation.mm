@@ -57,18 +57,18 @@ static void __attribute__((constructor)) init_refcounting (void)
  * Allocate an NSObject
  */
 
-id NSAllocateObject(Class aClass, size_t extraBytes, NSZone *zone)
+id NSAllocateObject(Class aClass, size_t extraBytes, __unused NSZone *zone)
 {
 	return class_createInstance(aClass, extraBytes);
 }
 
-id NSCopyObject(id<NSObject> anObject, size_t extraBytes, NSZone *zone)
+id NSCopyObject(id<NSObject> anObject, size_t extraBytes, __unused NSZone *zone)
 {
 	return object_copy(anObject, extraBytes +
 			class_getInstanceSize(object_getClass(anObject)));
 }
 
-NSZone* NSZoneFromObject(id<NSObject> anObject)
+NSZone* NSZoneFromObject(__unused id<NSObject> anObject)
 {
 	return NULL;
 	//return ZoneOf(anObject);
@@ -86,7 +86,7 @@ void NSDeallocateObject(id<NSObject> anObject)
  * Retain / Release Object
  */
 
-bool NSShouldRetainWithZone(id<NSObject> anObject, NSZone* requestedZone)
+bool NSShouldRetainWithZone(__unused id<NSObject> anObject, __unused NSZone* requestedZone)
 {
 	return true;
 }

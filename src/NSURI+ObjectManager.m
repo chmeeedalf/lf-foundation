@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008	Gold Project
+ * Copyright (c) 2008,2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,13 +33,13 @@
 
 @interface NSURI(URI_ObjectManager)
 	
-- handler;
+- (id) handler;
 
 @end
 
 @implementation NSURI(URI_ObjectManager)
 
-- handler
+- (id) handler
 {
 	Class c = NSClassFromString([[@"Scheme" stringByAppendingString:[[self scheme] capitalizedString]] stringByAppendingString:@"Handler"]);
 	return [c sharedHandler];

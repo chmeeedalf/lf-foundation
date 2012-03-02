@@ -5,5 +5,5 @@ SRCS+=	NSConcreteScanner.m \
 		NSCoreString.mm \
 		NSScanner.m \
 		NSString.m \
-		NSRegex.mm \
-		unicodectype.c \
+		unicodectype.m \
+#NSRegex.mm \

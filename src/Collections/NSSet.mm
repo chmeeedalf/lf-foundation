@@ -179,7 +179,7 @@ static Class CoreSetClass;
 	return self;
 }
 
-- (id)initWithSet:(NSSet*)set copyItems:(bool)flag;
+- (id)initWithSet:(NSSet*)set copyItems:(bool)flag
 {
 	std::vector<id> objs;
 
@@ -333,7 +333,7 @@ static Class CoreSetClass;
 }
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-   indent:(unsigned int)indent;
+   indent:(unsigned int)indent
 {
 	return [[self allObjects] descriptionWithLocale:locale indent:indent];
 }
@@ -385,26 +385,27 @@ static Class CoreSetClass;
 	return s;
 }
 
+/* Ugh, this algorithm is O(n^2), better hope this is only run once. A better
+ * implementation is in NSCoreSet.mm.
+ */
 - (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
 	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
 	unsigned long i = 0;
-	NSEnumerator *en;
-	return 0;
-#if 0
+	NSEnumerator *en = [self objectEnumerator];
+
 	if (state->state == 0)
 	{
 		state->state = 1;
-		en = [self objectEnumerator];
-		/* We rely on the fact that sizeof(long) == sizeof(void *) */
-		state->extra[0] = (uintptr_t)en;
-	}
-	else
-	{
-		/* We rely on the fact that sizeof(long) == sizeof(void *) */
-		en = (NSEnumerator *)state->extra[0];
+		state->extra[0] = 0;
 	}
 	state->itemsPtr = stackBuf;
+
+	for (; i < state->extra[0]; i++)
+	{
+		[en nextObject];
+	}
+
 	for (i = 0; i < len; i++)
 	{
 		id obj = [en nextObject];
@@ -412,8 +413,9 @@ static Class CoreSetClass;
 			break;
 		stackBuf[i] = obj;
 	}
+	state->extra[0] = i;
+
 	return i;
-#endif
 }
 
 - (void) enumerateObjectsUsingBlock:(void (^)(id obj, bool *stop))block
@@ -482,7 +484,7 @@ static Class CoreSetClass;
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	if ([coder allowsKeyedCoding])
 	{

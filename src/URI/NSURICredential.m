@@ -12,10 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 +(NSURICredential *)credentialWithUser:(NSString *)user password:(NSString *)password persistence:(NSURICredentialPersistence)persistence
 {
-	return [[[self alloc] initWithUser:user password:password persistence:persistence] autorelease];
+	return [[self alloc] initWithUser:user password:password persistence:persistence];
 }
 
--initWithUser:(NSString *)user password:(NSString *)password persistence:(NSURICredentialPersistence)persistence
+-(id)initWithUser:(NSString *)user password:(NSString *)password persistence:(NSURICredentialPersistence)persistence
 {
 	_user=[user copy];
 	_password=[password copy];
@@ -23,17 +23,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	return self;
 }
 
--(void)dealloc
-{
-	[_user release];
-	[_password release];
-	[super dealloc];
-}
-
 // probably wrong
--copyWithZone:(NSZone *)zone
+-(id)copyWithZone:(NSZone *)zone
 {
-	return [self retain];
+	return self;
 }
 
 -(NSString *)user

@@ -18,7 +18,7 @@ typedef int NSURICredentialPersistence;
 
 +(NSURICredential *)credentialWithUser:(NSString *)user password:(NSString *)password persistence:(NSURICredentialPersistence)persistence;
 
--initWithUser:(NSString *)user password:(NSString *)password persistence:(NSURICredentialPersistence)persistence;
+-(id)initWithUser:(NSString *)user password:(NSString *)password persistence:(NSURICredentialPersistence)persistence;
 
 -(NSString *)user;
 -(NSString *)password;

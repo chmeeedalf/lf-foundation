@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -45,8 +45,8 @@
 @property(readonly,retain) NSDictionary *userInfo;
 @property(readonly) int code;
 
-+ errorWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo;
-- initWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo;
++ (NSError *)errorWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo;
+- (id)initWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo;
 
 - (NSString *)localizedDescription;
 - (NSArray *)localizedRecoveryOptions;

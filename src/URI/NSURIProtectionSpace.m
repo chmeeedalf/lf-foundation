@@ -23,7 +23,7 @@ NSMakeSymbol(NSAuthenticationMethodNegotiate);
 NSMakeSymbol(NSAuthenticationMethodClientCertificate);
 NSMakeSymbol(NSAuthenticationMethodServerTrust);
 
--initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
+-(id)initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
 {
 	_host=[host copy];
 	_port=port;
@@ -34,7 +34,7 @@ NSMakeSymbol(NSAuthenticationMethodServerTrust);
 	return self;
 }
 
--initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)type realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
+-(id)initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)type realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
 {
 	_host=[host copy];
 	_port=port;
@@ -45,18 +45,9 @@ NSMakeSymbol(NSAuthenticationMethodServerTrust);
 	return self;
 }
 
--(void)dealloc
+-(id)copyWithZone:(NSZone *)zone
 {
-	[_host release];
-	[_protocol release];
-	[_realm release];
-	[_authenticationMethod release];
-	[super dealloc];
-}
-
--copyWithZone:(NSZone *)zone
-{
-	return [self retain];
+	return self;
 }
 
 -(NSString *)host
@@ -87,7 +78,7 @@ NSMakeSymbol(NSAuthenticationMethodServerTrust);
 -(NSString *)proxyType
 {
 	if ([self isProxy])
-		return [[_protocol retain] autorelease];
+		return _protocol;
 	return nil;
 }
 

@@ -45,6 +45,7 @@
 	dispatch_semaphore_t wait_sema;
 	NSMutableArray *dependencies;
 	NSOperationQueuePriority _priority;
+	void (^completionBlock)(void);
 	double _threadPriority;
 	bool _isFinished;
 	bool _isExecuting;
@@ -57,7 +58,7 @@
 	return false;
 }
 
-- init
+- (id) init
 {
 	wait_sema = dispatch_semaphore_create(0);
 	dependencies = [NSMutableArray new];
@@ -184,6 +185,16 @@
 	}
 }
 
+- (void) setCompletionBlock:(void (^)(void))block
+{
+	completionBlock = [block copy];
+}
+
+- (void (^)(void)) completionBlock
+{
+	return completionBlock;
+}
+
 - (NSArray *) dependencies
 {
 	return [dependencies copy];
@@ -240,6 +251,8 @@
 	[obj removeObserver:self forKeyPath:@"isFinished"];
 	if (obj == self)
 	{
+		if (completionBlock != NULL)
+			completionBlock();
 		dispatch_semaphore_signal(wait_sema);
 		return;
 	}
@@ -266,7 +279,7 @@
 @end
 
 @implementation NSInvocationOperation
-- initWithTarget:(id)target selector:(SEL)sel object:(id)object
+- (id) initWithTarget:(id)target selector:(SEL)sel object:(id)object
 {
 	NSInvocation *inv;
 	
@@ -277,7 +290,7 @@
 	return [self initWithInvocation:inv];
 }
 
-- initWithInvocation:(NSInvocation *)inv
+- (id) initWithInvocation:(NSInvocation *)inv
 {
 	if ((self = [super init]) == nil)
 		return nil;
@@ -419,6 +432,11 @@ static char assocObjKey;
 		[self didChangeValueForKey:@"operations"];
 		[self didChangeValueForKey:@"operationCount"];
 	}
+}
+
+- (void) addOperationWithBlock:(void (^)(void))block
+{
+	[self addOperation:[NSBlockOperation blockOperationWithBlock:block]];
 }
 
 - (void) addOperations:(NSArray *)ops waitUntilFinished:(bool)wait

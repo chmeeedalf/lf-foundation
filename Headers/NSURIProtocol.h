@@ -31,7 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 +(bool)registerClass:(Class)cls;
 +(void)unregisterClass:(Class)cls;
 
-+propertyForKey:(NSString *)key inRequest:(NSURIRequest *)request;
++ (id) propertyForKey:(NSString *)key inRequest:(NSURIRequest *)request;
 +(void)removePropertyForKey:(NSString *)key inRequest:(NSMutableURIRequest *)request;
 +(void)setProperty:value forKey:(NSString *)key inRequest:(NSMutableURIRequest *)request;
 
@@ -39,7 +39,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 +(NSURIRequest *)canonicalRequestForRequest:(NSURIRequest *)request;
 +(bool)requestIsCacheEquivalent:(NSURIRequest *)request toRequest:(NSURIRequest *)other;
 
--initWithRequest:(NSURIRequest *)request cachedResponse:(NSCachedURIResponse *)response client:(id <NSURIProtocolClient>)client;
+-(id)initWithRequest:(NSURIRequest *)request cachedResponse:(NSCachedURIResponse *)response client:(id <NSURIProtocolClient>)client;
 
 -(NSURIRequest *)request;
 -(NSCachedURIResponse *)cachedResponse;

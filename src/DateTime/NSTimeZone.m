@@ -41,11 +41,6 @@
 
 #import "NSConcreteTimeZone.h"
 
-NSTimeZone *DefaultTimeZone(void)
-{
-	return [NSTimeZone defaultTimeZone];
-}
-
 @implementation NSTimeZone
 
 static NSTimeZone *defaultTimeZone = nil;
@@ -224,7 +219,7 @@ static NSTimeZone *systemTimeZone = nil;
 }
 
 /* This is read-only so it doesn't matter what zone we're in. */
-- copyWithZone:(NSZone *)zone
+- (id) copyWithZone:(NSZone *)zone
 {
 	return self;
 }

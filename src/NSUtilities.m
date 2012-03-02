@@ -38,6 +38,8 @@
 #include <string.h>
 #include <unistd.h>
 
+const char *_NSPrintForDebugger(id obj);
+
 /*
  * Log a Message
  */

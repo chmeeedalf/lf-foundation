@@ -151,7 +151,7 @@
 			initValue:&size withObjCType:@encode(NSSize)];
 }
 
-- initWithBytes:(const void*)value objCType:(const char*)type
+- (id) initWithBytes:(const void*)value objCType:(const char*)type
 {
 	Class theClass = [[self class] concreteClassForObjCType:type];
 

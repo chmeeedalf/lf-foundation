@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,8 +48,7 @@ SYSTEM_EXPORT NSString * const NSPortDidBecomeInvalidNotification;
 	id<NSPortDelegate>	_delegate;
 }
 
-+ allocWithZone:(NSZone *)zone;
-+ port;
++ (id) port;
 + (Class) portCoderClass;
 
 - (void) invalidate;

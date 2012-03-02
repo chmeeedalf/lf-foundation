@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,21 +41,10 @@ typedef enum
 } NSDateFormatterStyle;
 
 @interface NSDateFormatter	:	NSFormatter
-{
-@private
-	id	_private;
-@protected
-	NSLocale *_locale;
-	NSDateFormatterStyle _dateStyle;
-	NSDateFormatterStyle _timeStyle;
-	bool	_relative;
-	NSDate	*defaultDate;
-}
 @property(nonatomic,copy) NSDate *defaultDate;
 
 + (NSString *)dateFormatFromTemplate:(NSString *)dfTemplate options:(unsigned long)opts locale:(NSLocale *)locale;
-- initWithDateFormat:(NSString *)format allowNaturalLanguage:(bool)allowNatLang;
-- init;
+- (id) init;
 
 - (NSString *)AMSymbol;
 - (void) setAMSymbol:(NSString *)newAM;

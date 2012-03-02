@@ -8,18 +8,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 
-SYSTEM_EXPORT Symbol NSURIProtectionSpaceHTTPProxy;
-SYSTEM_EXPORT Symbol NSURIProtectionSpaceHTTPSProxy;
-SYSTEM_EXPORT Symbol NSURIProtectionSpaceFTPProxy;
-SYSTEM_EXPORT Symbol NSURIProtectionSpaceSOCKSProxy;
+SYSTEM_EXPORT NSSymbol NSURIProtectionSpaceHTTPProxy;
+SYSTEM_EXPORT NSSymbol NSURIProtectionSpaceHTTPSProxy;
+SYSTEM_EXPORT NSSymbol NSURIProtectionSpaceFTPProxy;
+SYSTEM_EXPORT NSSymbol NSURIProtectionSpaceSOCKSProxy;
 
-SYSTEM_EXPORT Symbol NSAuthenticationMethodDefault;
-SYSTEM_EXPORT Symbol NSAuthenticationMethodHTTPBasic;
-SYSTEM_EXPORT Symbol NSAuthenticationMethodHTTPDigest;
-SYSTEM_EXPORT Symbol NSAuthenticationMethodHTMLForm;
-SYSTEM_EXPORT Symbol NSAuthenticationMethodNegotiate;
-SYSTEM_EXPORT Symbol NSAuthenticationMethodClientCertificate;
-SYSTEM_EXPORT Symbol NSAuthenticationMethodServerTrust;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodDefault;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodHTTPBasic;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodHTTPDigest;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodHTMLForm;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodNegotiate;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodClientCertificate;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodServerTrust;
 
 @interface NSURIProtectionSpace : NSObject <NSCopying>
 {
@@ -31,8 +31,8 @@ SYSTEM_EXPORT Symbol NSAuthenticationMethodServerTrust;
 	bool      _isProxy;
 }
 
--initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod;
--initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)proxyType realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod;
+-(id)initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod;
+-(id)initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)proxyType realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod;
 
 -(NSString *)host;
 -(int)port;

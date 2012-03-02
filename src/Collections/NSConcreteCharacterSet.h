@@ -66,13 +66,13 @@
 }
 
 - (void) applyInvert:(bool)invert;
-- initWithPattern:(NSString *)_pattern inverted:(bool)inv;
-- initWithCharacterType:(uint32_t)mask inverted:(bool)inv;
-- initWithProperty:(uint32_t)mask inverted:(bool)inv;
-- initWithBitmapRepresentation:(NSData *)data inverted:(bool)inv;
-- initWithMask:(uint32_t)mask inverted:(bool)inv;
-- initWithString:(NSString*)aString inverted:(bool)inv;
-- initWithRange:(NSRange)aRange inverted:(bool)inv;
+- (id) initWithPattern:(NSString *)_pattern inverted:(bool)inv;
+- (id) initWithCharacterType:(uint32_t)mask inverted:(bool)inv;
+- (id) initWithProperty:(uint32_t)mask inverted:(bool)inv;
+- (id) initWithBitmapRepresentation:(NSData *)data inverted:(bool)inv;
+- (id) initWithMask:(uint32_t)mask inverted:(bool)inv;
+- (id) initWithString:(NSString*)aString inverted:(bool)inv;
+- (id) initWithRange:(NSRange)aRange inverted:(bool)inv;
 - (bool)characterIsMember:(NSUniChar)aCharacter;
 - (NSCharacterSet *)invertedSet;
 - (void) _setICUCharacterSet:(USet *)newSet;

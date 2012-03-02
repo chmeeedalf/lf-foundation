@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2011	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -74,8 +74,8 @@ enum
 @property bool usesStrongWriteBarrier;
 @property bool usesWeakReadAndWriteBarriers;
 
-+ pointerFunctionsWithOptions:(NSPointerFunctionsOptions)options;
-- initWithOptions:(NSPointerFunctionsOptions)options;
++ (NSPointerFunctions *)pointerFunctionsWithOptions:(NSPointerFunctionsOptions)options;
+- (id)initWithOptions:(NSPointerFunctionsOptions)options;
 @end
 
 #ifdef __cplusplus

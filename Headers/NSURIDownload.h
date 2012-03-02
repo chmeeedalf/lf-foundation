@@ -24,8 +24,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 +(bool)canResumeDownloadDecodedWithEncodingMIMEType:(NSString *)mimeType;
 
--initWithRequest:(NSURIRequest *)requst delegate:(id<NSURIDownloadDelegate>)delegate;
--initWithResumeData:(NSData *)data delegate:(id<NSURIDownloadDelegate>)delegate path:(NSString *)path;
+-(id)initWithRequest:(NSURIRequest *)requst delegate:(id<NSURIDownloadDelegate>)delegate;
+-(id)initWithResumeData:(NSData *)data delegate:(id<NSURIDownloadDelegate>)delegate path:(NSString *)path;
 
 -(NSURIRequest *)request;
 -(NSData *)resumeData;

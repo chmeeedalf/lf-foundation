@@ -53,7 +53,7 @@
 @synthesize delegate = _delegate;
 @synthesize isAsynchronous;
 
-- initWithAddress:(NSNetworkAddress *)addr socketType:(NSSocketType)type protocol:(int)protocol
+- (id) initWithAddress:(NSNetworkAddress *)addr socketType:(NSSocketType)type protocol:(int)protocol
 {
 	int pid;
 	struct sockaddr_storage saddr;
@@ -77,7 +77,7 @@
 	return self;
 }
 
-- initWithConnectedSocket:(int)sockfd
+- (id) initWithConnectedSocket:(int)sockfd
 {
 	_private = [_NSSocketPrivate new];
 	_private->socket = sockfd;
@@ -85,7 +85,7 @@
 	return self;
 }
 
-- initRemoteWithHost:(NSHost *)host family:(NSAddressFamily)family type:(NSSocketType)type protocol:(int)protocol
+- (id) initRemoteWithHost:(NSHost *)host family:(NSAddressFamily)family type:(NSSocketType)type protocol:(int)protocol
 {
 	_private = [_NSSocketPrivate new];
 	_private->socket = socket(family, type, protocol);
@@ -336,7 +336,7 @@
 @end
 
 @implementation NSTCPSocket
-- initWithAddress:(NSNetworkAddress *)addr port:(int)port
+- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)port
 {
 	self = [self initWithAddress:addr socketType:NSStreamSocketType protocol:0];
 	if (self != nil)
@@ -344,12 +344,12 @@
 	return self;
 }
 
-- initWithHost:(NSHost *)host port:(int)port
+- (id) initWithHost:(NSHost *)host port:(int)port
 {
 	return [self initRemoteWithHost:host family:NSInternetAddressFamily type:NSStreamSocketType protocol:NSInternetProtocolFamily];
 }
 
-- initForListeningWithPort:(int)port
+- (id) initForListeningWithPort:(int)port
 {
 	return self;
 }
@@ -363,7 +363,7 @@
 @end
 
 @implementation NSUDPSocket
-- initWithAddress:(NSNetworkAddress *)addr port:(int)port
+- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)port
 {
 	self = [self initWithAddress:addr socketType:NSStreamSocketType protocol:0];
 	if (self != nil)
@@ -371,12 +371,12 @@
 	return self;
 }
 
-- initWithHost:(NSHost *)host port:(int)port
+- (id) initWithHost:(NSHost *)host port:(int)port
 {
 	return [self initRemoteWithHost:host family:NSInternetAddressFamily type:NSDatagramSocketType protocol:NSInternetProtocolFamily];
 }
 
-- initForListeningWithPort:(int)port
+- (id) initForListeningWithPort:(int)port
 {
 	return self;
 }

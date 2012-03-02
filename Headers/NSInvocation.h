@@ -62,7 +62,7 @@
  * \brief Returns an invocation object able to construct calls to objects.
  * \param sig Signature with which to initialize the invocation object.
  */
-- initWithMethodSignature:(NSMethodSignature *)sig;
+- (id) initWithMethodSignature:(NSMethodSignature *)sig;
 
 // Managing invocation arguments
 /*!

@@ -57,10 +57,10 @@
 {
 	id collection;
 }
-- initWithCollection:(id)collection;
+- (id)initWithCollection:(id)collection;
 @end
 @implementation _AggregateExpression
-- initWithCollection:(id)coll
+- (id)initWithCollection:(id)coll
 {
 	self = [super initWithExpressionType:NSAggregateExpressionType];
 	if (self == nil)
@@ -131,15 +131,50 @@
 }
 @end /* }}} */
 
+@interface _BlockExpression	:	NSExpression/*{{{*/
+{
+	id (^block)(id, NSArray *, NSMutableDictionary *);
+	NSArray *arguments;
+}
+- (id)initWithBlock:(id)value arguments:(NSArray *)args;
+@end
+
+@implementation _BlockExpression
+- (id)initWithBlock:(id)val arguments:(NSArray *)args
+{
+	self = [super initWithExpressionType:NSBlockExpressionType];
+	if (self == nil)
+		return nil;
+	block = val;
+	arguments = args;
+	return self;
+}
+
+- (id (^)(id, NSArray *, NSMutableDictionary *)) expressionBlock
+{
+	return block;
+}
+
+- (id)expressionValueWithObject:object context:(NSMutableDictionary *)context
+{
+	NSMutableArray *args = [NSMutableArray new];
+	for (NSExpression *expr in arguments)
+	{
+		[args addObject:[expr expressionValueWithObject:object context:context]];
+	}
+	return block(object, args, context);
+}
+@end/*}}}*/
+
 @interface _ConstantValueExpression	:	NSExpression/*{{{*/
 {
 	id value;
 }
-- initWithConstantValue:(id)value;
+- (id)initWithConstantValue:(id)value;
 @end
 
 @implementation _ConstantValueExpression
-- initWithConstantValue:(id)val
+- (id)initWithConstantValue:(id)val
 {
 	self = [super initWithExpressionType:NSEvaluatedObjectExpressionType];
 	if (self == nil)
@@ -148,12 +183,12 @@
 	return self;
 }
 
-- constantValue
+- (id)constantValue
 {
 	return value;
 }
 
-- expressionValueWithObject:object context:(NSMutableDictionary *)context
+- (id)expressionValueWithObject:object context:(NSMutableDictionary *)context
 {
 	return value;
 }
@@ -165,7 +200,7 @@
 }
 @end
 @implementation _KeyPathExpression
-- initWithKeyPath:(NSString *)path
+- (id)initWithKeyPath:(NSString *)path
 {
 	if ((self = [super initWithExpressionType:NSKeyPathExpressionType]) == nil)
 		return nil;
@@ -174,7 +209,7 @@
 	return self;
 }
 
-- expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
+- (id)expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
 {
 	return [obj valueForKeyPath:keyPath];
 }
@@ -189,13 +224,13 @@
 @end
 
 @implementation _SelfExpression
-- init
+- (id)init
 {
 	self = [super initWithExpressionType:NSEvaluatedObjectExpressionType];
 	return self;
 }
 
-- expressionValueWithObject:object context:(NSMutableDictionary *)context
+- (id)expressionValueWithObject:object context:(NSMutableDictionary *)context
 {
 	return object;
 }
@@ -384,10 +419,10 @@
 	SEL selector;
 	NSArray *arguments;
 }
-- initWithOperand:(id)op selector:(SEL)sel arguments:(NSArray *)args;
+- (id)initWithOperand:(id)op selector:(SEL)sel arguments:(NSArray *)args;
 @end
 @implementation _FunctionExpression
-- initWithOperand:(id)op selector:(SEL)sel arguments:(NSArray *)args
+- (id)initWithOperand:(id)op selector:(SEL)sel arguments:(NSArray *)args
 {
 	if ((self = [super initWithExpressionType:NSFunctionExpressionType]) == nil)
 		return nil;
@@ -397,13 +432,13 @@
 	return self;
 }
 
-- expressionValueWithObject:(id)obj context:(NSMutableDictionary*)context
+- (id)expressionValueWithObject:(id)obj context:(NSMutableDictionary*)context
 {
 	id t = [target expressionValueWithObject:obj context:context];
 	Method m = class_getInstanceMethod(t, selector);
 	NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)]];
-	int count = [arguments count];
-	int i = 0;
+	NSIndex count = [arguments count];
+	unsigned int i = 0;
 	[inv setTarget:t];
 	[inv setSelector:selector];
 	for (i = 0; i < count; i++)
@@ -412,7 +447,7 @@
 	}
 	if (i < [[inv methodSignature] numberOfArguments])
 	{
-		for (int j = [[inv methodSignature] numberOfArguments]; j > i+2; j--)
+		for (unsigned int j = [[inv methodSignature] numberOfArguments]; j > i+2; j--)
 		{
 			[inv setArgument:nil atIndex:j];
 		}
@@ -424,7 +459,7 @@
 	return retval;
 }
 
-- _expressionWithSubstitutionVariables:(NSDictionary *)subVars
+- (id)_expressionWithSubstitutionVariables:(NSDictionary *)subVars
 {
 	id t = [target _expressionWithSubstitutionVariables:subVars];
 	id args = [[arguments map] _expressionWithSubstitutionVariables:subVars];
@@ -448,10 +483,10 @@
 {
 	NSString *variable;
 }
-- initWithVariable:(NSString *)var;
+- (id)initWithVariable:(NSString *)var;
 @end
 @implementation _VariableExpression
-- initWithVariable:(NSString *)var
+- (id)initWithVariable:(NSString *)var
 {
 	if ((self = [super initWithExpressionType:NSVariableExpressionType]) == nil)
 		return nil;
@@ -459,12 +494,12 @@
 	return self;
 }
 
-- _expressionWithSubstitutionVariables:(NSDictionary *)substVars
+- (id)_expressionWithSubstitutionVariables:(NSDictionary *)substVars
 {
 	return [NSExpression expressionForConstantValue:[substVars objectForKey:variable]];
 }
 
-- expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
+- (id)expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
 {
 	return [context valueForKey:variable];
 }
@@ -476,10 +511,10 @@
 	NSExpression *left;
 	NSExpression *right;
 }
-- initWithExpressionType:(NSExpressionType)t left:(NSExpression *)l right:(NSExpression *)r;
+- (id)initWithExpressionType:(NSExpressionType)t left:(NSExpression *)l right:(NSExpression *)r;
 @end
 @implementation _SetExpression
-- initWithExpressionType:(NSExpressionType)t left:(NSExpression *)l right:(NSExpression *)r
+- (id)initWithExpressionType:(NSExpressionType)t left:(NSExpression *)l right:(NSExpression *)r
 {
 	if ((self = [super initWithExpressionType:t]) == nil)
 		return nil;
@@ -488,17 +523,17 @@
 	return self;
 }
 
-- leftExpression
+- (id)leftExpression
 {
 	return left;
 }
 
-- rightExpression
+- (id)rightExpression
 {
 	return right;
 }
 
-- expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
+- (id)expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
 {
 	NSMutableSet *l = [[left expressionValueWithObject:obj context:context] mutableCopy];
 	NSSet *r = [right expressionValueWithObject:obj context:context];
@@ -523,73 +558,103 @@
 
 @implementation NSExpression
 
-+ expressionForConstantValue:value
++ (id) expressionForBlock:(id (^)(id, NSArray *, NSMutableDictionary *))block arguments:(NSArray *)args
+{
+	return [[_BlockExpression alloc] initWithBlock:block arguments:args];
+}
+
++ (id)expressionForConstantValue:value
 {
 	return [[_ConstantValueExpression alloc] initWithConstantValue:value];
 }
 
-+ expressionForEvaluatedObject
++ (id)expressionForEvaluatedObject
 {
 	return [[_SelfExpression alloc] init];
 }
 
-+ expressionForKeyPath:(NSString *)keyPath
++ (id)expressionForKeyPath:(NSString *)keyPath
 {
 	return [[_KeyPathExpression alloc] initWithKeyPath:keyPath];
 }
 
-+ expressionForVariable:(NSString *)variable
++ (id)expressionForVariable:(NSString *)variable
 {
 	return [[_VariableExpression alloc] initWithVariable:variable];
 }
 
-+ expressionForAggregate:(NSArray *)aggregate
++ (id)expressionForAggregate:(NSArray *)aggregate
 {
 	return [[_AggregateExpression alloc] initWithCollection:aggregate];
 }
 
-+ expressionForUnionSet:(NSExpression *)left with:(NSExpression *)right
++ (id)expressionForUnionSet:(NSExpression *)left with:(NSExpression *)right
 {
 	return [[_SetExpression alloc] initWithExpressionType:NSUnionSetExpressionType left:left right:right];
 }
 
-+ expressionForIntersectSet:(NSExpression *)left with:(NSExpression *)right
++ (id)expressionForIntersectSet:(NSExpression *)left with:(NSExpression *)right
 {
 	return [[_SetExpression alloc] initWithExpressionType:NSIntersectSetExpressionType left:left right:right];
 }
 
-+ expressionForMinusSet:(NSExpression *)left with:(NSExpression *)right
++ (id)expressionForMinusSet:(NSExpression *)left with:(NSExpression *)right
 {
 	return [[_SetExpression alloc] initWithExpressionType:NSMinusSetExpressionType left:left right:right];
 }
 
-+ expressionForSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)var predicate:(id)pred
++ (id)expressionForSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)var predicate:(id)pred
 {
 	TODO;
 	return nil;
 }
 
-+ expressionForFunction:(NSString *)func arguments:(NSArray *)args
++ (id)expressionForFunction:(NSString *)func arguments:(NSArray *)args
 {
 	NSExpression *e = [_FunctionExpressionTarget new];
 	NSExpression *fe = [self expressionForFunction:e selectorName:func arguments:args];
 	return fe;
 }
 
-+ expressionForFunction:(NSExpression *)target selectorName:(NSString *)sel arguments:(NSArray *)args
++ (id)expressionForFunction:(NSExpression *)target selectorName:(NSString *)sel arguments:(NSArray *)args
 {
 	NSParameterAssert(NSSelectorFromString(sel) != NULL);
 	SEL s = NSSelectorFromString(sel);
 	return [[_FunctionExpression alloc] initWithOperand:target selector:s arguments:args];
 }
 
-- initWithExpressionType:(NSExpressionType)type
++ (NSExpression *)expressionWithFormat:(NSString *)_format,...
+{
+	va_list args;
+	NSExpression *retval;
+
+	va_start(args, _format);
+	retval = [self expressionWithFormat:_format arguments:args];
+	va_end(args);
+
+	return retval;
+}
+
++ (NSExpression *)expressionWithFormat:(NSString *)format arguments:(va_list)argList
+{
+	TODO; // +[NSExpression expressionWithFormat:arguments:]
+	return nil;
+}
+
++ (NSExpression *)expressionWithFormat:(NSString *)_format 
+  argumentArray:(NSArray *)_arguments
+{
+	TODO; // +[NSExpression expressionWithFormat:argumentArray:]
+	return nil;
+}
+
+- (id)initWithExpressionType:(NSExpressionType)type
 {
 	expressionType = type;
 	return self;
 }
 
-- _expressionWithSubstitutionVariables:(NSDictionary *)substVars
+- (id)_expressionWithSubstitutionVariables:(NSDictionary *)substVars
 {
 	return self;
 }
@@ -614,7 +679,13 @@
 	return expressionType;
 }
 
-- expressionValueWithObject:(id)object context:(NSMutableDictionary *)context
+- (id (^)(id, NSArray *, NSMutableDictionary *)) expressionBlock
+{
+	[self subclassResponsibility:_cmd];
+	return NULL;
+}
+
+- (id)expressionValueWithObject:(id)object context:(NSMutableDictionary *)context
 {
 	return [self subclassResponsibility:_cmd];
 }

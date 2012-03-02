@@ -6,29 +6,24 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 #import <Foundation/NSCachedURIResponse.h>
+#import <Foundation/NSData.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSURIResponse.h>
 
 @implementation NSCachedURIResponse
 
--initWithResponse:(NSURIResponse *)response data:(NSData *)data userInfo:(NSDictionary *)userInfo storagePolicy:(NSURICacheStoragePolicy)storagePolicy
+-(id)initWithResponse:(NSURIResponse *)response data:(NSData *)data userInfo:(NSDictionary *)userInfo storagePolicy:(NSURICacheStoragePolicy)storagePolicy
 {
-	_response=[response copy];
-	_data=[data copy];
-	_userInfo=[userInfo copy];
-	_storagePolicy=storagePolicy;
+	_response = [response copy];
+	_data = [data copy];
+	_userInfo = [userInfo copy];
+	_storagePolicy = storagePolicy;
 	return self;
 }
 
--initWithResponse:(NSURIResponse *)response data:(NSData *)data
+-(id)initWithResponse:(NSURIResponse *)response data:(NSData *)data
 {
 	return [self initWithResponse:response data:data userInfo:nil storagePolicy:NSURICacheStorageAllowed];
-}
-
--(void)dealloc
-{
-	[_response release];
-	[_data release];
-	[_userInfo release];
-	[super dealloc];
 }
 
 -(NSURIResponse *)response

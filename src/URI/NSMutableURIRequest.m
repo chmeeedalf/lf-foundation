@@ -14,52 +14,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSURI.h>
 
 @interface NSURIRequest(private)
--initWithURIRequest:(NSURIRequest *)other;
+-(id)initWithURIRequest:(NSURIRequest *)other;
 @end
 
 @implementation NSMutableURIRequest
 
--copyWithZone:(NSZone *)zone
+-(id)copyWithZone:(NSZone *)zone
 {
 	return [[NSURIRequest alloc] initWithURIRequest:self];
 }
 
 -(void)setURI:(NSURI *)value
 {
-	value=[value copy];
-	[_url release];
-	_url=value;
+	value = [value copy];
+	_url = value;
 }
 
 -(void)setCachePolicy:(NSURIRequestCachePolicy)value
 {
-	_cachePolicy=value;
+	_cachePolicy = value;
 }
 
 -(void)setTimeoutInterval:(NSTimeInterval)value
 {
-	_timeoutInterval=value;
+	_timeoutInterval = value;
 }
 
 -(void)setHTTPMethod:(NSString *)value
 {
-	value=[value copy];
-	[_method release];
-	_method=value;
+	value = [value copy];
+	_method = value;
 }
 
 -(void)setHTTPBody:(NSData *)value
 {
-	value=[value copy];
-	[_bodyDataOrStream release];
-	_bodyDataOrStream=value;
+	value = [value copy];
+	_bodyDataOrStream = value;
 }
 
 -(void)setHTTPBodyStream:(NSInputStream *)value
 {
-	[value retain];
-	[_bodyDataOrStream release];
-	_bodyDataOrStream=value;
+	_bodyDataOrStream = value;
 }
 
 -(void)setAllHTTPHeaderFields:(NSDictionary *)allValues
@@ -69,7 +64,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	[_headerFields removeAllObjects];
 	for (key in allValues)
 	{
-		NSString *value=[allValues objectForKey:key];
+		NSString *value = [allValues objectForKey:key];
 
 		if([key isKindOfClass:[NSString class]] && [value isKindOfClass:[NSString class]])
 		{
@@ -80,7 +75,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -(void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field
 {
-	field=[field uppercaseString];
+	field = [field uppercaseString];
 
 	[_headerFields setObject:value forKey:field];
 }
@@ -89,24 +84,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 {
 	NSString *existing;
 
-	field=[field uppercaseString];
-	existing=[_headerFields objectForKey:field];
-	if(existing!=nil)
-		value=[[existing stringByAppendingString:@","] stringByAppendingString:value];
+	field = [field uppercaseString];
+	existing = [_headerFields objectForKey:field];
+	if(existing != nil)
+		value = [[existing stringByAppendingString:@","] stringByAppendingString:value];
 
 	[_headerFields setObject:value forKey:field];
 }
 
 -(void)setHTTPShouldHandleCookies:(bool)value
 {
-	_handleCookies=value;
+	_handleCookies = value;
 }
 
 -(void)setMainDocumentURI:(NSURI *)value
 {
-	value=[value copy];
-	[_mainDocumentURI release];
-	_mainDocumentURI=value;
+	value = [value copy];
+	_mainDocumentURI = value;
 }
 
 @end

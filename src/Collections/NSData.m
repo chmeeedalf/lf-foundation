@@ -357,7 +357,7 @@
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	if ([coder allowsKeyedCoding])
 	{
@@ -400,7 +400,7 @@
 
 /* The meat of the class. */
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
     return NSAllocateObject(((self == [NSMutableData class]) ?
 	    [NSCoreData class] : (Class)self), 0, zone);

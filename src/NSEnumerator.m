@@ -1,7 +1,7 @@
 /*
    NSEnumerator.m
 
-   Copyright (C) 2005 Gold Project.
+   Copyright (C) 2005-2012 Gold Project.
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -29,7 +29,7 @@
 
 @implementation NSEnumerator
 
-- nextObject
+- (id) nextObject
 {
     [self subclassResponsibility:_cmd];
     return self;
@@ -38,7 +38,7 @@
 - (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
 	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
-	int i = 0;
+	unsigned long i = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;

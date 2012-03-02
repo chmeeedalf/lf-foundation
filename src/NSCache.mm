@@ -73,7 +73,7 @@ struct __NSCachePrivate {
 @synthesize totalCostLimit;
 @synthesize evictsObjectsWithDiscardedContent;
 
-- init
+- (id) init
 {
 	d = new __NSCachePrivate;
 

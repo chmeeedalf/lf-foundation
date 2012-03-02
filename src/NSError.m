@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -53,12 +53,12 @@ NSString * const NSUserErrorDomain = @"NSUserErrorDomain";
 @synthesize userInfo = _userInfo;
 @synthesize code = _code;
 
-+ errorWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo
++ (id) errorWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo
 {
 	return [[self alloc] initWithDomain:dom code:code userInfo:userInfo];
 }
 
-- initWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo
+- (id) initWithDomain:(NSString *)dom code:(int)code userInfo:(NSDictionary *)userInfo
 {
 	_domain = dom;
 	_code = code;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,7 +46,7 @@ typedef struct {
 @interface NSMethodSignature	: NSObject
 {
 	char *types;			/*!< \brief Argument type list. */
-	int numberOfArguments;	/*!< \brief NSNumber of arguments accepted by this method. */
+	unsigned long  numberOfArguments;	/*!< \brief NSNumber of arguments accepted by this method. */
 }
 
 // Creating a method signature

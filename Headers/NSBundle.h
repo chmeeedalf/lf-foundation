@@ -40,14 +40,14 @@ SYSTEM_EXPORT NSString * const NSLoadedClasses;
 +(NSArray *)preferredLocalizationsFromArray:(NSArray *)localizations;
 +(NSArray *)preferredLocalizationsFromArray:(NSArray *)localizations forPreferences:(NSArray *)preferences;
 
--initWithURI:(NSURI *)path;
+-(id)initWithURI:(NSURI *)path;
 
 -(NSURI *)bundleURI;
 -(NSURI *)resourceURI;
 -(NSURI *)builtInPlugInsURI;
 -(NSDictionary *)infoDictionary;
 -(NSDictionary *)localizedInfoDictionary;
--objectForInfoDictionaryKey:(NSString *)key;
+-(id)objectForInfoDictionaryKey:(NSString *)key;
 -(NSString *)bundleIdentifier;
 -(NSURI *)executableURI;
 -(NSArray *)localizations;

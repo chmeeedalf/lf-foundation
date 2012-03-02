@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	NSString *_encoding;
 }
 
--initWithURI:(NSURI *)url MIMEType:(NSString *)mimeType expectedContentLength:(long)expectedLength textEncodingName:(NSString *)encoding;
+-(id) initWithURI:(NSURI *)url MIMEType:(NSString *)mimeType expectedContentLength:(long)expectedLength textEncodingName:(NSString *)encoding;
 
 -(NSURI *)NSURI;
 -(NSString *)MIMEType;

@@ -62,6 +62,7 @@
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSInvocation.h>
+#import <Foundation/NSKeyedArchiver.h>
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSMethodSignature.h>
 #import <Foundation/NSPortCoder.h>
@@ -74,7 +75,7 @@
 {
 	id obj;
 }
-- initWithObject:(id)obj;
+- (id) initWithObject:(id)obj;
 @end
 
 /* Shut up the compiler.  It's actually included in the base. */
@@ -469,7 +470,7 @@ extern bool objc_create_block_classes_as_subclasses_of(Class);
 
 @implementation NSObject (GNU)
 
-- subclassResponsibility:(SEL)aSel
+- (id) subclassResponsibility:(SEL)aSel
 {
 	@throw [NSInternalInconsistencyException exceptionWithReason:
 			[NSString stringWithFormat:@"subclass of %s should override '%s'",object_getClassName(self), sel_getName(aSel)]
@@ -477,7 +478,7 @@ extern bool objc_create_block_classes_as_subclasses_of(Class);
     return self;
 }
 
-- shouldNotImplement:(SEL)aSel
+- (id) shouldNotImplement:(SEL)aSel
 {
 	@throw [NSInternalInconsistencyException exceptionWithReason:
 			[NSString stringWithFormat:@"%s should not implement '%s'",
@@ -486,7 +487,7 @@ extern bool objc_create_block_classes_as_subclasses_of(Class);
     return self;
 }
 
-- notImplemented:(SEL)aSel
+- (id) notImplemented:(SEL)aSel
 {
 	@throw [NSInternalInconsistencyException exceptionWithReason:
 			[NSString stringWithFormat:@"%s does not implement '%s'",
@@ -607,7 +608,7 @@ static NSMutableString *inspectObject(id self, Class startAt)
 
 @implementation _Autoproxy
 
-- initWithObject:(id)anObj
+- (id) initWithObject:(id)anObj
 {
 	obj = [anObj retain];
 	[obj beginContentAccess];
@@ -648,7 +649,7 @@ void class_addBehavior(Class targetClass, Class behavior)
 		return;
 	}
 
-	for (int i = 0; i < itsListCount; i++)
+	for (unsigned int i = 0; i < itsListCount; i++)
 	{
 		const char *myEnc = objc_skip_type_qualifiers(ivar_getTypeEncoding(myList[i]));
 		const char *itsEnc = objc_skip_type_qualifiers(ivar_getTypeEncoding(itsList[i]));
@@ -666,7 +667,7 @@ void class_addBehavior(Class targetClass, Class behavior)
 	free(itsList);
 
 	Method *itsMethodList = class_copyMethodList(behavior, &itsListCount);
-	for (int i = 0; i < itsListCount; i++)
+	for (unsigned int i = 0; i < itsListCount; i++)
 	{
 		Method m = itsMethodList[i];
 		class_addMethod(targetClass, method_getName(m), method_getImplementation(m), method_getTypeEncoding(m));
@@ -674,7 +675,7 @@ void class_addBehavior(Class targetClass, Class behavior)
 	free(itsMethodList);
 
 	itsMethodList = class_copyMethodList(object_getClass(behavior), &itsListCount);
-	for (int i = 0; i < itsListCount; i++)
+	for (unsigned int i = 0; i < itsListCount; i++)
 	{
 		Method m = itsMethodList[i];
 		Class cls = object_getClass(targetClass);

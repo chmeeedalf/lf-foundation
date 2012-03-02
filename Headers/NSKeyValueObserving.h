@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2008-2012	Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
 /* Copyright (c) 2007 Johannes Fortmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -8,12 +36,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSArray.h>
+#import <Foundation/NSOrderedSet.h>
+#import <Foundation/NSSet.h>
 
 /*!
  * \file NSKeyValueObserving.h
  */
 @class NSDictionary;
-@class NSSet;
 
 /*! \defgroup kvodictkeys Key-value observing dictionary keys. */
 /* @{ */
@@ -227,7 +256,7 @@ typedef enum {
  * \brief Add an observer for key-value observation notifications for changes in
  * a set of indices.
  * \param observer Observer to notify.
- * \param indexes NSSet of indices to be notified for.
+ * \param indexes Set of indices to be notified for.
  * \param keyPath Key path for property to be notified for.
  * \param options Options for dictionary attributes to be reported.
  * \param context Arbitrary context to pass down to the notified observer.
@@ -237,7 +266,7 @@ typedef enum {
 /*!
  * \brief Remove an observer for key-value observation notifications.
  * \param observer Observer to remove.
- * \param indexes NSSet of indices to be remove watch on.
+ * \param indexes Set of indices to be remove watch on.
  * \param keyPath Key path for property to stop watching.
  */
 -(void)removeObserver:(NSObject *)observer fromObjectsAtIndexes:(NSIndexSet *)indexes forKeyPath:(NSString *)keyPath;
@@ -248,6 +277,79 @@ typedef enum {
  * \param keyPath Property key path to stop observing.
  */
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath;
+
+/*!
+ * \brief Unregisters an observer for the given key path.
+ * \param observer Observer to unregister.
+ * \param keyPath Property key path to stop observing.
+ */
+-(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath context:(void *)context;
+
+/*!
+ * \brief Remove an observer for key-value observation notifications.
+ * \param observer Observer to remove.
+ * \param indexes Set of indices to be remove watch on.
+ * \param keyPath Key path for property to stop watching.
+ */
+-(void)removeObserver:(NSObject *)observer fromObjectsAtIndexes:(NSIndexSet *)indexes forKeyPath:(NSString *)keyPath context:(void *)context;
+@end
+
+@interface NSSet(KeyValueObserving)
+/*!
+ * \brief Registers a new observer for a value change on a given key path.
+ * \param observer Observer to register.  The object must implement the
+ * key-value observing protocol.
+ * \param keyPath Key path, relative to the receiver, of the property to
+ * observe.
+ * \param options One or more KeyValueObservingOptions values that specifies
+ * what is included in observation notifications.
+ * \param context Arbitrary data passed to the observer in
+ * -observeValueForKeyPath:ofObject:change:context:.
+ */
+- (void) addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)opts context:(void *)context;
+
+/*!
+ * \brief Unregisters an observer for the given key path.
+ * \param observer Observer to unregister.
+ * \param keyPath Property key path to stop observing.
+ */
+-(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath;
+
+/*!
+ * \brief Unregisters an observer for the given key path.
+ * \param observer Observer to unregister.
+ * \param keyPath Property key path to stop observing.
+ */
+-(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath context:(void *)context;
+@end
+
+@interface NSOrderedSet(KeyValueObserving)
+/*!
+ * \brief Registers a new observer for a value change on a given key path.
+ * \param observer Observer to register.  The object must implement the
+ * key-value observing protocol.
+ * \param keyPath Key path, relative to the receiver, of the property to
+ * observe.
+ * \param options One or more KeyValueObservingOptions values that specifies
+ * what is included in observation notifications.
+ * \param context Arbitrary data passed to the observer in
+ * -observeValueForKeyPath:ofObject:change:context:.
+ */
+- (void) addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)opts context:(void *)context;
+
+/*!
+ * \brief Unregisters an observer for the given key path.
+ * \param observer Observer to unregister.
+ * \param keyPath Property key path to stop observing.
+ */
+-(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath;
+
+/*!
+ * \brief Unregisters an observer for the given key path.
+ * \param observer Observer to unregister.
+ * \param keyPath Property key path to stop observing.
+ */
+-(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath context:(void *)context;
 @end
 
 /*!

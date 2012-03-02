@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2010	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -64,6 +64,8 @@
 #include <objc/slot.h>
 #include <objc/hooks.h>
 
+static ffi_type *ffi_type_from_encoding(const char *str);
+
 struct _InvocationPrivate
 {
 	ffi_closure *closure;
@@ -73,8 +75,8 @@ struct _InvocationPrivate
 };
 
 @interface NSInvocation(PrivateExtensions)
-	+ (NSInvocation *)invocationWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig;
-- initWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig;
++ (NSInvocation *)invocationWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig;
+- (id) initWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig;
 - (void) _verifySignature;
 - (void) _retainReleaseArguments:(bool)release;
 @end
@@ -138,7 +140,7 @@ static ffi_type * const ffi_type_match[CHAR_MAX] = {
 	[_C_ARY_B] = &ffi_type_pointer,
 };
 
-ffi_type *ffi_type_from_encoding(const char *str)
+static ffi_type *ffi_type_from_encoding(const char *str)
 {
 	str = objc_skip_type_qualifiers(str);
 	if (ffi_type_match[(unsigned int)*str] != NULL)
@@ -196,7 +198,7 @@ static void _setupFrameArgs(struct _InvocationPrivate *frame)
 	frame->ret = malloc(roundAlign(frame->cif.rtype->size, MAX(frame->cif.rtype->alignment, sizeof(void *))));
 	char *arg_frame;
 	void **args;
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < frame->cif.nargs; i++)
 	{
@@ -219,7 +221,7 @@ static void forwardCallback(ffi_cif *cif, void *ret, void **args, void *data)
 	SEL _cmd;
 	NSInvocation *inv;
 
-	self = *(id *)args[0];
+	self = *(const id *)args[0];
 	_cmd = *(SEL *)args[1];
 
 	if (!class_respondsToSelector(object_getClass(self), @selector(forwardInvocation:)))
@@ -247,12 +249,12 @@ static IMP forward2(id self, SEL _cmd)
 
 	frame->closure = ffi_closure_alloc(sizeof(ffi_closure), &func);
 	ffi_prep_closure_loc(frame->closure, &frame->cif, forwardCallback, frame, func);
-	return func;
+	return (IMP)func;
 }
 
 static struct objc_slot *forward3(id self, SEL _cmd)
 {
-	static __thread struct objc_slot slot = {0};
+	static __thread struct objc_slot slot = {};
 	slot.method = forward2(self, _cmd);
 	return &slot;
 }
@@ -267,23 +269,23 @@ static struct objc_slot *forward3(id self, SEL _cmd)
 +(NSInvocation *)invocationWithMethodSignature:(NSMethodSignature *)sig
 {
 	NSInvocation *inv = [[self alloc] initWithMethodSignature:sig];
-	return [inv autorelease];
+	return inv;
 }
 
 + (NSInvocation *)invocationWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig
 {
-	return [[[self alloc] initWithCallbackData:data arguments:args signature:sig] autorelease];
+	return [[self alloc] initWithCallbackData:data arguments:args signature:sig];
 }
 
 - (id) initWithMethodSignature:(NSMethodSignature *)sig
 {
-	self->signature = [sig retain];
+	self->signature = sig;
 	_d = _setupFrame([sig types]);
 	_setupFrameArgs(_d);
 	return self;
 }
 
-- initWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig
+- (id) initWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig
 {
 	_d = data;
 	_d->args = args;
@@ -311,7 +313,6 @@ static void free_ffi_types(ffi_type **types)
 {
     if (argumentsRetained)
 	{
-		[target release];
 		[self _retainReleaseArguments:true];
 	}
     if (_d != NULL)
@@ -333,8 +334,6 @@ static void free_ffi_types(ffi_type **types)
 		free_ffi_types(_d->cif.arg_types);
 	}
 	free(_d);
-    [signature release];
-    [super dealloc];
 }
 
 - (bool)argumentsRetained
@@ -395,11 +394,15 @@ static void free_ffi_types(ffi_type **types)
 		argType = [signature getArgumentTypeAtIndex:arg_cnt];
 		if (*argType == _C_ID)
 		{
+			id tmp;
 			[self getArgument:&c atIndex:arg_cnt];
 			if (release)
-				[(id)c release];
+				tmp = (__bridge_transfer id)c;
 			else
-				[(id)c retain];
+			{
+				tmp = (__bridge id)c;
+				c = (__bridge_retained void *)tmp;
+			}
 		}
 		else if (*argType == _C_CHARPTR)
 		{
@@ -425,20 +428,13 @@ static void free_ffi_types(ffi_type **types)
 
 - (void)setTarget:(id)_target
 {
-	if (argumentsRetained)
-	{
-		ASSIGN(target, _target);
-	}
-	else
-	{
-		target = _target;
-	}
+	target = _target;
 }
 
 -(void)getArgument:(void *)arg atIndex:(int)argIndex
 {
 	NSAssert(signature != nil, @"Method signature must be created first.");
-	NSAssert(argIndex < _d->closure->cif->nargs, @"Index out of range");
+	NSAssert((unsigned int)argIndex < _d->closure->cif->nargs, @"Index out of range");
 
 	memcpy(arg, _d->args[argIndex], _d->closure->cif->arg_types[argIndex]->size);
 }
@@ -472,7 +468,7 @@ static void free_ffi_types(ffi_type **types)
 {
     id         old_target = target;
 
-    /*  NSSet the target. We assign '_target' to 'target' because some
+    /*  Set the target. We assign '_target' to 'target' because some
         of the NSInvocation's methods assume a valid target. */
     target = _target;
     [self _verifySignature];
@@ -480,7 +476,7 @@ static void free_ffi_types(ffi_type **types)
     {
         Method m;
 
-        m = class_getInstanceMethod(*(Class *)_target, selector);
+        m = class_getInstanceMethod(object_getClass(_target), selector);
         
 		[self setArgument:&_target atIndex:0];
 		[self setArgument:&selector atIndex:1];
@@ -523,12 +519,12 @@ static void free_ffi_types(ffi_type **types)
 					@"types don't match: '%s', '%s'", types, [signature types]);
 		}
 		else {
-			signature = [[NSMethodSignature signatureWithObjCTypes:types] retain];
+			signature = [NSMethodSignature signatureWithObjCTypes:types];
 		}
 	}
 	else {
 		/* no method matching the selector does exist */
-		signature = [[target methodSignatureForSelector:selector] retain];
+		signature = [target methodSignatureForSelector:selector];
 	}
 
 	NSAssert(signature != nil, @"No signature for selector: %s",
@@ -567,8 +563,7 @@ static void free_ffi_types(ffi_type **types)
 	newSig = [NSMethodSignature signatureWithObjCTypes:types];
 	free((void *)types);
 
-	[self release];
-	self = [[NSInvocation invocationWithMethodSignature:newSig] retain];
+	self = [NSInvocation invocationWithMethodSignature:newSig];
 
 	if ([signature methodReturnLength] > 0)
 	{

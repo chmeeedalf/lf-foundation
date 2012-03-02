@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006	Gold Project
+ * Copyright (c) 2006-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -58,7 +58,7 @@ static NSArray *XMLCodings;
 	return XMLCodings;
 }
 
-- initWithData:(NSData *)_data MIMEEncoding:(NSString *)enc
+- (id) initWithData:(NSData *)_data MIMEEncoding:(NSString *)enc
 {
 	NSXMLParser *parser = [[NSXMLParser alloc] initWithData:_data];
 	[parser setDelegate:self];
@@ -77,7 +77,6 @@ static NSArray *XMLCodings;
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
-	[currentText release];
 	currentText = nil;
 }
 

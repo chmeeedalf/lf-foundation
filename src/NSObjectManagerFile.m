@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -156,7 +156,7 @@ static SchemeFileHandler *sharedHandler = nil;
 
 - (bool)setAttributes:(NSDictionary *)dict ofItemAtURI:(NSURI *)path error:(NSError **)errOut
 {
-	errOut = errOut ?: &(NSError *){nil};
+	errOut = errOut ? errOut : &(NSError *){nil};
 	for (NSString *key in dict)
 	{
 		if ([key isEqualToString:NSFileModificationDate])
@@ -235,7 +235,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	char sldest[PATH_MAX + 1];
 	ssize_t path_len = readlink(slpath, sldest, sizeof(sldest) - 1);
 
-	errOut = errOut ?: &(NSError *){nil};
+	errOut = errOut ? errOut : &(NSError *){nil};
 
 	if (path_len < 0)
 	{
@@ -267,7 +267,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	DIR *dirp = opendir([[path path] fileSystemRepresentation]);
 	struct dirent *dire;
 
-	errOut = errOut ?: &(NSError *){nil};
+	errOut = errOut ? errOut : &(NSError *){nil};
 
 	if (dirp == NULL)
 	{
@@ -314,7 +314,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	struct stat sb;
 	const char *path = [[uri path] fileSystemRepresentation];
 	int fd;
-	errOut = errOut ?: &(NSError *){nil};
+	errOut = errOut ? errOut : &(NSError *){nil};
 
 	if (stat(path, &sb) < 0)
 	{
@@ -358,10 +358,11 @@ static SchemeFileHandler *sharedHandler = nil;
 {
 	const char *path = [[uri path] fileSystemRepresentation];
 	int fd;
+	mode_t mode = [[attributes objectForKey:NSFilePosixPermissions] longValue];
 
-	errOut = errOut ?: &(NSError *){nil};
+	errOut = errOut ? errOut : &(NSError *){nil};
 
-	if ((fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, [[attributes objectForKey:NSFilePosixPermissions] longValue] ?: 0640)) < 0)
+	if ((fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, mode ? mode : 0640)) < 0)
 	{
 		*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithCString:strerror(errno) encoding:NSUTF8StringEncoding],NSLocalizedFailureReasonErrorKey,@"Unable to create the target file.",NSLocalizedDescriptionKey,nil]];
 		return false;
@@ -369,7 +370,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	if (![self setAttributes:attributes ofItemAtURI:uri error:errOut])
 		return false;
 
-	size_t len = [data length];
+	ssize_t len = [data length];
 	ssize_t written = 0;
 
 	if ((written = write(fd, [data bytes], len)) < 0)
@@ -382,7 +383,7 @@ static SchemeFileHandler *sharedHandler = nil;
 
 - (bool) linkItemAtURI:(NSURI *)from toURI:(NSURI *)to error:(NSError **)errp
 {
-	errp = errp ?: &(NSError *){nil};
+	errp = errp ? errp : &(NSError *){nil};
 
 	if (link([[from path] fileSystemRepresentation], [[to path] fileSystemRepresentation]) < 0)
 	{
@@ -397,7 +398,7 @@ static SchemeFileHandler *sharedHandler = nil;
 
 @implementation _BSDDirectoryEnumerator
 
-- initWithURI:(NSURI *)uri
+- (id) initWithURI:(NSURI *)uri
 {
 	NSString *internalName;
 	const char *pathName;
@@ -407,7 +408,6 @@ static SchemeFileHandler *sharedHandler = nil;
 	dir = opendir(pathName);
 	if (dir == NULL)
 	{
-		[self release];
 		self = nil;
 	}
 	return self;
@@ -419,7 +419,6 @@ static SchemeFileHandler *sharedHandler = nil;
 	{
 		closedir(dir);
 	}
-	[super dealloc];
 }
 
 - (id) nextObject

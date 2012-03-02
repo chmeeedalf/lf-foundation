@@ -22,7 +22,7 @@ cat <<EOF
 	return NSAllocateObject (self, 0, zone);
 }
 
-- initValue:(const void*)value withObjCType:(const char*)type;
+- (id)initValue:(const void*)value withObjCType:(__unused const char*)type
 {
 	self = [super init];
 	data = *(${C}*)value;
@@ -104,7 +104,7 @@ cat <<EOF
 	return data;
 }
 
-- (NSString*)descriptionWithLocale:(NSLocale*)locale
+- (NSString*)descriptionWithLocale:(__unused NSLocale*)locale
 {
 	return [NSString stringWithFormat:@${FORMAT}, data];
 }

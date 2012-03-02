@@ -39,12 +39,12 @@
 NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 
 @implementation NSPort
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	return [super allocWithZone:zone];
 }
 
-+ port
++ (id) port
 {
 	return [[self alloc] init];
 }
@@ -128,7 +128,7 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 	return 0;
 }
 
-- copyWithZone:(NSZone *)zone
+- (id) copyWithZone:(NSZone *)zone
 {
 	return self;
 }

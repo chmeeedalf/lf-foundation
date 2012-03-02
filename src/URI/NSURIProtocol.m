@@ -57,7 +57,7 @@ static Class _selfClass;
 	[_registeredClasses removeObjectIdenticalTo:cls];
 }
 
-+propertyForKey:(NSString *)key inRequest:(NSURIRequest *)request
++(id)propertyForKey:(NSString *)key inRequest:(NSURIRequest *)request
 {
 	[self notImplemented:_cmd];
 	return 0;
@@ -90,7 +90,7 @@ static Class _selfClass;
 	return 0;
 }
 
--initWithRequest:(NSURIRequest *)request cachedResponse:(NSCachedURIResponse *)response client:(id <NSURIProtocolClient>)client
+-(id)initWithRequest:(NSURIRequest *)request cachedResponse:(NSCachedURIResponse *)response client:(id <NSURIProtocolClient>)client
 {
 	return self;
 }

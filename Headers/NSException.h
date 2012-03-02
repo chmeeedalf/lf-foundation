@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -116,7 +116,7 @@ __attribute__((__objc_exception__))
  * @param _info User-defined extra information to be displayed or used when
  * handling the exception.
  */
-+exceptionWithReason:(NSString *)_reason userInfo:(NSDictionary *)_info;
++ (NSStandardException *)exceptionWithReason:(NSString *)_reason userInfo:(NSDictionary *)_info;
 @end
 
 /*!

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2011	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -85,10 +85,10 @@ enum {
 typedef NSUInteger NSStringEncodingConversionOptions;
 
 @class NSString;
-typedef NSString * const Symbol;
+typedef NSString * const NSSymbol;
 
 #define NSMakeSymbol(symname) \
-	Symbol symname = @#symname
+	NSSymbol symname = @#symname
 
 @interface NSCharacterConversionException	:	NSException
 @end
@@ -650,7 +650,7 @@ typedef NSString * const Symbol;
  \param length Length of the byte string.
  \param encoding NSString encoding of the bytes.
  */
-- initWithBytes:(const void *)bytes length:(NSIndex)length
+- (id)initWithBytes:(const void *)bytes length:(NSIndex)length
 	encoding:(NSStringEncoding)encoding;
 
 /*!
@@ -662,7 +662,7 @@ typedef NSString * const Symbol;
 
  \details The object takes full ownership of the byte string.
  */
-- initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
+- (id)initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
 	encoding:(NSStringEncoding)encoding freeWhenDone:(bool)flag;
 
 /*!
@@ -742,7 +742,7 @@ typedef NSString * const Symbol;
  */
 -(id)initWithString:(NSString *)string;
 
-- (id) initWithUTF8String:(const char *)utf8String;
+- (id)initWithUTF8String:(const char *)utf8String;
 /*
 - (id) initWithMessageFormat:(NSString *)format locale:(NSLocale *)locale
 	arguments:(va_list)argList;
@@ -866,6 +866,12 @@ typedef NSString * const Symbol;
 @end
 
 /*! 
+ *  \brief Returns whether or not the unicode character is a alphabetical character.
+ *  \param ch Character to check.
+ */
+int	NSStringCharIsAlpha(NSUniChar ch);
+
+/*! 
  *  \brief Returns whether or not the unicode character is a linebreak character.
  *  \param ch Character to check.
  */
@@ -931,6 +937,13 @@ int		NSStringCharIsMasked(NSUniChar ch, uint32_t mask);
  * \param ch Character to check.
  */
 int		NSStringCharIsDecimalDigit(NSUniChar ch);
+
+/*!
+ * \brief Convert a unicode character to its decimal digit value, or -1 if
+ * unable to.
+ * \param ch Character to check.
+ */
+int		NSStringCharToDecimalDigit(NSUniChar ch);
 /*
    vim:syntax=objc:
  */

@@ -16,21 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 @implementation NSURIConnectionState
 
--init
+-(id)init
 {
-	_isRunning=true;
-	_response=nil;
-	_error=nil;
-	_data=[[NSMutableData alloc] init];
+	_isRunning = true;
+	_response = nil;
+	_error = nil;
+	_data = [[NSMutableData alloc] init];
 	return self;
-}
-
--(void)dealloc
-{
-	[_response release];
-	[_error release];
-	[_data release];
-	[super dealloc];
 }
 
 -(bool)isRunning
@@ -67,8 +59,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -(void)connection:(NSURIConnection *)connection didFailWithError:(NSError *)error
 {
 	NSLog(@"connection didFailWithError: %@",error);
-	_isRunning=false;
-	_error=[error retain];
+	_isRunning = false;
+	_error = error;
 }
 
 -(void)connection:(NSURIConnection *)connection didReceiveAuthenticationChallenge:(NSURIAuthenticationChallenge *)challenge
@@ -104,7 +96,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 {
 	NSLog(@"connection connectionDidFinishLoading");
 
-	_isRunning=false;
+	_isRunning = false;
 }
 
 @end

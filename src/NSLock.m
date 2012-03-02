@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -56,7 +56,7 @@
 
 @synthesize name;
 
-- init
+- (id) init
 {
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);

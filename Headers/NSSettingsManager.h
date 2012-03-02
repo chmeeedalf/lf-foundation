@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007	Gold Project
+ * Copyright (c) 2007-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,7 +29,7 @@
 
 #import <Foundation/NSObject.h>
 
-@class NSDictionary, NSString, MutableSet;
+@class NSDictionary, NSString, NSMutableSet;
 
 SYSTEM_EXPORT NSString * const NSSettingsDidChangeNotification;
 
@@ -43,8 +43,8 @@ SYSTEM_EXPORT NSString * const NSSettingsDidChangeNotification;
 @interface NSSettingsManager	:	NSObject
 {
 	NSMutableArray *searchList;
-	MutableSet *persistentDomains;
-	MutableSet *volatileDomains;
+	NSMutableSet *persistentDomains;
+	NSMutableSet *volatileDomains;
 	NSMutableDictionary *allDomains;
 }
 
@@ -61,7 +61,7 @@ SYSTEM_EXPORT NSString * const NSSettingsDidChangeNotification;
  * \details Will return \c nil if the key does not exist in the SettingsManager
  * database.
  */
-- objectForKey:(NSString *)key;
+- (id) objectForKey:(NSString *)key;
 
 /*!
  * \brief Returns the boolean value of the given key.

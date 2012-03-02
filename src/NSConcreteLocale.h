@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007,2009,2011	Gold Project
+ * Copyright (c) 2007,2009,2011-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,9 +47,9 @@ typedef struct icu_Locale _NSPrivateLocale;
 }
 
 /* Fallback (C) locale */
-+ fallbackLocale;
++ (id) fallbackLocale;
 
-- initWithIdentifier:(NSString *)localeIdent;
-- objectForKey:(NSString *)key;
+- (id) initWithIdentifier:(NSString *)localeIdent;
+- (id) objectForKey:(NSString *)key;
 
 @end

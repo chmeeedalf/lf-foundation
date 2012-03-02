@@ -1,6 +1,7 @@
 /* 
    NSComparisonPredicate.h
 
+   Copyright (C) 2010-2012, Gold Project
    Copyright (C) 2005, Helge Hess
    All rights reserved.
 
@@ -79,7 +80,7 @@ typedef NSUInteger NSComparisonPredicateOptions;
   rightExpression:(NSExpression *)_rhs
   modifier:(NSComparisonPredicateModifier)_modifier
   type:(NSPredicateOperatorType)_type
-  options:(unsigned)_options;
+  options:(NSComparisonPredicateOptions)_options;
 
 - (id)initWithLeftExpression:(NSExpression *)_lhs
   rightExpression:(NSExpression *)_rhs
@@ -88,7 +89,7 @@ typedef NSUInteger NSComparisonPredicateOptions;
   rightExpression:(NSExpression *)_rhs
   modifier:(NSComparisonPredicateModifier)_modifier
   type:(NSPredicateOperatorType)_type
-  options:(unsigned)_options;
+  options:(NSComparisonPredicateOptions)_options;
 
 /* accessors */
 

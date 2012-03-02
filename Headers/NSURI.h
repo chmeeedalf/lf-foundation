@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005	Gold Project
+ * Copyright (c) 2005-2012	Gold Project
  * * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -114,23 +114,23 @@ typedef enum NSURIType {
  * \brief Create a NSURI from a valid string.
  * \returns The NSURI, or \c nil if the string is invalid.
  */
-+ URIWithString:(NSString *)string;
-+ URIWithString:(NSString *)string relativeToURI:(NSURI *)parent;
++ (id) URIWithString:(NSString *)string;
++ (id) URIWithString:(NSString *)string relativeToURI:(NSURI *)parent;
 
-+ fileURIWithPath:(NSString *)path;
-+ fileURIWithPath:(NSString *)path isDirectory:(bool)isDir;
-+ fileURIWithPathComponents:(NSArray *)components;
++ (id) fileURIWithPath:(NSString *)path;
++ (id) fileURIWithPath:(NSString *)path isDirectory:(bool)isDir;
++ (id) fileURIWithPathComponents:(NSArray *)components;
 
 
 /*!
  * \brief Initialize the NSURI with a valid string.
  * \returns The NSURI, or \c nil if the string is invalid.
  */
-- initWithString:(NSString *)string;
-- initFileURIWithPath:(NSString *)path;
-- initFileURIWithPath:(NSString *)path isDirectory:(bool)isDir;
-- initWithString:(NSString *)string relativeToURI:(NSURI *)parent;
-- initWithScheme:(NSString *)scheme host:(NSString *)host path:(NSString *)path;
+- (id) initWithString:(NSString *)string;
+- (id) initFileURIWithPath:(NSString *)path;
+- (id) initFileURIWithPath:(NSString *)path isDirectory:(bool)isDir;
+- (id) initWithString:(NSString *)string relativeToURI:(NSURI *)parent;
+- (id) initWithScheme:(NSString *)scheme host:(NSString *)host path:(NSString *)path;
 
 /*!
  * \brief Returns the NSURI's scheme (http, ftp, telnet, ...)
@@ -181,7 +181,7 @@ typedef enum NSURIType {
 - (NSURI *) URIByResolvingSymlinksInPath;
 - (NSURI *) URIByStandardizingPath;
 
-- (bool) getResourceValue:(id *)value forKey:(NSString *)key error:(NSError **)errp;
+- (bool) getResourceValue:(out id *)value forKey:(NSString *)key error:(out NSError **)errp;
 - (NSDictionary *) resourceValuesForKeys:(NSArray *)keys error:(NSError **)errp;
 - (bool) setResourceValue:(id)value forKey:(NSString *)key error:(NSError **)errp;
 - (bool) setResourceValues:(NSDictionary *)keyedValues error:(NSError **)errp;
@@ -198,12 +198,12 @@ typedef enum NSURIType {
  * \returns The ASCII representation of the string, or \c nil if it cannot be
  * represented as ASCII.
  */
-- ASCIIString;
+- (id) ASCIIString;
 
 /*!
  * \brief Returns the Unicode representation of a Punycode string.
  */
-- PunycodeString;
+- (id) punycodeString;
 @end
 /*
    vim:syntax=objc:

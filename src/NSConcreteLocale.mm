@@ -80,7 +80,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 	localeCache = [NSMutableDictionary new];
 }
 
-+ fallbackLocale
++ (id) fallbackLocale
 {
 	@synchronized(self)
 	{
@@ -94,7 +94,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 	return fallbackLocale;
 }
 
-- initWithIdentifier:(NSString *)localeIdent
+- (id) initWithIdentifier:(NSString *)localeIdent
 {
 	const char *locID = [localeIdent UTF8String];
 	int32_t localeLen;
@@ -134,7 +134,7 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 		delete locale;
 }
 
-- objectForKey:(NSString *)key
+- (id) objectForKey:(NSString *)key
 {
 	id output = [localeDict objectForKey:key];
 

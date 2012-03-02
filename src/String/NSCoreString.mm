@@ -48,18 +48,7 @@
 
 -(id)copyWithZone:(NSZone *)zone
 {
-	if (NSShouldRetainWithZone(self, zone))
-	{
-		return self;
-	}
-
-	{
-		char chars[length];
-		memcpy(chars, bytes, length);
-		id str = [[NSCoreString alloc] initWithCString:chars length:length];
-
-		return str;
-	}
+	return self;
 }
 
 - (NSIndex)length
@@ -102,26 +91,26 @@
 	NSStringEncoding encoding;
 }
 
-- init
+- (id) init
 {
 	return [self initWithCString:NULL length:0];
 }
 
-- initWithBytes:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytes:(const void *)bytes length:(NSIndex)length
 	encoding:(NSStringEncoding)enc
 {
 	return [self initWithBytes:bytes length:length encoding:enc copy:true
 		freeWhenDone:false];
 }
 
-- initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
 	encoding:(NSStringEncoding)enc freeWhenDone:(bool)flag
 {
 	return [self initWithBytes:bytes length:length encoding:enc copy:false
 		freeWhenDone:flag];
 }
 
-- initWithBytes:(const void *)bytes length:(unsigned long)length
+- (id) initWithBytes:(const void *)bytes length:(unsigned long)length
 	encoding:(NSStringEncoding)enc copy:(bool)copy freeWhenDone:(bool)flag
 {
 	encoding = NSUnicodeStringEncoding;
@@ -143,44 +132,44 @@
 	return self;
 }
 
-- initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length
+- (id) initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length
 {
 	return [self initWithBytes:(const void *)chars length:length * sizeof(NSUniChar)
 		encoding:NSUnicodeStringEncoding copy:true freeWhenDone:false];
 }
 
-- initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length
+- (id) initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length
 	freeWhenDone:(bool)flag
 {
 	return [self initWithBytes:(const void *)chars length:length * sizeof(NSUniChar)
 		encoding:NSUnicodeStringEncoding copy:false freeWhenDone:flag];
 }
 
-- initWithCString:(const char*)byteString
+- (id) initWithCString:(const char*)byteString
 {
 	return [self initWithCString:byteString length:-1
 		copy:true];
 }
 
-- initWithCString:(const char*)byteString length:(NSIndex)length
+- (id) initWithCString:(const char*)byteString length:(NSIndex)length
 {
 	return [self initWithCString:byteString length:length copy:true];
 }
 
-- initWithCString:(const char*)byteString length:(NSIndex)length
+- (id) initWithCString:(const char*)byteString length:(NSIndex)length
 	  copy:(bool)flag
 {
 	return [self initWithBytes:(const void *)byteString length:length
 		encoding:NSASCIIStringEncoding copy:flag freeWhenDone:false];
 }
 
-- initWithCStringNoCopy:(const char*)byteString freeWhenDone:(bool)flag
+- (id) initWithCStringNoCopy:(const char*)byteString freeWhenDone:(bool)flag
 {
 	return [self initWithCStringNoCopy:byteString length:strlen(byteString)
 		freeWhenDone:flag];
 }
 
-- initWithCStringNoCopy:(const char*)byteString length:(NSIndex)length
+- (id) initWithCStringNoCopy:(const char*)byteString length:(NSIndex)length
 	freeWhenDone:(bool)flag
 {
 	self = [self initWithBytes:byteString length:length
@@ -188,7 +177,7 @@
 	return self;
 }
 
-- initWithString:(NSString*)aString
+- (id) initWithString:(NSString*)aString
 {
 	size_t length = [aString length];
 
@@ -199,13 +188,13 @@
 	return self;
 }
 
-- initWithUnicodeString:(UnicodeString *)src
+- (id) initWithUnicodeString:(UnicodeString *)src
 {
 	str = new UnicodeString(*src);
 	return self;
 }
 
-- initWithData:(NSData*)data encoding:(NSStringEncoding)enc
+- (id) initWithData:(NSData*)data encoding:(NSStringEncoding)enc
 {
 	return [self initWithBytes:[data bytes] length:[data length] encoding:enc];
 }
@@ -247,7 +236,7 @@
 	}
 }
 
-- initWithCapacity:(unsigned int)capacity
+- (id) initWithCapacity:(unsigned int)capacity
 {
 	str = new UnicodeString(capacity, 0, 0);
 	return self;

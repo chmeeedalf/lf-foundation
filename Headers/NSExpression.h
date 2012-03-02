@@ -52,24 +52,30 @@ typedef enum
 {
 	NSExpressionType expressionType;
 }
-+ expressionForConstantValue:value;
-+ expressionForEvaluatedObject;
-+ expressionForKeyPath:(NSString *)keyPath;
-+ expressionForVariable:(NSString *)variable;
-+ expressionForAggregate:(NSArray *)aggregate;
-+ expressionForUnionSet:(NSExpression *)left with:(NSExpression *)right;
-+ expressionForIntersectSet:(NSExpression *)left with:(NSExpression *)right;
-+ expressionForMinusSet:(NSExpression *)left with:(NSExpression *)right;
-+ expressionForSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)var predicate:(id)pred;
-+ expressionForFunction:(NSString *)func arguments:(NSArray *)args;
-+ expressionForFunction:(NSExpression *)func selectorName:(NSString *)sel arguments:(NSArray *)args;
++ (NSExpression *)expressionForConstantValue:value;
++ (NSExpression *)expressionForEvaluatedObject;
++ (NSExpression *)expressionForKeyPath:(NSString *)keyPath;
++ (NSExpression *)expressionForVariable:(NSString *)variable;
++ (NSExpression *)expressionForAggregate:(NSArray *)aggregate;
++ (NSExpression *)expressionForUnionSet:(NSExpression *)left with:(NSExpression *)right;
++ (NSExpression *)expressionForIntersectSet:(NSExpression *)left with:(NSExpression *)right;
++ (NSExpression *)expressionForMinusSet:(NSExpression *)left with:(NSExpression *)right;
++ (NSExpression *)expressionForSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)var predicate:(id)pred;
++ (NSExpression *)expressionForFunction:(NSString *)func arguments:(NSArray *)args;
++ (NSExpression *)expressionForFunction:(NSExpression *)func selectorName:(NSString *)sel arguments:(NSArray *)args;
++ (NSExpression *)expressionForBlock:(id (^)(id, NSArray *, NSMutableDictionary *))block arguments:(NSArray *)args;
++ (NSExpression *)expressionWithFormat:(NSString *)_format,...;
++ (NSExpression *)expressionWithFormat:(NSString *)format arguments:(va_list)argList;
++ (NSExpression *)expressionWithFormat:(NSString *)_format 
+  argumentArray:(NSArray *)_arguments;
 
-- initWithExpressionType:(NSExpressionType)type;
+- (id) initWithExpressionType:(NSExpressionType)type;
 - (NSArray *)arguments;
+- (id (^)(id, NSArray *, NSMutableDictionary *))expressionBlock;
 - (id)collection;
 - (id) constantValue;
 - (NSExpressionType) expressionType;
-- expressionValueWithObject:(id)object context:(NSMutableDictionary *)context;
+- (id) expressionValueWithObject:(id)object context:(NSMutableDictionary *)context;
 - (NSString *)function;
 - (NSString *)keyPath;
 - (NSExpression *)leftExpression;

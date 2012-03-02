@@ -31,6 +31,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSException.h>
 
+@class NSMutableArray;
 typedef enum {
 	NSOperationQueuePriorityVeryLow = -8,
 	NSOperationQueuePriorityLow = -4,
@@ -40,15 +41,13 @@ typedef enum {
 } NSOperationQueuePriority;
 
 @interface NSOperation	:	NSObject
-{
-}
 @property(readonly) bool isCancelled;
 @property(readonly) bool isFinished;
 @property(readonly) bool isExecuting;
 @property(readonly) bool isReady;
 @property NSOperationQueuePriority queuePriority;
 
-- init;
+- (id) init;
 - (void) start;
 - (void) main;
 
@@ -98,6 +97,7 @@ enum
 
 - (void) addOperation:(NSOperation *)op;
 - (void) addOperations:(NSArray *)ops waitUntilFinished:(bool)wait;
+- (void) addOperationWithBlock:(void (^)(void))block;
 - (void) cancelAllOperations;
 - (bool) isSuspended;
 - (NSInteger) maxConcurrentOperationCount;
@@ -119,9 +119,16 @@ enum
 	id _except;
 }
 
-- initWithTarget:(id)target selector:(SEL)sel object:(id)object;
-- initWithInvocation:(NSInvocation *)inv;
+- (id) initWithTarget:(id)target selector:(SEL)sel object:(id)object;
+- (id) initWithInvocation:(NSInvocation *)inv;
 
 - (NSInvocation *) invocation;
 - (id) result;
+@end
+
+@interface NSBlockOperation	:	NSOperation
++ (id) blockOperationWithBlock:(void (^)(void))block;
+
+- (void) addExecutionBlock:(void (^)(void))block;
+- (NSArray *) executionBlocks;
 @end

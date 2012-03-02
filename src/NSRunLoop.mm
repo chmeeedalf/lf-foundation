@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,10 +38,19 @@
 #import <Foundation/NSThread.h>
 #import <Foundation/NSTimer.h>
 #include <Alepha/Atomic/primitive.h>
+#include <unordered_map>
+#include "internal.h"
+#include <atomic>
 
 static NSString *NSRunLoopKey = @"NSRunLoopKey";
-static NSMapTable *modes;
-static Alepha::Atomic::atomic<uint32_t> max_mode(0);
+
+namespace {
+typedef Singleton<std::unordered_map<id,NSUInteger>> modes;
+template<> modes::type modes::value = modes::type();
+}
+
+static std::atomic<NSUInteger> max_mode(0);
+//static Alepha::Atomic::atomic<NSUInteger> max_mode(0);
 
 NSMakeSymbol(NSDefaultRunLoopMode);
 NSMakeSymbol(NSRunLoopCommonModes);
@@ -92,35 +101,36 @@ namespace
 @end
 
 @implementation _RunLoopSource
-- initWithTarget:(id)t selector:(SEL)selector
+- (id) initWithTarget:(id)t selector:(SEL)selector
 	source:(Alepha::RunLoop::Source *)source
 {
 	new (&d) ObjC_RunLoop::Delegate(t, selector, source);
 	return self;
 }
 
-- (void) dealloc
-{
-	[super dealloc];
-}
 @end
 
 @implementation NSRunLoop
+{
+	@private
+		ARunLoop *rl;
+		volatile bool	isCanceled;
+		volatile bool	isTerminated;
+		int		kernelQueue;	/* kqueue ID. */
+		id		currentMode;
+}
 
-static __thread NSRunLoop *threadRunLoop = nil;
+/* Since this is thread-local, making it unsafe-unretained is safe. */
+static __unsafe_unretained __thread NSRunLoop *threadRunLoop = nil;
 
 static uint32_t ModeIndexFromString(NSString *mode)
 {
-	uintptr_t val;
-	if ((val = (uintptr_t)[modes pointerForKey:mode]) == 0)
+	modes m;
+	if (m->find(mode) == m->end())
 	{
-		@synchronized(modes)
-		{
-			val = ++max_mode;
-			[modes setPointer:(const void *)val forKey:mode];
-		}
+		(*m)[mode] = ++max_mode;
 	}
-	return val;
+	return (*m)[mode];
 }
 
 + (void) initialize
@@ -129,24 +139,23 @@ static uint32_t ModeIndexFromString(NSString *mode)
 
 	if (!initialized)
 	{
-		modes = [[NSMapTable alloc]
-			initWithKeyOptions:NSMapTableStrongMemory|NSPointerFunctionsObjectPersonality
-			valueOptions:NSPointerFunctionsIntegerPersonality capacity:10];
-
+		ModeIndexFromString(NSDefaultRunLoopMode);
 	}
 }
 
 + (id) currentRunLoop
 {
+	NSRunLoop *loop = threadRunLoop;
+
 	if (threadRunLoop == nil)
 	{
-		threadRunLoop = [NSRunLoop new];
+		loop = [NSRunLoop new];
 		[[NSThread currentThread] setPrivateThreadData:threadRunLoop
 			forKey:NSRunLoopKey];
 
 		// The loop will persist until removed from the dictionary, which won't
 		// happen until the thread exits
-		[threadRunLoop release];
+		threadRunLoop = loop;
 	}
 
 	return threadRunLoop;
@@ -165,9 +174,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 
 - (void) dealloc
 {
-	if (rl)
-		delete rl;
-	[super dealloc];
+	delete rl;
 }
 
 - (void) addInputSource:(NSObject<NSEventSource> *)obj forMode:(NSString *)mode
@@ -232,7 +239,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 	}
 }
 
-- (void) runMode:(NSString *)str beforeDate:(NSDate *)date;
+- (void) runMode:(NSString *)str beforeDate:(NSDate *)date
 {
 	NSTimeInterval ti;
 	NSAutoreleasePool *p = [NSAutoreleasePool new];

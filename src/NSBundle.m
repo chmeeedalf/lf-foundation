@@ -800,17 +800,17 @@ found:
 
 @end /* NSBundle */
 
-NSString *LocalizedString(NSString *key,NSString *comment)
+NSString *NSLocalizedString(NSString *key,NSString *comment)
 {
 	return [[NSBundle mainBundle] localizedStringForKey:key value:nil table:nil];
 }
 
-NSString *LocalizedStringFromTable(NSString *key,NSString *table,NSString *comment)
+NSString *NSLocalizedStringFromTable(NSString *key,NSString *table,NSString *comment)
 {
 	return [[NSBundle mainBundle] localizedStringForKey:key value:nil table:table];
 }
 
-NSString *LocalizedStringFromTableInBundle(NSString *key,NSString *table,NSBundle *bundle,NSString *comment)
+NSString *NSLocalizedStringFromTableInBundle(NSString *key,NSString *table,NSBundle *bundle,NSString *comment)
 {
 	return [bundle localizedStringForKey:key value:nil table:table];
 }

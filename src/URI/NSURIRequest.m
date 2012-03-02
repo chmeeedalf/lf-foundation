@@ -15,66 +15,57 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 @implementation NSURIRequest
 
--initWithURIRequest:(NSURIRequest *)other
+-(id)initWithURIRequest:(NSURIRequest *)other
 {
-   _url=[[other NSURI] copy];
-   _cachePolicy=[other cachePolicy];
-   _timeoutInterval=[other timeoutInterval];
+   _url = [[other NSURI] copy];
+   _cachePolicy = [other cachePolicy];
+   _timeoutInterval = [other timeoutInterval];
    
-   NSData *data=[other HTTPBody];
-   if(data!=nil)
-    _bodyDataOrStream=[data copy];
+   NSData *data = [other HTTPBody];
+   if(data != nil)
+    _bodyDataOrStream = [data copy];
    else
-    _bodyDataOrStream=[[other HTTPBodyStream] retain];
+    _bodyDataOrStream = [other HTTPBodyStream];
    
-   _headerFields=[[other allHTTPHeaderFields] mutableCopy];
-   _method=[other HTTPMethod];
-   _handleCookies=[other HTTPShouldHandleCookies];
+   _headerFields = [[other allHTTPHeaderFields] mutableCopy];
+   _method = [other HTTPMethod];
+   _handleCookies = [other HTTPShouldHandleCookies];
    return self;
 }
 
--initWithURI:(NSURI *)url
+-(id)initWithURI:(NSURI *)url
 {
    return [self initWithURI:url cachePolicy:NSURIRequestUseProtocolCachePolicy timeoutInterval:60];
 }
 
--initWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout
+-(id)initWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout
 {
-   _url=[url copy];
-   _cachePolicy=cachePolicy;
-   _timeoutInterval=timeout;
-   _bodyDataOrStream=nil;
-   _headerFields=[NSMutableDictionary new];
-   _method=@"GET";
-   _handleCookies=true;
+   _url = [url copy];
+   _cachePolicy = cachePolicy;
+   _timeoutInterval = timeout;
+   _bodyDataOrStream = nil;
+   _headerFields = [NSMutableDictionary new];
+   _method = @"GET";
+   _handleCookies = true;
    return self;
 }
 
--(void)dealloc
++(id)requestWithURI:(NSURI *)url
 {
-   [_url release];
-   [_bodyDataOrStream release];
-   [_headerFields release];
-   [_method release];
-   [super dealloc];
+   return [[self alloc] initWithURI:url];
 }
 
-+requestWithURI:(NSURI *)url
++(id)requestWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout
 {
-   return [[[self alloc] initWithURI:url] autorelease];
+   return [[self alloc] initWithURI:url cachePolicy:cachePolicy timeoutInterval:timeout];
 }
 
-+requestWithURI:(NSURI *)url cachePolicy:(NSURIRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout
+-(id)copyWithZone:(NSZone *)zone
 {
-   return [[[self alloc] initWithURI:url cachePolicy:cachePolicy timeoutInterval:timeout] autorelease];
+   return self;
 }
 
--copyWithZone:(NSZone *)zone
-{
-   return [self retain];
-}
-
--mutableCopyWithZone:(NSZone *)zone
+-(id)mutableCopyWithZone:(NSZone *)zone
 {
    return [[NSMutableURIRequest alloc] initWithURIRequest:self];
 }
@@ -122,7 +113,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -(NSString *)valueForHTTPHeaderField:(NSString *)field
 {
-   field=[field uppercaseString];
+   field = [field uppercaseString];
    
    return [_headerFields objectForKey:field];
 }

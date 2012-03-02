@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -44,8 +44,8 @@
 }
 @property(copy) NSString *name;
 
-- initWithBusType:(DBusBusType)type;
+- (id) initWithBusType:(DBusBusType)type;
 - (NSRunLoop *) runLoop;
-- objectForPath:(NSString *)path;
+- (id) objectForPath:(NSString *)path;
 
 @end

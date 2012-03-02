@@ -42,7 +42,7 @@
 - (id)initWithName:(NSString*)aName object:(id)anObject
   userInfo:(NSDictionary*)anUserInfo;
 - (NSString *)name;
-- object;
+- (id) object;
 - (NSDictionary *)userInfo;
 @end
 
@@ -61,7 +61,7 @@
 
 - (NSString *)name { return name; }
 
-- object { return object; }
+- (id) object { return object; }
 
 - (NSDictionary *)userInfo
 {
@@ -70,7 +70,7 @@
 
 // Copying
 
-- copyWithZone:(NSZone*)zone
+- (id) copyWithZone:(NSZone*)zone
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
@@ -91,7 +91,7 @@
 
 /* Methods */
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	return NSAllocateObject( (self == [NSNotification class]) ?
 			[NSConcreteNotification class] : (Class)self, 0, zone);
@@ -126,7 +126,7 @@
 	return [self subclassResponsibility:_cmd];
 }
 
-- object;
+- (id) object
 {
 	return [self subclassResponsibility:_cmd];
 }

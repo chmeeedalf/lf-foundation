@@ -36,7 +36,7 @@
 
 @implementation NSAttributedString
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	if ([self class] == [NSAttributedString class])
 		return NSAllocateObject([NSCoreAttributedString class], 0, zone);
@@ -44,18 +44,18 @@
 		return [super allocWithZone:zone];
 }
 
-- initWithString:(NSString *)str
+- (id) initWithString:(NSString *)str
 {
 	return [self initWithString:str attributes:nil];
 }
 
-- initWithString:(NSString *)str attributes:(NSDictionary *)attributes
+- (id) initWithString:(NSString *)str attributes:(NSDictionary *)attributes
 {
 	[self subclassResponsibility:_cmd];
 	return nil;
 }
 
-- initWithAttributedString:(NSAttributedString *)str
+- (id) initWithAttributedString:(NSAttributedString *)str
 {
 	[self subclassResponsibility:_cmd];
 	return nil;
@@ -129,12 +129,12 @@
 	return true;
 }
 
-- mutableCopyWithZone:(NSZone *)z
+- (id) mutableCopyWithZone:(NSZone *)z
 {
 	return [[NSMutableAttributedString allocWithZone:z] initWithAttributedString:self];
 }
 
-- copyWithZone:(NSZone *)z
+- (id) copyWithZone:(NSZone *)z
 {
 	return [[NSAttributedString allocWithZone:z] initWithAttributedString:self];
 }
@@ -147,7 +147,7 @@
 
 	NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:[[self string] substringWithRange:range]];
 
-	for (int i = range.location; i < NSMaxRange(range);)
+	for (NSUInteger i = range.location; i < NSMaxRange(range);)
 	{
 		NSRange effectiveRange;
 		NSDictionary *d = [self attributesAtIndex:i effectiveRange:&effectiveRange];
@@ -301,7 +301,7 @@
 	return;
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	TODO; // initWithCoder:
 	return nil;
@@ -311,7 +311,7 @@
 
 @implementation NSMutableAttributedString
 
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	if ([self class] == [NSMutableAttributedString class])
 		return NSAllocateObject([CoreMutableAttributedString class], 0, zone);

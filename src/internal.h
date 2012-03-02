@@ -164,11 +164,11 @@ void class_insert_class (Class class_ptr) __private;
 struct sockaddr_storage;
 @interface NSNetworkAddress(FreeBSD)
 - (void)_sockaddrRepresentation:(struct sockaddr_storage *)repr;
-- initWithSockaddrRepresentation:(struct sockaddr_storage *)repr;
+- (id)initWithSockaddrRepresentation:(struct sockaddr_storage *)repr;
 @end
 
 @interface NSURI(URI_ObjectManager)
-- handler;
+- (id)handler;
 @end
 
 @interface NSConnection()
@@ -186,7 +186,7 @@ struct sockaddr_storage;
 @end
 
 @interface NSExpression()
-- _expressionWithSubstitutionVariables:(NSDictionary *)substVars;
+- (id)_expressionWithSubstitutionVariables:(NSDictionary *)substVars;
 @end
 
 @interface NSURIProtocol()<NSStreamDelegate>

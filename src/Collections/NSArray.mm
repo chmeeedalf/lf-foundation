@@ -122,7 +122,7 @@ static Class CoreArrayClass;
 	return [self initWithArray:anotherArray copyItems:false];
 }
 
-- (id)initWithArray:(NSArray*)anotherArray copyItems:(bool)flag;
+- (id)initWithArray:(NSArray*)anotherArray copyItems:(bool)flag
 {
 	NSIndex i;
 	std::vector<id> objects;
@@ -182,7 +182,7 @@ static Class CoreArrayClass;
 		inRange:NSRange(0, [self count])];
 }
 
-- (NSIndex)indexOfObjectIdenticalTo:(id)anObject;
+- (NSIndex)indexOfObjectIdenticalTo:(id)anObject
 {
 	return [self indexOfObjectIdenticalTo:anObject
 		inRange:NSRange(0, [self count])];
@@ -313,7 +313,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 	return count ? [self objectAtIndex:0] : nil;
 }
 
-- (void) getObjects:(id *)objs range:(NSRange)range
+- (void) getObjects:(id [])objs range:(NSRange)range
 {
 	if (NSMaxRange(range) > [self count])
 	{
@@ -395,7 +395,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 - (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block
 {
 	[self enumerateObjectsAtIndexes:[NSIndexSet
-		indexSetWithIndexesInRange:NSMakeRange(0, [self count])] options:0
+		indexSetWithIndexesInRange:NSMakeRange(0, [self count])] options:opts
 		usingBlock:block];
 }
 
@@ -515,7 +515,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 /* Creating a NSString Description of the NSArray */
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-indent:(unsigned int)indent;
+	indent:(unsigned int)indent
 {
 	unsigned int indent1 = indent + 4;
 	NSString* indentation = [NSString stringWithFormat:
@@ -618,7 +618,7 @@ indent:(unsigned int)indent;
 	return array;
 }
 
-- (NSArray*)map:(SEL)aSelector with:anObject with:otherObject;
+- (NSArray*)map:(SEL)aSelector with:anObject with:otherObject
 {
 	NSIndex index;
 	NSIndex count = [self count];
@@ -633,7 +633,7 @@ indent:(unsigned int)indent;
 	return array;
 }
 
-- (NSArray*)arrayWithObjectsThat:(bool(*)(id anObject))comparator;
+- (NSArray*)arrayWithObjectsThat:(bool(*)(id anObject))comparator
 // Returns an array listing the receiver's elements for that comparator
 // function returns true
 {
@@ -693,7 +693,7 @@ indent:(unsigned int)indent;
 }
 
 - (NSArray*)map:(id(*)(id anObject))function
-	objectsThat:(bool(*)(id anObject))comparator;
+	objectsThat:(bool(*)(id anObject))comparator
 // Returns an array listing the objects returned by function applied to
 // objects for that comparator returns true
 {
@@ -720,14 +720,16 @@ indent:(unsigned int)indent;
 	if ([indices lastIndex] > count)
 		@throw [NSRangeException exceptionWithReason:@"Maximum index in index set out of range of array count." userInfo:nil];
 
-	NSUInteger indexes[count];
-	[indices getIndexes:indexes maxCount:count inIndexRange:NULL];
-	id objects[count];
+	std::vector<id> objects(count);
+	std::vector<NSUInteger> indexes(count);
+
+	[indices getIndexes:&indexes[0] maxCount:count inIndexRange:NULL];
+
 	for (NSIndex i = 0; i < count; i++)
 	{
 		objects[i] = [self objectAtIndex:indexes[count]];
 	}
-	return [NSArray arrayWithObjects:objects count:count];
+	return [NSArray arrayWithObjects:&objects[0] count:count];
 }
 
 - (id):(NSIndex)idx
@@ -783,6 +785,24 @@ indent:(unsigned int)indent;
 	return j;
 }
 
+/* TODO: sortedArrayHint. */
+- (NSData *) sortedArrayHint
+{
+	return nil;
+}
+
+- (NSArray *) sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator
+	context:(void *)ctx hint:(NSData *)hint
+{
+	NSMutableArray *ret;
+	(void)hint;
+
+	ret = [NSMutableArray arrayWithArray:self];
+
+	[ret sortUsingFunction:comparator context:ctx];
+	return ret;
+}
+
 - (NSArray *) sortedArrayUsingComparator:(NSComparator)cmp
 {
 	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
@@ -790,7 +810,7 @@ indent:(unsigned int)indent;
 	return a;
 }
 
-- (NSArray *) sortedArrayWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
+- (NSArray *) sortedArrayWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp
 {
 	NSMutableArray *a = [NSMutableArray arrayWithArray:self];
 	[a sortWithOptions:opts usingComparator:cmp];
@@ -830,7 +850,7 @@ indent:(unsigned int)indent;
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	size_t count = [self count];
 	std::vector<id> objs;
@@ -875,7 +895,7 @@ static Class MutableArrayClass;
 
 - (id)initWithCapacity:(unsigned int)aNumItems
 {
-	[self subclassResponsibility:_cmd];
+	self = [self init];
 	return self;
 }
 
@@ -966,7 +986,7 @@ static int __cmp_unsigned_ints(unsigned int* i1, unsigned int* i2)
 }
 
 - (void)removeObjectsFromIndices:(unsigned int*)indices
-	numIndices:(unsigned int)count;
+	numIndices:(unsigned int)count
 {
 	unsigned int *indexes;
 	int i;

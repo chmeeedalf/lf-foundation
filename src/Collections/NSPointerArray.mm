@@ -41,35 +41,35 @@
 @end
 
 @implementation NSPointerArray
-+ allocWithZone:(NSZone *)zone
++ (id) allocWithZone:(NSZone *)zone
 {
 	if ([self class] == [NSPointerArray class])
 		return NSAllocateObject([NSConcretePointerArray class], 0, zone);
 	return [super alloc];
 }
 
-+ pointerArrayWithOptions:(NSPointerFunctionsOptions)options
++ (id) pointerArrayWithOptions:(NSPointerFunctionsOptions)options
 {
 	return [[self alloc] initWithOptions:options];
 }
 
-+ pointerArrayWithPointerFunctions:(NSPointerFunctions *)functions
++ (id) pointerArrayWithPointerFunctions:(NSPointerFunctions *)functions
 {
 	return [[self alloc] initWithPointerFunctions:functions];
 }
 
-+ pointerArrayWithStrongObjects
++ (id) pointerArrayWithStrongObjects
 {
 	return [[self alloc] initWithOptions:(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPersonality)];
 }
 
-+ pointerArrayWithWeakObjects
++ (id) pointerArrayWithWeakObjects
 {
 	return [[self alloc] initWithOptions:(NSPointerFunctionsZeroingWeakMemory |
 			NSPointerFunctionsObjectPersonality)];
 }
 
-- initWithOptions:(NSPointerFunctionsOptions)options
+- (id) initWithOptions:(NSPointerFunctionsOptions)options
 {
 	NSPointerFunctions *functions = [[NSPointerFunctions alloc] initWithOptions:options];
 
@@ -77,7 +77,7 @@
 	return self;
 }
 
-- initWithPointerFunctions:(NSPointerFunctions *)functions
+- (id) initWithPointerFunctions:(NSPointerFunctions *)functions
 {
 	return self;
 }
@@ -152,7 +152,7 @@
 
 @implementation NSConcretePointerArray
 
-- initWithPointerFunctions:(NSPointerFunctions *)funcs
+- (id) initWithPointerFunctions:(NSPointerFunctions *)funcs
 {
 	functions = [funcs copy];
 	return self;

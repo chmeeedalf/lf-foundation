@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,7 +48,7 @@ static bool parseIPv4Address(NSString *addr, uint8_t *output)
 		range:NSMakeRange(0, len)];
 	charAddr[len] = 0;
 
-	for (int i = 0; i < sizeof(charAddr); i++)
+	for (size_t i = 0; i < sizeof(charAddr); i++)
 	{
 		if (charAddr[i] == '\0')
 		{
@@ -230,15 +230,14 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 @end
 
 @implementation NSInetAddress
-+ inetAddressWithString:(NSString *)str
++ (id) inetAddressWithString:(NSString *)str
 {
-	return [[[NSInetAddress alloc] initWithString:str] autorelease];
+	return [[NSInetAddress alloc] initWithString:str];
 }
 
-- initWithString:(NSString *)str
+- (id) initWithString:(NSString *)str
 {
 	uint8_t addr_bytes[16];
-	[self release];
 	if (parseIPv6Address(str, addr_bytes))
 	{
 		return [[NSInet6Address alloc] initWithString:str];
@@ -256,23 +255,22 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 
 @implementation NSInet4Address
 #define INET4_LOCAL ((uint32_t)(127 << 24) | (1))
-+ localhostInet4Address
++ (id) localhostInet4Address
 {
 	uint32_t local = htonl(INET4_LOCAL);
-	return [[[NSInet4Address alloc] initWithAddress:(uint8_t *)&local] autorelease];
+	return [[NSInet4Address alloc] initWithAddress:(uint8_t *)&local];
 }
 
-+ anyInet4Address
++ (id) anyInet4Address
 {
-	return [[[NSInet4Address alloc] initWithAddress:INADDR_ANY] autorelease];
+	return [[NSInet4Address alloc] initWithAddress:INADDR_ANY];
 }
 
-- initWithString:(NSString *)str
+- (id) initWithString:(NSString *)str
 {
 	uint8_t bytes[4];
 	if (!parseIPv4Address(str, bytes))
 	{
-		[self release];
 		return nil;
 	}
 	else
@@ -283,7 +281,7 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 	return self;
 }
 
-- initWithAddress:(uint8_t *)addr_src
+- (id) initWithAddress:(uint8_t *)addr_src
 {
 	memcpy(&addr, addr_src, sizeof(addr));
 	return self;
@@ -312,27 +310,26 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 @end
 
 @implementation NSInet6Address
-+ localhostInet6Address
++ (id) localhostInet6Address
 {
-	return [[[NSInet6Address alloc] initWithString:@"::1"] autorelease];
+	return [[NSInet6Address alloc] initWithString:@"::1"];
 }
 
-+ anyInet6Address
++ (id) anyInet6Address
 {
-	return [[[NSInet6Address alloc] initWithString:@"::"] autorelease];
+	return [[NSInet6Address alloc] initWithString:@"::"];
 }
 
-- initWithString:(NSString *)str
+- (id) initWithString:(NSString *)str
 {
 	if (!parseIPv6Address(str, addr))
 	{
-		[self release];
 		return nil;
 	}
 	return self;
 }
 
-- initWithAddress:(uint8_t *)addr_src
+- (id) initWithAddress:(uint8_t *)addr_src
 {
 	memcpy(addr, addr_src, sizeof(addr));
 	return self;

@@ -75,7 +75,7 @@ static UChar DEFAULT_FORMAT[] = {'Y','-','M','M','-','d','d',' ','H','H',':','m'
 static NSDate *distantFuture = nil;
 static NSDate *distantPast = nil;
 
-+ allocWithZone:(NSZone*)zone
++ (id) allocWithZone:(NSZone*)zone
 {
 	return NSAllocateObject( (self == [NSDate class]) ?
 			[NSConcreteDate class] : (Class)self, 0, zone);
@@ -133,12 +133,12 @@ static NSDate *distantPast = nil;
 	return distantPast;
 }
 
-- init
+- (id) init
 {
 	return [super init];
 }
 
-- initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded
+- (id) initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)secsToBeAdded
 {
 	[self subclassResponsibility:_cmd];
 	return self;
@@ -281,7 +281,7 @@ sinceDate:(NSDate*)anotherDate
 	return 0;
 }
 
-- (NSTimeInterval)timeIntervalSinceDate:(NSDate*)anotherDate;
+- (NSTimeInterval)timeIntervalSinceDate:(NSDate*)anotherDate
 {
 	return [self timeIntervalSinceReferenceDate] -
 		[anotherDate timeIntervalSinceReferenceDate];
@@ -363,7 +363,7 @@ sinceDate:(NSDate*)anotherDate
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	NSTimeInterval ti;
 

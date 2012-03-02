@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -64,8 +64,13 @@ NSMakeSymbol(NSStreamNetworkServiceTypeBackground);
 NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 
 @implementation NSStream
++ (void)getStreamsToHost:(NSHost *)host port:(NSInteger)port inputStream:(NSInputStream **)inputStream outputStream:(NSOutputStream **)outputStream
+{
+	TODO; // +[NSStream getStreamsToHost:port:inputStream:outputStream:]
+	return;
+}
 
-- propertyForKey:(NSString *)key
+- (id) propertyForKey:(NSString *)key
 {
 	return [self subclassResponsibility:_cmd];
 }
@@ -135,24 +140,23 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 @end
 
 @implementation NSInputStream
-+ inputStreamWithData:(NSData *)d
++ (id) inputStreamWithData:(NSData *)d
 {
-	return [[[self alloc] initWithData:d] autorelease];
+	return [[self alloc] initWithData:d];
 }
 
-+ inputStreamWithURI:(NSURI *)uri
++ (id) inputStreamWithURI:(NSURI *)uri
 {
-	return [[[self alloc] initWithURI:uri] autorelease];
+	return [[self alloc] initWithURI:uri];
 }
 
 
-- initWithData:(NSData *)d
+- (id) initWithData:(NSData *)d
 {
-	[self release];
 	return [[NSInputStream_data alloc] initWithData:d];
 }
 
-- initWithURI:(NSURI *)uri
+- (id) initWithURI:(NSURI *)uri
 {
 	[self notImplemented:_cmd];
 	return nil;
@@ -181,41 +185,39 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 
 @implementation NSOutputStream
 
-+ outputStreamToMemory
++ (id) outputStreamToMemory
 {
-	return [[[self alloc] initToMemory] autorelease];
+	return [[self alloc] initToMemory];
 }
 
-+ outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap
++ (id) outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap
 {
-	return [[[self alloc] initToBuffer:buf capacity:cap] autorelease];
+	return [[self alloc] initToBuffer:buf capacity:cap];
 }
 
-+ outputStreamWithURI:(NSURI *)uri append:(bool)append
++ (id) outputStreamWithURI:(NSURI *)uri append:(bool)append
 {
-	return [[[self alloc] initWithURI:uri append:append] autorelease];
+	return [[self alloc] initWithURI:uri append:append];
 }
 
 
-- initToMemory
+- (id) initToMemory
 {
-	[self release];
 #if 0
 	return [[NSOutputStream_memory alloc] initToMemory];
 #endif
 	return nil;
 }
 
-- initToBuffer:(uint8_t *)buf capacity:(size_t)cap
+- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap
 {
-	[self release];
 #if 0
 	return [[NSOutputStream_buffer alloc] initToBuffer:buf capacity:cap];
 #endif
 	return nil;
 }
 
-- initWithURI:(NSURI *)uri append:(bool)append
+- (id) initWithURI:(NSURI *)uri append:(bool)append
 {
 	[self notImplemented:_cmd];
 	return nil;

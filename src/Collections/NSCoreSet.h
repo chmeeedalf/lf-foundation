@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -86,7 +86,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 
 @interface _ConcreteSetEnumerator : NSEnumerator
 
-- initWithSet:(NSCoreSet*)_set;
-- nextObject;
+- (id) initWithSet:(NSCoreSet*)_set;
+- (id) nextObject;
 
 @end /* _ConcreteSetEnumerator */

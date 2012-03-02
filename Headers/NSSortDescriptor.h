@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2011	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,18 +34,22 @@
 	NSString *_key;
 	SEL		_selector;
 	bool	_ascending;
+	NSComparator _comparator;
 }
 
-+ sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending;
-+ sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector;
++ (id) sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending;
++ (id) sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector;
++ (id) sortDescriptorWithKey:(NSString *)key ascending:(bool)ascending comparator:(NSComparator)comparator;
 
-- initWithKey:(NSString *)key ascending:(bool)ascending;
-- initWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector;
+- (id) initWithKey:(NSString *)key ascending:(bool)ascending;
+- (id) initWithKey:(NSString *)key ascending:(bool)ascending selector:(SEL)selector;
+- (id) initWithKey:(NSString *)key ascending:(bool)ascending comparator:(NSComparator)comparator;
 
-- (bool)ascending;
-- (NSString *)key;
-- (SEL)selector;
+- (bool) ascending;
+- (NSString *) key;
+- (SEL) selector;
+- (NSComparator) comparator;
 
-- (NSComparisonResult)compareObject:(id)object toObject:(id)other;
-- (id)reversedSortDescriptor;
+- (NSComparisonResult) compareObject:(id)object toObject:(id)other;
+- (id) reversedSortDescriptor;
 @end

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -60,7 +60,7 @@
 
 @interface NSConcreteValue : NSValue
 
-+ allocForType:(const char*)type zone:(NSZone*)zone;
++ (id)allocForType:(const char*)type zone:(NSZone*)zone;
 - (id)initValue:(const void*)value withObjCType:(const char*)type;
 
 @end

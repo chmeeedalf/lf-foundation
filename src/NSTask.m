@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008	Gold Project
+ * Copyright (c) 2008-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -50,6 +50,7 @@ NSString *NSTaskDidExitNotification = @"NSTaskDidExitNotification";
 	long as there is a local object to refer to it.
  */
 @implementation NSTask
+@synthesize terminationHandler;
 
 static NSMutableArray *runningTasks;
 
@@ -58,7 +59,7 @@ static NSMutableArray *runningTasks;
 	runningTasks = [NSMutableArray new];
 }
 
-+ spawnedTaskWithURI:(NSURI *)target object:(id)arg
++ (id) spawnedTaskWithURI:(NSURI *)target object:(id)arg
 		 environment:(NSDictionary *)env
 {
 	NSTask *t = [[self alloc] initWithURI:target object:arg environment:env];
@@ -66,12 +67,12 @@ static NSMutableArray *runningTasks;
 	return t;
 }
 
-- init
+- (id) init
 {
 	return self;
 }
 
-- initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env
+- (id) initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env
 {
 	_taskObject = target;
 	_taskArguments = [obj copy];
@@ -174,6 +175,8 @@ static NSMutableArray *runningTasks;
 	result = err;
 	terminateReason = (normalExit ? NSTaskTerminationReasonExit : NSTaskTerminationReasonUncaughtSignal);
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSTaskDidExitNotification object:self];
+	if (self.terminationHandler != NULL)
+		self.terminationHandler(self);
 }
 
 + (void) _dispatchExitToPid:(UUID)pid status:(int)status exitedNormally:(bool)normalExit

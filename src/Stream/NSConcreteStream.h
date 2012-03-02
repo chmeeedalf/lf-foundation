@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,7 +37,7 @@
 	NSData *d;
 	size_t cursor;
 }
-- initWithData:(NSData *)d;
+- (id) initWithData:(NSData *)d;
 @end
 
 @interface NSOutputStream_memory	:	NSInputStream
@@ -45,7 +45,7 @@
 	id<NSStreamDelegate> delegate;
 	NSMutableData *d;
 }
-- initToMemory;
+- (id) initToMemory;
 @end
 
 @interface NSOutputStream_buffer	:	NSInputStream
@@ -55,5 +55,5 @@
 	size_t	 bufferLen;
 	size_t	 cursor;
 }
-- initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
+- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
 @end

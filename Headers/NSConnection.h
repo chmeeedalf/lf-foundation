@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -67,12 +67,12 @@ extern NSString * const NSConnectionDidInitializeNotification;
 /*!
   @brief Create and return a NSConnection object, allowing communication with the receiver.
   */
-- openConnection;
+- (id) openConnection;
 
 /*!
   @brief Terminates the connection on the remote end, and destroys the connection object.
   */
-- closeConnection;
+- (void) closeConnection;
 
 @end
 
@@ -239,7 +239,7 @@ extern NSString * const NSConnectionDidInitializeNotification;
  */
 -(NSDictionary *)statistics;
 
--initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort;
+-(id)initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort;
 
 +(NSConnection *)connectionWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort;
 
@@ -249,7 +249,7 @@ extern NSString * const NSConnectionDidInitializeNotification;
 //+(NSDistantObject *)rootProxyForConnectionWithRegisteredName:(NSString *)name host:(NSString *)hostName usingNameServer:(PortNameServer *)nameServer;
 +(NSDistantObject *)rootProxyForConnectionWithRegisteredName:(NSString *)name host:(NSString *)hostName;
 
-+currentConversation;
++ (id)currentConversation;
 
 -(bool)isValid;
 -(bool)independentConversationQueueing;

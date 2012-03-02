@@ -241,7 +241,7 @@ static bool memoryIsEqual(const void *obj1, const void *obj2, NSSizeFunction siz
 		self.relinquishFunction = nullRelinquish;
 }
 
-- copyWithZone:(NSZone *)z
+- (id) copyWithZone:(NSZone *)z
 {
 	NSPointerFunctions *other = [[NSPointerFunctions allocWithZone:z] init];
 	other.descriptionFunction = self.descriptionFunction;

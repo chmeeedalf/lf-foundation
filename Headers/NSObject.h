@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
@@ -212,7 +212,7 @@ __BEGIN_DECLS
 
 @class NSCoder;
 @protocol NSCoding
-- initWithCoder:(NSCoder *)coder;
+- (id)initWithCoder:(NSCoder *)coder;
 - (void) encodeWithCoder:(NSCoder *)coder;
 @end
 
@@ -441,14 +441,14 @@ __BEGIN_DECLS
  * \param aSel Selector that should be implemented by the subclass.
  * \throw InternalInconsistencyException
  */
-- subclassResponsibility:(SEL)aSel;
+- (id) subclassResponsibility:(SEL)aSel;
 
 /*!
  * \brief Throw an exception when a method is called which never should be.
  * \param aSel Selector for method that should never be called.
  * \throw InternalInconsistencyException
  */
-- shouldNotImplement:(SEL)aSel;
+- (id) shouldNotImplement:(SEL)aSel;
 
 /*!
  * \brief Throw an exception when a method is called which is not (yet)
@@ -456,7 +456,7 @@ __BEGIN_DECLS
  * \param aSel Selector for method that is not implemented.
  * \throw InternalInconsistencyException
  */
-- notImplemented:(SEL)aSel;
+- (id) notImplemented:(SEL)aSel;
 @end
 
 @interface NSObject (ComparisonMethods)

@@ -33,38 +33,41 @@
 #import "DateTime/NSConcreteDate.h"
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSTimeZone.h>
 #import "internal.h"
 #include <unicode/udat.h>
 #include <unicode/udatpg.h>
 
-@interface _DateFormatterPrivate	:	NSObject
-{
-@public
-	UDateFormat *_udf;
-	UParseError _parseError;
-}
-@end
-@implementation _DateFormatterPrivate
--(void) dealloc
-{
-	udat_close(_udf);
-}
-@end
-
-/* The weird casting here is so we can assign to _private. */
-#define _private (*(_DateFormatterPrivate **)&self->_private)
-
 #define BUFFER_SIZE 768
 
 @implementation NSDateFormatter
+{
+	UDateFormat *_udf;
+	UParseError _parseError;
+	NSLocale *_locale;
+	NSDateFormatterStyle _dateStyle;
+	NSDateFormatterStyle _timeStyle;
+	NSTimeZone *_timeZone;
+	bool	_relative;
+	NSDate	*defaultDate;
+}
+
 @synthesize defaultDate;
 
 static void _InitPrivate(NSDateFormatter *self)
 {
 	UErrorCode ec = U_ZERO_ERROR;
-	if (_private->_udf != NULL)
+	UChar *tzID;
+	NSUInteger tzLen;
+	if (self->_udf != NULL)
+	{
 		return;
-	_private->_udf = udat_open(self->_relative | self->_dateStyle, self->_relative | self->_timeStyle, [[self->_locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], NULL, 0, NULL, 0, &ec);
+	}
+
+	tzLen = [[self->_timeZone name] length];
+	tzID = malloc(tzLen * sizeof(*tzID));
+	[[self->_timeZone name] getCharacters:tzID range:NSMakeRange(0, tzLen)];
+	self->_udf = udat_open(self->_relative | self->_dateStyle, self->_relative | self->_timeStyle, [[self->_locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], tzID, tzLen, NULL, 0, &ec);
 	if (!U_SUCCESS(ec))
 		NSLog(@"Warning: Unable to create ICU number formatter: %s", u_errorName(ec));
 	return;
@@ -74,7 +77,7 @@ static NSString *_GetSymbolWithIndex(NSDateFormatter *self, UDateFormatSymbolTyp
 {
 	UErrorCode ec = U_ZERO_ERROR;
 	UChar buffer[BUFFER_SIZE];
-	int32_t strLen = udat_getSymbols(_private->_udf, type, index, buffer, BUFFER_SIZE - 1, &ec);
+	int32_t strLen = udat_getSymbols(self->_udf, type, index, buffer, BUFFER_SIZE - 1, &ec);
 	if (strLen > 0)
 	{
 		return [NSString stringWithCharacters:buffer length:strLen];
@@ -89,21 +92,21 @@ static void _SetSymbolWithIndex(NSDateFormatter *self, UDateFormatSymbolType typ
 	UErrorCode ec = U_ZERO_ERROR;
 
 	[value getCharacters:icuBuffer range:NSMakeRange(0, MIN(len, BUFFER_SIZE-1))];
-	udat_setSymbols(_private->_udf, type, index, icuBuffer, len, &ec);
+	udat_setSymbols(self->_udf, type, index, icuBuffer, len, &ec);
 }
 
 static NSArray *_GetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type)
 {
 	_InitPrivate(self);
 
-	int32_t count = udat_countSymbols(_private->_udf, type);
+	int32_t count = udat_countSymbols(self->_udf, type);
 	NSString *returns[count];
 
 	for (int i = 0; i < count; i++)
 	{
 		UErrorCode ec = U_ZERO_ERROR;
 		UChar buffer[BUFFER_SIZE];
-		int32_t strLen = udat_getSymbols(_private->_udf, type, i, buffer, BUFFER_SIZE - 1, &ec);
+		int32_t strLen = udat_getSymbols(self->_udf, type, i, buffer, BUFFER_SIZE - 1, &ec);
 		if (strLen > 0)
 		{
 			returns[i] = [[NSString alloc] initWithCharacters:buffer length:strLen];
@@ -127,7 +130,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 		UErrorCode ec = U_ZERO_ERROR;
 
 		[s getCharacters:icuBuffer range:NSMakeRange(0, len)];
-		udat_setSymbols(_private->_udf, type, i, icuBuffer, len, &ec);
+		udat_setSymbols(self->_udf, type, i, icuBuffer, len, &ec);
 	}
 }
 
@@ -156,7 +159,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 	return [NSString stringWithCharacters:bpat length:patlen];
 }
 
-- init
+- (id) init
 {
 	return self;
 }
@@ -194,19 +197,39 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 - (NSCalendar *)calendar
 {
 	_InitPrivate(self);
-	return [NSCalendar _calendarWithUCalendar:__DECONST(UCalendar *, udat_getCalendar(_private->_udf))];
+	return [NSCalendar _calendarWithUCalendar:__DECONST(UCalendar *, udat_getCalendar(_udf))];
 }
 
 - (void) setCalendar:(NSCalendar *)newCal
 {
+	_InitPrivate(self);
+	udat_setCalendar(_udf, [newCal _ucalendar]);
 }
 
 - (NSString *) dateFormat
 {
+	NSInteger patlen;
+	UErrorCode err;
+	UChar *chars;
+	
+	patlen = udat_toPattern(_udf, true, NULL, 0, &err);
+
+	chars = malloc(patlen * sizeof(*chars));
+	patlen = udat_toPattern(_udf, true, chars, patlen, &err);
+
+	return [[NSString alloc] initWithCharactersNoCopy:chars length:patlen freeWhenDone:true];
 }
 
 - (void) setDateFormat:(NSString *)dateFormat
 {
+	NSUInteger len = [dateFormat length];
+
+	UChar chars[len];
+
+	[dateFormat getCharacters:chars range:NSMakeRange(0,len)];
+
+	_InitPrivate(self);
+	udat_applyPattern(_udf, true, chars, len);
 }
 
 - (NSDateFormatterStyle)dateStyle
@@ -231,18 +254,19 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 
 - (NSTimeZone *)timeZone
 {
-	return [[self calendar] timeZone];
+	return _timeZone;
 }
 
 - (void) setTimeZone:(NSTimeZone *)tz
 {
+	_timeZone = tz;
 }
 
 - (NSDate *)twoDigitStartDate
 {
 	_InitPrivate(self);
 	UErrorCode ec = U_ZERO_ERROR;
-	UDate d = udat_get2DigitYearStart(_private->_udf, &ec);
+	UDate d = udat_get2DigitYearStart(_udf, &ec);
 	if (U_FAILURE(ec))
 		return nil;
 	return [NSDate dateWithTimeIntervalSince1970:d];
@@ -253,7 +277,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 	_InitPrivate(self);
 	UErrorCode ec = U_ZERO_ERROR;
 	UDate d = [date timeIntervalSince1970];
-	udat_set2DigitYearStart(_private->_udf, d, &ec);
+	udat_set2DigitYearStart(_udf, d, &ec);
 }
 
 
@@ -382,13 +406,13 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 - (bool) isLenient
 {
 	_InitPrivate(self);
-	return udat_isLenient(_private->_udf);
+	return udat_isLenient(_udf);
 }
 
 - (void) setLenient:(bool)b
 {
 	_InitPrivate(self);
-	udat_setLenient(_private->_udf, b);
+	udat_setLenient(_udf, b);
 }
 
 - (NSLocale *)locale
@@ -404,14 +428,14 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 
 - (NSDate *)gregorianStartdate
 {
-	const UCalendar *cal = udat_getCalendar(_private->_udf);
+	const UCalendar *cal = udat_getCalendar(_udf);
 	UErrorCode ec = U_ZERO_ERROR;
 	return [NSDate dateWithTimeIntervalSinceReferenceDate:UNIX_SEC(ucal_getGregorianChange(cal, &ec))];
 }
 
 - (void) setGregorianStartDate:(NSDate *)newDate
 {
-	UCalendar *cal = (UCalendar *)udat_getCalendar(_private->_udf);
+	UCalendar *cal = (UCalendar *)udat_getCalendar(_udf);
 	UErrorCode ec = U_ZERO_ERROR;
 
 	ucal_setGregorianChange(cal, ICU_MSEC([newDate timeIntervalSinceReferenceDate]), &ec);
@@ -478,7 +502,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 	int32_t parsePos = 0;
 	[str getCharacters:buffer range:NSMakeRange(0, MIN(len, BUFFER_SIZE-1))];
 
-	UDate d = udat_parse(_private->_udf, buffer, MIN(len, BUFFER_SIZE-1), &parsePos, &ec);
+	UDate d = udat_parse(_udf, buffer, MIN(len, BUFFER_SIZE-1), &parsePos, &ec);
 	if (U_FAILURE(ec))
 	{
 		/* TODO: Real errors */
@@ -512,7 +536,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 	UChar buffer[BUFFER_SIZE];
 	UErrorCode ec = U_ZERO_ERROR;
 
-	int32_t len = udat_format(_private->_udf, d, buffer, BUFFER_SIZE-1, NULL, &ec);
+	int32_t len = udat_format(_udf, d, buffer, BUFFER_SIZE-1, NULL, &ec);
 
 	if (U_FAILURE(ec))
 		return nil;
@@ -541,4 +565,8 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 	_relative = doRel;
 }
 
+-(void) dealloc
+{
+	udat_close(self->_udf);
+}
 @end

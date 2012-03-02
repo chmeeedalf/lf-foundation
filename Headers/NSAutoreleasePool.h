@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -53,28 +53,12 @@
 
 #import <Foundation/NSObject.h>
 
-#ifdef __cplusplus
-namespace std
-{
-	template <typename T> class allocator;
-	template <typename T, class A> class deque;
-}
-typedef std::deque<id, std::allocator<id> > NSAutoreleasePoolChunk;
-#else
-typedef struct __NSAutoreleasePoolChunk NSAutoreleasePoolChunk;
-#endif
-
 /*!
  \class NSAutoreleasePool
  \brief Holds objects that should be released in the future, by emptying the
  pool.
  */
 @interface NSAutoreleasePool : NSObject
-{
-	NSAutoreleasePool *parentPool;                //!< \brief Next pool up on stack 
-	NSAutoreleasePoolChunk* firstChunk;           //!< \brief First chunk of objects
-	id ownerThread;                             //!< \brief NSThread that owns the pool
-}
 
 /* Instance initialization */
 /*! 
@@ -83,7 +67,7 @@ typedef struct __NSAutoreleasePoolChunk NSAutoreleasePoolChunk;
  *  \details Since autorelease pools are chained, this adds to the chain, and
  *  sets it as the default pool.
  */
-- init;
+- (id)init;
 
 /* Instance deallocation */
 /*! 
@@ -124,7 +108,7 @@ typedef struct __NSAutoreleasePoolChunk NSAutoreleasePoolChunk;
  *  thread.  At thread launch time there is always an NSAutoreleasePool, and new
  *  pools can be created at any time.
  */
-+ defaultPool;
++ (id) defaultPool;
 
 @end
 
@@ -151,7 +135,7 @@ typedef struct __NSAutoreleasePoolChunk NSAutoreleasePoolChunk;
  * \internal
  * \brief Initialize the pointer with the given address.
  */
-- initWithPointerAddress:(void*)address;
+- (id) initWithPointerAddress:(void*)address;
 @end
 
 /*

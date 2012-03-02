@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010	Gold Project
+ * Copyright (c) 2010-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,11 +40,11 @@ extern NSString * const NSKeyedUnarchiveFromDataTransformerName;
 @interface NSValueTransformer	:	NSObject
 
 + (void) setValueTransformer:(NSValueTransformer *)t forName:(NSString *)name;
-+ valueTransformerForName:(NSString *) name;
++ (id) valueTransformerForName:(NSString *) name;
 + (NSArray *) valueTransformerNames;
 
 + (bool) allowsReverseTransformation;
 + (Class) transformedValueClass;
-- transformedValue:(id)val;
-- reverseTransformedValue:(id)value;
+- (id) transformedValue:(id)val;
+- (id) reverseTransformedValue:(id)value;
 @end

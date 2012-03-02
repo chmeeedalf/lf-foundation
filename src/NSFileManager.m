@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2009-2012	Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR COEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
 /* Copyright (c) 2006-2007 Christopher J. W. Lloyd
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -13,6 +41,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSDelegate.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSHost.h>
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
@@ -54,7 +83,6 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	{
 		defaultManager = [NSFileManager new];
 		[[NSThread currentThread] setPrivateThreadData:defaultManager forKey:NSDefaultFileManager];
-		[defaultManager release];
 	}
 	return defaultManager;
 }
@@ -131,6 +159,11 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	if ([self fileExistsAtURI:dest isDirectory:&isDirectory] == true)
 		return false;
 
+	if ([[src scheme] isEqualToString:[dest scheme]] && [[src handler] respondsToSelector:@selector(moveItemAtURI:toURI:error:)])
+	{
+		return [[src handler] moveItemAtURI:src toURI:dest error:err];
+	}
+
 	if ([self copyItemAtURI:src toURI:dest error:err] == false)
 	{
 		[self removeItemAtURI:dest error:err];
@@ -161,7 +194,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	{
 		int r, w;
 		char buf[4096];
-		size_t count;
+		ssize_t count;
 
 #if 0
 		if ((w = open([dest fileSystemRepresentation], O_WRONLY|O_CREAT, FOUNDATION_FILE_MODE)) == -1) 
@@ -317,7 +350,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 - (NSString *)stringWithFileSystemRepresentation:(const char *)fsRep length:(NSIndex)len
 {
-	return [[[NSString alloc] initWithBytes:fsRep length:len encoding:NSUTF8StringEncoding] autorelease];
+	return [[NSString alloc] initWithBytes:fsRep length:len encoding:NSUTF8StringEncoding];
 }
 
 -(bool)setAttributes:(NSDictionary *)attributes ofItemAtURI:(NSURI *)path error:(NSError **)error

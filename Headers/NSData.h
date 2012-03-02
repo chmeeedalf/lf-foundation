@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004,2005	Gold Project
+ * Copyright (c) 2004-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,8 +32,9 @@
 
 enum
 {
-	NSDataReadingMapped = 1UL,
-	NSDataReadingUncached = 1UL << 1
+	NSDataReadingMappedAlways = 1UL,
+	NSDataReadingUncached = 1UL << 1,
+	NSDataReadingMappedIfSafe = 1UL << 3,
 };
 typedef NSUInteger NSDataReadingOptions;
 

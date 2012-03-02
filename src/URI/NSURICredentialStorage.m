@@ -18,7 +18,7 @@ NSString * const NSURICredentialStorageChangedNotification=@"NSURICredentialStor
 	return nil;
 }
 
--init
+-(id)init
 {
 	[self notImplemented:_cmd];
 	return nil;

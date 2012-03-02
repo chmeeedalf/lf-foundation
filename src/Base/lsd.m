@@ -49,6 +49,7 @@
 #define BLOCK_TAKEN			0x80
 #define BLOCK_SET_KERNEL	0x01
 
+void eventHandler (Event_t *_eventPage);
 
 struct sysReqPageHead
 {
@@ -60,8 +61,6 @@ struct sysReqPageHead
 #ifndef __FreeBSD__
 static int processID;
 #endif
-
-static volatile uint64_t currentWaitID;
 
 /* Shared among all threads now */
 __private Event_t *sysReqPage;

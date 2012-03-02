@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011	Gold Project
+ * Copyright (c) 2007-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -52,17 +52,17 @@ typedef NSUInteger NSLocaleLanguageDirection;
  */
 @interface NSLocale	:	NSObject
 
-+ autoupdatingCurrentLocale;
++ (id) autoupdatingCurrentLocale;
 
 /*!
  * \brief Returns the systemwide NSLocale instance.
  */
-+ systemLocale;
++ (id) systemLocale;
 
 /*!
  * \brief Returns the current process NSLocale instance.
  */
-+ currentLocale;
++ (id) currentLocale;
 
 /*!
  * \brief Sets the current process NSLocale.
@@ -72,9 +72,9 @@ typedef NSUInteger NSLocaleLanguageDirection;
 /*!
  * \brief Returns a locale with the given name.
  */
-+ localeWithIdentifier:(NSString *)localeName;
++ (id) localeWithIdentifier:(NSString *)localeName;
 
-- initWithIdentifier:(NSString *)localeName;
+- (id) initWithIdentifier:(NSString *)localeName;
 
 // Identifier -- NSLocale pairs
 /*!
@@ -96,7 +96,7 @@ typedef NSUInteger NSLocaleLanguageDirection;
 /*!
  * \brief Returns the locale information for a given key.
  */
-- objectForKey:(NSString *)key;
+- (id) objectForKey:(NSString *)key;
 
 - (NSString *)displayNameForKey:(id)key value:(id)value;
 

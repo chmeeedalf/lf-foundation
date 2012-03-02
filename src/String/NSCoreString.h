@@ -76,23 +76,23 @@ enum {
 	id next;
 }
 
-+ allocWithZone:(NSZone*)zone;
++ (id)allocWithZone:(NSZone*)zone;
 - (NSZone*)zone;
 
 /* initWith* methods from NSString */
 
-- init;
-- initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
-- initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
+- (id)init;
+- (id)initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
+- (id)initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
 	freeWhenDone:(bool)flag;
-- initWithString:(NSString*)aString;
-- initWithFormat:(NSString*)format, ...;
-- initWithFormat:(NSString*)format arguments:(va_list)argList;
-- initWithFormat:(NSString*)format
+- (id)initWithString:(NSString*)aString;
+- (id)initWithFormat:(NSString*)format, ...;
+- (id)initWithFormat:(NSString*)format arguments:(va_list)argList;
+- (id)initWithFormat:(NSString*)format
 		  locale:(NSLocale*)dictionary, ...;
-- initWithFormat:(NSString*)format 
+- (id)initWithFormat:(NSString*)format 
 		  locale:(NSLocale*)dictionary arguments:(va_list)argList;	
-- initWithData:(NSData*)data encoding:(NSStringEncoding)encoding;
+- (id)initWithData:(NSData*)data encoding:(NSStringEncoding)encoding;
 
 @end
 
@@ -107,21 +107,21 @@ enum {
  */
 @interface NSCoreString : NSString
 
-- initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
-- initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
+- (id)initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
+- (id)initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
 	freeWhenDone:(bool)flag;
-- initWithCString:(const char*)byteString;
-- initWithCString:(const char*)byteString length:(NSIndex)length;
-- initWithCString:(const char*)byteString length:(NSIndex)length
+- (id)initWithCString:(const char*)byteString;
+- (id)initWithCString:(const char*)byteString length:(NSIndex)length;
+- (id)initWithCString:(const char*)byteString length:(NSIndex)length
 	copy:(bool)copy;
-- initWithCStringNoCopy:(const char*)byteString freeWhenDone:(bool)flag;
-- initWithCStringNoCopy:(const char*)byteString length:(NSIndex)length 
+- (id)initWithCStringNoCopy:(const char*)byteString freeWhenDone:(bool)flag;
+- (id)initWithCStringNoCopy:(const char*)byteString length:(NSIndex)length 
 	freeWhenDone:(bool)flag;
-- initWithString:(NSString*)aString;
-- initWithData:(NSData*)data encoding:(NSStringEncoding)encoding;
-- initWithBytes:(const void *)bytes length:(unsigned long)length
+- (id)initWithString:(NSString*)aString;
+- (id)initWithData:(NSData*)data encoding:(NSStringEncoding)encoding;
+- (id)initWithBytes:(const void *)bytes length:(unsigned long)length
 	encoding:(NSStringEncoding)enc copy:(bool)copy freeWhenDone:(bool)flag;
-- initWithUnicodeString:(UnicodeString *)src;
+- (id)initWithUnicodeString:(UnicodeString *)src;
 - (UnicodeString *)_unicodeString;
 
 @end	// NSCoreString
