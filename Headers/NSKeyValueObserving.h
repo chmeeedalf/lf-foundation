@@ -119,6 +119,13 @@ typedef enum {
 	NSKeyValueChangeReplacement	
 } NSKeyValueChange;
 
+typedef enum {
+	NSKeyValueUnionSetMutation = 1,
+	NSKeyValueMinusSetMutation = 2,
+	NSKeyValueIntersectSetMutation = 3,
+	NSKeyValueSetSetMutation = 4,
+} NSKeyValueSetMutationKind;
+
 /*!
  * \brief Key-value observation extensions to the NSObject class.
  */
@@ -183,18 +190,21 @@ typedef enum {
  * \param keyPath Property key path to stop observing.
  */
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath;
+-(void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context;
 
 /*!
  * \brief Invoked to inform the receiver that the value of a given property is
  * about to change.
  */
 -(void)willChangeValueForKey:(NSString*)key;
+-(void)willChangeValueForKey:(NSString *)key withSetMutation:(NSKeyValueSetMutationKind)mutationKind usingObjects:(NSSet *)objects;
 
 /*!
  * \brief Invoked to inform the receiver that the value of a given property has
  * changed.
  */
 -(void)didChangeValueForKey:(NSString*)key;
+-(void)didChangeValueForKey:(NSString *)key withSetMutation:(NSKeyValueSetMutationKind)mutationKind usingObjects:(NSSet *)objects;
 
 /*!
  * \brief Invoked to inform the receiver that the specified change is about to
