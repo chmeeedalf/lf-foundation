@@ -37,36 +37,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSRange.h>
 
 @interface NSIndexSet : NSObject <NSCoding,NSCopying,NSMutableCopying>
-{
-   unsigned _length;
-   NSRange *_ranges; 
-}
 
 + (id) indexSetWithIndexesInRange:(NSRange)range;
-+ (id) indexSetWithIndex:(unsigned)index;
++ (id) indexSetWithIndex:(NSUInteger)index;
 + (id) indexSet;
 
 - (id) initWithIndexSet:(NSIndexSet *)other;
 - (id) initWithIndexesInRange:(NSRange)range;
-- (id) initWithIndex:(unsigned)index;
+- (id) initWithIndex:(NSUInteger)index;
 - (id) init;
 
 -(bool)isEqualToIndexSet:(NSIndexSet *)other;
 
--(unsigned)count;
--(unsigned long)countOfIndexesInRange:(NSRange)range;
--(unsigned)firstIndex;
--(unsigned)lastIndex;
+-(NSUInteger)count;
+-(NSUInteger)countOfIndexesInRange:(NSRange)range;
+-(NSUInteger)firstIndex;
+-(NSUInteger)lastIndex;
 -(NSUInteger)getIndexes:(NSUInteger *)buffer maxCount:(NSUInteger)capacity inIndexRange:(NSRange *)range;
 
 -(bool)containsIndexesInRange:(NSRange)range;
 -(bool)containsIndexes:(NSIndexSet *)other;
--(bool)containsIndex:(unsigned)index;
+-(bool)containsIndex:(NSUInteger)index;
 
--(unsigned)indexGreaterThanIndex:(unsigned)index;
--(unsigned)indexGreaterThanOrEqualToIndex:(unsigned)index;
--(unsigned)indexLessThanIndex:(unsigned)index;
--(unsigned)indexLessThanOrEqualToIndex:(unsigned)index;
+-(NSUInteger)indexGreaterThanIndex:(NSUInteger)index;
+-(NSUInteger)indexGreaterThanOrEqualToIndex:(NSUInteger)index;
+-(NSUInteger)indexLessThanIndex:(NSUInteger)index;
+-(NSUInteger)indexLessThanOrEqualToIndex:(NSUInteger)index;
 
 -(bool)intersectsIndexesInRange:(NSRange)range;
 
@@ -95,13 +91,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -(void)addIndexesInRange:(NSRange)range;
 -(void)addIndexes:(NSIndexSet *)other;
--(void)addIndex:(unsigned)index;
+-(void)addIndex:(NSUInteger)index;
 
 -(void)removeAllIndexes;
 -(void)removeIndexesInRange:(NSRange)range;
 -(void)removeIndexes:(NSIndexSet *)other;
--(void)removeIndex:(unsigned)index;
+-(void)removeIndex:(NSUInteger)index;
 
--(void)shiftIndexesStartingAtIndex:(unsigned)index by:(int)delta;
+-(void)shiftIndexesStartingAtIndex:(NSUInteger)index by:(NSInteger)delta;
 
 @end
