@@ -1,3 +1,33 @@
+/*
+ * Copyright (c) 2011-2012	Gold Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
+/* Copyright (c) 2011 David Chisnall */
+
 /**
  * NSJSONSerialization.m.  This file provides an implementation of the JSON
  * reading and writing APIs introduced with OS X 10.7.  
@@ -21,7 +51,7 @@
 #import <Foundation/NSValue.h>
 #import "internal.h"
 #include <ctype.h>
-//#import <Foundation/Foundation.h>
+#include <vector>
 
 #define _(x) x
 /**
@@ -71,11 +101,11 @@ typedef struct ParserStateStruct
   /**
    * Should the parser construct mutable string objects?
    */
-  BOOL mutableStrings;
+  bool mutableStrings;
   /**
    * Should the parser construct mutable containers?
    */
-  BOOL mutableContainers;
+  bool mutableContainers;
   /**
    * Error value, if this parser is currently in an error state, nil otherwise.
    */
@@ -87,7 +117,7 @@ typedef struct ParserStateStruct
  */
 static inline void updateStringBuffer(ParserState* state)
 {
-  NSRange r = {state->sourceIndex, BUFFER_SIZE};
+  NSRange r{state->sourceIndex, BUFFER_SIZE};
   NSUInteger end = [state->source length];
   if (end - state->sourceIndex < BUFFER_SIZE)
     {
@@ -146,7 +176,6 @@ static inline void updateStreamBuffer(ParserState* state)
             } while (bytes[i] & 0xf);
             NSString *str = [[NSString alloc] initWithUTF8String: (char*)bytes];
             [str getCharacters: state->buffer range: NSMakeRange(0,1)];
-            [str release];
             break;
           }
         case NSUTF32LittleEndianStringEncoding:
@@ -186,7 +215,7 @@ static inline void updateStreamBuffer(ParserState* state)
   NSString *str = [[NSString alloc] initWithBytesNoCopy: buffer
                                                  length: length
                                                encoding: state->enc
-                                           freeWhenDone: NO];
+                                           freeWhenDone: false];
   // Just use the string buffer fetch function to actually get the data
   state->source = str;
   updateStringBuffer(state);
@@ -246,7 +275,6 @@ static void parseError(ParserState *state)
   state->error = [NSError errorWithDomain: NSCocoaErrorDomain
                                      code: 0
                                  userInfo: userInfo];
-  [userInfo release];
 }
 
 
@@ -296,7 +324,6 @@ NS_RETURNS_RETAINED static NSString* parseString(ParserState *state)
                       next = consumeChar(state);
                       if (!ishexnumber(next))
                         {
-                          [val release];
                           parseError(state);
                           return nil;
                         }
@@ -320,7 +347,6 @@ NS_RETURNS_RETAINED static NSString* parseString(ParserState *state)
           else
             {
               [val appendString: str];
-              [str release];
             }
         }
       next = consumeChar(state);
@@ -336,13 +362,12 @@ NS_RETURNS_RETAINED static NSString* parseString(ParserState *state)
       else
         {
           [val appendString: str];
-          [str release];
         }
     }
 #if 0
   if (!state->mutableStrings)
     {
-      val = [val makeImmutableCopyOnFail: YES];
+      val = [val makeImmutableCopyOnFail: true];
     }
 #endif
   // Consume the trailing "
@@ -356,22 +381,7 @@ NS_RETURNS_RETAINED static NSString* parseString(ParserState *state)
 NS_RETURNS_RETAINED static NSNumber* parseNumber(ParserState *state)
 {
   unichar c = currentChar(state);
-  char numberBuffer[128];
-  char *number = numberBuffer;
-  int bufferSize = 128;
-  int parsedSize = 0;
-  // Define a macro to add a character to the buffer, because we'll need to do
-  // it a lot.  This resizes the buffer if required.
-#define BUFFER(x) do {\
-  if (parsedSize == bufferSize)\
-    {\
-      bufferSize *= 2;\
-      if (number == numberBuffer)\
-          number = malloc(bufferSize);\
-      else\
-          number = realloc(number, bufferSize);\
-    }\
-    number[parsedSize++] = (char)x; } while(0)
+  std::vector<char> number(128);
   // JSON numbers must start with a - or a digit
   if (!(c == '-' || isdigit(c)))
     {
@@ -379,49 +389,37 @@ NS_RETURNS_RETAINED static NSNumber* parseNumber(ParserState *state)
       return nil;
     }
   // digit or -
-  BUFFER(c);
+  number.push_back(c);
   // Read as many digits as we see
   while (isdigit(c = consumeChar(state)))
     {
-      BUFFER(c);
+      number.push_back(c);
     }
   // Parse the fractional component, if there is one
   if ('.' == c)
     {
-      BUFFER(c);
+      number.push_back(c);
       while (isdigit(c = consumeChar(state)))
         {
-          BUFFER(c);
+          number.push_back(c);
         }
     }
   // parse the exponent if there is one
   if ('e' == tolower(c))
     {
-      BUFFER(c);
+      number.push_back(c);
       c = consumeChar(state);
       // The exponent must be a valid number
-      if (!(c == '-' || c == '+' || isdigit(c)))
-        {
-          if (number != numberBuffer)
-            {
-              free(number);
-            }
-        }
-      BUFFER(c);
+      number.push_back(c);
       while (isdigit(c = consumeChar(state)))
         {
-          BUFFER(c);
+          number.push_back(c);
         }
     }
     // Add a null terminator on the buffer.
-    BUFFER(0);
-    double num = strtod(number, 0);
-    if (number != numberBuffer)
-      {
-        free(number);
-      }
+    number.push_back(0);
+    double num = strtod(&number[0], 0);
     return [[NSNumber alloc] initWithDouble: num];
-#undef BUFFER
 }
 /**
  * Parse an array, as described by section 2.3 of RFC 4627.
@@ -445,11 +443,9 @@ NS_RETURNS_RETAINED static NSArray* parseArray(ParserState *state)
       id obj = parseValue(state);
       if (nil == obj)
         {
-          [array release];
           return nil;
         }
       [array addObject: obj];
-      [obj release];
       c = consumeSpace(state);
       if (c == ',')
         {
@@ -462,7 +458,7 @@ NS_RETURNS_RETAINED static NSArray* parseArray(ParserState *state)
 #if 0
   if (!state->mutableContainers)
     {
-      array = [array makeImmutableCopyOnFail: YES];
+      array = [array makeImmutableCopyOnFail: true];
     }
 #endif
   return array;
@@ -486,14 +482,11 @@ NS_RETURNS_RETAINED static NSDictionary* parseObject(ParserState *state)
       id key = parseString(state);
       if (nil == key)
         {
-          [dict release];
           return nil;
         }
       c = consumeSpace(state);
       if (':' != c)
         {
-          [key release];
-          [dict release];
           parseError(state);
           return nil;
         }
@@ -502,13 +495,9 @@ NS_RETURNS_RETAINED static NSDictionary* parseObject(ParserState *state)
       id obj = parseValue(state);
       if (nil == obj)
         {
-          [key release];
-          [dict release];
           return nil;
         }
       [dict setObject: obj forKey: key];
-      [key release];
-      [obj release];
       c = consumeSpace(state);
       if (c == ',')
         {
@@ -521,7 +510,7 @@ NS_RETURNS_RETAINED static NSDictionary* parseObject(ParserState *state)
 #if 0
   if (!state->mutableContainers)
     {
-      dict = [dict makeImmutableCopyOnFail: YES];
+      dict = [dict makeImmutableCopyOnFail: true];
     }
 #endif
   return dict;
@@ -557,7 +546,7 @@ static id parseValue(ParserState *state)
               (consumeChar(state) == 'l') &&
               (consumeChar(state) == 'l'))
             {
-              return [[NSNull null] retain];
+              return [NSNull null];
             }
           break;
         }
@@ -568,7 +557,7 @@ static id parseValue(ParserState *state)
               (consumeChar(state) == 'u') &&
               (consumeChar(state) == 'e'))
             {
-              return [[NSNumber alloc] initWithBool: YES];
+              return [[NSNumber alloc] initWithBool: true];
             }
           break;
         }
@@ -579,7 +568,7 @@ static id parseValue(ParserState *state)
               (consumeChar(state) == 's') &&
               (consumeChar(state) == 'e'))
             {
-              return [[NSNumber alloc] initWithBool: NO];
+              return [[NSNumber alloc] initWithBool: false];
             }
           break;
         }
@@ -684,11 +673,11 @@ static inline void writeNewline(NSMutableString *output, NSInteger tabs)
     }
 }
 
-static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
+static bool writeObject(id obj, NSMutableString *output, NSInteger tabs)
 {
   if ([obj isKindOfClass: NSArrayClass])
     {
-      BOOL writeComma = NO;
+      bool writeComma = false;
       [output appendString: @"["];
 	  for (id o in obj)
 	  {
@@ -696,7 +685,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
           {
             [output appendString: @","];
           }
-        writeComma = YES;
+        writeComma = true;
         writeNewline(output, tabs);
         writeTabs(output, tabs);
         writeObject(o, output, tabs + 1);
@@ -707,17 +696,17 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
     }
   else if ([obj isKindOfClass: NSDictionaryClass])
     {
-      BOOL writeComma = NO;
+      bool writeComma = false;
       [output appendString: @"{"];
 	  for (id o in obj)
 	  {
         // Keys in dictionaries must be strings
-        if (![o isKindOfClass: NSStringClass]) { return NO; }
+        if (![o isKindOfClass: NSStringClass]) { return false; }
         if (writeComma)
           {
             [output appendString: @","];
           }
-        writeComma = YES;
+        writeComma = true;
         writeNewline(output, tabs);
         writeTabs(output, tabs);
         writeObject(o, output, tabs + 1);
@@ -750,11 +739,9 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
               NSString *escaped = [[NSString alloc] initWithFormat: @"\\u%.4d", (int)control];
               [str replaceCharactersInRange: r
                                  withString: escaped];
-              [escaped release];
               r = [str rangeOfCharacterFromSet: controlSet];
             }
           [output appendFormat: @"\"%@\"", str];
-          [str release];
         }
       else
         {
@@ -763,7 +750,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
     }
   else if ([obj isKindOfClass: NSNumberClass])
     {
-      if ([obj objCType][0] == @encode(BOOL)[0])
+      if ([obj objCType][0] == @encode(bool)[0])
         {
           if ([obj boolValue])
             {
@@ -785,9 +772,9 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
     }
   else
     {
-      return NO;
+      return false;
     }
-  return YES;
+  return true;
 }
 
 @implementation NSJSONSerialization
@@ -798,7 +785,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
   NSStringClass = [NSString class];
   NSDictionaryClass = [NSDictionary class];
   NSNumberClass = [NSNumber class];
-  escapeSet = [[NSCharacterSet characterSetWithCharactersInString: @"\"\\"] retain];
+  escapeSet = [NSCharacterSet characterSetWithCharactersInString: @"\"\\"];
 
 }
 + (NSData *)dataWithJSONObject:(id)obj
@@ -829,13 +816,11 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
         *error = [NSError errorWithDomain: NSCocoaErrorDomain
                                      code: 0
                                  userInfo: userInfo];
-        [userInfo release];
       }
   }
-  [str release];
   return data;
 }
-+ (BOOL)isValidJSONObject:(id)obj
++ (bool)isValidJSONObject:(id)obj
 {
   return writeObject(obj, nil, NSIntegerMin);
 }
@@ -845,19 +830,18 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
 {
   char BOM[4];
   [data getBytes: BOM length: 4];
-  ParserState p = { 0 };
+  ParserState p = {};
   getEncoding(BOM, &p);
   p.source = [[NSString alloc] initWithData: data encoding: p.enc];
   p.updateBuffer = updateStringBuffer;
   p.mutableContainers = (opt & NSJSONReadingMutableContainers) == NSJSONReadingMutableContainers;
   p.mutableStrings = (opt & NSJSONReadingMutableLeaves) == NSJSONReadingMutableLeaves;
   id obj = parseValue(&p);
-  [p.source release];
   if (NULL != error)
     {
       *error = p.error;
     }
-  return [obj autorelease];
+  return obj;
 }
 + (id)JSONObjectWithStream:(NSInputStream *)stream
                    options:(NSJSONReadingOptions)opt
@@ -866,7 +850,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
   char BOM[4];
   // TODO: Handle failure here!
   [stream read: (uint8_t*)BOM maxLength: 4];
-  ParserState p = { 0 };
+  ParserState p = {};
   getEncoding(BOM, &p);
   p.mutableContainers = (opt & NSJSONReadingMutableContainers) == NSJSONReadingMutableContainers;
   p.mutableStrings = (opt & NSJSONReadingMutableLeaves) == NSJSONReadingMutableLeaves;
@@ -875,7 +859,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
       p.source = [[NSString alloc] initWithBytesNoCopy: &BOM[p.BOMLength]
                                                 length: 4 - p.BOMLength
                                               encoding: p.enc
-                                          freeWhenDone: NO];
+                                          freeWhenDone: false];
       updateStringBuffer(&p);
       // Negative source index because we are before the current point in the buffer
       p.sourceIndex = p.BOMLength - 4;
@@ -889,7 +873,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
     {
       *error = p.error;
     }
-  return [obj autorelease];
+  return obj;
 }
 + (NSInteger)writeJSONObject:(id)obj
                     toStream:(NSOutputStream *)stream
@@ -899,7 +883,7 @@ static BOOL writeObject(id obj, NSMutableString *output, NSInteger tabs)
   NSData *data = [self dataWithJSONObject: obj options: opt error: error];
   if (nil != data)
     {
-      const char *bytes = [data bytes];
+      const char *bytes = reinterpret_cast<const char *>([data bytes]);
       NSUInteger toWrite = [data length];
       while (toWrite > 0)
         {
