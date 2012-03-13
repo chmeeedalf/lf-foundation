@@ -112,32 +112,6 @@
 
 @end
 
-/*!
- *  \class AutoreleasedPointer
- *  \brief Holds a pointer that should be released when the owning
- *  NSAutoreleasePool is released.
- *  
- *  \details Any pointer added as an AutoreleasedPointer is passed to free()
- *  when the NSAutoreleasePool is flushed.
- */
-@interface NSAutoreleasedPointer : NSObject
-{
-@private
-    void* theAddress;
-}
-/*!
- * \brief Add the given address to the current autorelease pool.
- * \param address Address to add.
- * \return New pointer wrapper object, already added to the pool.
- */
-+ (id)autoreleasePointer:(void*)address;
-/*!
- * \internal
- * \brief Initialize the pointer with the given address.
- */
-- (id) initWithPointerAddress:(void*)address;
-@end
-
 /*
    vim:syntax=objc:
  */

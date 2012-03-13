@@ -51,6 +51,7 @@
    or in connection with the use or performance of this software.
 */
 
+#import <Alepha/Objective/Object.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSString.h>
@@ -60,20 +61,27 @@
 #include <algorithm>
 #include <deque>
 
+typedef std::deque<id, std::allocator<id> > NSAutoreleasePoolChunk;
+
 @implementation NSAutoreleasePool
+{
+	NSAutoreleasePool *parentPool;                //!< \brief Next pool up on stack 
+	NSAutoreleasePoolChunk* firstChunk;           //!< \brief First chunk of objects
+	id ownerThread;                             //!< \brief NSThread that owns the pool
+}
 
 /*
  * Static variables
  */
 
 // default pool (per thread)
-static __thread NSAutoreleasePool* defaultPool = nil;
+static __thread Alepha::Objective::Object<NSAutoreleasePool*> defaultPool;
 
 /*
  * Instance initialization
  */
 
-- init
+- (id) init
 {
 	parentPool = defaultPool;
 	firstChunk = NULL;
@@ -105,8 +113,6 @@ static __thread NSAutoreleasePool* defaultPool = nil;
 	defaultPool = parentPool;
 
 	[self drain];
-
-	[super dealloc];
 }
 
 static void auto_release(id obj)
@@ -158,41 +164,14 @@ static void auto_release(id obj)
  * Default pool
  */
 
-+ defaultPool
++ (id) defaultPool
 {
 	return defaultPool;
 }
 
-#if 0
 // For ARC compatibility.
 - (void) _ARCCompatibleAutoreleasePool
 {
 }
-#endif
 
 @end /* NSAutoreleasePool */
-
-/*
- * Class that handles C pointers release sending them Free()
- */
-
-@implementation NSAutoreleasedPointer
-
-+ (id)autoreleasePointer:(void*)address
-{
-	return AUTORELEASE([[self alloc] initWithPointerAddress:address]);
-}
-
-- initWithPointerAddress:(void*)address
-{
-	theAddress = address;
-	return self;
-}
-
-- (void)dealloc
-{
-	free(theAddress);
-	[super dealloc];
-}
-
-@end /* AutoreleasedPointer */
