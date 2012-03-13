@@ -32,7 +32,6 @@
 #import <Foundation/NSDate.h>
 #import <Foundation/NSObject.h>
 
-@class NSAutoreleasePool;
 @class NSDate;
 @class NSString;
 @class NotificationCenter;

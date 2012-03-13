@@ -56,19 +56,13 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/mpl/if.hpp>
-#if __GNUC_MINOR__ == 2
-#include <tr1/type_traits>
-using std::tr1::is_const;
-#else
 #include <type_traits>
 using std::is_const;
-#endif
 #include <Alepha/Objective/Object.h>
 #define __ARCHIVER_CLS	boost::archive::binary_oarchive
 #define __UNARCHIVER_CLS	boost::archive::binary_iarchive
 
 #import <Foundation/NSData.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSHashTable.h>
@@ -232,7 +226,7 @@ static const unsigned long NSStrongObjectsOptions = NSPointerFunctionsStrongMemo
 
 		archiveAddress = 1;
 
-		data    = RETAIN(_data);
+		data    = _data;
 	}
 	return self;
 }
@@ -244,12 +238,12 @@ static const unsigned long NSStrongObjectsOptions = NSPointerFunctionsStrongMemo
 
 + (NSData *)archivedDataWithRootObject:(id)_root
 {
-	NSArchiver *archiver = AUTORELEASE([self new]);
+	NSArchiver *archiver = [self new];
 	NSData     *rdata    = nil;
 
 	[archiver encodeRootObject:_root];
 	rdata = [archiver->data copy];
-	return AUTORELEASE(rdata);
+	return rdata;
 }
 
 + (bool)archiveRootObject:(id)_root toURI:(NSURI *)uri
@@ -262,19 +256,6 @@ static const unsigned long NSStrongObjectsOptions = NSPointerFunctionsStrongMemo
 	}
 
 	return [[NSFileManager defaultManager] createFileAtURI:uri contents:rdata attributes:nil];
-}
-
-- (void)dealloc
-{
-	[data release];
-	[outKeys release];
-	[outObjects release];
-	[outConditionals release];
-	[outPointers release];
-	[replacements release];
-	[outClassAlias release];
-
-	[super dealloc];
 }
 
 // ******************** Getting NSData from the NSArchiver ******
@@ -320,8 +301,7 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 - (void)encodeRootObject:(id)_object
 {
 #if ENCODE_AUTORELEASEPOOL
-	NSAutoreleasePool *pool =
-		[[NSAutoreleasePool allocWithZone:[self zone]] init];
+	@autoreleasepool {
 #endif
 
 	/*
@@ -340,7 +320,7 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 	[self encodeObjectsWithRoot:_object];
 
 #if ENCODE_AUTORELEASEPOOL
-	RELEASE(pool);
+	}
 #endif
 }
 
@@ -712,7 +692,7 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 		inClassVersions    = [[NSMapTable alloc] initWithKeyOptions:NSOpaqueIntegerOptions valueOptions:NSStrongObjectsOptions capacity:19];
 		inPointers    = [[NSMapTable alloc] initWithKeyOptions:NSOpaqueIntegerOptions valueOptions:NSOpaqueIntegerOptions capacity:19];
 
-		data = RETAIN(_data);
+		data = _data;
 	}
 	return self;
 }
@@ -724,8 +704,6 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 	NSUnarchiver *unarchiver = [[self alloc] initForReadingWithData:_data];
 	id           object      = [unarchiver decodeObject];
 
-	RELEASE(unarchiver);
-
 	return object;
 }
 + (id)unarchiveObjectWithURI:(NSURI *)path
@@ -733,18 +711,6 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 	NSData *rdata = [NSData dataWithContentsOfURI:path];
 	if (!rdata) return nil;
 	return [self unarchiveObjectWithData:rdata];
-}
-
-- (void)dealloc
-{
-	[data release];
-
-	[inObjects release];
-	[inClasses release];
-	[inPointers release];
-	[inClassAlias release];
-	[inClassVersions release];
-	[super dealloc];
 }
 
 /* Managing an NSUnarchiver */
@@ -888,7 +854,6 @@ FINAL int   _readInt  (NSUnarchiver *self);
 		{
 			@throw [NSInconsistentArchiveException exceptionWithReason:[NSString stringWithFormat:@"did not find referenced object %i.", archiveId] userInfo:nil];
 		}
-		result = RETAIN(result);
 	}
 	else
 	{
@@ -942,7 +907,7 @@ FINAL int   _readInt  (NSUnarchiver *self);
 	[self decodeValueOfObjCType:"@" at:&result];
 
 	// result is retained
-	return AUTORELEASE(result);
+	return result;
 }
 
 FINAL void _checkType(char _code, char _reqCode)

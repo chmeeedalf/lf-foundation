@@ -55,7 +55,6 @@
 #import "NSCoreString.h"
 
 #import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSCharacterSet.h>
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSData.h>
@@ -1010,8 +1009,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	size_t maxlen = [self maximumLengthOfBytesUsingEncoding:enc] + 1;
 	char *c = malloc(maxlen);
 	[self getCString:c maxLength:maxlen encoding:enc];
-	[NSAutoreleasedPointer autoreleasePointer:c];
-	return c;
+	return [[[NSData alloc] initWithBytesNoCopy:c length:maxlen freeWhenDone:true] bytes];
 }
 
 - (const char *)UTF8String
@@ -1041,8 +1039,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	}
 	u_strToUTF8(utf8Str, len+1, &len, chars, selfLen, &error);
 	free(chars);
-	[NSAutoreleasedPointer autoreleasePointer:utf8Str];
-	return utf8Str;
+	return [[[NSData alloc] initWithBytesNoCopy:utf8Str length:len+1 freeWhenDone:true] bytes];
 }
 
 - (bool)getCString:(char *)buffer maxLength:(NSIndex)maxLength encoding:(NSStringEncoding)enc

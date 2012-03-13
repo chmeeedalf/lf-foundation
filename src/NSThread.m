@@ -51,8 +51,7 @@
 
 	The NSThread class currently is not implemented properly and should be
 	rewritten.  All member data should be created at instantiation time, rather
-	than launch time, to ease the ownership rights confusion.  NSAutoreleasePool
-	should probably also be fixed to support creating for another thread.
+	than launch time, to ease the ownership rights confusion.
  */
 
 #define NANOSECONDS	1000000000UL

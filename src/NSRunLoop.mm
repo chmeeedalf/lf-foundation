@@ -30,7 +30,6 @@
 
 #import <Alepha/Objective/Object.h>
 #import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSRunLoop.h>
@@ -242,13 +241,12 @@ static uint32_t ModeIndexFromString(NSString *mode)
 - (void) runMode:(NSString *)str beforeDate:(NSDate *)date
 {
 	NSTimeInterval ti;
-	NSAutoreleasePool *p = [NSAutoreleasePool new];
-	
-	ti = [date timeIntervalSinceNow];
+	@autoreleasepool {
+		ti = [date timeIntervalSinceNow];
 
-	currentMode = str;
-	rl->run_once(ti, ModeIndexFromString(str));
-	[p release];
+		currentMode = str;
+		rl->run_once(ti, ModeIndexFromString(str));
+	}
 }
 
 /* End the loop at the end of event processing. */

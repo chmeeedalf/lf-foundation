@@ -34,7 +34,6 @@ OBJCXX=${CXX}
 SRCS=	NSRange.m \
 		NSObjectAllocation.mm \
 		NSObject.m \
-		NSAutoreleasePool.mm \
 		NSEnumerator.m \
 		NSException.m \
 		NSInvocation.m \

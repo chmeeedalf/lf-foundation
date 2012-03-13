@@ -150,31 +150,6 @@ __BEGIN_DECLS
  */
 -(bool)respondsToSelector:(SEL)aSelector;
 
-#if !__has_feature(objc_arc)
-// Managing reference counts
-/*!
- * \brief Add the object to the autorelease pool.
- *
- * \details The object is added to the current default NSAutoreleasePool, to be
- * released when the NSAutoreleasePool object is deallocated.
- */
--(id)autorelease;
-
-/*!
- * \brief Release the object.
- *
- * \details Decrements the reference count on the object.  When the reference
- * count reaches 0, the object's \c dealloc method is called, and the object is
- * deallocated.
- */
--(oneway void)release;
-
-/*!
- * \brief Increment the reference count on the object.
- */
--(id)retain;
-#endif
-
 // Describing the object
 /*!
  * \brief Return a string description of the object.
@@ -571,52 +546,6 @@ void NSDeallocateObject(id<NSObject> anObject);
  */
 bool NSShouldRetainWithZone(id<NSObject> anObject, NSZone *requestedZone);
 #endif
-
-/*!
- \brief Decrements reference count on an object.
- \param anObject NSObject to decrement reference count of.
- \return true if anObject's reference count is zero, else NO and count is decremented.
- */
-bool NSDecrementExtraRefCountWasZero(id anObject);
-
-/*!
- \brief Increments the externally maintained reference count.
- \param anObject NSObject to increment the reference count of.
- */
-void NSIncrementExtraRefCount(id anObject);
-
-/*!
- \brief Returns the reference count on an object.
- \param anObject NSObject to get the reference count of.
- \return Reference count of anObject.
- */
-unsigned int NSGetExtraRefCount(id anObject);
-
-/*!
- * \brief Increment the externally maintained autorelease reference count.
- * \param anObject NSObject to increment the autorelease reference count of.
- *
- * \details For debugging purposes, an object has two reference counts -- the
- * 'regular' one and the autorelease one.  The autorelease reference count is
- * incremented when the [NSObject autorelease] method is called, and decremented
- * by an NSAutoreleasePool, when the pool is emptied.
- */
-void NSIncrementAutoreleaseRefCount(id anObject);
-
-/*!
- * \brief Returns the autorelease reference count.
- * \param anObject NSObject to get the autorelease reference count of.
- */
-unsigned int NSGetAutoreleaseRefCount(id anObject);
-
-/*!
- * \brief Decrement the autorelease reference count.
- * \param anObject NSObject to decrement the autorelease reference count of.
- *
- * \details If the autorelease reference count is non-zero when the real
- * reference count reaches zero, a warning is logged for debugging purposes.
- */
-void NSDecrementAutoreleaseRefCount(id anObject);
 
 /*!
  \brief Returns the class object given by the specified name, or nil if none exists.
