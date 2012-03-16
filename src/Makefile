@@ -2,12 +2,11 @@ TOPDIR=${.CURDIR}/../../../../../
 CONTRIB= ${TOPDIR}/contrib
 DBUSFLAGS!=pkg-config --cflags dbus-1
 LIBXMLFLAGS!=pkg-config --cflags libxml-2.0
-CPPFLAGS=	-I$(PWD) -I${TOPDIR}/system/include
-CPPFLAGS+= -DVERSION=\"1.0\" -DSTRUCT_ALIGNMENT=4 -DGOLD -DNO_LSDID #-nostdinc
-CPPFLAGS+= ${DBUSFLAGS} -I/usr/local/include #-I${CONTRIB}/lib/icu/source/common ${DBUSFLAGS}
+CPPFLAGS=	-I$(PWD) -I${TOPDIR}/system/include -I/usr/local/include
+CPPFLAGS+= -DVERSION=\"1.0\" -DGOLD -DNO_LSDID
+CPPFLAGS+= ${DBUSFLAGS}
 CPPFLAGS+= ${LIBXMLFLAGS}
-CPPFLAGS+= -DU_USING_ICU_NAMESPACE=0
-LDADD=-L/GoldRoot/obj -L/system/lib -L/usr/local/lib -lAlepha -lexecinfo -ldbus-1 -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2#-lboost_serialization
+LDADD=-L/GoldRoot/obj -L/system/lib -L/usr/local/lib -lAlepha -lexecinfo -ldbus-1 -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2 #-lboost_serialization
 LIB=	System
 SHLIB_MAJOR= 1
 SHLIB_MINOR= 0
@@ -20,16 +19,13 @@ CLEANFILES=	ConcreteNumber.m
 
 .include "${TOPDIR}/contrib/Rules.mk"
 
-#CC=${GOLD_ROOT}/bin/gcc
-#CXX=${GOLD_ROOT}/bin/g++
-#CC=/system/cmds/gcc
-#CXX=/system/cmds/g++
-CXX:=powerpc-unknown-freebsd9.0-g++
-CC:=powerpc-unknown-freebsd9.0-gcc
+CXX=clang++
+CC=clang
 OBJC=${CC}
 OBJCXX=${CXX}
-#NM=${GOLD_ROOT}/bin/nm
-#LD=${GOLD_ROOT}/bin/ld
+NM=/usr/local/bin/nm
+LD=/usr/local/bin/ld
+AS=/usr/local/bin/as
 
 SRCS=	NSRange.m \
 		NSObjectAllocation.mm \
@@ -65,10 +61,9 @@ SRCS=	NSRange.m \
 		NSPortCoder.m \
 		NSPort.m \
 		NSTask.m \
-		NSKeyValueCoding.m \
-		NSKeyValueObserving.m \
+		NSKeyValueCoding.mm \
+		NSKeyValueObserving.mm \
 		NSKVCMutableArray.m \
-		NSKeyValueObserving.m \
 		NSSocket.m \
 		NSNetworkAddress.m \
 		NSXMLParser.m \
@@ -109,7 +104,7 @@ SRCS=	NSRange.m \
 		PropertyList.m \
 		PropertyListSerialization.m \
 		NSRegularExpression.m \
-		NSJSONSerialization.m \
+		NSJSONSerialization.mm \
 		NSTextCheckingResult.m \
 		GSICUString.m \
 
@@ -128,23 +123,24 @@ NSConcreteNumber.m: NSConcreteNumber.m.sh
 # These have to go after the includes, because they set CPPFLAGS
 .ifndef(NDEBUG)
 OPTFLAGS+=-O0 -fno-inline -g3
-.else
-OPTFLAGS+=-O2 -fno-strict-aliasing
 .endif
 
-CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fexceptions -Wall #-fno-unit-at-a-time 
+CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fexceptions #-Wall -fno-unit-at-a-time 
 .if ${CC} == "clang"
 CCXXFLAGS+=-Qunused-arguments
 .endif
 
-CXXFLAGS+=-std=gnu++0x
-OBJCCXXFLAGS=-fobjc-exceptions -Wno-selector -fconstant-string-class=NSConstantString -fobjc-abi-version=2 #-fnext-runtime -fno-objc-sjlj-exceptions #-fobjc-zerocost-exceptions -fno-objc-sjlj-exceptions -fnext-runtime 
-#.ifdef(CLANG)
-OBJCCXXFLAGS+=-fgnu-runtime -fobjc-abi-version=3
-#.endif
-OBJCXXFLAGS=$(CXXFLAGS) $(OBJCCXXFLAGS) -fvisibility=default -fobjc-call-cxx-cdtors
-CFLAGS+=$(CCXXFLAGS)
+CXXFLAGS+=-std=c++11 -stdlib=libc++
 CSTD=gnu99
+
+OBJCCXXFLAGS=-fobjc-exceptions -fobjc-abi-version=3 
+OBJCCXXFLAGS+=-fgnu-runtime -fconstant-string-class=NSConstantString -fblocks 
+OBJCCXXFLAGS+=-fobjc-arc -fobjc-arc-exceptions -Wno-arc-performSelector-leaks 
+#OBJCCXXFLAGS+=-fcolor-diagnostics
+WARNS=3
+OBJCXXFLAGS=$(CXXFLAGS) $(OBJCCXXFLAGS) -fvisibility=default -fobjc-call-cxx-cdtors
+CFLAGS+=$(CCXXFLAGS) -B/usr/local/bin/
 OBJCFLAGS=$(CFLAGS) $(OBJCCXXFLAGS)
-OBJCXXFLAGS+=-I/usr/local/include -mno-altivec -Wno-deprecated-declarations
 .include <bsd.lib.mk>
+CFLAGS+= -Wno-system-headers
+CXXFLAGS+= -Wno-system-headers
