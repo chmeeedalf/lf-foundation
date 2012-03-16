@@ -541,7 +541,7 @@
 		if (NSUnionRange(range, r).length <= range.length+r.length)
 		{
 			r = NSUnionRange(range, r);
-			break;
+			range = r;
 		}
 		else if (NSMaxRange(range) < r.location)
 		{
@@ -549,14 +549,9 @@
 		}
 		i++;
 	}
-	if (i == indexes.size())
-	{
-		indexes.push_back(range);
-	}
-	else
-	{
-		indexes.insert(indexes.begin() + i, range);
-	}
+	indexes.insert(indexes.begin() + i, range);
+	indexes.erase(std::remove_if(indexes.begin(), indexes.end(),
+				[=](NSRange &r){ return r.location == range.location; }));
 }
 
 -(void)addIndexes:(NSIndexSet *)other
@@ -641,7 +636,8 @@
 	if (delta == 0)
 		return;
 
-	auto i = std::find_if(indexes.begin(), indexes.end(), [=](NSRange &r){
+	index = [self indexGreaterThanOrEqualToIndex:index];
+	const auto i = std::find_if(indexes.begin(), indexes.end(), [=](NSRange &r){
 			return NSLocationInRange(index, r);});
 
 	if (i == indexes.end())
@@ -653,14 +649,13 @@
 	{
 		indexes.insert(i+1, tmp);
 
-		i += 2;
-		std::for_each(i, indexes.end(), [=](NSRange &r){ r.location += delta; });
+		const auto after = i + 2;
+		std::for_each(after, indexes.end(), [=](NSRange &r){ r.location += delta; });
 	}
 	else
 	{
-		std::vector<NSRange> newranges;
+		std::vector<NSRange> newranges(i+1, indexes.end());
 
-		std::copy(i + 1, indexes.end(), newranges.begin());
 		newranges[0] = tmp;
 
 		indexes.erase(i + 1, indexes.end());

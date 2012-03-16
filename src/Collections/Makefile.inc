@@ -15,6 +15,6 @@ SRCS+= NSArray.mm \
 	   NSCoreSet.mm \
 	   NSHashTable.mm \
 	   NSMapTable.mm \
-	   NSIndexSet.m \
+	   NSIndexSet.mm \
 	   NSMutableIndexSet.m \
 	   NSCountedSet.mm \
