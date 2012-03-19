@@ -25,7 +25,7 @@
 
 #import <Foundation/NSCoder.h>
 #import <Foundation/Memory.h>
-#import <Foundation/PropertyListSerialization.h>
+#import <Foundation/NSPropertyListSerialization.h>
 #import <Foundation/NSString.h>
 #import "internal.h"
 #include <stdlib.h>
@@ -109,7 +109,7 @@
 
 - (void) encodePropertyList:(id)plist
 {
-	NSData *serializedPlist = [PropertyListSerialization dataWithPropertyList:plist format:PropertyListBinaryFormat options:0 error:NULL];
+	NSData *serializedPlist = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListBinaryFormat options:0 error:NULL];
 
 	if (serializedPlist != nil)
 	{
@@ -172,7 +172,7 @@
 
 	if (d != nil)
 	{
-		return [PropertyListSerialization propertyListWithData:d options:0
+		return [NSPropertyListSerialization propertyListWithData:d options:0
 														format:NULL error:NULL];
 	}
 
