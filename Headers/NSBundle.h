@@ -77,6 +77,6 @@ SYSTEM_EXPORT NSString * const NSLoadedClasses;
 
 @end
 
-SYSTEM_EXPORT NSString *LocalizedString(NSString *key,NSString *comment);
-SYSTEM_EXPORT NSString *LocalizedStringFromTable(NSString *key,NSString *table,NSString *comment);
-SYSTEM_EXPORT NSString *LocalizedStringFromTableInBundle(NSString *key,NSString *table,NSBundle *bundle,NSString *comment);
+SYSTEM_EXPORT NSString *NSLocalizedString(NSString *key,NSString *comment);
+SYSTEM_EXPORT NSString *NSLocalizedStringFromTable(NSString *key,NSString *table,NSString *comment);
+SYSTEM_EXPORT NSString *NSLocalizedStringFromTableInBundle(NSString *key,NSString *table,NSBundle *bundle,NSString *comment);

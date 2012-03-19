@@ -45,6 +45,8 @@ __BEGIN_DECLS
 #define NS_INLINE static inline
 #endif
 
+@class NSString;
+
 /*!
  * \brief Generic return value container.
  */
@@ -76,29 +78,6 @@ void class_addBehavior(Class targetClass, Class behavior);
 
 extern const char *objc_skip_argspec(const char *);
 
-unsigned int encoding_getNumberOfArguments(const char *typedesc);
-#if 0
-{
-	unsigned int count = 0;
-	if (typedesc == NULL)
-		return 0;
-
-	while (*typedesc != 0)
-	{
-		typedesc = objc_skip_argspec(typedesc);
-		count++;
-	}
-	return (count - 1);
-}
-#endif
-
-unsigned int encoding_getSizeOfArguments(const char *typedesc);
-unsigned int encoding_getArgumentInfo(const char *typedesc, int arg, const char **type, int *offset);
-void encoding_getReturnType(const char *t, char *dst, size_t dst_len);
-char *encoding_copyReturnType(const char *t);
-void encoding_getArgumentType(const char *t, unsigned int index, char *dst, size_t dst_len);
-char *encoding_copyArgumentType(const char *t, unsigned int index);
-
 #ifndef __has_feature
 #define __has_feature(x) 0
 #endif
@@ -107,6 +86,55 @@ typedef NSComparisonResult (^NSComparator)(id obj1, id obj2);
 #else
 typedef NSComparisonResult (*NSComparator)(id obj1, id obj2);
 #endif
+
+const char *NSGetSizeAndAlignment(const char *typePtr, NSUInteger *sizep, NSUInteger *alignp);
+
+/*!
+ \brief Returns the class object given by the specified name, or nil if none exists.
+ \param aClassName Name of the class to return.
+ */
+Class NSClassFromString(NSString *aClassName);
+
+/*!
+ \brief Returns the selector named by the specified name, or zero if none exists.
+ \param aSelectorName Name of the selector to return.
+ */
+SEL NSSelectorFromString(NSString *aSelectorName);
+
+/*!
+ \brief Returns an NSString containing the name of the given class.
+ \param aClass Class to name.
+ */
+NSString *NSStringFromClass(Class aClass);
+
+/*!
+ \brief Returns an NSString containing the name of the given selector.
+ \param aSelector Selector to name.
+ */
+NSString *NSStringFromSelector(SEL aSelector);
+
+Protocol *NSProtocolFromString(NSString *str);
+NSString *NSStringFromProtocol(Protocol *proto);
+
+/*!
+ \brief Log a message to <b>stderr</b>, using a <b>printf()</b> style argument list.
+ \param format Format and associated arguments to log to the console.
+ */
+SYSTEM_EXPORT void NSLog(NSString *format, ...);
+
+/*!
+ \brief Log a message to <b>stderr</b>, using a <b>printf()</b> style argument list.
+ \param format Format and associated arguments to log to the console.
+ \param args  Variable length argument list frame, generally retrieved from
+ va_start() and va_copy().
+ */
+SYSTEM_EXPORT void NSLogv(NSString *format, va_list args);
+
+/*!
+ \brief Log a message to <b>stderr</b>, NUL-terminated.
+ \param message Raw C-string message to log.
+ */
+SYSTEM_EXPORT void NSLogRaw(const char *message);
 
 typedef NSUInteger NSEnumerationOptions;
 enum

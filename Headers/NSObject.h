@@ -547,30 +547,6 @@ void NSDeallocateObject(id<NSObject> anObject);
 bool NSShouldRetainWithZone(id<NSObject> anObject, NSZone *requestedZone);
 #endif
 
-/*!
- \brief Returns the class object given by the specified name, or nil if none exists.
- \param aClassName Name of the class to return.
- */
-Class NSClassFromString(NSString *aClassName);
-
-/*!
- \brief Returns the selector named by the specified name, or zero if none exists.
- \param aSelectorName Name of the selector to return.
- */
-SEL NSSelectorFromString(NSString *aSelectorName);
-
-/*!
- \brief Returns an NSString containing the name of the given class.
- \param aClass Class to name.
- */
-NSString *NSStringFromClass(Class aClass);
-
-/*!
- \brief Returns an NSString containing the name of the given selector.
- \param aSelector Selector to name.
- */
-NSString *NSStringFromSelector(SEL aSelector);
-
 // Forwarding messages...
 
 #ifdef __OBJC__
@@ -578,26 +554,6 @@ NSString *NSStringFromSelector(SEL aSelector);
 #else
 typedef struct NSString NSString;
 #endif
-
-/*!
- \brief Log a message to <b>stderr</b>, using a <b>printf()</b> style argument list.
- \param format Format and associated arguments to log to the console.
- */
-SYSTEM_EXPORT void NSLog(NSString *format, ...);
-
-/*!
- \brief Log a message to <b>stderr</b>, using a <b>printf()</b> style argument list.
- \param format Format and associated arguments to log to the console.
- \param args  Variable length argument list frame, generally retrieved from
- va_start() and va_copy().
- */
-SYSTEM_EXPORT void NSLogv(NSString *format, va_list args);
-
-/*!
- \brief Log a message to <b>stderr</b>, NUL-terminated.
- \param message Raw C-string message to log.
- */
-SYSTEM_EXPORT void NSLogRaw(const char *message);
 
 __END_DECLS
 
