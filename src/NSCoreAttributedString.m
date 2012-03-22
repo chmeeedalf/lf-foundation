@@ -138,9 +138,9 @@
 		i++;
 	}
 	len = [attributeRanges count];
-	for (i = 0; i < len; i++)
+	for (i = len; i > 0; --i)
 	{
-		if (delind[i] == 1)
+		if (delind[i-1] == 1)
 			[attributeRanges removeObjectAtIndex:i];
 	}
 }

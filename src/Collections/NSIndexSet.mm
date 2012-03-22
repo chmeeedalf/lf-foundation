@@ -106,7 +106,7 @@
 
 - (unsigned)count
 {
-	NSUInteger count;
+	NSUInteger count = 0;
 
 	for (NSRange &r: indexes)
 	{
@@ -154,8 +154,11 @@
 		}
 	}];
 
-	rangePtr->location += cap;
-	rangePtr->length -= cap;
+	range.location += cap;
+	range.length -= cap;
+
+	if (rangePtr != NULL)
+		*rangePtr = range;
 
 	return cap;
 }
@@ -289,7 +292,7 @@
 {
 	if ([coder allowsKeyedCoding])
 	{
-		NSUInteger i;
+		NSUInteger i = 0;
 		[coder encodeInteger:indexes.size() forKey:@"NSRangeCount"];
 		for (NSRange &r: indexes)
 		{

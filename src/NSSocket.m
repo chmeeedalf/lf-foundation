@@ -295,6 +295,7 @@
 	{
 		[self close];
 	}
+	free(mem);
 }
 
 - (void) _socketHandleReceive:(size_t)size
