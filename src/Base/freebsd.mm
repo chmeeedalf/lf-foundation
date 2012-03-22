@@ -41,6 +41,8 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <Event.h>
+#include <string>
+#include <vector>
 
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSApplication.h>
@@ -182,12 +184,11 @@ static void handleAllSignals(int sig, siginfo_t *si, void *ignore)
  */
 bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *targetUUID)
 {
-	const char **argv;
-	const char **environ;
+	std::vector<std::string> argv;
+	std::vector<std::string> environ;
 	const char *progname;
-	const char *defaultArgs[] = { NULL, NULL, NULL };
 	bool retval;
-	uint32_t	pid;
+	pid_t	pid;
 
 	/* Sanity checking */
 	if (![identifier isKindOfClass:[NSURI class]])
@@ -200,25 +201,24 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 		if ([args isKindOfClass:[NSDictionary class]])
 		{
 			size_t length = [args count];
-			argv = malloc(sizeof(char *) * (length + 2));
 			length = 1;
 			for (id key in args)
 			{
 				if ([args objectForKey:key] == [NSNull null])
-					argv[length++] = [[key description] UTF8String];
+					argv.push_back([[key description] UTF8String]);
 				else
 				{
 					id obj = [args objectForKey:key];
 					NSString *desc = [obj description];
 					NSString *keyDesc = [key description];
 					if ([keyDesc length] == 1)
-						argv[length++] = [[NSString stringWithFormat:@"-%@%@", keyDesc, desc] UTF8String];
+						argv.push_back([[NSString stringWithFormat:@"-%@%@", keyDesc, desc] UTF8String]);
 					else if ([desc length] == 0)
-						argv[length++] = [[NSString stringWithFormat:@"--%@",keyDesc] UTF8String];
+						argv.push_back([[NSString stringWithFormat:@"--%@",keyDesc] UTF8String]);
 					else
-						argv[length++] = [[NSString stringWithFormat:@"--%@=%@", keyDesc, desc] UTF8String];
+						argv.push_back([[NSString stringWithFormat:@"--%@=%@", keyDesc, desc] UTF8String]);
 				}
-				argv[length] = NULL;
+				argv.push_back(NULL);
 			}
 		}
 		else if ([args respondsToSelector:@selector(enumerator)])
@@ -230,33 +230,29 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 			{
 				size++;
 			}
-			argv = malloc(sizeof(char *) * (size + 2));
 			size = 1;
 
 			for (item in args)
 			{
-				argv[size++] = [[item description] UTF8String];
+				argv.push_back([[item description] UTF8String]);
 			}
-			argv[size] = NULL;
+			argv.push_back(NULL);
 		}
 		else
 		{
-			argv = defaultArgs;
 			if (args != nil)
-				argv[1] = [[args description] UTF8String];
+				argv.push_back([[args description] UTF8String]);
 		}
-		argv[0] = progname;
+		argv.push_back(progname);
 
 		if (env == nil)
 		{
 			env = [[NSProcessInfo processInfo] environment];
 		}
-		NSIndex size = 0;
 
-		environ = malloc(sizeof(char *) * ([env count] + 1));
 		for (NSString *key in env)
 		{
-			environ[size++] = [[NSString stringWithFormat:@"%@=%@",key,[env objectForKey:key]] UTF8String];
+			environ.push_back([[NSString stringWithFormat:@"%@=%@",key,[env objectForKey:key]] UTF8String]);
 		}
 		switch ((pid = vfork()))
 		{
@@ -265,7 +261,8 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 				retval = false;
 				break;
 			case 0:
-				execve(progname, (char * const *)argv, (char * const *)environ);
+				execve(progname, (char * const *)&argv[0],
+						(char * const *)&environ[0]);
 				_exit(errno);
 				break;
 			default:

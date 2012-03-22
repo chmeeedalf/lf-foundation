@@ -2,4 +2,4 @@
 
 SRCS+= lsd.m \
        Memory.m \
-       freebsd.m
+       freebsd.mm
