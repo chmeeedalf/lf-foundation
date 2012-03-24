@@ -111,12 +111,6 @@
  Receivers are notified in this order as well.
  */
 @interface NSNotificationCenter	: NSObject
-{
-	/*! \internal @{ */
-	NSMapTable *nameToObjects;
-	id nullNameToObjects;
-	/* @} */
-}
 
 // Accessing the default notification center
 /*!
