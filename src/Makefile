@@ -50,7 +50,7 @@ SRCS=	NSRange.m \
 		NSMethodSignature.m \
 		NSNull.m \
 		NSURI.m \
-		NSNotificationCenter.m \
+		NSNotificationCenter.mm \
 		NSNotification.m \
 		NSSettingsManager.m \
 		NSLocale.m NSConcreteLocale.mm \
