@@ -68,9 +68,6 @@ SRCS=	NSRange.m \
 		NSNetworkAddress.m \
 		NSXMLParser.m \
 		NSConnection.m \
-		DBusPort.mm \
-		DBusCoder.m \
-		DBusProxy.m \
 		NSSortDescriptor.m \
 		NSFileManager.m \
 		NSRunLoop.mm \
@@ -89,7 +86,6 @@ SRCS=	NSRange.m \
 		NSPredicate.m \
 		NSCompoundPredicate.m \
 		NSComparisonPredicate.m \
-		NSPredicateParser.mm \
 		NSHost.m \
 		NSPortMessage.m \
 		NSXMLMIMECoder.m \
@@ -107,6 +103,11 @@ SRCS=	NSRange.m \
 		NSJSONSerialization.mm \
 		NSTextCheckingResult.m \
 		GSICUString.m \
+
+#		NSPredicateParser.mm \
+#		DBusPort.mm \
+#		DBusCoder.m \
+#		DBusProxy.m \
 
 .include "Base/Makefile.inc"
 .include "Collections/Makefile.inc"

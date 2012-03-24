@@ -35,6 +35,7 @@
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSMethodSignature.h>
+#import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 #import "DBusCoder.h"
@@ -43,21 +44,6 @@
 #include <string.h>
 #include <sys/event.h>
 #include <dbus/dbus.h>
-
-@interface DBusPortPrivate
-{
-	@public
-	DBusConnection *dbusConnection;
-	DBusCoder *coder;
-	/* Only one watch for now */
-	DBusWatch *watch;
-	NSString *name;
-	bool listening;
-	RunLoop *runLoop;
-}
-@end
-
-#define _private	(*((DBusPortPrivate **)&self->_private))
 
 #if 0
 Brain dump 2009-12-14 22:22 --
@@ -83,6 +69,16 @@ NSConnection class).
 @end
 
 @implementation DBusPort
+{
+	@public
+	DBusConnection *dbusConnection;
+	DBusCoder *coder;
+	/* Only one watch for now */
+	DBusWatch *watch;
+	NSString *name;
+	bool listening;
+	NSRunLoop *runLoop;
+}
 @synthesize name;
 
 #if 0
@@ -107,7 +103,7 @@ static dbus_bool_t DBusAddWatch(DBusWatch *watch, void *data)
 	DBusPort *self = reinterpret_cast<DBusPort *>(data);
 
 	/* Only register one watch. */
-	if (_private->watch != NULL)
+	if (watch != NULL)
 		return true;
 
 	Alepha::RunLoop::File *f = new
@@ -115,7 +111,7 @@ static dbus_bool_t DBusAddWatch(DBusWatch *watch, void *data)
 
 	[[self runLoop] addRunLoopSource:f target:self
 		selector:@selector(handleEvent:forLoop:) mode:DefaultRunLoopMode];
-	_private->watch = watch;
+	watch = watch;
 	return true;
 }
 
@@ -160,7 +156,7 @@ static void DBusRemoveWatch(DBusWatch *watch, void *data)
 	}
 	_private = [[DBusPortPrivate alloc] init];
 	memset(&err, 0, sizeof(err));
-	_private->dbusConnection = dbus_bus_get(busType, &err);
+	dbusConnection = dbus_bus_get(busType, &err);
 	if (dbusConnection == 0)
 	{
 		NSLog(@"DBus connection failed: %s: %s\n", err.name, err.message);
@@ -181,13 +177,12 @@ static void DBusRemoveWatch(DBusWatch *watch, void *data)
 	if (dbusConnection != NULL)
 		dbus_connection_unref(dbusConnection);
 	[coder release];
-	[super dealloc];
 }
 
 - (void) setName:(NSString *)newName
 {
 	DBusError err;
-	NSString *oldName = _private->name;
+	NSString *oldName = name;
 
 	memset(&err, 0, sizeof(err));
 	if (newName != nil)
@@ -198,7 +193,7 @@ static void DBusRemoveWatch(DBusWatch *watch, void *data)
 			return;
 		}
 	}
-	_private->name = [newName copy];
+	name = [newName copy];
 	[oldName release];
 }
 

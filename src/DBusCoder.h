@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006	Gold Project
+ * Copyright (c) 2006-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -49,7 +49,7 @@
 	bool decode;	// Direction flag, a boolean
 }
 
-- initWithConnection:(DBusPort *)conn;
+- (id) initWithConnection:(DBusPort *)conn;
 - (NSInvocation *) decodeInvocation:(DBusMessage *)message;
 - (DBusMessage *) encodeInvocationReturn:(NSInvocation *)inv;
 @end

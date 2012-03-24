@@ -38,10 +38,6 @@
  * @detail This requires the use of a main loop for dispatching events.
  */
 @interface DBusPort	: NSPort
-{
-	id _private;
-	NSString *name;
-}
 @property(copy) NSString *name;
 
 - (id) initWithBusType:(DBusBusType)type;

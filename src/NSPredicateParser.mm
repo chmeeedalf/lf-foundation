@@ -24,6 +24,7 @@
 
 #define BOOST_SPIRIT_DEBUG
 #include <functional>
+#include <vector>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <stdio.h>
@@ -42,8 +43,9 @@
 #import <Foundation/NSNull.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSDate.h>
+#import <Alepha/Objective/Object.h>
 
-//#define USE_DESCRIPTION_FOR_AT 1
+typedef Alepha::Objective::Object<id> AlephaId;
 
 /* parsing functions */
 
@@ -158,34 +160,34 @@ using namespace boost::spirit;
 
 static inline void null_func() {}
 
-static inline id makeComparisonPredicate(NSPredicateOperatorType type, id lhs,
+static inline AlephaId makeComparisonPredicate(NSPredicateOperatorType type, id lhs,
 		id rhs)
 {
 	return [NSComparisonPredicate predicateWithLeftExpression:lhs
 		rightExpression:rhs modifier:NSDirectPredicateModifier type:type options:0];
 }
 
-static inline id makeCompoundPredicate(NSCompoundPredicateType type,
+static inline AlephaId makeCompoundPredicate(NSCompoundPredicateType type,
 		NSArray *subs)
 {
 	if ([subs count] == 1)
 		return [subs firstObject];
 	NSCompoundPredicate *outPred = [[NSCompoundPredicate alloc]
 		initWithType:type subpredicates:subs];
-	return [outPred autorelease];
+	return outPred;
 }
 
-static inline id makeNotPredicate(id pred)
+static inline AlephaId makeNotPredicate(id pred)
 {
 	return [NSCompoundPredicate notPredicateWithSubpredicate:pred];
 }
 
-static inline id makeBinExpr(id expr1, NSString *binOp, id expr2)
+static inline AlephaId makeBinExpr(id expr1, NSString *binOp, id expr2)
 {
 	return [NSNull null];
 }
 
-static inline id makeExpr(SEL sel, id val)
+static inline AlephaId makeExpr(SEL sel, id val)
 {
 	return ([NSExpression methodForSelector:sel])([NSExpression class], sel, val);
 }
@@ -195,14 +197,9 @@ static inline void addObject(id arr, id obj)
 	[arr addObject:obj];
 }
 
-static inline id makeArray()
+static inline AlephaId makeArray()
 {
 	return [NSMutableArray new];
-}
-
-static inline void releaseObj(id obj)
-{
-	[obj release];
 }
 
 static inline id makeString(std::string utf8String)
@@ -210,31 +207,37 @@ static inline id makeString(std::string utf8String)
 	return [NSString stringWithUTF8String:utf8String.c_str()];
 }
 
+#if 0
 static inline id makeStringFromVec(std::vector<char> input)
 {
 	return makeString(std::string(input.begin(), input.end()));
 }
+#endif
 
-static inline id makeStringFromRange(boost::iterator_range<std::string::const_iterator> input)
+static inline AlephaId makeStringFromRange(boost::iterator_range<std::string::const_iterator> input)
 {
 	return makeString(std::string(input.begin(), input.end()));
 }
 
-static inline id makeFuncExpressionNoArg(std::string name, id arg)
+static inline AlephaId makeFuncExpressionNoArg(std::string name, id arg)
 {
 	NSLog(@"%s(%@)", name.c_str(), arg);
 	return [NSExpression expressionForFunction:makeString(name)
 		arguments:[NSArray arrayWithObject:arg]];
 }
 
-static inline id makeFuncExpression(std::string name, std::vector<id> args)
+static inline AlephaId makeFuncExpression(std::string name,
+		std::vector<AlephaId > args)
 {
+	std::vector<id> argvec;
+
+	std::copy(args.begin(), args.end(), argvec.begin());
 	return [NSExpression expressionForFunction:makeString(name)
-		arguments:[NSArray arrayWithObjects:&args[0] count:args.size()]];
+		arguments:[NSArray arrayWithObjects:&argvec[0] count:argvec.size()]];
 }
 
 #define MakeNum(type, numType, suffix) \
-	static inline id makeNumber##suffix(type x) { return [NSNumber numberWith##numType:x]; } \
+	static inline AlephaId makeNumber##suffix(type x) { return [NSNumber numberWith##numType:x]; } \
 	struct hack
 
 MakeNum(float, Float, F);
@@ -249,7 +252,7 @@ MakeNum(long, Long, L);
 MakeNum(long long, LongLong, LL);
 
 template <typename Iterator>
-struct predicateGrammar	:	qi::grammar<Iterator, id(), ascii::space_type>
+struct predicateGrammar	:	qi::grammar<Iterator, AlephaId(), ascii::space_type>
 {
 	struct operators_	:	boost::spirit::qi::symbols<char, NSPredicateOperatorType>
 	{
@@ -340,19 +343,20 @@ struct predicateGrammar	:	qi::grammar<Iterator, id(), ascii::space_type>
 		using qi::debug;
 
 		predicate %= compoundPredicate
-			| lit("TRUEPREDICATE") [_val = [NSPredicate predicateWithValue:true]]
-			| lit("FALSEPREDICATE") [_val = [NSPredicate predicateWithValue:false]];
+			| lit("TRUEPREDICATE") [_val =
+			AlephaId([NSPredicate predicateWithValue:true])]
+			| lit("FALSEPREDICATE") [_val = 
+			AlephaId([NSPredicate predicateWithValue:false])]
+			;
 		compoundPredicate = andPredicate
 			;
 		andPredicate %= qi::eps[_a = bind(makeArray)] >> (
 				orPredicate[bind(addObject, _a, _1)] % and_operators )
 				[_val = bind(makeCompoundPredicate, NSAndPredicateType, _a)]
-				>> qi::eps[bind(releaseObj,_a)]
 			;
 		orPredicate %= qi::eps[_a = bind(makeArray)] >> (
 				notPredicate[bind(addObject, _a, _1)] % or_operators )
 				[_val = bind(makeCompoundPredicate, NSOrPredicateType, _a)]
-				>> qi::eps[bind(releaseObj,_a)]
 			;
 		notPredicate %= ("(" >> predicate > ")")
 			| (lit("NOT")|'!') >> predicate
@@ -397,18 +401,21 @@ struct predicateGrammar	:	qi::grammar<Iterator, id(), ascii::space_type>
 
 		literal_value %= string_value [_val = bind(makeExpr, @selector(expressionForConstantValue:), _1)]
 			| numeric_value [_val = bind(makeExpr, @selector(expressionForConstantValue:), _1)]
-			| predicate_argument [_val = [NSNull null]]
+			| predicate_argument
+				[_val = AlephaId([NSNull null])]
 			| predicate_variable [_val = bind(makeExpr, @selector(expressionForVariable:), _1)]
-			| lit("NULL") [_val = [NSExpression expressionForConstantValue:nil]]
-			| lit("TRUE") [_val = [NSExpression expressionForConstantValue:[NSNumber numberWithBool:true]]]
-			| lit("FALSE") [_val = [NSExpression expressionForConstantValue:[NSNumber numberWithBool:false]]]
-			| lit("SELF") [_val = [NSExpression expressionForEvaluatedObject]]
+			| lit("NULL") [_val = AlephaId([NSExpression expressionForConstantValue:nil])]
+			| lit("TRUE") [_val = AlephaId([NSExpression expressionForConstantValue:[NSNumber numberWithBool:true]])]
+			| lit("FALSE") [_val = AlephaId([NSExpression expressionForConstantValue:[NSNumber numberWithBool:false]])]
+			| lit("SELF") [_val = AlephaId([NSExpression expressionForEvaluatedObject])]
 			;
+#if 0
 		string_value %= ('"' >> no_skip[+(char_ - '"')] >> '"')
-				[_val = bind(makeStringFromVec, _1)]
+				//[_val = bind(makeStringFromVec, _1)]
 			| ('\'' >> no_skip[+(char_ - '\'')] >> '\'')
-				[_val = bind(makeStringFromVec, _1)]
+				//[_val = bind(makeStringFromVec, _1)]
 			;
+#endif
 		numeric_value %= float_ [_val = bind(makeNumberF, _1)]
 			| double_ [_val = bind(makeNumberD, _1)]
 			| bin [_val = bind(makeNumberU, _1)]
@@ -426,7 +433,8 @@ struct predicateGrammar	:	qi::grammar<Iterator, id(), ascii::space_type>
 		predicate_argument %= '%' > format_argument;
 		format_argument %= lit("@") | "%" | "K";
 		predicate_variable %= (lit('$') > identifier);
-		literal_aggregate %= ('{' >> (expression % ',') >> '}') [_val = nil];
+		literal_aggregate %= ('{' >> (expression % ',') >> '}') [_val =
+			AlephaId(nil)];
 		aggregate_expression %= array_expression
 			| dictionary_expression
 			;
@@ -494,31 +502,31 @@ struct predicateGrammar	:	qi::grammar<Iterator, id(), ascii::space_type>
 #endif
 	}
 
-	qi::rule<Iterator, id(), ascii::space_type> predicate;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> predicate;
 	qi::rule<Iterator, std::string(), ascii::space_type> function_name;
-	qi::rule<Iterator, id(), ascii::space_type> function_expression;
-	qi::rule<Iterator, id(), ascii::space_type> binary_expression;
-	qi::rule<Iterator, id(), ascii::space_type> assignment_expression;
-	qi::rule<Iterator, id(), ascii::space_type> array_expression;
-	qi::rule<Iterator, id(), ascii::space_type> dictionary_expression;
-	qi::rule<Iterator, id(), ascii::space_type> index_expression;
-	qi::rule<Iterator, id(), ascii::space_type> keypath_expression;
-	qi::rule<Iterator, id(), ascii::space_type> simple_expression;
-	qi::rule<Iterator, id(), ascii::space_type> expression;
-	qi::rule<Iterator, id(), ascii::space_type> compoundPredicate;
-	qi::rule<Iterator, id(), ascii::space_type> comparisonPredicate;
-	qi::rule<Iterator, id(), ascii::space_type> aggregate_expression;
-	qi::rule<Iterator, id(), ascii::space_type> integer_expression;
-	qi::rule<Iterator, id(), ascii::space_type> value_expression;
-	qi::rule<Iterator, id(), ascii::space_type> string_value;
-	qi::rule<Iterator, id(), ascii::space_type> numeric_value;
-	qi::rule<Iterator, id(), ascii::space_type> literal_value;
-	qi::rule<Iterator, id(), ascii::space_type> literal_aggregate;
-	qi::rule<Iterator, id(), ascii::space_type> identifier;
-	qi::rule<Iterator, id(), ascii::space_type> predicate_variable;
-	qi::rule<Iterator, id(), qi::locals<id>, ascii::space_type> andPredicate;
-	qi::rule<Iterator, id(), qi::locals<id>, ascii::space_type> orPredicate;
-	qi::rule<Iterator, id(), ascii::space_type> notPredicate;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> function_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> binary_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> assignment_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> array_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> dictionary_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> index_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> keypath_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> simple_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> compoundPredicate;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> comparisonPredicate;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> aggregate_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> integer_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> value_expression;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> string_value;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> numeric_value;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> literal_value;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> literal_aggregate;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> identifier;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> predicate_variable;
+	qi::rule<Iterator, AlephaId(), qi::locals<id>, ascii::space_type> andPredicate;
+	qi::rule<Iterator, AlephaId(), qi::locals<id>, ascii::space_type> orPredicate;
+	qi::rule<Iterator, AlephaId(), ascii::space_type> notPredicate;
 	qi::rule<Iterator, ascii::space_type> predicate_argument;
 	qi::rule<Iterator> format_argument;
 };

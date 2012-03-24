@@ -143,7 +143,7 @@ static void DecodeFromDBus(DBusMessageIter *iter, const char *type, void *data)
 /* Encode objects using XDR. */
 @implementation DBusCoder
 
-- initWithReceivePort:(NSPort *)rcvPort sendPort:(NSPort *)sndPort components:(NSMutableArray *)components
+- (id) initWithReceivePort:(NSPort *)rcvPort sendPort:(NSPort *)sndPort components:(NSMutableArray *)components
 {
 	NSParameterAssert([rcvPort isKindOfClass:[DBusPort class]]);
 	NSParameterAssert([sndPort isKindOfClass:[DBusPort class]]);
@@ -152,20 +152,15 @@ static void DecodeFromDBus(DBusMessageIter *iter, const char *type, void *data)
 	return self;
 }
 
-- initWithConnection:(DBusPort *)conn
+- (id) initWithConnection:(DBusPort *)conn
 {
 	connection = conn;
 	return self;
 }
 
-- initWithEncodedBytes:(void *)bytes length:(unsigned long)length
+- (id) initWithEncodedBytes:(void *)bytes length:(unsigned long)length
 {
 	return self;
-}
-
-- (void)dealloc
-{
-	[super dealloc];
 }
 
 - (void)encodeRootObject:(id)rootObject
@@ -278,7 +273,7 @@ static void DecodeFromDBus(DBusMessageIter *iter, const char *type, void *data)
 		return nil;
 	}
 	inv = [NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(method)]];
-	int i = 2;	/* Start counting at 2, to skip the target and selector. */
+	unsigned int i = 2;	/* Start counting at 2, to skip the target and selector. */
 	[inv setSelector:method_getName(method)];
 	[inv setTarget:object];
 
@@ -342,7 +337,7 @@ static void DecodeFromDBus(DBusMessageIter *iter, const char *type, void *data)
 	{
 		case _C_ID:
 			{
-				address = [(id)address replacementObjectForPortCoder:self];
+				address = (__bridge void *)[(__bridge id)address replacementObjectForPortCoder:self];
 			}
 			break;
 		case _C_STRUCT_B:

@@ -85,13 +85,13 @@ static NSString *StringForMethodDescription(SEL name, const char *types)
 	for (Class cls = object_getClass(self); cls; cls = class_getSuperclass(cls))
 	{
 		size_t count;
-		Protocol **list = class_copyProtocolList(cls, &count);
-		for (int i = 0; i < count; i++)
+		Protocol * const *list = class_copyProtocolList(cls, &count);
+		for (size_t i = 0; i < count; i++)
 		{
 			size_t mlist_count = 0;
 			struct objc_method_description *methods = protocol_copyMethodDescriptionList(list[i], true, true, &mlist_count);
 			[str appendFormat:@"  <interface name=\"protocol.%s\">\n",protocol_getName(list[i])];
-			for (int j = 0; j < mlist_count; j++)
+			for (size_t j = 0; j < mlist_count; j++)
 			{
 				[str appendString:StringForMethodDescription(methods[j].name, methods[j].types)];
 			}
@@ -104,7 +104,7 @@ static NSString *StringForMethodDescription(SEL name, const char *types)
 
 		Method *methods = class_copyMethodList(cls, &count);
 		[str appendFormat:@"  <interface name=\"class.%s\">\n", class_getName(cls)];
-		for (int i = 0; i < count; i++)
+		for (size_t i = 0; i < count; i++)
 		{
 			[str appendString:StringForMethodDescription(method_getName(methods[i]), method_getTypeEncoding(methods[i]))];
 		}
@@ -123,20 +123,12 @@ static NSString *StringForMethodDescription(SEL name, const char *types)
 @end
 
 @implementation DBusProxy
-- initWithConnection:(DBusPort *)conn object:(id)obj
+- (id) initWithConnection:(DBusPort *)conn object:(id)obj
 {
-	connection = [conn retain];
-	coder = [[conn _coder] retain];
-	target = [obj retain];
+	connection = conn;
+	coder = [conn _coder];
+	target = obj;
 	return self;
-}
-
-- (void) dealloc
-{
-	[connection release];
-	[target release];
-	[coder release];
-	[super dealloc];
 }
 
 - (DBusHandlerResult) _handleDBus:(DBusMessage *)mess
