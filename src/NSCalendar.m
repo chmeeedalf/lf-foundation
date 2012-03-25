@@ -1,6 +1,6 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009	Gold Project
+ * Copyright (c) 2009-2012	Gold Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,6 +57,8 @@
 @synthesize weekOfMonth;
 @synthesize weekOfYear;
 @synthesize yearForWeekOfYear;
+@synthesize timeZone;
+@synthesize calendar;
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
@@ -103,7 +105,7 @@
 	}
 }
 
-- initWithCoder:(NSCoder *)coder
+- (id) initWithCoder:(NSCoder *)coder
 {
 	if ([coder allowsKeyedCoding])
 	{
@@ -149,7 +151,7 @@
 	return self;
 }
 
-- copyWithZone:(NSZone *)zone
+- (id) copyWithZone:(NSZone *)zone
 {
 	NSDateComponents *other = [[NSDateComponents allocWithZone:zone] init];
 
@@ -170,175 +172,98 @@
 
 @end
 
-@interface AutoCalendar		:	NSCalendar
-{
-	NSCalendar *cal;
-	NSTimeZone *changedTZ;
-	NSLocale *changedLocale;
-	unsigned long changedWeekday;
-	unsigned long changedMinimumDays;
-}
-@end
-
-#ifndef _ICUCAL_DEF
-@interface ConcreteICUCalendar	:	NSCalendar
-{
-	UCalendar *cal;
-	NSString *calIdent;
-	NSTimeZone *tz;
-	NSLocale *locale;
-}
-
-- _initWithUCalendar:(UCalendar *)cal;
-@end
-#define _ICUUCAL_DEF
-#endif
-
 @implementation NSCalendar
-
-static Class CalendarClass;
-static Class ConcreteICUCalendarClass;
-
-+ (void) initialize
 {
-	CalendarClass = [NSCalendar class];
-	ConcreteICUCalendarClass = [ConcreteICUCalendar class];
+	UCalendar	*cal;
+	NSString	*calIdent;
+	NSTimeZone	*tz;
+	NSLocale	*locale;
 }
 
-+ currentCalendar
+static NSCalendar *autoCalendar;
+
+- (id) copyWithZone:(NSZone *)zone
+{
+	NSCalendar *other = [[NSCalendar allocWithZone:zone] _initWithUCalendar:cal];
+	
+	if (other != nil)
+	{
+		other->calIdent = calIdent;
+		other->tz = tz;
+		other->locale = locale;
+	}
+	return other;
+}
+
++ (id) currentCalendar
 {
 	return [[NSLocale currentLocale] objectForKey:NSLocaleCalendar];
 }
 
-+ autoupdatingCurrentCalendar
+/* TODO: Handle NSUserDefaults changing, to update the calendar. */
++ (id) autoupdatingCurrentCalendar
 {
-	return [[[AutoCalendar alloc] init] autorelease];
+	if (autoCalendar == nil)
+	{
+		@synchronized(self)
+		{
+			if (autoCalendar == nil)
+			{
+				autoCalendar = [[NSCalendar currentCalendar] copy];
+			}
+		}
+	}
+	return autoCalendar;
 }
 
 + (NSCalendar *) _calendarWithUCalendar:(UCalendar *)ucal
 {
-	return [[[ConcreteICUCalendar alloc] _initWithUCalendar:ucal] autorelease];
+	return [[self alloc] _initWithUCalendar:ucal];
 }
 
-+ allocWithZone:(NSZone *)zone
+- (id) _initWithUCalendar:(UCalendar *)ucal
 {
-	if (self == CalendarClass)
-		return NSAllocateObject(ConcreteICUCalendarClass, 0, zone);
-	return [super allocWithZone:zone];
+	UErrorCode ec = U_ZERO_ERROR;
+	cal = ucal_clone(ucal, &ec);
+	return self;
 }
 
-- initWithCalendarIdentifier:(NSString *)calIdent
+- (id) initWithCalendarIdentifier:(NSString *)calIdentIn
 {
-	[self subclassResponsibility:_cmd];
-	[self release];
-	return nil;
+	tz = [NSTimeZone defaultTimeZone];
+	locale = [NSLocale currentLocale];
+	self->calIdent = calIdentIn;
+	return self;
+}
+
+static void zapCalendar(NSCalendar *self)
+{
+	if (self->cal != NULL)
+	{
+		ucal_close(self->cal);
+		self->cal = NULL;
+	}
 }
 
 - (void) setLocale:(NSLocale *)loc
 {
-	[self subclassResponsibility:_cmd];
+	locale = loc;
+	zapCalendar(self);
 }
 
 - (void) setTimeZone:(NSTimeZone *)newTz
 {
-	[self subclassResponsibility:_cmd];
+	tz = newTz;
+	zapCalendar(self);
 }
-
 
 - (NSString *)calendarIdentifier
 {
-	return [self subclassResponsibility:_cmd];
+	return calIdent;
 }
-
-- (int)firstWeekday
-{
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-- (NSLocale *)locale
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (NSRange)maximumRangeOfUnit:(NSCalendarUnit)calUnit
-{
-	[self subclassResponsibility:_cmd];
-	return NSMakeRange(0, 0);
-}
-
-- (int)minimumDaysInFirstWeek
-{
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-- (NSRange)minimumRangeOfUnit:(NSCalendarUnit)calUnit
-{
-	[self subclassResponsibility:_cmd];
-	return NSMakeRange(0, 0);
-}
-
-- (unsigned long)ordinalityOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
-{
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-- (NSRange)rangeOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
-{
-	[self subclassResponsibility:_cmd];
-	return NSMakeRange(0, 0);
-}
-
-- (NSRange)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate *)start interval:(NSTimeInterval)interval forDate:(NSDate *)date
-{
-	[self subclassResponsibility:_cmd];
-	return NSMakeRange(0, 0);
-}
-
-- (NSTimeZone *)timeZone
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(unsigned long)opts
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (NSDate *)dateByAddingComponents:(NSDateComponents *)components toDate:(NSDate *)startDate options:(unsigned long)opts
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (NSDate *)dateFromComponents:(NSDateComponents *)components
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (void) setFirstWeekday:(unsigned long)weekday
-{
-	[self subclassResponsibility:_cmd];
-}
-
-- (void) setMinimumDaysInFirstWeek:(unsigned long)min
-{
-	[self subclassResponsibility:_cmd];
-}
-
-@end
-
-@implementation ConcreteICUCalendar
 
 #define BUFFER_SIZE 512
-static bool configureCalendar(ConcreteICUCalendar *self)
+static bool configureCalendar(NSCalendar *self)
 {
 	if (self->cal != NULL)
 		return true;
@@ -357,7 +282,6 @@ static bool configureCalendar(ConcreteICUCalendar *self)
 		[comps setObject:self->calIdent forKey:NSLocaleCalendarIdentifier];
 		NSString *locID = [NSLocale localeIdentifierFromComponents:comps];
 		[locID getCString:localeID maxLength:BUFFER_SIZE-1 encoding:NSASCIIStringEncoding];
-		[comps release];
 	}
 	else
 	{
@@ -370,53 +294,8 @@ static bool configureCalendar(ConcreteICUCalendar *self)
 	return U_SUCCESS(ec);
 }
 
-static void zapCalendar(ConcreteICUCalendar *self)
-{
-	if (self->cal != NULL)
-	{
-		ucal_close(self->cal);
-		self->cal = NULL;
-	}
-}
 
-- _initWithUCalendar:(UCalendar *)ucal
-{
-	UErrorCode ec = U_ZERO_ERROR;
-	cal = ucal_clone(ucal, &ec);
-	return self;
-}
-
-- initWithCalendarIdentifier:(NSString *)calIdentIn
-{
-	tz = [[NSTimeZone defaultTimeZone] retain];
-	locale = [[NSLocale currentLocale] retain];
-	self->calIdent = [calIdentIn retain];
-	return self;
-}
-
-- (void) setLocale:(NSLocale *)loc
-{
-	[loc retain];
-	[locale release];
-	locale = loc;
-	zapCalendar(self);
-}
-
-- (void) setTimeZone:(NSTimeZone *)newTz
-{
-	[newTz retain];
-	[tz release];
-	tz = newTz;
-	zapCalendar(self);
-}
-
-
-- (NSString *)calendarIdentifier
-{
-	return calIdent;
-}
-
-- (int)firstWeekday
+- (NSInteger)firstWeekday
 {
 	if (configureCalendar(self))
 		return ucal_getAttribute(cal, UCAL_FIRST_DAY_OF_WEEK);
@@ -425,7 +304,7 @@ static void zapCalendar(ConcreteICUCalendar *self)
 
 - (NSLocale *)locale
 {
-	return locale ?: ([self setLocale:[NSLocale currentLocale]], locale);
+	return locale ? locale : ([self setLocale:[NSLocale currentLocale]], locale);
 }
 
 - (NSRange)maximumRangeOfUnit:(NSCalendarUnit)calUnit
@@ -448,7 +327,7 @@ static void zapCalendar(ConcreteICUCalendar *self)
 	return r;
 }
 
-- (int)minimumDaysInFirstWeek
+- (NSInteger)minimumDaysInFirstWeek
 {
 	if (configureCalendar(self))
 		return ucal_getAttribute(cal, UCAL_MINIMAL_DAYS_IN_FIRST_WEEK);
@@ -475,29 +354,10 @@ static void zapCalendar(ConcreteICUCalendar *self)
 	return r;
 }
 
-- (unsigned long)ordinalityOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
-{
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-- (NSRange)rangeOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
-{
-	[self subclassResponsibility:_cmd];
-	return NSMakeRange(0, 0);
-}
-
-- (NSRange)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate *)start interval:(NSTimeInterval)interval forDate:(NSDate *)date
-{
-	[self subclassResponsibility:_cmd];
-	return NSMakeRange(0, 0);
-}
-
 - (NSTimeZone *)timeZone
 {
-	return tz ?: ([self setTimeZone:[NSTimeZone defaultTimeZone]], tz);
+	return tz ? tz : ([self setTimeZone:[NSTimeZone defaultTimeZone]], tz);
 }
-
 
 - (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date
 {
@@ -527,7 +387,7 @@ static void zapCalendar(ConcreteICUCalendar *self)
 	if (unitFlags & NSWeekdayCalendarUnit)
 		components.weekday = ucal_get(cal, UCAL_DAY_OF_WEEK, &ec);
 
-	return [components autorelease];
+	return components;
 }
 
 - (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(unsigned long)opts
@@ -536,7 +396,6 @@ static void zapCalendar(ConcreteICUCalendar *self)
 	NSDate *d = [[NSDate alloc] initWithTimeIntervalSince1970:t];
 
 	NSDateComponents *dc = [self components:unitFlags fromDate:d];
-	[d release];
 	return dc;
 }
 
@@ -633,152 +492,32 @@ static void zapCalendar(ConcreteICUCalendar *self)
 		ucal_setAttribute(cal, UCAL_MINIMAL_DAYS_IN_FIRST_WEEK, min);
 }
 
-@end
-
-@implementation AutoCalendar
-void updateCalendar(AutoCalendar *self)
+- (NSUInteger)ordinalityOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
 {
-	NSCalendar *cal = [NSCalendar currentCalendar];
-	if ([[cal calendarIdentifier] isEqual:[self->cal calendarIdentifier]])
-	{
-		[self->cal release];
-	}
-	self->cal = [cal retain];
-	if (self->changedTZ != nil)
-		[cal setTimeZone:self->changedTZ];
-	if (self->changedLocale != nil)
-		[cal setLocale:self->changedLocale];
-	if (self->changedWeekday != 0)
-		[cal setFirstWeekday:self->changedWeekday];
-	if (self->changedMinimumDays)
-		[cal setMinimumDaysInFirstWeek:self->changedMinimumDays];
-}
-
-- initWithCalendarIdentifier:(NSString *)calIdent
-{
-	[self notImplemented:_cmd];
-	return nil;
-}
-
-- init
-{
-	/* All real initialization happens when we actually do something. */
-	return self;
-}
-
-- (void) setLocale:(NSLocale *)loc
-{
-	[loc retain];
-	[changedLocale release];
-	changedLocale = loc;
-}
-
-- (void) setTimeZone:(NSTimeZone *)newTz
-{
-	[newTz retain];
-	[changedTZ release];
-	changedTZ = newTz;
-}
-
-- (void) setFirstWeekday:(unsigned long)weekday
-{
-	changedWeekday = weekday;
-}
-
-- (void) setMinimumDaysInFirstWeek:(unsigned long)min
-{
-	changedMinimumDays = min;
-}
-
-- (NSString *)calendarIdentifier
-{
-	updateCalendar(self);
-	return [cal calendarIdentifier];
-}
-
-- (int)firstWeekday
-{
-	if (changedWeekday)
-		return changedWeekday;
-	updateCalendar(self);
-	return [cal firstWeekday];
-}
-
-- (NSLocale *)locale
-{
-	if (changedLocale)
-		return changedLocale;
-	updateCalendar(self);
-	return [cal locale];
-}
-
-- (NSRange)maximumRangeOfUnit:(NSCalendarUnit)calUnit
-{
-	updateCalendar(self);
-	return [cal maximumRangeOfUnit:calUnit];
-}
-
-- (int)minimumDaysInFirstWeek
-{
-	if (changedMinimumDays)
-		return changedMinimumDays;
-	updateCalendar(self);
-	return [cal minimumDaysInFirstWeek];
-}
-
-- (NSRange)minimumRangeOfUnit:(NSCalendarUnit)calUnit
-{
-	updateCalendar(self);
-	return [cal minimumRangeOfUnit:calUnit];
-}
-
-- (unsigned long)ordinalityOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
-{
-	updateCalendar(self);
-	return [cal ordinalityOfUnit:smaller inUnit:larger forDate:date];
+	TODO; // -[NSCalendar ordinalityOfUnit:inUnit:forDate:]
+	return 0;
 }
 
 - (NSRange)rangeOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date
 {
-	updateCalendar(self);
-	return [cal rangeOfUnit:smaller inUnit:larger forDate:date];
+	TODO; // -[NSCalendar rangeOfUnit:inUnit:forDate:]
+	return NSMakeRange(NSNotFound,0);
 }
 
-- (NSRange)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate *)start interval:(NSTimeInterval)interval forDate:(NSDate *)date
+- (bool)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate **)start interval:(NSTimeInterval *)interval forDate:(NSDate *)date
 {
-	updateCalendar(self);
-	return [cal rangeOfUnit:smaller startDate:start interval:interval forDate:date];
+	TODO; // -[NSCalendar rangeOfUnit:startDate:interval:forDate:]
+	return false;
 }
 
-- (NSTimeZone *)timeZone
+- (void) encodeWithCoder:(NSCoder *)coder
 {
-	updateCalendar(self);
-	return [cal timeZone];
+	TODO; // -[NSCalendar initWithCoder:]
 }
 
-
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date
+- (id) initWithCoder:(NSCoder *)coder
 {
-	updateCalendar(self);
-	return [cal components:unitFlags fromDate:date];
+	TODO; // -[NSCalendar initWithCoder:]
+	return nil;
 }
-
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(unsigned long)opts
-{
-	updateCalendar(self);
-	return [cal components:unitFlags fromDate:date toDate:toDate options:opts];
-}
-
-- (NSDate *)dateByAddingComponents:(NSDateComponents *)components toDate:(NSDate *)startDate options:(unsigned long)opts
-{
-	updateCalendar(self);
-	return [cal dateByAddingComponents:components toDate:startDate options:opts];
-}
-
-- (NSDate *)dateFromComponents:(NSDateComponents *)components
-{
-	updateCalendar(self);
-	return [cal dateFromComponents:components];
-}
-
 @end

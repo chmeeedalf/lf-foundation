@@ -107,14 +107,14 @@ typedef enum {
 - (void) setMinimumDaysInFirstWeek:(unsigned long)min;
 
 - (NSString *)calendarIdentifier;
-- (int)firstWeekday;
+- (NSInteger)firstWeekday;
 - (NSLocale *)locale;
 - (NSRange)maximumRangeOfUnit:(NSCalendarUnit)calUnit;
-- (int)minimumDaysInFirstWeek;
+- (NSInteger)minimumDaysInFirstWeek;
 - (NSRange)minimumRangeOfUnit:(NSCalendarUnit)calUnit;
-- (unsigned long)ordinalityOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date;
+- (NSUInteger)ordinalityOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date;
 - (NSRange)rangeOfUnit:(NSCalendarUnit)smaller inUnit:(NSCalendarUnit)larger forDate:(NSDate *)date;
-- (NSRange)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate *)start interval:(NSTimeInterval)interval forDate:(NSDate *)date;
+- (bool)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate **)start interval:(NSTimeInterval*)interval forDate:(NSDate *)date;
 - (NSTimeZone *)timeZone;
 
 - (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date;
