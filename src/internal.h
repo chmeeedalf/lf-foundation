@@ -74,6 +74,18 @@ namespace
 		void unlock() { pthread_spin_unlock(&spinlock); }
 	};
 
+	/*
+	 * A singleton class:  Wrap this around any type to make accesses global and
+	 * locked, as so:
+	 * 
+	 * typedef Singleton<std::unordered_map> foo;
+	 * foo::type foo::value;
+	 *
+	 * It gets treated as a singleton pointer.
+	 *
+	 * To access it, create an instance of the Singleton, and all access for the
+	 * current scope is locked behind the spinlock.
+	 */
 	template < class T >
 	class Singleton
 	{
@@ -149,6 +161,7 @@ void class_insert_class (Class class_ptr) __private;
 
 @interface NSCalendar(Private)
 + (NSCalendar *) _calendarWithUCalendar:(UCalendar *)cal;
+- (UCalendar *) _ucalendar;
 @end
 
 @interface NSPointerFunctions ()
