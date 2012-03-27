@@ -92,7 +92,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 // Creating a Standard Character NSSet
 
-+ (NSCharacterSet*)alphanumericCharacterSet
++ (id)alphanumericCharacterSet
 {
 	PROPERTY_CHAR_SET(UCHAR_POSIX_ALNUM, alphanumericCharacterSet);
 }
@@ -102,14 +102,20 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	MASKED_CHAR_SET(U_GC_LT_MASK, capitalizedLetterCharacterSet);
 }
 
-+ (NSCharacterSet*)controlCharacterSet
++ (id)controlCharacterSet
 {
 	CTYPE_CHAR_SET(U_CONTROL_CHAR, controlCharacterSet);
 }
 
-+ (NSCharacterSet*)decimalDigitCharacterSet
++ (id)decimalDigitCharacterSet
 {
 	CTYPE_CHAR_SET(U_DECIMAL_DIGIT_NUMBER, decimalDigitCharacterSet);
+}
+
++ (id) decomposableCharacterSet
+{
+	TODO; // +[NSCharacterSet decomposableCharacterSet]
+	return nil;
 }
 
 + (NSCharacterSet *)illegalCharacterSet
@@ -117,17 +123,17 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	PROPERTY_CHAR_SET(UCHAR_ALPHABETIC, illegalCharacterSet);
 }
 
-+ (NSCharacterSet*)letterCharacterSet
++ (id)letterCharacterSet
 {
 	PROPERTY_CHAR_SET(UCHAR_ALPHABETIC, letterCharacterSet);
 }
 
-+ (NSCharacterSet*)lowercaseLetterCharacterSet
++ (id)lowercaseLetterCharacterSet
 {
 	PROPERTY_CHAR_SET(UCHAR_LOWERCASE, lowercaseLetterCharacterSet);
 }
 
-+ (NSCharacterSet*)newlineCharacterSet
++ (id)newlineCharacterSet
 {
 	MASKED_CHAR_SET(U_GC_ZL_MASK, newlineCharacterSet);
 }
@@ -137,32 +143,32 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	MASKED_CHAR_SET(U_GC_M_MASK, nonBaseCharacterSet);
 }
 
-+ (NSCharacterSet*)symbolCharacterSet
++ (id)symbolCharacterSet
 {
 	MASKED_CHAR_SET(U_GC_S_MASK, symbolCharacterSet);
 }
 
-+ (NSCharacterSet*)uppercaseLetterCharacterSet
++ (id)uppercaseLetterCharacterSet
 {
 	PROPERTY_CHAR_SET(UCHAR_UPPERCASE, uppercaseLetterCharacterSet);
 }
 
-+ (NSCharacterSet*)whitespaceAndNewlineCharacterSet
++ (id)whitespaceAndNewlineCharacterSet
 {
 	PROPERTY_CHAR_SET(UCHAR_WHITE_SPACE, whitespaceAndNewlineCharacterSet);
 }
 
-+ (NSCharacterSet*)whitespaceCharacterSet
++ (id)whitespaceCharacterSet
 {
 	PROPERTY_CHAR_SET(UCHAR_POSIX_BLANK, whitespaceCharacterSet);
 }
 
-+ (NSCharacterSet*)punctuationCharacterSet
++ (id)punctuationCharacterSet
 {
 	MASKED_CHAR_SET(U_GC_P_MASK, punctuationCharacterSet);
 }
 
-+ (NSCharacterSet*)emptyCharacterSet
++ (id)emptyCharacterSet
 {
 	@synchronized(self) {
 		if (emptyCharacterSet == nil)
@@ -174,23 +180,23 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 // Creating a Custom Character NSSet
 
-+ (NSCharacterSet*)characterSetWithBitmapRepresentation:(NSData*)data
++ (id)characterSetWithBitmapRepresentation:(NSData*)data
 {
 	return [[_NSICUCharacterSet alloc]
 			initWithBitmapRepresentation:data inverted:false];
 }
 
-+ (NSCharacterSet*)characterSetWithCharactersInString:(NSString*)aString
++ (id)characterSetWithCharactersInString:(NSString*)aString
 {
 	return [[_NSICUCharacterSet alloc] initWithString:aString inverted:false];
 }
 
-+ (NSCharacterSet*)characterSetWithPattern:(NSString *)pattern
++ (id)characterSetWithPattern:(NSString *)pattern
 {
 	return [[_NSICUCharacterSet alloc] initWithPattern:pattern inverted:false];
 }
 
-+ (NSCharacterSet*)characterSetWithRange:(NSRange)aRange
++ (id)characterSetWithRange:(NSRange)aRange
 {
 	return [[_NSICUCharacterSet alloc] initWithRange:aRange inverted:false];
 }
@@ -224,6 +230,15 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	return false;
 }
 
+- (bool) hasMemberInPlane:(uint8_t)plane
+{
+	NSMutableCharacterSet *testSet = [NSMutableCharacterSet characterSetWithRange:NSMakeRange(plane << 16, 65536)];
+
+	[testSet formIntersectionWithCharacterSet:self];
+
+	return ![testSet isEqual:[NSCharacterSet emptyCharacterSet]];
+}
+
 // Inverting a Character NSSet
 
 - (NSCharacterSet*)invertedSet
@@ -233,7 +248,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 // Copying
 
-- copyWithZone:(NSZone*)zone
+- (id) copyWithZone:(NSZone*)zone
 {
 	if (NSShouldRetainWithZone(self, zone))
 	{
