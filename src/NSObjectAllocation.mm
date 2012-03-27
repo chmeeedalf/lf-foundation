@@ -33,11 +33,11 @@
 #import <objc/objc.h>
 
 /*
- * When an object is deallocated, its class pointer points to the FREED_OBJECT
+ * When an object is deallocated, its class pointer points to the NSZombie
  * class.
  */
 
-@interface FREED_OBJECT
+@interface NSZombie
 @end
 
 /*
@@ -50,7 +50,7 @@ static Class __freedObjectClass = nil;
 
 static void __attribute__((constructor)) init_refcounting (void)
 {
-	__freedObjectClass = objc_getClass("FREED_OBJECT");
+	__freedObjectClass = objc_getClass("NSZombie");
 }
 
 /*
@@ -76,7 +76,7 @@ NSZone* NSZoneFromObject(__unused id<NSObject> anObject)
 
 void NSDeallocateObject(id<NSObject> anObject)
 {
-	/* Set the class of anObject to FREED_OBJECT. The further messages to this
+	/* Set the class of anObject to NSZombie. The further messages to this
 	   object will cause an error to occur. */
 	object_setClass(anObject, __freedObjectClass);
 	object_dispose(anObject);
@@ -91,7 +91,7 @@ bool NSShouldRetainWithZone(__unused id<NSObject> anObject, __unused NSZone* req
 	return true;
 }
 
-@implementation FREED_OBJECT
+@implementation NSZombie
 - (void) forwardInvocation:(NSInvocation *)inv
 {
 	NSAssert(false, @"Selector %@ sent to a freed object.", [inv selector]);
