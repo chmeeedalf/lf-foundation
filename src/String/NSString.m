@@ -1478,10 +1478,10 @@ static inline int hexval(char digit)
 	[self notImplemented:_cmd];
 }
 
-+ (id) stringWithContentsOfURI:(NSURI *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err
++ (id) stringWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err
 {
 	TODO;
-	return [[NSString alloc] initWithData:[NSData dataWithContentsOfURI:uri] encoding:0];
+	return [[NSString alloc] initWithData:[NSData dataWithContentsOfURL:uri] encoding:0];
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder

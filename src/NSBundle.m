@@ -34,7 +34,7 @@
 #import <Foundation/NSUserDefaults.h>
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSPathUtilities.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
@@ -93,7 +93,7 @@ NSMakeSymbol(NSBundleDidLoadNotification);
  */
 
 @interface NSBundle (PrivateAPI)
-- (NSURI *)URIForResource:(NSString*)name ofType:(NSString*)ext
+- (NSURL *)URLForResource:(NSString*)name ofType:(NSString*)ext
   inDirectory:(NSString*)directory
   forLocalizations:(NSArray*)localizationNames;
 @end
@@ -120,15 +120,15 @@ NSMakeSymbol(NSBundleDidLoadNotification);
 
 - (void)loadInfo
 {
-	NSURI *file;
+	NSURL *file;
 
 	if (infoDictionary)
 		return;
 
-	file = [self URIForResource:@"Info" ofType:@"plist"];
+	file = [self URLForResource:@"Info" ofType:@"plist"];
 
 	if (file)
-		infoDictionary = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURI:file] options:0 format:NULL error:NULL];
+		infoDictionary = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURL:file] options:0 format:NULL error:NULL];
 
 	if (infoDictionary == nil)
 		infoDictionary = [[NSDictionary alloc] init];
@@ -165,8 +165,8 @@ static void load_callback(Class class, Category* category)
 {
 	int            i;
 	NSFileManager  *fm;
-	NSURI          *file;
-	NSURI          *rfile;
+	NSURL          *file;
+	NSURL          *rfile;
 	void         *status;
 	NSString       *tmp;
 	NSMutableArray *loadedClasses    = nil;
@@ -179,18 +179,18 @@ static void load_callback(Class class, Category* category)
 	fm = [NSFileManager defaultManager];
 
 	// Find file to load
-	file = [self executableURI];
+	file = [self executableURL];
 
 	if (file == nil)
 	{
 		NSLog(@"has no exe\n");
 		tmp = [fullPath lastPathComponent];
 		tmp = [tmp stringByDeletingPathExtension];
-		file = [fullPath URIByAppendingPathComponent:tmp];
+		file = [fullPath URLByAppendingPathComponent:tmp];
 	}
 
-	rfile = [file URIByResolvingSymlinksInPath];
-	if (rfile == nil || ![fm fileExistsAtURI:rfile])
+	rfile = [file URLByResolvingSymlinksInPath];
+	if (rfile == nil || ![fm fileExistsAtURL:rfile])
 	{
 		NSLog(@"NSBundle: cannot find executable file %@", file);
 		return false;
@@ -266,7 +266,7 @@ TODO: loader stuff
 		return true;
 	}
 
-	if ([self executableURI] == nil)
+	if ([self executableURL] == nil)
 	{
 		if (errp != NULL)
 		{
@@ -285,30 +285,30 @@ TODO: loader stuff
 
 // Initializing an NSBundle 
 
-static bool canReadDirectory(NSURI* path)
+static bool canReadDirectory(NSURL* path)
 {
 	NSFileManager* fileManager = [NSFileManager defaultManager];
 	bool isDirectory;
 
-	if (![fileManager fileExistsAtURI:path isDirectory:&isDirectory]
+	if (![fileManager fileExistsAtURL:path isDirectory:&isDirectory]
 			|| !isDirectory)
 		return false;
 
-	return [fileManager isReadableFileAtURI:path];
+	return [fileManager isReadableFileAtURL:path];
 }
 
-static bool canReadFile(NSURI *path)
+static bool canReadFile(NSURL *path)
 {
 	NSFileManager* fileManager = [NSFileManager defaultManager];
 
-	return [fileManager isReadableFileAtURI:path];
+	return [fileManager isReadableFileAtURL:path];
 }
 
-- (id)initWithURI:(NSURI *)path
+- (id)initWithURL:(NSURL *)path
 {
 	NSBundle *old;
 
-	path = [path URIByResolvingSymlinksInPath];
+	path = [path URLByResolvingSymlinksInPath];
 	if ((path == nil) || !canReadDirectory(path))
 	{
 		return nil;
@@ -377,7 +377,7 @@ static bool canReadFile(NSURI *path)
 	return [self mainBundle];
 }
 
-+ (NSBundle *)bundleWithURI:(NSURI *)path
++ (NSBundle *)bundleWithURL:(NSURL *)path
 {
 	if (path)
 	{
@@ -387,7 +387,7 @@ static bool canReadFile(NSURI *path)
 		if ((bundle = [bundleNames objectForKey:path]))
 			return bundle;
 	}
-	return [[self alloc] initWithURI:path];
+	return [[self alloc] initWithURL:path];
 }
 
 + (NSBundle *)mainBundle
@@ -399,7 +399,7 @@ static bool canReadFile(NSURI *path)
 			stringByDeletingLastPathComponent];
 		if ([path isEqual:@""])
 			path = @".";
-		mainBundle = [[NSBundle alloc] initWithURI:[NSURI fileURIWithPath:path]];
+		mainBundle = [[NSBundle alloc] initWithURL:[NSURL fileURLWithPath:path]];
 	}
 	return mainBundle;
 }
@@ -467,16 +467,16 @@ static bool canReadFile(NSURI *path)
 
 // Finding a Resource 
 
-- (NSURI *)URIForResource:(NSString*)name ofType:(NSString*)ext
+- (NSURL *)URLForResource:(NSString*)name ofType:(NSString*)ext
 			   inDirectory:(NSString*)directory
 {
 	NSArray *languages = [[NSUserDefaults standardUserDefaults] 
 		stringArrayForKey:@"Languages"]; 
-	return [self URIForResource:name ofType:ext inDirectory:directory
+	return [self URLForResource:name ofType:ext inDirectory:directory
 				forLocalizations:languages];
 }
 
-- (NSURI *)URIForResource:(NSString*)name ofType:(NSString*)ext
+- (NSURL *)URLForResource:(NSString*)name ofType:(NSString*)ext
 			   inDirectory:(NSString*)directory
 		   forLocalization:(NSString*)localizationName
 {
@@ -486,18 +486,18 @@ static bool canReadFile(NSURI *path)
 	{
 		languages = [NSArray arrayWithObject:localizationName];
 	}
-	return [self URIForResource:name ofType:ext inDirectory:directory
+	return [self URLForResource:name ofType:ext inDirectory:directory
 				forLocalizations:languages];
 
 }
 
-- (NSURI *)URIForResource:(NSString*)name ofType:(NSString*)ext
+- (NSURL *)URLForResource:(NSString*)name ofType:(NSString*)ext
 			   inDirectory:(NSString*)directory
 		  forLocalizations:(NSArray*)localizationNames
 {
 	int i, n;
-	NSURI *path;
-	NSURI *file;
+	NSURL *path;
+	NSURL *file;
 	NSMutableArray* languages;
 
 	// Translate list by adding "lproj" extension
@@ -519,24 +519,24 @@ static bool canReadFile(NSURI *path)
 		name = [name stringByAppendingPathExtension:ext];
 
 	// look for fullPath/Resources/directory/...
-	path = [fullPath URIByAppendingPathComponent:@"Resources"];
+	path = [fullPath URLByAppendingPathComponent:@"Resources"];
 	if (directory && ![directory isEqualToString:@""])
 	{
-		path = [path URIByAppendingPathComponent:directory];
+		path = [path URLByAppendingPathComponent:directory];
 	}
 	if (canReadDirectory(path))
 	{
 		// check languages
 		for (i = 0; i < n; i++)
 		{
-			file = [[path URIByAppendingPathComponent:
+			file = [[path URLByAppendingPathComponent:
 							 [languages objectAtIndex:i]]
-						  URIByAppendingPathComponent:name];
+						  URLByAppendingPathComponent:name];
 			if (canReadFile(file))
 				goto found;
 		}
 		// check base
-		file = [path URIByAppendingPathComponent:name];
+		file = [path URLByAppendingPathComponent:name];
 		if (canReadFile(file))
 			goto found;
 	}
@@ -544,7 +544,7 @@ static bool canReadFile(NSURI *path)
 	// look for fullPath/directory/...
 	if (directory && ![directory isEqualToString:@""])
 	{
-		path = [fullPath URIByAppendingPathComponent:directory];
+		path = [fullPath URLByAppendingPathComponent:directory];
 	}
 	else
 		path = fullPath;
@@ -553,14 +553,14 @@ static bool canReadFile(NSURI *path)
 		// check languages
 		for (i = 0; i < n; i++)
 		{
-			file = [[path URIByAppendingPathComponent:
+			file = [[path URLByAppendingPathComponent:
 							 [languages objectAtIndex:i]]
-						  URIByAppendingPathComponent:name];
+						  URLByAppendingPathComponent:name];
 			if (canReadFile(file))
 				goto found;
 		}
 		// check base
-		file = [path URIByAppendingPathComponent:name];
+		file = [path URLByAppendingPathComponent:name];
 		if (canReadFile(file))
 			goto found;
 	}
@@ -572,30 +572,30 @@ found:
 	return file;
 }
 
-- (NSArray *)URIsForResourcesOfType:(NSString *)extension
+- (NSArray *)URLsForResourcesOfType:(NSString *)extension
 					   inDirectory:(NSString *)bundlePath
 {
-	return [self URIsForResourcesOfType:extension inDirectory:bundlePath
+	return [self URLsForResourcesOfType:extension inDirectory:bundlePath
 						 forLocalization:nil];
 }
 
-- (NSArray *)URIsForResourcesOfType:(NSString *)extension
+- (NSArray *)URLsForResourcesOfType:(NSString *)extension
 					   inDirectory:(NSString *)bundlePath
 				   forLocalization:(NSString *)localizationName
 {
 	NSFileManager  *fm;
 	NSMutableArray *result = nil;
-	NSURI       *path, *mainPath;
+	NSURL       *path, *mainPath;
 
 	fm     = [NSFileManager defaultManager];
 	result = [[NSMutableArray alloc] initWithCapacity:32];
 
 	/* look in bundle/Resources/$bundlePath/name.$extension */
-	mainPath = [self resourceURI];
+	mainPath = [self resourceURL];
 	if (bundlePath)
-		mainPath = [mainPath URIByAppendingPathComponent:bundlePath];
+		mainPath = [mainPath URLByAppendingPathComponent:bundlePath];
 
-	for (path in [fm contentsOfDirectoryAtURI:mainPath error:NULL])
+	for (path in [fm contentsOfDirectoryAtURL:mainPath error:NULL])
 	{
 		if ([[path pathExtension] isEqualToString:extension])
 								[result addObject:path];
@@ -608,7 +608,7 @@ found:
 	{
 		mainPath = [mainPath stringByAppendingPathComponent:bundlePath];
 	}
-	for (path in [fm contentsOfDirectoryAtURI:mainPath error:NULL])
+	for (path in [fm contentsOfDirectoryAtURL:mainPath error:NULL])
 	{
 		if ([[path pathExtension] isEqualToString:extension])
 								[result addObject:path];
@@ -618,9 +618,9 @@ found:
 	/* look in bundle/$bundlePath/name.$extension */
 	mainPath = fullPath;
 	if (bundlePath)
-		mainPath = [mainPath URIByAppendingPathComponent:bundlePath];
+		mainPath = [mainPath URLByAppendingPathComponent:bundlePath];
 
-	for (path in [fm contentsOfDirectoryAtURI:mainPath error:NULL])
+	for (path in [fm contentsOfDirectoryAtURL:mainPath error:NULL])
 	{
 		if ([[path pathExtension] isEqualToString:extension])
 								[result addObject:path];
@@ -630,24 +630,24 @@ found:
 	return tmp;
 }
 
-+ (NSArray *) URIsForResourcesOfType:(NSString *)ext subdirectory:(NSString *)subdir inBundleWithURI:(NSURI *)bundleURI
++ (NSArray *) URLsForResourcesOfType:(NSString *)ext subdirectory:(NSString *)subdir inBundleWithURL:(NSURL *)bundleURL
 {
-	return [[self bundleWithURI:bundleURI] URIsForResourcesOfType:ext inDirectory:subdir];
+	return [[self bundleWithURL:bundleURL] URLsForResourcesOfType:ext inDirectory:subdir];
 }
 
-+ (NSURI *) URIForResource:(NSString *)rsrcName ofType:(NSString *)ext subdirectory:(NSString *)subdir inBundleWithURI:(NSURI *)bundleURI
++ (NSURL *) URLForResource:(NSString *)rsrcName ofType:(NSString *)ext subdirectory:(NSString *)subdir inBundleWithURL:(NSURL *)bundleURL
 {
-	return [[self bundleWithURI:bundleURI] URIForResource:rsrcName ofType:ext inDirectory:subdir];
+	return [[self bundleWithURL:bundleURL] URLForResource:rsrcName ofType:ext inDirectory:subdir];
 }
 
-- (NSURI *)URIForResource:(NSString*)name ofType:(NSString*)ext
+- (NSURL *)URLForResource:(NSString*)name ofType:(NSString*)ext
 {
-	return [self URIForResource:name ofType:ext inDirectory:nil];
+	return [self URLForResource:name ofType:ext inDirectory:nil];
 }
 
-- (NSURI *)resourceURI
+- (NSURL *)resourceURL
 {
-	return [fullPath URIByAppendingPathComponent:@"Resources"];
+	return [fullPath URLByAppendingPathComponent:@"Resources"];
 }
 
 // Getting bundle information
@@ -665,7 +665,7 @@ found:
 
 // Getting the NSBundle Directory 
 
-- (NSURI *)bundleURI
+- (NSURL *)bundleURL
 {
 	return fullPath;
 }
@@ -700,8 +700,8 @@ found:
 
 	if (!table)
 	{
-		string = [NSString stringWithContentsOfURI:
-							[self URIForResource:tableName ofType:@"strings"] usedEncoding:NULL error:NULL];
+		string = [NSString stringWithContentsOfURL:
+							[self URLForResource:tableName ofType:@"strings"] usedEncoding:NULL error:NULL];
 		if (!string)
 			return value;
 		table = [string propertyListFromStringsFileFormat];
@@ -733,7 +733,7 @@ found:
 	return [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
 }
 
-- (NSURI *) executableURI
+- (NSURL *) executableURL
 {
 	NSString *exeName = [[self infoDictionary] objectForKey:@"Executable"];
 
@@ -742,50 +742,50 @@ found:
 		return nil;
 	}
 
-	return [[self bundleURI] URIByAppendingPathComponent:exeName];
+	return [[self bundleURL] URLByAppendingPathComponent:exeName];
 }
 
-- (NSURI *) URIForAuxiliaryExecutable:(NSString *)auxExeName
+- (NSURL *) URLForAuxiliaryExecutable:(NSString *)auxExeName
 {
 	if (auxExeName == nil)
 	{
 		return nil;
 	}
 
-	return [[self bundleURI] URIByAppendingPathComponent:auxExeName];
+	return [[self bundleURL] URLByAppendingPathComponent:auxExeName];
 }
 
-- (NSURI *) _directoryURIForName:(NSString *)name
+- (NSURL *) _directoryURLForName:(NSString *)name
 {
 	bool isDir;
 
-	NSURI *uri = [[self bundleURI] URIByAppendingPathComponent:name];
+	NSURL *uri = [[self bundleURL] URLByAppendingPathComponent:name];
 
-	if ([[NSFileManager defaultManager] fileExistsAtURI:uri isDirectory:&isDir] && isDir)
+	if ([[NSFileManager defaultManager] fileExistsAtURL:uri isDirectory:&isDir] && isDir)
 	{
 		return uri;
 	}
 	return nil;
 }
 
-- (NSURI *) builtInPlugInsURI
+- (NSURL *) builtInPlugInsURL
 {
-	return [self _directoryURIForName:@"PlugIns"];
+	return [self _directoryURLForName:@"PlugIns"];
 }
 
-- (NSURI *) privateFrameworksURI
+- (NSURL *) privateFrameworksURL
 {
-	return [self _directoryURIForName:@"Frameworks"];
+	return [self _directoryURLForName:@"Frameworks"];
 }
 
 - (NSArray *) localizations
 {
-	NSArray *localeURIs;
+	NSArray *localeURLs;
 	NSMutableArray *localizations = [NSMutableArray new];
 
-	localeURIs = [self URIsForResourcesOfType:@"lproj" inDirectory:nil];
+	localeURLs = [self URLsForResourcesOfType:@"lproj" inDirectory:nil];
 
-	for (NSURI *path in localeURIs)
+	for (NSURL *path in localeURLs)
 	{
 		[localizations addObject:[[[path path] lastPathComponent] stringByDeletingPathExtension]];
 	}

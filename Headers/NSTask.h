@@ -30,7 +30,7 @@
 #include <types.h>
 #import <Foundation/NSObject.h>
 
-@class NSArray, NSDictionary, NSURI;
+@class NSArray, NSDictionary, NSURL;
 
 typedef enum
 {
@@ -66,7 +66,7 @@ typedef enum
  * settings.
  * \sa [NSTask initWithIdentifier:object:environment:]
  */
-+ (id)spawnedTaskWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env;
++ (id)spawnedTaskWithURL:(NSURL *)target object:(id)obj environment:(NSDictionary *)env;
 
 - (id)init;
 /*!
@@ -89,7 +89,7 @@ typedef enum
  * 		- If the associated value is not empty, it is appended with an '=' to
  * 		the key's string.
  */
-- (id)initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env;
+- (id)initWithURL:(NSURL *)target object:(id)obj environment:(NSDictionary *)env;
 
 /*!
  * \brief Spawn the process.

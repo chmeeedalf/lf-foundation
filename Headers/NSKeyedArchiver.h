@@ -30,7 +30,7 @@
 #import <Foundation/NSCoder.h>
 
 @class NSKeyedArchiver, NSKeyedUnarchiver;
-@class NSURI, NSMutableData, NSError;
+@class NSURL, NSMutableData, NSError;
 @class NSMapTable;
 
 @protocol NSKeyedArchiverDelegate<NSObject>
@@ -66,7 +66,7 @@
 }
 
 + (NSData *)archivedDataWithRootObject:(id)rootObject;
-+ (bool)archiveRootObject:(id)rootObject toURI:(NSURI *)path;
++ (bool)archiveRootObject:(id)rootObject toURL:(NSURL *)path;
 
 - (id) initForWritingWithMutableData:(NSMutableData *)d;
 
@@ -107,7 +107,7 @@
 }
 
 + (id)unarchivedObjectWithData:(NSData *)rootObject;
-+ (id)unarchivedRootObjectWithURI:(NSURI *)path;
++ (id)unarchivedRootObjectWithURL:(NSURL *)path;
 
 - (id) initForReadingWithData:(NSData *)d;
 

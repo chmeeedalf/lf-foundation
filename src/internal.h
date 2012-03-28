@@ -49,8 +49,8 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSTask.h>
 #import <Foundation/NSThread.h>
-#import <Foundation/NSURI.h>
-#import <Foundation/NSURIProtocol.h>
+#import <Foundation/NSURL.h>
+#import <Foundation/NSURLProtocol.h>
 #include <unicode/ucal.h>
 #endif
 
@@ -180,7 +180,7 @@ struct sockaddr_storage;
 - (id)initWithSockaddrRepresentation:(struct sockaddr_storage *)repr;
 @end
 
-@interface NSURI(URI_ObjectManager)
+@interface NSURL(URL_ObjectManager)
 - (id)handler;
 @end
 
@@ -202,13 +202,13 @@ struct sockaddr_storage;
 - (id)_expressionWithSubstitutionVariables:(NSDictionary *)substVars;
 @end
 
-@interface NSURIProtocol()<NSStreamDelegate>
+@interface NSURLProtocol()<NSStreamDelegate>
 @end
 
 @interface NSTask(PrivateBookkeeping)
 + (void) _dispatchExitToPid:(UUID)child status:(int) status exitedNormally:(bool)normalExit;
 @end
-bool spawnProcessWithURI(NSURI *, id, NSDictionary *, UUID *);
+bool spawnProcessWithURL(NSURL *, id, NSDictionary *, UUID *);
 
 static inline bool object_isInstance(id obj)
 {

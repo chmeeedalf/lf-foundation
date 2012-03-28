@@ -145,9 +145,9 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 	return [[self alloc] initWithData:d];
 }
 
-+ (id) inputStreamWithURI:(NSURI *)uri
++ (id) inputStreamWithURL:(NSURL *)uri
 {
-	return [[self alloc] initWithURI:uri];
+	return [[self alloc] initWithURL:uri];
 }
 
 
@@ -156,7 +156,7 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 	return [[NSInputStream_data alloc] initWithData:d];
 }
 
-- (id) initWithURI:(NSURI *)uri
+- (id) initWithURL:(NSURL *)uri
 {
 	[self notImplemented:_cmd];
 	return nil;
@@ -195,9 +195,9 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 	return [[self alloc] initToBuffer:buf capacity:cap];
 }
 
-+ (id) outputStreamWithURI:(NSURI *)uri append:(bool)append
++ (id) outputStreamWithURL:(NSURL *)uri append:(bool)append
 {
-	return [[self alloc] initWithURI:uri append:append];
+	return [[self alloc] initWithURL:uri append:append];
 }
 
 
@@ -217,7 +217,7 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 	return nil;
 }
 
-- (id) initWithURI:(NSURI *)uri append:(bool)append
+- (id) initWithURL:(NSURL *)uri append:(bool)append
 {
 	[self notImplemented:_cmd];
 	return nil;

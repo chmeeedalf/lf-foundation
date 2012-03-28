@@ -27,14 +27,14 @@
 
 #include <Foundation/NSObject.h>
 
-@class NSString, NSData, NSURI;
+@class NSString, NSData, NSURL;
 @class NSArray, NSMutableArray;
 @class NSDictionary, NSMutableDictionary;
 @class NSMutableSet;
 
 @interface NSUserDefaults : NSObject
 {
-	NSURI               *directoryForSaving;
+	NSURL               *directoryForSaving;
 	NSString            *appDomain;
 	NSMutableDictionary *persistentDomains;
 	NSMutableDictionary *volatileDomains;
@@ -59,7 +59,7 @@
 - (float)floatForKey:(NSString *)defaultName;
 - (double)doubleForKey:(NSString *)defaultName;
 - (NSInteger)integerForKey:(NSString *)defaultName;
-- (NSURI *)URIForKey:(NSString *)defaultName;
+- (NSURL *)URLForKey:(NSString *)defaultName;
 
 - (id)objectForKey:(NSString *)defaultName;
 - (void)removeObjectForKey:(NSString *)defaultName;
@@ -69,7 +69,7 @@
 - (void)setDouble:(double)value forKey:(NSString *)defaultName;
 - (void)setInteger:(NSInteger)value forKey:(NSString *)defaultName;
 - (void)setObject:(id)value forKey:(NSString *)defaultName;
-- (void)setURI:(NSURI *)value forKey:(NSString *)defaultName;
+- (void)setURL:(NSURL *)value forKey:(NSString *)defaultName;
 
 /* Initializing the User Defaults */
 

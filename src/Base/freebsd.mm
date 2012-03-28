@@ -56,7 +56,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSTask.h>
 #import <Foundation/NSThread.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #import "DateTime/NSConcreteDate.h"	/* for UNIX_OFFSET */
 #import "internal.h"
 
@@ -182,7 +182,7 @@ static void handleAllSignals(int sig, siginfo_t *si, void *ignore)
 /* TODO: Handle environment -- translate from CamelCase to
  * UPPERCASE_AND_UNDERSCORE, and back again in main()
  */
-bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *targetUUID)
+bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *targetUUID)
 {
 	std::vector<std::string> argv;
 	std::vector<std::string> environ;
@@ -191,7 +191,7 @@ bool spawnProcessWithURI(NSURI *identifier, id args, NSDictionary *env, UUID *ta
 	pid_t	pid;
 
 	/* Sanity checking */
-	if (![identifier isKindOfClass:[NSURI class]])
+	if (![identifier isKindOfClass:[NSURL class]])
 		return false;
 
 	/* A temporary pool to hold all the strings created */

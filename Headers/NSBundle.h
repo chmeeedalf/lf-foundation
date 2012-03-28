@@ -8,18 +8,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #import <Foundation/NSObject.h>
 
-@class NSArray,NSDictionary,NSString,NSError,NSMutableDictionary, NSURI;
+@class NSArray,NSDictionary,NSString,NSError,NSMutableDictionary, NSURL;
 
 SYSTEM_EXPORT NSString * const NSBundleDidLoadNotification;
 SYSTEM_EXPORT NSString * const NSLoadedClasses;	
 
 @interface NSBundle : NSObject
 {
-	NSURI        *_path;
-	NSURI        *_resourceURI;
-	NSURI        *_executableURI;
+	NSURL        *_path;
+	NSURL        *_resourceURL;
+	NSURL        *_executableURL;
 	NSArray      *_lookInDirectories;
-	NSURI            *fullPath;
+	NSURL            *fullPath;
 	NSDictionary        *infoDictionary;
 	Class               firstLoadedClass;
 	NSMutableDictionary *stringTables;
@@ -33,28 +33,28 @@ SYSTEM_EXPORT NSString * const NSLoadedClasses;
 
 +(NSBundle *)bundleForClass:(Class)aClass;
 +(NSBundle *)bundleWithIdentifier:(NSString *)identifier;
-+(NSBundle *)bundleWithURI:(NSURI *)path;
++(NSBundle *)bundleWithURL:(NSURL *)path;
 
-+(NSURI *)URIForResource:(NSString *)name ofType:(NSString *)type subdirectory:(NSString *)subdir inBundleWithURI:(NSURI *)path;
-+(NSArray *)URIsForResourcesOfType:(NSString *)type subdirectory:(NSString *)subdir inBundleWithURI:(NSURI *)path;
++(NSURL *)URLForResource:(NSString *)name ofType:(NSString *)type subdirectory:(NSString *)subdir inBundleWithURL:(NSURL *)path;
++(NSArray *)URLsForResourcesOfType:(NSString *)type subdirectory:(NSString *)subdir inBundleWithURL:(NSURL *)path;
 +(NSArray *)preferredLocalizationsFromArray:(NSArray *)localizations;
 +(NSArray *)preferredLocalizationsFromArray:(NSArray *)localizations forPreferences:(NSArray *)preferences;
 
--(id)initWithURI:(NSURI *)path;
+-(id)initWithURL:(NSURL *)path;
 
--(NSURI *)bundleURI;
--(NSURI *)resourceURI;
--(NSURI *)builtInPlugInsURI;
+-(NSURL *)bundleURL;
+-(NSURL *)resourceURL;
+-(NSURL *)builtInPlugInsURL;
 -(NSDictionary *)infoDictionary;
 -(NSDictionary *)localizedInfoDictionary;
 -(id)objectForInfoDictionaryKey:(NSString *)key;
 -(NSString *)bundleIdentifier;
--(NSURI *)executableURI;
+-(NSURL *)executableURL;
 -(NSArray *)localizations;
 -(NSArray *)preferredLocalizations;
--(NSURI *)privateFrameworksURI;
+-(NSURL *)privateFrameworksURL;
 
--(NSURI *)URIForAuxiliaryExecutable:(NSString *)executable;
+-(NSURL *)URLForAuxiliaryExecutable:(NSString *)executable;
 
 -(Class)principalClass;
 -(Class)classNamed:(NSString *)className;
@@ -66,12 +66,12 @@ SYSTEM_EXPORT NSString * const NSLoadedClasses;
 -(bool)load;
 -(bool)unload;
 
--(NSURI *)URIForResource:(NSString *)name ofType:(NSString *)type;
--(NSURI *)URIForResource:(NSString *)name ofType:(NSString *)type inDirectory:(NSString *)path;
--(NSURI *)URIForResource:(NSString *)name ofType:(NSString *)type inDirectory:(NSString *)path forLocalization:(NSString *)localization;
+-(NSURL *)URLForResource:(NSString *)name ofType:(NSString *)type;
+-(NSURL *)URLForResource:(NSString *)name ofType:(NSString *)type inDirectory:(NSString *)path;
+-(NSURL *)URLForResource:(NSString *)name ofType:(NSString *)type inDirectory:(NSString *)path forLocalization:(NSString *)localization;
 
--(NSArray *)URIsForResourcesOfType:(NSString *)type inDirectory:(NSString *)path;
--(NSArray *)URIsForResourcesOfType:(NSString *)type inDirectory:(NSString *)path forLocalization:(NSString *)localization;
+-(NSArray *)URLsForResourcesOfType:(NSString *)type inDirectory:(NSString *)path;
+-(NSArray *)URLsForResourcesOfType:(NSString *)type inDirectory:(NSString *)path forLocalization:(NSString *)localization;
 
 -(NSString *)localizedStringForKey:(NSString *)key value:(NSString *)value table:(NSString *)table;
 

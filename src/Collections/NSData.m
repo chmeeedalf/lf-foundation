@@ -95,16 +95,16 @@
 	return [[self alloc] initWithData:source];
 }
 
-+ (id) dataWithContentsOfURI:(NSURI *)uri
++ (id) dataWithContentsOfURL:(NSURL *)uri
 {
-	return [[NSFileManager defaultManager] contentsOfFileAtURI:uri shared:true error:NULL];
+	return [[NSFileManager defaultManager] contentsOfFileAtURL:uri shared:true error:NULL];
 }
 
-+ (id) dataWithContentsOfURI:(NSURI *)uri
++ (id) dataWithContentsOfURL:(NSURL *)uri
 	options:(NSDataReadingOptions)options
 	  error:(NSError **)errorp
 {
-	return [[self allocWithZone:NULL] initWithContentsOfURI:uri options:options error:errorp];
+	return [[self allocWithZone:NULL] initWithContentsOfURL:uri options:options error:errorp];
 }
 
 - (id)initWithBytes:(const void*)bytes
@@ -126,14 +126,14 @@
 	return self;
 }
 
-- (id) initWithContentsOfURI:(NSURI *)uri
+- (id) initWithContentsOfURL:(NSURL *)uri
 {
-	return [self initWithContentsOfURI:uri options:0 error:NULL];
+	return [self initWithContentsOfURL:uri options:0 error:NULL];
 }
 
-- (id) initWithContentsOfURI:(NSURI *)uri options:(NSUInteger)options error:(NSError **)errp
+- (id) initWithContentsOfURL:(NSURL *)uri options:(NSUInteger)options error:(NSError **)errp
 {
-	TODO;	// initWithContentsOfURI:options:error:
+	TODO;	// initWithContentsOfURL:options:error:
 
 	[self notImplemented:_cmd];
 	return nil;

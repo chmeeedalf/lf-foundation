@@ -69,10 +69,10 @@ SYSTEM_EXPORT NSString * const NSLocalizedRecoverySuggestionErrorKey;
 SYSTEM_EXPORT NSString * const NSLocalizedRecoveryOptionsErrorKey;
 SYSTEM_EXPORT NSString * const NSRecoveryAttempterErrorKey;
 SYSTEM_EXPORT NSString * const NSHelpAnchorErrorKey;
-SYSTEM_EXPORT NSString * const NSFileURIErrorKey;
+SYSTEM_EXPORT NSString * const NSFileURLErrorKey;
 SYSTEM_EXPORT NSString * const NSStringEncodingErrorKey;
 SYSTEM_EXPORT NSString * const NSUnderlyingErrorKey;
-SYSTEM_EXPORT NSString * const NSURIErrorKey;
+SYSTEM_EXPORT NSString * const NSURLErrorKey;
 
 SYSTEM_EXPORT NSString * const NSPOSIXErrorDomain;
 SYSTEM_EXPORT NSString * const NSSystemErrorDomain;

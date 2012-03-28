@@ -30,7 +30,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSEnumerator.h>
 
-@class NSArray, NSEnumerator, NSLocale, NSSet, NSURI;
+@class NSArray, NSEnumerator, NSLocale, NSSet, NSURL;
 
 /*!
  \class NSDictionary
@@ -90,7 +90,7 @@
  */
 +(id)dictionaryWithObjectsAndKeys:(id)firstObject,...;
 
-+(id)dictionaryWithContentsOfURI:(NSURI *)uri;
++(id)dictionaryWithContentsOfURL:(NSURL *)uri;
 
 /*!
  * \brief Initializes the newly allocated NSDictionary object with the
@@ -133,7 +133,7 @@
 -(id)initWithObjects:(const id [])objects forKeys:(const id [])keys
 	count:(unsigned int)count;
 
--(id)initWithContentsOfURI:(NSURI *)uri;
+-(id)initWithContentsOfURL:(NSURL *)uri;
 
 /// \category Accessing keys and values
 /*!

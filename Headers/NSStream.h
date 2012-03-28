@@ -51,7 +51,7 @@ typedef enum
 	NSStreamEventEndEncountered = 1 << 4,
 } NSStreamEvent;
 
-@class NSStream, NSRunLoop, NSError, NSData, NSURI, NSHost;
+@class NSStream, NSRunLoop, NSError, NSData, NSURL, NSHost;
 @class NSInputStream, NSOutputStream;
 
 @protocol NSStreamDelegate<NSObject>
@@ -94,10 +94,10 @@ typedef enum
 {
 }
 + (id) inputStreamWithData:(NSData *)d;
-+ (id) inputStreamWithURI:(NSURI *)uri;
++ (id) inputStreamWithURL:(NSURL *)uri;
 
 - (id) initWithData:(NSData *)d;
-- (id) initWithURI:(NSURI *)uri;
+- (id) initWithURL:(NSURL *)uri;
 
 - (size_t) read:(uint8_t *)buf maxLength:(size_t)max;
 - (bool) getBuffer:(uint8_t **)buf length:(size_t *)len;
@@ -110,11 +110,11 @@ typedef enum
 
 + (id) outputStreamToMemory;
 + (id) outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap;
-+ (id) outputStreamWithURI:(NSURI *)uri append:(bool)append;
++ (id) outputStreamWithURL:(NSURL *)uri append:(bool)append;
 
 - (id) initToMemory;
 - (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
-- (id) initWithURI:(NSURI *)uri append:(bool)append;
+- (id) initWithURL:(NSURL *)uri append:(bool)append;
 
 - (size_t) write:(const uint8_t *)buf maxLength:(size_t)max;
 - (bool) hasSpaceAvailable;

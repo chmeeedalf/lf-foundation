@@ -39,7 +39,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSString.h>
 //#import <Foundation/DirectoryEnumerator.h>
 
-@class NSData,NSDate,NSError,NSURI;
+@class NSData,NSDate,NSError,NSURL;
 
 SYSTEM_EXPORT NSString * const NSFileType;
 SYSTEM_EXPORT NSString * const NSRegularFileType;
@@ -79,60 +79,60 @@ SYSTEM_EXPORT NSString * const NSFileSystemFreeSize;
 
 +(NSFileManager *)defaultManager;
 
--(NSDictionary *)attributesOfFileSystemForURI:(NSURI *)path error:(NSError **)errorp;
--(NSDictionary *)attributesOfItemAtURI:(NSURI *)path error:(NSError **)error;
--(bool)changeCurrentDirectoryURI:(NSURI *)path;
--(bool)contentsEqualAtURI:(NSURI *)path1 andURI:(NSURI *)path2;
--(NSArray *)contentsOfDirectoryAtURI:(NSURI *)path error:(NSError **)error;
--(bool)copyItemAtURI:(NSURI *)fromPath toURI:(NSURI *)toPath error:(NSError **)error;
--(NSString *)destinationOfSymbolicLinkAtURI:(NSURI *)path error:(NSError **)error;
+-(NSDictionary *)attributesOfFileSystemForURL:(NSURL *)path error:(NSError **)errorp;
+-(NSDictionary *)attributesOfItemAtURL:(NSURL *)path error:(NSError **)error;
+-(bool)changeCurrentDirectoryURL:(NSURL *)path;
+-(bool)contentsEqualAtURL:(NSURL *)path1 andURL:(NSURL *)path2;
+-(NSArray *)contentsOfDirectoryAtURL:(NSURL *)path error:(NSError **)error;
+-(bool)copyItemAtURL:(NSURL *)fromPath toURL:(NSURL *)toPath error:(NSError **)error;
+-(NSString *)destinationOfSymbolicLinkAtURL:(NSURL *)path error:(NSError **)error;
 
--(bool)isDeletableFileAtURI:(NSURI *)path;
+-(bool)isDeletableFileAtURL:(NSURL *)path;
 
--(bool)linkItemAtURI:(NSURI *)fromPath toURI:(NSURI *)toPath error:(NSError **)error;
--(bool)moveItemAtURI:(NSURI *)fromPath toURI:(NSURI *)toPath error:(NSError **)error;
--(bool)removeItemAtURI:(NSURI *)path error:(NSError **)error;
+-(bool)linkItemAtURL:(NSURL *)fromPath toURL:(NSURL *)toPath error:(NSError **)error;
+-(bool)moveItemAtURL:(NSURL *)fromPath toURL:(NSURL *)toPath error:(NSError **)error;
+-(bool)removeItemAtURL:(NSURL *)path error:(NSError **)error;
 
--(bool)setAttributes:(NSDictionary *)attributes ofItemAtURI:(NSURI *)path error:(NSError **)error;
+-(bool)setAttributes:(NSDictionary *)attributes ofItemAtURL:(NSURL *)path error:(NSError **)error;
 
 -(NSString *)stringWithFileSystemRepresentation:(const char *)string length:(NSIndex)length;
 
--(NSArray *)subpathsOfDirectoryAtURI:(NSURI *)path error:(NSError **)error;
+-(NSArray *)subpathsOfDirectoryAtURL:(NSURL *)path error:(NSError **)error;
 
--(NSData *)contentsOfFileAtURI:(NSURI *)path shared:(bool)shared error:(NSError **)error;
+-(NSData *)contentsOfFileAtURL:(NSURL *)path shared:(bool)shared error:(NSError **)error;
 
--(bool)createFileAtURI:(NSURI *)path contents:(NSData *)data attributes:(NSDictionary *)attributes;
+-(bool)createFileAtURL:(NSURL *)path contents:(NSData *)data attributes:(NSDictionary *)attributes;
 
-//-(DirectoryEnumerator *)enumeratorAtURI:(NSURI *)path;
+//-(DirectoryEnumerator *)enumeratorAtURL:(NSURL *)path;
 
--(bool)createDirectoryAtURI:(NSURI *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)error;
+-(bool)createDirectoryAtURL:(NSURL *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)error;
 
--(bool)createSymbolicLinkAtURI:(NSURI *)path withDestinationURI:(NSURI *)toPath error:(NSError **)error;
+-(bool)createSymbolicLinkAtURL:(NSURL *)path withDestinationURL:(NSURL *)toPath error:(NSError **)error;
 
--(bool)fileExistsAtURI:(NSURI *)path;
--(bool)fileExistsAtURI:(NSURI *)path isDirectory:(bool *)isDirectory;
+-(bool)fileExistsAtURL:(NSURL *)path;
+-(bool)fileExistsAtURL:(NSURL *)path isDirectory:(bool *)isDirectory;
 
 -(NSString *)currentDirectoryPath;
 
--(bool)isReadableFileAtURI:(NSURI *)path;
--(bool)isWritableFileAtURI:(NSURI *)path;
--(bool)isExecutableFileAtURI:(NSURI *)path;
+-(bool)isReadableFileAtURL:(NSURL *)path;
+-(bool)isWritableFileAtURL:(NSURL *)path;
+-(bool)isExecutableFileAtURL:(NSURL *)path;
 
--(const char *)fileSystemRepresentationWithURI:(NSURI *)path;
+-(const char *)fileSystemRepresentationWithURL:(NSURL *)path;
 
 @end
 
 @protocol NSFileManagerDelegate<NSObject>
 @optional
--(bool)fileManager:(NSFileManager *)fileManager shouldCopyItemAtURI:(NSURI *)path toURI:(NSURI *)toPath;
--(bool)fileManager:(NSFileManager *)fileManager shouldLinkItemAtURI:(NSURI *)path toURI:(NSURI *)toPath;
--(bool)fileManager:(NSFileManager *)fileManager shouldMoveItemAtURI:(NSURI *)path toURI:(NSURI *)toPath;
--(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error copyingItemAtURI:(NSURI *)path toURI:(NSURI *)toPath;
--(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error linkingItemAtURI:(NSURI *)path toURI:(NSURI *)toPath;
--(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error movingItemAtURI:(NSURI *)path toURI:(NSURI *)toPath;
--(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error removingItemAtURI:(NSURI *)path;
+-(bool)fileManager:(NSFileManager *)fileManager shouldCopyItemAtURL:(NSURL *)path toURL:(NSURL *)toPath;
+-(bool)fileManager:(NSFileManager *)fileManager shouldLinkItemAtURL:(NSURL *)path toURL:(NSURL *)toPath;
+-(bool)fileManager:(NSFileManager *)fileManager shouldMoveItemAtURL:(NSURL *)path toURL:(NSURL *)toPath;
+-(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error copyingItemAtURL:(NSURL *)path toURL:(NSURL *)toPath;
+-(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error linkingItemAtURL:(NSURL *)path toURL:(NSURL *)toPath;
+-(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error movingItemAtURL:(NSURL *)path toURL:(NSURL *)toPath;
+-(bool)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error removingItemAtURL:(NSURL *)path;
 
--(bool)fileManager:(NSFileManager *)fileManager shouldRemoveItemAtURI:(NSURI *)path;
+-(bool)fileManager:(NSFileManager *)fileManager shouldRemoveItemAtURL:(NSURL *)path;
 
 @end
 

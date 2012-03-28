@@ -59,10 +59,10 @@ static NSMutableArray *runningTasks;
 	runningTasks = [NSMutableArray new];
 }
 
-+ (id) spawnedTaskWithURI:(NSURI *)target object:(id)arg
++ (id) spawnedTaskWithURL:(NSURL *)target object:(id)arg
 		 environment:(NSDictionary *)env
 {
-	NSTask *t = [[self alloc] initWithURI:target object:arg environment:env];
+	NSTask *t = [[self alloc] initWithURL:target object:arg environment:env];
 	[t launch];
 	return t;
 }
@@ -72,7 +72,7 @@ static NSMutableArray *runningTasks;
 	return self;
 }
 
-- (id) initWithURI:(NSURI *)target object:(id)obj environment:(NSDictionary *)env
+- (id) initWithURL:(NSURL *)target object:(id)obj environment:(NSDictionary *)env
 {
 	_taskObject = target;
 	_taskArguments = [obj copy];
@@ -88,7 +88,7 @@ static NSMutableArray *runningTasks;
 		return;
 	}
 
-	if (spawnProcessWithURI(_taskObject, _taskArguments, _environment, &processUUID))
+	if (spawnProcessWithURL(_taskObject, _taskArguments, _environment, &processUUID))
 	{
 		isRunning = true;
 		[runningTasks addObject:self];

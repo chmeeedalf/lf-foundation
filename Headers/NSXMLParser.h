@@ -30,7 +30,7 @@
 #import <Foundation/NSObject.h>
 
 @class NSString;
-@class NSURI;
+@class NSURL;
 @class NSDictionary;
 @class NSData;
 @class NSError;
@@ -107,7 +107,7 @@ enum {
 	NSXMLParserNMTOKENRequiredError,
 	NSXMLParserNAMERequiredError,
 	NSXMLParserPCDATARequiredError,
-	NSXMLParserURIRequiredError,
+	NSXMLParserURLRequiredError,
 	NSXMLParserPublicIdentifierRequiredError,
 	NSXMLParserLTRequiredError,
 	NSXMLParserGTRequiredError,
@@ -128,8 +128,8 @@ enum {
 	NSXMLParserParsedEntityRefInInternalError,
 	NSXMLParserEntityRefLoopError,
 	NSXMLParserEntityBoundaryError,
-	NSXMLParserInvalidURIError,
-	NSXMLParserURIFragmentError,
+	NSXMLParserInvalidURLError,
+	NSXMLParserURLFragmentError,
 	NSXMLParserNoDTDError = 94,
 	NSXMLParserDelegateAbortedParseError = 512,
 };
@@ -157,10 +157,10 @@ typedef NSInteger NSXMLParserError;
 @property bool shouldResolveExternalEntities;
 
 /*!
- * \brief Initialize the parser with the contents of a given NSURI.
- * \param url NSURI whose contents to retrieve into the XML parser.
+ * \brief Initialize the parser with the contents of a given NSURL.
+ * \param url NSURL whose contents to retrieve into the XML parser.
  */
-- (id)initWithContentsOfURI:(NSURI *)url;
+- (id)initWithContentsOfURL:(NSURL *)url;
 
 /*!
  * \brief Initialize the parser with a raw XML data.
@@ -228,37 +228,37 @@ typedef NSInteger NSXMLParserError;
  * \brief Called when the parser encounters a start tag for an element.
  * \param parser The parser object.
  * \param elementName The name of the element.
- * \param namespaceURI If namespace processing is turned on, contains the NSURI
+ * \param namespaceURL If namespace processing is turned on, contains the NSURL
  * for the current namespace.
  * \param qualifiedName If namespace processing is turned on, contains the
  * qualified name of the current namespace.
  * \param attributeDict A dictionary that contains any attributes associated
  * with the element.
  */
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict;
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURL:(NSString *)namespaceURL qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict;
 
 /*!
  * \brief Called when the parser encounters an end tag for an element.
  * \param parser The parser object.
  * \param elementName The name of the element.
- * \param namespaceURI If namespace processing is turned on, contains the NSURI
+ * \param namespaceURL If namespace processing is turned on, contains the NSURL
  * for the current namespace.
  * \param qualifiedName If namespace processing is turned on, contains the
  * qualified name of the current namespace.
  */
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName;
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURL:(NSString *)namespaceURL qualifiedName:(NSString *)qualifiedName;
 
 /*!
  * \brief Called when the parser first encounters a given namespace prefix,
- * which is mapped to a NSURI.
+ * which is mapped to a NSURL.
  * \param parser The parser object.
  * \param prefix The namespace prefix.
- * \param namespaceURI The namespace NSURI.
+ * \param namespaceURL The namespace NSURL.
  *
  * \details The parser object sends this message only when namespace-prefix
  * reporting is turned on.
  */
-- (void)parser:(NSXMLParser *)parser didStartMappingPrefix:(NSString *)prefix toURI:(NSString *)namespaceURI;
+- (void)parser:(NSXMLParser *)parser didStartMappingPrefix:(NSString *)prefix toURL:(NSString *)namespaceURL;
 
 /*!
  * \brief Called by the parser when the given namespace prefix goes out of scope.

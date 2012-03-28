@@ -60,7 +60,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSError.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/Plugins/Filesystem.h>
 #import <Foundation/NSFileManager.h>
@@ -87,19 +87,19 @@ static SchemeFileHandler *sharedHandler = nil;
 	return sharedHandler;
 }
 
-- (NSFileHandle *) fileHandleForWritingAtURI:(NSURI *)path
+- (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path
 {
-	TODO;	// -fileHandleForWritingAtURI:
+	TODO;	// -fileHandleForWritingAtURL:
 	return nil;
 }
 
-- (NSFileHandle *) fileHandleForReadingAtURI:(NSURI *)path
+- (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path
 {
-	TODO;	// -fileHandleForReadingAtURI:
+	TODO;	// -fileHandleForReadingAtURL:
 	return nil;
 }
 
-- (NSDictionary *)attributesOfItemAtURI:(NSURI *)uri error:(NSError **)errOut
+- (NSDictionary *)attributesOfItemAtURL:(NSURL *)uri error:(NSError **)errOut
 {
 	NSMutableDictionary *result=[NSMutableDictionary dictionary];
 	struct stat statBuf;
@@ -154,7 +154,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return result;
 }
 
-- (bool)setAttributes:(NSDictionary *)dict ofItemAtURI:(NSURI *)path error:(NSError **)errOut
+- (bool)setAttributes:(NSDictionary *)dict ofItemAtURL:(NSURL *)path error:(NSError **)errOut
 {
 	errOut = errOut ? errOut : &(NSError *){nil};
 	for (NSString *key in dict)
@@ -181,7 +181,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return true;
 }
 
-- (bool)deleteItemAtURI:(NSURI *)uri error:(NSError **)errOut
+- (bool)deleteItemAtURL:(NSURL *)uri error:(NSError **)errOut
 {
 	FTS *fts;
 	FTSENT *ftsent;
@@ -229,7 +229,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return false;
 }
 
-- (NSString *)destinationOfSymbolicLinkAtURI:(NSURI *)path error:(NSError **)errOut
+- (NSString *)destinationOfSymbolicLinkAtURL:(NSURL *)path error:(NSError **)errOut
 {
 	const char *slpath = [[path path] fileSystemRepresentation];
 	char sldest[PATH_MAX + 1];
@@ -246,7 +246,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return [NSString stringWithCString:sldest encoding:NSUTF8StringEncoding];
 }
 
-- (bool)createSymbolicLinkAtURI:(NSURI *)path withDestinationURI:(NSURI *)destPath error:(NSError **)errOut
+- (bool)createSymbolicLinkAtURL:(NSURL *)path withDestinationURL:(NSURL *)destPath error:(NSError **)errOut
 {
 	NSString *dest;
 
@@ -261,7 +261,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return true;
 }
 
-- (NSArray *)contentsOfDirectoryAtURI:(NSURI *)path error:(NSError **)errOut
+- (NSArray *)contentsOfDirectoryAtURL:(NSURL *)path error:(NSError **)errOut
 {
 	NSMutableArray *result=[NSMutableArray array];
 	DIR *dirp = opendir([[path path] fileSystemRepresentation]);
@@ -292,7 +292,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return result;
 }
 
--(bool)createDirectoryAtURI:(NSURI *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)error
+-(bool)createDirectoryAtURL:(NSURL *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)error
 {
 	// you can set all these, but we don't respect 'em all yet
 	/*
@@ -308,7 +308,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return (mkdir([[path path] fileSystemRepresentation], mode) == 0);
 }
 
-- (NSData *)contentsOfFileAtURI:(NSURI *)uri shared:(bool)shared error:(NSError **)errOut
+- (NSData *)contentsOfFileAtURL:(NSURL *)uri shared:(bool)shared error:(NSError **)errOut
 {
 	void *buffer;
 	struct stat sb;
@@ -354,7 +354,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return d;
 }
 
-- (bool)createFileAtURI:(NSURI *)uri contents:(NSData *)data attributes:(NSDictionary *)attributes error:(NSError **)errOut
+- (bool)createFileAtURL:(NSURL *)uri contents:(NSData *)data attributes:(NSDictionary *)attributes error:(NSError **)errOut
 {
 	const char *path = [[uri path] fileSystemRepresentation];
 	int fd;
@@ -367,7 +367,7 @@ static SchemeFileHandler *sharedHandler = nil;
 		*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithCString:strerror(errno) encoding:NSUTF8StringEncoding],NSLocalizedFailureReasonErrorKey,@"Unable to create the target file.",NSLocalizedDescriptionKey,nil]];
 		return false;
 	}
-	if (![self setAttributes:attributes ofItemAtURI:uri error:errOut])
+	if (![self setAttributes:attributes ofItemAtURL:uri error:errOut])
 		return false;
 
 	ssize_t len = [data length];
@@ -381,7 +381,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	return (written == len);
 }
 
-- (bool) linkItemAtURI:(NSURI *)from toURI:(NSURI *)to error:(NSError **)errp
+- (bool) linkItemAtURL:(NSURL *)from toURL:(NSURL *)to error:(NSError **)errp
 {
 	errp = errp ? errp : &(NSError *){nil};
 
@@ -398,7 +398,7 @@ static SchemeFileHandler *sharedHandler = nil;
 
 @implementation _BSDDirectoryEnumerator
 
-- (id) initWithURI:(NSURI *)uri
+- (id) initWithURL:(NSURL *)uri
 {
 	NSString *internalName;
 	const char *pathName;

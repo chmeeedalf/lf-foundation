@@ -33,7 +33,7 @@
 @class NSTextCheckingResult;
 @class NSError;
 @class NSString, NSMutableString;
-@class NSURI;
+@class NSURL;
 
 typedef NSUInteger NSRegularExpressionOptions;
 enum {

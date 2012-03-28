@@ -36,7 +36,7 @@
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSStream.h>
 #import <Foundation/NSString.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #import <Foundation/NSXMLParser.h>
 #include <libxml/parser.h>
 
@@ -62,12 +62,12 @@ static void endDocumentHandler(void *ctx)
 	[parserObj->delegate parserDidEndDocument:parserObj];
 }
 
-static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URI, int nb_namespace, const xmlChar **namespaces, int nb_attributes, int nb_defaulted, const xmlChar **attributes)
+static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URL, int nb_namespace, const xmlChar **namespaces, int nb_attributes, int nb_defaulted, const xmlChar **attributes)
 {
 	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *ocName = [[NSString alloc] initWithUTF8String:(const char *)name];
 	NSString *ocPrefix = [[NSString alloc] initWithUTF8String:(const char *)prefix];
-	NSString *ocURI = [[NSString alloc] initWithUTF8String:(const char *)URI];
+	NSString *ocURL = [[NSString alloc] initWithUTF8String:(const char *)URL];
 	NSMutableDictionary *ocAttribs = [NSMutableDictionary new];
 
 	if ([parser shouldReportNamespacePrefixes])
@@ -76,7 +76,7 @@ static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar 
 		{
 			NSString *ocNSPrefix = [[NSString alloc] initWithUTF8String:(const char *)namespaces[i]];
 			NSString *ocNS = [[NSString alloc] initWithUTF8String:(const char *)namespaces[i + 1]];
-			[parser->delegate parser:parser didStartMappingPrefix:ocNSPrefix toURI:ocNS];
+			[parser->delegate parser:parser didStartMappingPrefix:ocNSPrefix toURL:ocNS];
 		}
 	}
 
@@ -86,17 +86,17 @@ static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar 
 		NSString *value = [[NSString alloc] initWithBytes:attributes[i+3] length:((size_t)(attributes[i+4] - attributes[i+3])) encoding:NSUTF8StringEncoding];
 		[ocAttribs setObject:value forKey:key];
 	}
-	[parser->delegate parser:parser didStartElement:ocName namespaceURI:ocURI qualifiedName:ocPrefix attributes:ocAttribs];
+	[parser->delegate parser:parser didStartElement:ocName namespaceURL:ocURL qualifiedName:ocPrefix attributes:ocAttribs];
 }
 
-static void endElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URI)
+static void endElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URL)
 {
 	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 	NSString *ocName = [[NSString alloc] initWithUTF8String:(const char *)name];
 	NSString *ocPrefix = [[NSString alloc] initWithUTF8String:(const char *)prefix];
-	NSString *ocURI = [[NSString alloc] initWithUTF8String:(const char *)URI];
+	NSString *ocURL = [[NSString alloc] initWithUTF8String:(const char *)URL];
 
-	[parser->delegate parser:parser didEndElement:ocName namespaceURI:ocURI qualifiedName:ocPrefix];
+	[parser->delegate parser:parser didEndElement:ocName namespaceURL:ocURL qualifiedName:ocPrefix];
 }
 
 static void foundCharactersHandler(void *ctx, const xmlChar *chars, int len)
@@ -156,9 +156,9 @@ static void errorHandler(void *ctx, const char *msg, ...)
 	[parser->delegate parser:parser parseErrorOccurred:parser->error];
 }
 
-- (id)initWithContentsOfURI:(NSURI *)url
+- (id)initWithContentsOfURL:(NSURL *)url
 {
-	return [self initWithStream:[NSInputStream inputStreamWithURI:url]];
+	return [self initWithStream:[NSInputStream inputStreamWithURL:url]];
 }
 
 - (id) initWithStream:(NSStream *)stream

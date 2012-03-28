@@ -32,7 +32,7 @@
 #import <Foundation/NSRegularExpression.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSTextCheckingResult.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -71,7 +71,7 @@
 @interface NSLinkCheckingResult : NSBasicRangeCheckingResult
 {
 	@public
-		NSURI *uri;
+		NSURL *uri;
 }
 @end
 
@@ -147,7 +147,7 @@
 	return result;
 }
 
-+ (NSTextCheckingResult *) linkCheckingResultWithRange:(NSRange)range URI:(NSURI *)uri
++ (NSTextCheckingResult *) linkCheckingResultWithRange:(NSRange)range URL:(NSURL *)uri
 {
 	NSLinkCheckingResult *result = [NSLinkCheckingResult new];
 	result->range = range;
@@ -351,7 +351,7 @@
 	return nil;
 }
 
-- (NSURI*)URI
+- (NSURL*)URL
 {
 	return nil;
 }

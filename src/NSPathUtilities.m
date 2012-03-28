@@ -79,45 +79,21 @@ static NSString *rootPath = @"/";
 
 + (NSString *)pathWithComponents:(NSArray *)components
 {
-	id str, result;
-	int n = [components count];
-	int i = 0;
-	bool previousIsPathSeparator = false;
+	id result;
 
-	if (!n)
-		return nullSeparator;
-
-	result = [NSMutableString string];
-
-	str = [components objectAtIndex:0];
-	if ([str isEqualToString:nullSeparator] || 
-		[str isEqualToString:pathSeparator])
-	{
-		[result appendString:rootPath];
-		previousIsPathSeparator = true;
-	}
-	else
+	result = [NSMutableString new];
+	[components enumerateObjectsUsingBlock:^(id str, NSUInteger idx, bool *stop){
+		if ([str length] == 0 || [str isEqualToString:pathSeparator])
+		{
+			return;
+		}
+		[result appendString:pathSeparator];
 		[result appendString:str];
+	}];
 
-	for (i = 1; i < n; i++)
+	if ([result length] == 0)
 	{
-		str = [components objectAtIndex:i];
-
-		if (([str isEqualToString:nullSeparator]
-		  || [str isEqualToString:pathSeparator])
-				&& !previousIsPathSeparator)
-		{
-			[result appendString:pathSeparator];
-			previousIsPathSeparator = true;
-		}
-		else
-		{
-			if (!previousIsPathSeparator)
-				[result appendString:pathSeparator];
-
-			[result appendString:[components objectAtIndex:i]];
-			previousIsPathSeparator = false;
-		}
+		result = nullSeparator;
 	}
 
 	return result;
@@ -199,13 +175,13 @@ static NSString *rootPath = @"/";
 	sepRange = [self rangeOfString:pathSeparator
 						   options:NSBackwardsSearch range:lastRange];
 	if (sepRange.length == 0)
-		return AUTORELEASE([self copyWithZone:[self zone]]);
+		return [self copyWithZone:[self zone]];
 
 	lastRange.location = sepRange.location + sepRange.length;
 	lastRange.length   = lastRange.length - lastRange.location;
 
 	if (lastRange.location == 0)
-		return AUTORELEASE([self copyWithZone:[self zone]]);
+		return [self copyWithZone:[self zone]];
 	else
 		return lastRange.length ? 
 			[self substringWithRange:lastRange] : nullSeparator;
@@ -243,7 +219,7 @@ static NSString *rootPath = @"/";
 		([self length]
 		 ? [str stringByAppendingString:aString] 
 									   : aString)]
-									   : AUTORELEASE([self copyWithZone:[self zone]]);
+									   : [self copyWithZone:[self zone]];
 }
 
 - (NSArray *)stringsByAppendingPaths:(NSArray *)paths
@@ -265,7 +241,7 @@ static NSString *rootPath = @"/";
 	return [aString length] ?
 		[self stringByAppendingString:
 			[extensionSeparator stringByAppendingString:aString]] :
-		AUTORELEASE([self copyWithZone:[self zone]]);
+		[self copyWithZone:[self zone]];
 }
 
 - (NSString *)stringByDeletingLastPathComponent
@@ -301,7 +277,7 @@ static NSString *rootPath = @"/";
 	if ([self hasSuffix:pathSeparator])
 	{
 		if (range.length == 1)
-			return AUTORELEASE([self copyWithZone:[self zone]]);
+			return [self copyWithZone:[self zone]];
 		else
 			range.length--;
 	}
@@ -435,7 +411,6 @@ static NSString *rootPath = @"/";
 		}
 
 		path = [NSString pathWithComponents:components];
-		RELEASE(components);
 
 		return path ? path : self;
 	}
@@ -461,11 +436,8 @@ static NSString *rootPath = @"/";
 			[ma addObject:path];
 		}
 	}
-	RELEASE(exts);
 
-	self = [ma copy];
-	RELEASE(ma);
-	return AUTORELEASE(self);
+	return [ma copy];
 }
 
 @end /* NSArray(FilePathMethods) */
@@ -473,7 +445,7 @@ static NSString *rootPath = @"/";
 /*
  * Used for forcing linking of this category
  */
-
+void __dummyStringFilePathfile(void);
 void __dummyStringFilePathfile ()
 {
 	__dummyStringFilePathfile();

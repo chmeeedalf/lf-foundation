@@ -34,7 +34,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSProxy.h>
 #import <Foundation/NSString.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #import <Foundation/NSXMLParser.h>
 
 @interface NSXMLMIMECoder : NSProxy <MIMEHandler,NSXMLParserDelegate>
@@ -71,16 +71,16 @@ static NSArray *XMLCodings;
 	return nil;
 }
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURL:(NSString *)namespaceURL qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict
 {
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURL:(NSString *)namespaceURL qualifiedName:(NSString *)qName
 {
 	currentText = nil;
 }
 
-- (void)parser:(NSXMLParser *)parser didStartMappingPrefix:(NSString *)prefix toURI:(NSString *)namespaceURI
+- (void)parser:(NSXMLParser *)parser didStartMappingPrefix:(NSString *)prefix toURL:(NSString *)namespaceURL
 {
 }
 

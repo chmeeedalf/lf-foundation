@@ -37,10 +37,10 @@ NSString * const NSLocalizedRecoverySuggestionErrorKey = @"NSLocalizedRecoverySu
 NSString * const NSLocalizedRecoveryOptionsErrorKey = @"NSLocalizedRecoveryOptionsErrorKey";
 NSString * const NSRecoveryAttempterErrorKey = @"NSRecoveryAttempterErrorKey";
 NSString * const NSHelpAnchorErrorKey = @"NSHelpAnchorErrorKey";
-NSString * const NSFileURIErrorKey = @"NSFileURIErrorKey";
+NSString * const NSFileURLErrorKey = @"NSFileURLErrorKey";
 NSString * const NSStringEncodingErrorKey = @"NSStringEncodingErrorKey";
 NSString * const NSUnderlyingErrorKey = @"NSUnderlyingErrorKey";
-NSString * const NSURIErrorKey = @"NSURIErrorKey";
+NSString * const NSURLErrorKey = @"NSURLErrorKey";
 
 NSString * const NSPOSIXErrorDomain = @"NSPOSIXErrorDomain";
 NSString * const NSCocoaErrorDomain = @"NSCocoaErrorDomain";

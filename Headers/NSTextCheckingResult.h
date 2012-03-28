@@ -39,7 +39,7 @@
 @class NSRegularExpression;
 @class NSString;
 @class NSTimeZone;
-@class NSURI;
+@class NSURL;
 
 typedef uint64_t NSTextCheckingType;
 enum {
@@ -83,12 +83,12 @@ typedef uint64_t NSTextCheckingTypes;
 @property(readonly) NSString *replacementString;
 @property(readonly) NSTextCheckingType resultType;
 @property(readonly) NSTimeZone *timeZone;
-@property(readonly) NSURI *URI;
+@property(readonly) NSURL *URL;
 + (NSTextCheckingResult *) replacementCheckingResultWithRange:(NSRange)range replacementString:(NSString *)replacement;
 + (NSTextCheckingResult *) regularExpressionCheckingResultWithRanges: (NSRangePointer)ranges
                                                              count: (NSUInteger)count
                                                  regularExpression: (NSRegularExpression*)regularExpression;
-+ (NSTextCheckingResult *) linkCheckingResultWithRange:(NSRange)range URI:(NSURI *)uri;
++ (NSTextCheckingResult *) linkCheckingResultWithRange:(NSRange)range URL:(NSURL *)uri;
 + (NSTextCheckingResult *) addressCheckingResultWithRange:(NSRange)range components:(NSDictionary *)components;
 + (NSTextCheckingResult *) correctionCheckingResultWithRange:(NSRange)range replacementString:(NSString *)replacement;
 + (NSTextCheckingResult *) dashCheckingResultWithRange:(NSRange)range replacementString:(NSString *)replacement;

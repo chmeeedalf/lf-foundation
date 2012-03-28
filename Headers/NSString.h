@@ -38,7 +38,7 @@
 @class NSLocale;
 @class NSCharacterSet;
 @class NSArray;
-@class NSURI;
+@class NSURL;
 @class NSError;
 
 /*!
@@ -751,11 +751,11 @@ typedef NSString * const NSSymbol;
 - (id) initWithMessageFormat:(NSString *)format,...;
 */
 
-+ (id) stringWithContentsOfURI:(NSURI *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
-+ (id) stringWithContentsOfURI:(NSURI *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
-- (id) initWithContentsOfURI:(NSURI *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
-- (id) initWithContentsOfURI:(NSURI *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
-- (bool) writeToURI:(NSURI *)uri atomically:(bool)atomic encoding:(NSStringEncoding)enc error:(NSError **)err;
++ (id) stringWithContentsOfURL:(NSURL *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
++ (id) stringWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
+- (id) initWithContentsOfURL:(NSURL *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
+- (id) initWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
+- (bool) writeToURL:(NSURL *)uri atomically:(bool)atomic encoding:(NSStringEncoding)enc error:(NSError **)err;
 @end
 
 /*!

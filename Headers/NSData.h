@@ -45,7 +45,7 @@ enum
 };
 typedef NSUInteger NSDataSearchOptions;
 
-@class NSURI, NSError;
+@class NSURL, NSError;
 /*!
  @class NSData
  @brief The NSData class holds data of an arbitrary size and format.
@@ -86,8 +86,8 @@ typedef NSUInteger NSDataSearchOptions;
 
 + (id) dataByDecodingBase64String:(NSString *)string;
 
-+ (id) dataWithContentsOfURI:(NSURI *)uri;
-+ (id) dataWithContentsOfURI:(NSURI *)uri options:(NSDataReadingOptions)options error:(NSError **)err;
++ (id) dataWithContentsOfURL:(NSURL *)uri;
++ (id) dataWithContentsOfURL:(NSURL *)uri options:(NSDataReadingOptions)options error:(NSError **)err;
 
 /*!
  @brief Initializes a newly allocated data object with the given byte buffer.
@@ -110,8 +110,8 @@ typedef NSUInteger NSDataSearchOptions;
  * \brief Initialize the receiver with the given data argument.
  */
 -(id)initWithData:(NSData *)other;
--(id)initWithContentsOfURI:(NSURI *)uri;
--(id)initWithContentsOfURI:(NSURI *)uri options:(NSDataReadingOptions)options error:(NSError **)err;
+-(id)initWithContentsOfURL:(NSURL *)uri;
+-(id)initWithContentsOfURL:(NSURL *)uri options:(NSDataReadingOptions)options error:(NSError **)err;
 
 // Accessing data
 /*!

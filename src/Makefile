@@ -49,7 +49,7 @@ SRCS=	NSRange.m \
 		NSArchiver.mm \
 		NSMethodSignature.m \
 		NSNull.m \
-		NSURI.m \
+		NSURL.m \
 		NSNotificationCenter.mm \
 		NSNotification.m \
 		NSSettingsManager.m \
@@ -95,7 +95,7 @@ SRCS=	NSRange.m \
 		NSNumberFormatter.m \
 		NSDateFormatter.m \
 		NSOperation.m \
-		NSURI+ObjectManager.m \
+		NSURL+ObjectManager.m \
 		NSObjectManagerFile.m \
 		PropertyList.m \
 		PropertyListSerialization.m \
@@ -116,7 +116,7 @@ SRCS=	NSRange.m \
 .include "String/Makefile.inc"
 #.include "UndoManager/Makefile.inc"
 #.include "unicode/Makefile.inc"
-.include "URI/Makefile.inc"
+.include "NSURL/Makefile.inc"
 
 NSConcreteNumber.m: NSConcreteNumber.m.sh
 	${.CURDIR}/NSConcreteNumber.m.sh > $@

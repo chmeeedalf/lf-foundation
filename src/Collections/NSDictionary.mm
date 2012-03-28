@@ -148,16 +148,16 @@ static Class CoreDictionaryClass;
 			initWithObjects:&object forKeys:&key count:1];
 }
 
-+ (id) dictionaryWithContentsOfURI:(NSURI *)uri
++ (id) dictionaryWithContentsOfURL:(NSURL *)uri
 {
-	return [[self alloc] initWithContentsOfURI:uri];
+	return [[self alloc] initWithContentsOfURL:uri];
 }
 
-- (id) initWithContentsOfURI:(NSURI *)uri
+- (id) initWithContentsOfURL:(NSURL *)uri
 {
 	self = nil;
 
-	NSData *d = [[NSData alloc] initWithContentsOfURI:uri];
+	NSData *d = [[NSData alloc] initWithContentsOfURL:uri];
 
 	if (d == nil)
 	{

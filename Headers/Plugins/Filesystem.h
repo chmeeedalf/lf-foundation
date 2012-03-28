@@ -38,62 +38,62 @@
 @class NSError;
 @class NSFileHandle;
 
-/* Manage 'schemes' a'la NSURI RFC */
+/* Manage 'schemes' a'la NSURL RFC */
 /*!
   \protocol Filesystem
  */
 @protocol NSFilesystem
 /*!
- * \brief Returns the shared handler for this NSURI scheme.
+ * \brief Returns the shared handler for this NSURL scheme.
  */
 + (id)sharedHandler;
 
 /*!
  * \brief Returns the contents of the directory at the given path.
  */
-- (NSArray *)contentsOfDirectoryAtURI:(NSURI *)path error:(NSError **)errOut;
+- (NSArray *)contentsOfDirectoryAtURL:(NSURL *)path error:(NSError **)errOut;
 
 /*!
  * \brief Returns the contents of the file at the given path, traversing
  * symlinks, either shared or private.
  */
-- (NSData *)contentsOfFileAtURI:(NSURI *)path shared:(bool)shared error:(NSError **)errOut;
+- (NSData *)contentsOfFileAtURL:(NSURL *)path shared:(bool)shared error:(NSError **)errOut;
 
--(bool)createDirectoryAtURI:(NSURI *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)err;
+-(bool)createDirectoryAtURL:(NSURL *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)err;
 
-- (bool)createFileAtURI:(NSURI *)path contents:(NSData *)data attributes:(NSDictionary *)attributes error:(NSError **)errOut;
+- (bool)createFileAtURL:(NSURL *)path contents:(NSData *)data attributes:(NSDictionary *)attributes error:(NSError **)errOut;
 
-- (bool)createSymbolicLinkAtURI:(NSURI *)path withDestinationURI:(NSURI *)destPath error:(NSError **)errOut;
-- (bool) linkItemAtURI:(NSURI *)from toURI:(NSURI *)to error:(NSError **)errP;
+- (bool)createSymbolicLinkAtURL:(NSURL *)path withDestinationURL:(NSURL *)destPath error:(NSError **)errOut;
+- (bool) linkItemAtURL:(NSURL *)from toURL:(NSURL *)to error:(NSError **)errP;
 
 /*!
  * \brief Delete an object from storage.
  * \param name Identifier to delete.
  */
-- (bool)deleteItemAtURI:(NSURI *)path error:(NSError **)errOut;
+- (bool)deleteItemAtURL:(NSURL *)path error:(NSError **)errOut;
 
 /*!
  * \brief Returns the destination of the symbolic link.
  */
-- (NSString *)destinationOfSymbolicLinkAtURI:(NSURI *)path error:(NSError **)errOut;
+- (NSString *)destinationOfSymbolicLinkAtURL:(NSURL *)path error:(NSError **)errOut;
 
 /*!
  * \brief NSSet the attribute dictionary for the named object.
  * \param dict New attribute dictionary.
  * \param name Identifier to modify.
  */
-- (bool)setAttributes:(NSDictionary *)dict ofItemAtURI:(NSURI *)path error:(NSError **)errOut;
+- (bool)setAttributes:(NSDictionary *)dict ofItemAtURL:(NSURL *)path error:(NSError **)errOut;
 
 /*!
  * \brief Retrieve the attribute dictionary for the object with the given name.
  * \param name NSObject identifier to retrieve attributes for.
  */
-- (NSDictionary *)attributesOfItemAtURI:(NSURI *)path error:(NSError **)errOut;
+- (NSDictionary *)attributesOfItemAtURL:(NSURL *)path error:(NSError **)errOut;
 
 /*!
  */
-- (NSFileHandle *) fileHandleForWritingAtURI:(NSURI *)path;
-- (NSFileHandle *) fileHandleForReadingAtURI:(NSURI *)path;
+- (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path;
+- (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path;
 @end
 
 /*! \defgroup objattr Managed object attributes */

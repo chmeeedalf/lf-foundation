@@ -102,10 +102,10 @@ static NSMutableDictionary *resources;
 }
 
 // Must be a directory/dictionary path, not a single object
-- (void) loadResourcesWithURI:(NSURI *)path
+- (void) loadResourcesWithURL:(NSURL *)path
 {
 	bool isDir = false;
-	if (![[NSFileManager defaultManager] fileExistsAtURI:path isDirectory:&isDir] || !isDir)
+	if (![[NSFileManager defaultManager] fileExistsAtURL:path isDirectory:&isDir] || !isDir)
 	{
 		@throw [NSRuntimeException
 			exceptionWithReason:
