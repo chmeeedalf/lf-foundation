@@ -62,38 +62,18 @@
 #define __ARCHIVER_CLS void *
 #endif
 
-@class NSHashTable, NSMapTable, NSMutableData, NSURI;
+@class NSHashTable, NSMapTable, NSMutableData, NSURL;
 
 @interface NSInconsistentArchiveException	:	NSStandardException
 @end
 
 @interface NSArchiver : NSCoder //< ObjCTypeSerializationCallBack >
-{
-	NSHashTable *outObjects;          // objects written so far
-	NSHashTable *outConditionals;     // conditional objects
-	NSHashTable *outPointers;         // set of pointers
-	NSMapTable  *outClassAlias;       // class name -> archive name
-	NSMapTable  *replacements;        // src-object to replacement
-	NSMapTable  *outKeys;             // src-address -> archive-address
-	bool        traceMode;            // true if finding conditionals
-	bool        didWriteHeader;
-	SEL         classForCoder;        // default: classForCoder:
-	SEL         replObjectForCoder;   // default: replacementObjectForCoder:
-	bool        encodingRoot;
-	int         archiveAddress;
-
-	// destination
-	NSMutableData *data;
-	__ARCHIVER_CLS *backend;
-	void (*addData)(id, SEL, const void *, unsigned);
-	void (*serData)(id, SEL, const void *, const char *, id);
-}
 
 - (id)initForWritingWithMutableData:(NSMutableData*)mdata;
 
 /* Archiving NSData */
 + (NSData*)archivedDataWithRootObject:(id)rootObject;
-+ (bool)archiveRootObject:(id)rootObject toURI:(NSURI *)path;
++ (bool)archiveRootObject:(id)rootObject toURL:(NSURL *)path;
 
 /* Getting NSData from the NSArchiver */
 - (NSMutableData *)archiverData;
@@ -116,30 +96,12 @@
 #endif
 
 @interface NSUnarchiver : NSCoder //< ObjCTypeSerializationCallBack >
-{
-    unsigned    inArchiverVersion;    // archiver's version that wrote the data
-    NSMapTable  *inObjects;           // decoded objects: key -> object
-    NSMapTable  *inClasses;           // decoded classes: key -> class info
-    NSMapTable  *inPointers;          // decoded pointers: key -> pointer
-    NSMapTable  *inClassAlias;        // archive name -> decoded name
-    NSMapTable  *inClassVersions;     // archive name -> class info
-    NSZone      *objectZone;
-    bool        decodingRoot;
-    bool        didReadHeader;
-
-    // source
-    NSData       *data;
-    size_t      cursor;
-    __UNARCHIVER_CLS *backend;
-    void (*getData)(id, SEL, void *, unsigned, unsigned *);
-    void (*deserData)(id, SEL, void *, const char *, unsigned *, id);
-}
 
 - (id)initForReadingWithData:(NSData*)data;
 
 /* Decoding Objects */
 + (id)unarchiveObjectWithData:(NSData*)data;
-+ (id)unarchiveObjectWithURI:(NSURI*)path;
++ (id)unarchiveObjectWithURL:(NSURL*)path;
 
 /* Managing an NSUnarchiver */
 

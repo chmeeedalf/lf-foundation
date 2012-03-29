@@ -68,13 +68,11 @@ using std::is_const;
 #import <Foundation/NSHashTable.h>
 #import <Foundation/NSArchiver.h>
 #import <Foundation/NSMapTable.h>
+#include <unordered_set>
+#include <cstdlib>
 #import "internal.h"
 
-#if 0
 namespace bs = boost::serialization;
-#endif
-
-#define ENCODE_AUTORELEASEPOOL 0
 
 #define FINAL static inline
 
@@ -123,7 +121,6 @@ struct const_caster {
 template <class Archive, typename T>
 static inline void codeValue(Archive &ar, T *_value, const char *_type)
 {
-#if 0
 	if ((_value == NULL) || (_type == NULL))
 	{
 		return;
@@ -136,22 +133,26 @@ static inline void codeValue(Archive &ar, T *_value, const char *_type)
 			ar & *const_caster<unsigned char,T>(_value).value;
 			break;
 		case _C_SHT:
+			ar & *const_caster<short,T>(_value).value;
+			break;
 		case _C_USHT:
 			ar & *const_caster<unsigned short,T>(_value).value;
 			break;
 		case _C_INT:
+			ar & *const_caster<int,T>(_value).value;
+			break;
 		case _C_UINT:
-#if ULONG_MAX == UINT_MAX
-		case _C_LNG:
-		case _C_ULNG:
-#endif
 			ar & *const_caster<unsigned int,T>(_value).value;
 			break;
-#if ULONG_MAX == ULLONG_MAX
 		case _C_LNG:
+			ar & *const_caster<long,T>(_value).value;
+			break;
 		case _C_ULNG:
-#endif
+			ar & *const_caster<unsigned long,T>(_value).value;
+			break;
 		case _C_LNG_LNG:
+			ar & *const_caster<long long,T>(_value).value;
+			break;
 		case _C_ULNG_LNG:
 			ar & *const_caster<unsigned long long,T>(_value).value;
 			break;
@@ -162,13 +163,11 @@ static inline void codeValue(Archive &ar, T *_value, const char *_type)
 			ar & *const_caster<double,T>(_value).value;
 			break;
 	}
-#endif
 }
 
 template <class Archive, typename T>
 static inline void codeArray(Archive &ar, T *_array, const char *_type, size_t _count)
 {
-#if 0
 	switch (*_type)
 	{
 		case _C_ID:
@@ -202,7 +201,6 @@ static inline void codeArray(Archive &ar, T *_array, const char *_type, size_t _
 			ar & bs::make_array(const_caster<double, T>(_array).value, _count);
 			break;
 	}
-#endif
 }
 
 static const unsigned long NSOpaqueIntegerOptions = NSPointerFunctionsOpaqueMemory | NSPointerFunctionsIntegerPersonality;
@@ -211,14 +209,38 @@ static const unsigned long NSStrongObjectsOptions = NSPointerFunctionsStrongMemo
 @implementation NSInconsistentArchiveException
 @end
 
+namespace {
+struct weakHash {
+	NSUInteger operator()(__weak id obj){
+		return [obj hash];
+	}
+};
+}
+
 @implementation NSArchiver
+{
+	std::unordered_set<__weak id, weakHash> outObjects;
+	std::unordered_set<__weak id, weakHash> outConditionals;
+	NSHashTable *outPointers;         // set of pointers
+	NSMapTable  *outClassAlias;       // class name -> archive name
+	NSMapTable  *replacements;        // src-object to replacement
+	NSMapTable  *outKeys;             // src-address -> archive-address
+	bool        traceMode;            // true if finding conditionals
+	bool        didWriteHeader;
+	SEL         classForCoder;        // default: classForCoder:
+	SEL         replObjectForCoder;   // default: replacementObjectForCoder:
+	bool        encodingRoot;
+	int         archiveAddress;
+
+	// destination
+	NSMutableData *data;
+	__ARCHIVER_CLS *backend;
+}
 
 - (id)initForWritingWithMutableData:(NSMutableData *)_data
 {
 	if ((self = [super init]))
 	{
-		outObjects      = [[NSHashTable alloc] initWithOptions:NSPointerFunctionsObjectPersonality|NSPointerFunctionsZeroingWeakMemory capacity:10];
-		outConditionals      = [[NSHashTable alloc] initWithOptions:NSPointerFunctionsOpaquePersonality|NSPointerFunctionsZeroingWeakMemory capacity:10];
 		outPointers      = [[NSHashTable alloc] initWithOptions:NSPointerFunctionsOpaquePersonality|NSPointerFunctionsZeroingWeakMemory capacity:10];
 		replacements    = [[NSMapTable alloc] initWithKeyOptions:NSStrongObjectsOptions valueOptions:NSStrongObjectsOptions capacity:19];
 		outClassAlias    = [[NSMapTable alloc] initWithKeyOptions:NSStrongObjectsOptions valueOptions:NSStrongObjectsOptions capacity:19];
@@ -246,7 +268,7 @@ static const unsigned long NSStrongObjectsOptions = NSPointerFunctionsStrongMemo
 	return rdata;
 }
 
-+ (bool)archiveRootObject:(id)_root toURI:(NSURI *)uri
++ (bool)archiveRootObject:(id)_root toURL:(NSURL *)uri
 {
 	NSData *rdata = [self archivedDataWithRootObject:_root];
 
@@ -255,7 +277,7 @@ static const unsigned long NSStrongObjectsOptions = NSPointerFunctionsStrongMemo
 		return false;
 	}
 
-	return [[NSFileManager defaultManager] createFileAtURI:uri contents:rdata attributes:nil];
+	return [[NSFileManager defaultManager] createFileAtURL:uri contents:rdata attributes:nil];
 }
 
 // ******************** Getting NSData from the NSArchiver ******
@@ -300,28 +322,24 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 
 - (void)encodeRootObject:(id)_object
 {
-#if ENCODE_AUTORELEASEPOOL
 	@autoreleasepool {
-#endif
 
-	/*
-	 * Prepare for writing the graph objects for which `rootObject' is the root
-	 * node. The algorithm consists from two passes. In the first pass it
-	 * determines the nodes so-called 'conditionals' - the nodes encoded *only*
-	 * with -encodeConditionalObject:. They represent nodes that are not
-	 * related directly to the graph. In the second pass objects are encoded
-	 * normally, except for the conditional objects which are encoded as nil.
-	 */
+		/*
+		 * Prepare for writing the graph objects for which `rootObject' is the root
+		 * node. The algorithm consists from two passes. In the first pass it
+		 * determines the nodes so-called 'conditionals' - the nodes encoded *only*
+		 * with -encodeConditionalObject:. They represent nodes that are not
+		 * related directly to the graph. In the second pass objects are encoded
+		 * normally, except for the conditional objects which are encoded as nil.
+		 */
 
-	// pass1: start tracing for conditionals
-	// TODO: First create a dummy archive
+		// pass1: start tracing for conditionals
+		// TODO: First create a dummy archive
 
-	// pass2: start writing
-	[self encodeObjectsWithRoot:_object];
+		// pass2: start writing
+		[self encodeObjectsWithRoot:_object];
 
-#if ENCODE_AUTORELEASEPOOL
 	}
-#endif
 }
 
 - (void)encodeConditionalObject:(id)_object
@@ -338,18 +356,15 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 
 		if (_object)
 		{
-			if (![outObjects containsObject:_object])
-				[outConditionals addObject:_object];
+			outConditionals.insert(_object);
 		}
 	}
 	else
 	{ // pass 2
-		bool isConditional;
-
-		isConditional = [outConditionals containsObject:_object];
-
+		if (outConditionals.find(_object) == outConditionals.end())
+			_object = nil;
 		// If anObject is still in the `conditionals' set, it is encoded as nil.
-		[self encodeObject:isConditional ? nil : _object];
+		[self encodeObject:_object];
 	}
 }
 
@@ -358,19 +373,15 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 	if (_object == nil) // don't trace nil objects ..
 		return;
 
-	if (![outObjects containsObject:_object])
+	if (outObjects.find(_object) == outObjects.end())
 	{
 		// object wasn't traced yet
 		// Look-up the object in the `conditionals' set. If the object is
 		// there, then remove it because it is no longer a conditional one.
-		if ([outConditionals containsObject:_object])
-		{
-			// object was marked conditional ..
-			[outConditionals removeObject:_object];
-		}
+		outConditionals.erase(_object);
 
 		// mark object as traced
-		[outObjects addObject:_object];
+		outObjects.insert(_object);
 
 		if (object_isInstance(_object))
 		{
@@ -402,9 +413,8 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 
 - (void)_encodeObject:(id)_object
 {
-#if 0
 	TagType tag;
-	int       archiveId = _archiveIdOfObject(self, _object);
+	int     archiveId = _archiveIdOfObject(self, _object);
 
 	if (_object == nil)
 	{ // nil object or class
@@ -414,9 +424,7 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 		return;
 	}
 
-	tag = object_isInstance(_object) ? _C_ID : _C_CLASS;
-
-	if ([outObjects containsObject:_object])
+	if (outObjects.find(_object) == outObjects.end())
 	{ // object was already written
 		tag = _C_ID | REFERENCE;
 		(*backend) << tag;
@@ -426,7 +434,9 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 	{
 		std::string strVal;
 		// mark object as written
-		[outObjects addObject:_object];
+		outObjects.insert(_object);
+
+		tag = object_isInstance(_object) ? _C_ID : _C_CLASS;
 
 		(*backend) << tag;
 		(*backend) << archiveId;
@@ -454,7 +464,6 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 			[_object encodeWithCoder:self];
 		}
 	}
-#endif
 }
 
 - (void)encodeObject:(id)_object
@@ -463,56 +472,9 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 	[self encodeValueOfObjCType:&type at:&_object];
 }
 
-- (void)_traceValueOfObjCType:(const char *)_type at:(const void *)_value
+- (void)encodeValueOfObjCType:(const char *)_type
+						   at:(const void *)_value
 {
-	switch (*_type)
-	{
-		case _C_ID:
-		case _C_CLASS:
-			[self _traceObject:*(id *)_value];
-			break;
-
-		case _C_ARY_B:
-			{
-				int        count     = atoi(_type + 1); // eg '[15I' => count = 15
-				const char *itemType = _type;
-				while(isdigit((int)*(++itemType))) ; // skip dimension
-				[self encodeArrayOfObjCType:itemType count:count at:_value];
-				break;
-			}
-
-		case _C_STRUCT_B:
-			{ // C-structure begin '{'
-				int offset = 0;
-
-				while ((*_type != _C_STRUCT_E) && (*_type++ != '=')); // skip "<name>="
-
-				while (true)
-				{
-					[self encodeValueOfObjCType:_type at:((char *)_value) + offset];
-
-					offset += objc_sizeof_type(_type);
-					_type  =  objc_skip_typespec(_type);
-
-					if(*_type != _C_STRUCT_E)
-					{ // C-structure end '}'
-						int align, remainder;
-
-						align = objc_alignof_type(_type);
-						if((remainder = offset % align))
-							offset += (align - remainder);
-					}
-					else
-						break;
-				}
-				break;
-			}
-	}
-}
-
-- (void)_encodeValueOfObjCType:(const char *)_type at:(const void *)_value
-{
-#if 0
 	std::string strVal;
 	switch (*_type)
 	{
@@ -520,7 +482,10 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 		case _C_CLASS:
 			// ?? Write another tag just to be possible to read using the
 			// ?? decodeObject method. (Otherwise a lookahead would be required)
-			[self _encodeObject:*(id *)_value];
+			if (traceMode)
+				[self _traceObject:*(const id *)_value];
+			else
+				[self _encodeObject:*(const id *)_value];
 			break;
 
 		case _C_ARY_B:
@@ -587,28 +552,12 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 			NSLog(@"unsupported C type %s ..", _type);
 			break;
 	}
-#endif
-}
-
-- (void)encodeValueOfObjCType:(const char *)_type
-						   at:(const void *)_value
-{
-	if (traceMode)
-	{
-		//Log(@"trace value at 0x%08X of type %s", _value, _type);
-		[self _traceValueOfObjCType:_type at:_value];
-	}
-	else
-	{
-		[self _encodeValueOfObjCType:_type at:_value];
-	}
 }
 
 - (void)encodeArrayOfObjCType:(const char *)_type
 						count:(unsigned int)_count
 						   at:(const void *)_array
 {
-#if 0
 	// Optimize writing arrays of elementary types. If such an array has to
 	// be written, write the type and then the elements of array.
 
@@ -643,7 +592,6 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 						(char *)_array + offset, _type);
 			}
 	}
-#endif
 }
 
 // Substituting One Class for Another
@@ -668,6 +616,22 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 @end /* NSArchiver */
 
 @implementation NSUnarchiver
+{
+    unsigned    inArchiverVersion;    // archiver's version that wrote the data
+    NSMapTable  *inObjects;           // decoded objects: key -> object
+    NSMapTable  *inClasses;           // decoded classes: key -> class info
+    NSMapTable  *inPointers;          // decoded pointers: key -> pointer
+    NSMapTable  *inClassAlias;        // archive name -> decoded name
+    NSMapTable  *inClassVersions;     // archive name -> class info
+    NSZone      *objectZone;
+    bool        decodingRoot;
+    bool        didReadHeader;
+
+    // source
+    NSData       *data;
+    size_t      cursor;
+    __UNARCHIVER_CLS *backend;
+}
 
 static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 
@@ -706,9 +670,9 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 
 	return object;
 }
-+ (id)unarchiveObjectWithURI:(NSURI *)path
++ (id)unarchiveObjectWithURL:(NSURL *)path
 {
-	NSData *rdata = [NSData dataWithContentsOfURI:path];
+	NSData *rdata = [NSData dataWithContentsOfURL:path];
 	if (!rdata) return nil;
 	return [self unarchiveObjectWithData:rdata];
 }
@@ -736,8 +700,6 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 
 // ******************** primitive decoding ********************
 
-FINAL TagType _readTag(NSUnarchiver *self);
-
 FINAL int   _readInt  (NSUnarchiver *self);
 
 // ******************** complex decoding **********************
@@ -763,7 +725,6 @@ FINAL int   _readInt  (NSUnarchiver *self);
 {
 	int   archiveId = _readInt(self);
 	Class result    = Nil;
-#if 0
 
 	if (archiveId == 0) // Nil class or unused conditional class
 		return nil;
@@ -793,7 +754,9 @@ FINAL int   _readInt  (NSUnarchiver *self);
 
 		if ([name length] == 0)
 		{
-			@throw [NSInconsistentArchiveException exceptionWithReason:@"could not allocate memory for class name." userInfo:nil];
+			@throw [NSInconsistentArchiveException
+				exceptionWithReason:@"could not allocate memory for class name."
+				userInfo:nil];
 		}
 
 
@@ -814,21 +777,24 @@ FINAL int   _readInt  (NSUnarchiver *self);
 
 		if (result == Nil)
 		{
-			@throw [NSInconsistentArchiveException exceptionWithReason:@"class doesn't exist in this runtime." userInfo:nil];
+			@throw [NSInconsistentArchiveException
+				exceptionWithReason:@"class doesn't exist in this runtime."
+				userInfo:nil];
 		}
 		name = nil;
 
 		if ([result version] != version)
 		{
-			@throw [NSInconsistentArchiveException exceptionWithReason:@"class versions do not match." userInfo:nil];
+			@throw [NSInconsistentArchiveException
+				exceptionWithReason:@"class versions do not match."
+				userInfo:nil];
 		}
 
-		[inClasses setPointer:result forKey:(void *)archiveId];
+		[inClasses setPointer:(__bridge void *)result forKey:(void *)archiveId];
 	}
 
 	NSAssert(result, @"Invalid state, class is Nil.");
 
-#endif
 	return result;
 }
 
@@ -837,22 +803,21 @@ FINAL int   _readInt  (NSUnarchiver *self);
 	// this method returns a retained object !
 	int archiveId = _readInt(self);
 	id  result    = nil;
-#if 0
 
 	if (archiveId == 0) // nil object or unused conditional object
 		return nil;
 
 	if (_isReference)
 	{
-		NSAssert(archiveId, @"archive id is 0 !");
-
 		result = (id)[inObjects pointerForKey:(void *)archiveId];
 		if (result == nil)
 			result = (id)[inClasses pointerForKey:(void *)archiveId];
 
 		if (result == nil)
 		{
-			@throw [NSInconsistentArchiveException exceptionWithReason:[NSString stringWithFormat:@"did not find referenced object %i.", archiveId] userInfo:nil];
+			@throw [NSInconsistentArchiveException
+				exceptionWithReason:[NSString stringWithFormat:@"did not find referenced object %i.", archiveId]
+				userInfo:nil];
 		}
 	}
 	else
@@ -861,42 +826,28 @@ FINAL int   _readInt  (NSUnarchiver *self);
 		id    replacement = nil;
 
 		// decode cls info
-		[self decodeValueOfObjCType:"#" at:&cls];
-		NSAssert(cls, @"could not decode cls for object.");
+		[self decodeValueOfObjCType:@encode(Class) at:&cls];
+		NSAssert(cls, @"could not decode class for object.");
 
 		result = [cls allocWithZone:objectZone];
-		[inObjects setPointer:result forKey:(void *)archiveId];
+		[inObjects setPointer:(__bridge void *)result forKey:(void *)archiveId];
 
 		replacement = [result initWithCoder:self];
 		if (replacement != result)
 		{
-			replacement = RETAIN(replacement);
-			[inObjects removeObjectForKey:(id)(void*)archiveId];
+			[inObjects removeObjectForKey:(__bridge id)(void *)archiveId];
 			result = replacement;
-			[inObjects setPointer:result forKey:(void *)archiveId];
-			RELEASE(replacement);
+			[inObjects setPointer:(__bridge void *)result forKey:(void *)archiveId];
 		}
 
 		replacement = [result awakeAfterUsingCoder:self];
 		if (replacement != result)
 		{
-			replacement = RETAIN(replacement);
-			[inObjects removeObjectForKey:(id)(void*)archiveId];
+			[inObjects removeObjectForKey:(__bridge id)(void*)archiveId];
 			result = replacement;
-			[inObjects setPointer:result forKey:(void*)archiveId];
-			RELEASE(replacement);
+			[inObjects setPointer:(__bridge void *)result forKey:(void*)archiveId];
 		}
 	}
-
-	if (object_isInstance(result))
-	{
-		NSAssert([result retainCount] > 0,
-				@"invalid retain count %i for id=%i (%@) ..",
-				[result retainCount],
-				archiveId,
-				NSStringFromClass([result class]));
-	}
-#endif
 	return result;
 }
 
@@ -904,7 +855,7 @@ FINAL int   _readInt  (NSUnarchiver *self);
 {
 	id result = nil;
 
-	[self decodeValueOfObjCType:"@" at:&result];
+	[self decodeValueOfObjCType:@encode(id) at:&result];
 
 	// result is retained
 	return result;
@@ -929,9 +880,8 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 						   at:(void *)_value
 {
 	TagType tag             = 0;
-	bool      isReference     = false;
+	bool    isReference     = false;
 
-#if 0
 	(*backend) >> tag;
 	isReference = isReferenceTag(tag);
 	tag         = tagValue(tag);
@@ -940,7 +890,7 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 	{
 		case _C_ID:
 			_checkType2(*_type, _C_ID, _C_CLASS);
-			*(id *)_value = [self _decodeObject:isReference];
+			*(void **)_value = (__bridge void *)[self _decodeObject:isReference];
 			break;
 		case _C_CLASS:
 			_checkType2(*_type, _C_ID, _C_CLASS);
@@ -1015,14 +965,12 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 			@throw [NSInconsistentArchiveException exceptionWithReason:[NSString stringWithFormat:@"unsupported typecode %i found.", tag] userInfo:nil];
 			break;
 	}
-#endif
 }
 
 - (void)decodeArrayOfObjCType:(const char *)_type
 						count:(unsigned int)_count
 						   at:(void *)_array
 {
-#if 0
 	TagType tag;
 	(*backend) >> tag;
 	unsigned int count = _readInt(self);
@@ -1061,7 +1009,6 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 						(char *)_array + offset, _type);
 			}
 	}
-#endif
 }
 
 /* Substituting One Class for Another */
@@ -1091,27 +1038,10 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 
 // ******************** primitive decoding ********************
 
-FINAL TagType _readTag(NSUnarchiver *self)
-{
-	unsigned char c;
-#if 0
-	NSCAssert(self, @"invalid self ..");
-
-	(*self->backend) >> c;
-	if (c == 0)
-	{
-		@throw [NSInconsistentArchiveException exceptionWithReason:@"found invalid type tag (0)" userInfo:nil];
-	}
-#endif
-	return (TagType)c;
-}
-
 FINAL int _readInt(NSUnarchiver *self)
 {
 	int value;
-#if 0
 	(*self->backend) & value;
-#endif
 	return value;
 }
 
