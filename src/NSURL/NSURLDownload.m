@@ -141,6 +141,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -(NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)response
 {
+	TODO; // -[NSURLDownload connection:willCacheResponse:]
 	return nil;
 }
 

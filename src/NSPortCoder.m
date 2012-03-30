@@ -53,15 +53,18 @@
 
 -(void)encodePortObject:(NSPort *)port
 {
+	TODO; // -[NSPortCoder encodePortObject:]
 }
 
 -(NSPort *)decodePortObject
 {
+	TODO; // -[NSPortCoder decodePortObject]
 	return nil;
 }
 
 - (void) encodeObject:(id)object
 {
+	TODO; // -[NSPortCoder encodeObject:]
 }
 
 - (void) encodeValueOfObjCType:(const char *)type at:(const void *)address
@@ -110,6 +113,7 @@
 
 -(void)dispatch
 {
+	TODO; // -[NSPortCoder dispatch]
 }
 
 - (void) encodeException:(NSException *)except

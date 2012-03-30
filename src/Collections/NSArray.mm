@@ -785,9 +785,9 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 	return j;
 }
 
-/* TODO: sortedArrayHint. */
 - (NSData *) sortedArrayHint
 {
+	TODO; // -[NSArray sortedArrayHint]
 	return nil;
 }
 

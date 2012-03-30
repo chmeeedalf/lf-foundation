@@ -276,14 +276,17 @@ static uint32_t ModeIndexFromString(NSString *mode)
 - (void) performSelector:(SEL)sel target:(id)target argument:(id)arg
 	order:(unsigned long)order modes:(NSArray *)modes
 {
+	TODO; // -[NSRunLoop performSelector:target:argument:order:modes:]
 }
 
 - (void) cancelPerformSelector:(SEL)sel target:(id)target argument:(id)arg
 {
+	TODO; // -[NSRunLoop cancelPerformSelector:target:argument:]
 }
 
 - (void) cancelPerformSelectorsWithTarget:(id)target
 {
+	TODO; // -[NSRunLoop cancelPerformSelectorsWithTarget:]
 }
 
 static char rl_key;

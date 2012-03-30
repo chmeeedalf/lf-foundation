@@ -87,6 +87,7 @@ static NSLock *transDictLock;
 
 - (id) reverseTransformedValue:(id)value
 {
+	TODO; // -[NSValueTransformer reverseTransformedValue:]
 	return nil;
 }
 @end

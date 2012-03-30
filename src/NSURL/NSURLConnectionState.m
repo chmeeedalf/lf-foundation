@@ -65,10 +65,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -(void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
+	TODO; // -[NSURLConnectionState connection:didReceiveAuthenticationChallenge:]
 }
 
 -(void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
+	TODO; // -[NSURLConnectionState connection:didCancelAuthenticationChallenge:]
 }
 
 -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data

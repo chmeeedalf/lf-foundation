@@ -131,10 +131,12 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 
 - (void) scheduleInRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
+	TODO; // -[NSStream scheduleInRunLoop:forMode:]
 }
 
 - (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
+	TODO; // -[NSStream removeFromRunLoop:forMode:]
 }
 
 @end

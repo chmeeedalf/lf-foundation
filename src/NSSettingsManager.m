@@ -187,10 +187,12 @@ NSString * const NSSettingsDidChangeNotification = @"NSSettingsDidChangeNotifica
 
 - (void) removeObjectForKey:(NSString *)key
 {
+	TODO; // -[NSSettingsManager removeObjectForKey:]
 }
 
 - (void) synchronize
 {
+	TODO; // -[NSSettingsManager synchronize]
 }
 
 - (NSDictionary *) persistentDomainForName:(NSString *)name

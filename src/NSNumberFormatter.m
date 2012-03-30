@@ -494,6 +494,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 
 - (void) setNegativeFormat:(NSString *)negForm
 {
+	TODO; //-[NSNumberFormatter setNegativeFormat:]
 }
 
 - (void) setNegativeInfinitySymbol:(NSString *)newNeg
@@ -558,6 +559,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 
 - (void) setPositiveFormat:(NSString *)posForm
 {
+	TODO; //-[NSNumberFormatter setPositiveFormat:]
 }
 
 - (void) setPositiveInfinitySymbol:(NSString *)newPos

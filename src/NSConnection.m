@@ -205,6 +205,7 @@ static NSMutableSet *allConnections;
 
 -(void)setRequestMode:(NSString *)mode
 {
+	TODO; // -[NSConnection setRequestMode:]
 }
 
 // Timeouts
@@ -334,5 +335,6 @@ static NSMutableSet *allConnections;
 
 - (void) forwardInvocation:(NSInvocation *)inv forProxy:(NSProxy *)proxy
 {
+	TODO; // -[NSConnection forwardInvocation:forProxy:]
 }
 @end
