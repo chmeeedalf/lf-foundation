@@ -171,6 +171,7 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 
 - (void)removeAllObjects
 {
+	TODO; // -[NSMapTable removeAllObjects]
 }
 
 - (NSDictionary *)dictionaryRepresentation

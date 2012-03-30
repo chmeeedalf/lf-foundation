@@ -433,6 +433,7 @@ static Class CoreSetClass;
 
 - (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, bool *stop))block
 {
+	TODO; // -[NSSet enumerateObjectsWithOptions:usingBlock:]
 }
 
 - (NSSet *) objectsPassingTest:(bool (^)(id obj, bool *stop))predicate

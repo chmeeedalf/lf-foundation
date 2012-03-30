@@ -91,34 +91,42 @@ static std::unordered_map<void *, void *> observationInfos;
 
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath
 {
+	TODO; // -[NSObject(NSKeyValueObserving) removeObserver:forKeyPath:]
 }
 
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context
 {
+	TODO; // -[NSObject(NSKeyValueObserving) removeObserver:forKeyPath:context:]
 }
 
 -(void)willChangeValueForKey:(NSString*)key
 {
+	TODO; // -[NSObject(NSKeyValueObserving) willChangeValueForKey:]
 }
 
 -(void)willChangeValueForKey:(NSString *)key withSetMutation:(NSKeyValueSetMutationKind)mutationKind usingObjects:(NSSet *)objects
 {
+	TODO; // -[NSObject(NSKeyValueObserving) willChangeValueForKey:withSetMutation:usingObjects:]
 }
 
 -(void)didChangeValueForKey:(NSString*)key
 {
+	TODO; // -[NSObject(NSKeyValueObserving) willChangeValueForKey:]
 }
 
 -(void)didChangeValueForKey:(NSString *)key withSetMutation:(NSKeyValueSetMutationKind)mutationKind usingObjects:(NSSet *)objects
 {
+	TODO; // -[NSObject(NSKeyValueObserving) didChangeValueForKey:withSetMutation:usingObjects:]]
 }
 
 -(void)willChange:(NSKeyValueChange)change valuesAtIndexes:(NSIndexSet *)indexes forKey:(NSString *)key
 {
+	TODO; // -[NSObject(NSKeyValueObserving) willChange:valuesAtIndexes:forKey:]
 }
 
 -(void)didChange:(NSKeyValueChange)change valuesAtIndexes:(NSIndexSet *)indexes forKey:(NSString *)key
 {
+	TODO; // -[NSObject(NSKeyValueObserving) didChange:valuesAtIndexes:forKey:]
 }
 
 - (void) setObservationInfo:(void *)info

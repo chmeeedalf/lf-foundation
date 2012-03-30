@@ -1194,6 +1194,7 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 
 - (void) sortWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp
 {
+	TODO; // -[NSMutableArray sortWithOptions:usingComparator:]
 }
 
 - (void) exchangeObjectAtIndex:(NSIndex)idx1 withObjectAtIndex:(NSIndex)idx2

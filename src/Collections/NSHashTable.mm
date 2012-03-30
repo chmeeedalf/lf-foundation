@@ -152,6 +152,7 @@ static Class ConcreteHashTableClass;
 
 - (void)removeAllObjects
 {
+	TODO; // -[NSHashTable removeAllObjects]
 }
 
 - (void)removeObject:(id)obj

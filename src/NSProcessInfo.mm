@@ -231,11 +231,11 @@ unsigned int numThreads __private = 0;
 
 - (void) enableSuddenTermination
 {
-	TODO;
+	TODO; // -[NSProcessInfo enableSuddenTermination];
 }
 
 - (void) disableSuddenTermination
 {
-	TODO;
+	TODO; // -[NSProcessInfo disnableSuddenTermination];
 }
 @end

@@ -391,6 +391,7 @@
 
 - (void) removeAttribute:(NSString *)attrib range:(NSRange)r
 {
+	TODO; // -[NSMutableAttributedString removeAttribute:range:]
 }
 
 - (void) appendAttributedString:(NSAttributedString *)attribString

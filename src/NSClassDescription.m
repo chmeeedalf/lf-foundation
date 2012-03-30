@@ -57,6 +57,7 @@ static NSMutableDictionary *classDescriptionTable;
 
 + (void) invalidateClassDescriptionCache
 {
+	TODO; // +[NSClassDescription invalidateClassDescriptionCache]
 }
 
 + (void) registerClassDescription:(NSClassDescription *)desc forClass:(Class)cls
