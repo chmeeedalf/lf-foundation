@@ -29,8 +29,10 @@
 
 #import <Foundation/NSValueTransformer.h>
 #import <Foundation/NSDictionary.h>
-#import <Foundation/NSObject.h>
+#import <Foundation/NSException.h>
 #import <Foundation/NSLock.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSString.h>
 
 @class NSString, NSArray;
 
@@ -65,6 +67,7 @@ static NSLock *transDictLock;
 {
 	return [transformers objectForKey:name];
 }
+
 + (NSArray *) valueTransformerNames
 {
 	return [transformers allKeys];
@@ -77,7 +80,7 @@ static NSLock *transDictLock;
 
 + (Class) transformedValueClass
 {
-	return Nil;
+	return [self subclassResponsibility:_cmd];
 }
 
 - (id) transformedValue:(id)val
@@ -87,7 +90,10 @@ static NSLock *transDictLock;
 
 - (id) reverseTransformedValue:(id)value
 {
-	TODO; // -[NSValueTransformer reverseTransformedValue:]
-	return nil;
+	if (![[self class] allowsReverseTransformation])
+	{
+		@throw [NSStandardException exceptionWithReason:[NSString stringWithFormat:@"[%@] is not reversible",NSStringFromClass([self class])] userInfo:nil];
+	}
+	return [self transformedValue:value];
 }
 @end
