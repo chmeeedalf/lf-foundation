@@ -51,13 +51,16 @@
 
 #import <Foundation/NSObject.h>
 
-@class NSCachedURLResponse,NSURLRequest;
+@class NSCachedURLResponse,NSURLRequest,NSURLResponse;
+
+typedef enum
+{
+	NSURLCacheStorageAllowed,
+	NSURLCacheStorageAllowedInMemoryOnly,
+	NSURLCacheStorageNotAllowed,
+} NSURLCacheStoragePolicy;
 
 @interface NSURLCache : NSObject
-{
-	NSUInteger _memoryCapacity;
-	NSUInteger _diskCapacity;
-}
 
 +(NSURLCache *)sharedURLCache;
 +(void)setSharedURLCache:(NSURLCache *)cache;
@@ -84,20 +87,7 @@
 
 @class NSData,NSDictionary;
 
-typedef enum
-{
-	NSURLCacheStorageAllowed,
-	NSURLCacheStorageAllowedInMemoryOnly,
-	NSURLCacheStorageNotAllowed,
-} NSURLCacheStoragePolicy;
-
 @interface NSCachedURLResponse : NSObject
-{
-	NSURLResponse  *_response;
-	NSData         *_data;
-	NSDictionary   *_userInfo;
-	NSURLCacheStoragePolicy _storagePolicy;
-}
 
 - (id) initWithResponse:(NSURLResponse *)response data:(NSData *)data userInfo:(NSDictionary *)userInfo storagePolicy:(NSURLCacheStoragePolicy)storagePolicy;
 - (id) initWithResponse:(NSURLResponse *)response data:(NSData *)data;

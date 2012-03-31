@@ -37,14 +37,6 @@
 
 
 @interface NSCache	:	NSObject
-{
-	NSString *name;
-	NSUInteger countLimit;
-	NSUInteger totalCostLimit;
-	bool evictsObjectsWithDiscardedContent;
-	id<NSCacheDelegate> delegate;
-	struct __NSCachePrivate *d;
-}
 @property(copy) NSString *name;
 @property NSUInteger countLimit;
 @property NSUInteger totalCostLimit;

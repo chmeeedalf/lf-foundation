@@ -57,18 +57,19 @@ struct cached_object
 	NSUInteger lastAccess;
 };
 
-struct __NSCachePrivate {
+typedef unordered_map<id, cached_object> table_type;
+@implementation NSCache
+{
+	NSString *name;
+	NSUInteger countLimit;
+	NSUInteger totalCostLimit;
+	bool evictsObjectsWithDiscardedContent;
+	id<NSCacheDelegate> delegate;
 	mutex mtx;
-	typedef unordered_map<id, cached_object> table_type;
 	table_type table;
 	NSUInteger currentAccess;
 	NSUInteger currentCost;
-
-	void lock() { mtx.lock(); }
-	void unlock() { mtx.unlock(); }
-};
-
-@implementation NSCache
+}
 @synthesize name;
 @synthesize countLimit;
 @synthesize totalCostLimit;
@@ -76,20 +77,18 @@ struct __NSCachePrivate {
 
 - (id) init
 {
-	d = new __NSCachePrivate;
-
 	return self;
 }
 
 - (id) objectForKey:(id)key
 {
-	lock_guard<mutex> locker(d->mtx);
+	lock_guard<mutex> locker(mtx);
 
-	auto iter = d->table.find(key);
-	if (iter == d->table.end())
+	auto iter = table.find(key);
+	if (iter == table.end())
 		return nil;
-	++(d->currentAccess);
-	iter->second.lastAccess = d->currentAccess;
+	++(currentAccess);
+	iter->second.lastAccess = currentAccess;
 	iter->second.count++;
 	return iter->second.obj;
 }
@@ -101,30 +100,30 @@ struct __NSCachePrivate {
 
 - (void) setObject:(id)obj forKey:(id)key cost:(NSUInteger)cost
 {
-	lock_guard<mutex> locker(d->mtx);
+	lock_guard<mutex> locker(mtx);
 
-	++(d->currentAccess);
-	d->currentCost += cost;
-	d->table[key] = cached_object(obj, cost, d->currentAccess, key);
+	++(currentAccess);
+	currentCost += cost;
+	table[key] = cached_object(obj, cost, currentAccess, key);
 }
 
 - (void) removeObjectForKey:(id)key
 {
-	lock_guard<mutex> locker(d->mtx);
+	lock_guard<mutex> locker(mtx);
 
-	auto iter = d->table.find(key);
+	auto iter = table.find(key);
 
-	if (iter == d->table.end())
+	if (iter == table.end())
 		return;
 
-	d->currentCost -= iter->second.cost;
-	d->table.erase(iter);
+	currentCost -= iter->second.cost;
+	table.erase(iter);
 }
 
 - (void) removeAllObjects
 {
-	lock_guard<mutex> locker(d->mtx);
-	d->table.clear();
+	lock_guard<mutex> locker(mtx);
+	table.clear();
 }
 
 - (id<NSCacheDelegate>) delegate
@@ -146,15 +145,15 @@ struct __NSCachePrivate {
 		}
 	};
 
-	if ((d->currentCost + cost <= totalCostLimit) && 
-			([self countLimit] > d->table.size()))
+	if ((currentCost + cost <= totalCostLimit) && 
+			([self countLimit] > table.size()))
 	{
 		return;
 	}
 
 	std::vector<cached_object*> objs;
 
-	for (auto i : d->table)
+	for (auto i : table)
 	{
 		objs.push_back(&i.second);
 	}
@@ -162,11 +161,11 @@ struct __NSCachePrivate {
 
 	for (auto j : objs)
 	{
-		if (d->table.size() <= countLimit || d->currentCost < (totalCostLimit - cost))
+		if (table.size() <= countLimit || currentCost < (totalCostLimit - cost))
 		{
 			break;
 		}
-		d->currentCost -= j->cost;
+		currentCost -= j->cost;
 		if ([static_cast<id>(j->obj) conformsToProtocol:@protocol(NSDiscardableContent)])
 		{
 			if (![static_cast<id>(j->obj) isContentDiscarded])
@@ -178,7 +177,7 @@ struct __NSCachePrivate {
 				continue;
 			}
 		}
-		d->table.erase(j->key);
+		table.erase(j->key);
 	}
 }
 

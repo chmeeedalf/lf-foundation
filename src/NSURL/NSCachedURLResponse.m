@@ -24,6 +24,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSURLResponse.h>
 
 @implementation NSCachedURLResponse
+{
+	NSURLResponse  *_response;
+	NSData         *_data;
+	NSDictionary   *_userInfo;
+	NSURLCacheStoragePolicy _storagePolicy;
+}
 
 -(id)initWithResponse:(NSURLResponse *)response data:(NSData *)data userInfo:(NSDictionary *)userInfo storagePolicy:(NSURLCacheStoragePolicy)storagePolicy
 {

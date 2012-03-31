@@ -21,6 +21,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSURLCache.h>
 
 @implementation NSURLCache
+{
+	NSUInteger _memoryCapacity;
+	NSUInteger _diskCapacity;
+}
 
 +(NSURLCache *)sharedURLCache
 {

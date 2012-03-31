@@ -19,7 +19,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #import <Foundation/NSObject.h>
-#import <Foundation/NSCachedURLResponse.h>
+#import <Foundation/NSURLCache.h>
 
 @class NSURLProtocol,NSURLRequest,NSURLResponse,NSURLAuthenticationChallenge,NSCachedURLResponse,NSData,NSError,NSMutableURLRequest;
 
