@@ -503,7 +503,7 @@ enum
 	withObjectsFromArray:(NSArray *)otherArray range:(NSRange)otherRange;
 
 /*!
- * @brief NSSet the receiver to another array, sorting the elements.
+ * @brief Set the receiver to another array, sorting the elements.
  * @param otherArray NSArray to set the receiver to.
  */
 -(void)setArray:(NSArray *)otherArray;

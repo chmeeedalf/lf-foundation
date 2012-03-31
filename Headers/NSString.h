@@ -304,7 +304,7 @@ typedef NSString * const NSSymbol;
 
 /*!
  \brief Invokes rangeOfCharacterFromSet:options:range: with the given character set and option mask, and the entire extent of the reciever as the range.
- \param aSet NSSet of which the first character will be searched.
+ \param aSet Set of which the first character will be searched.
  \param mask Option mask as a combination (bitwise OR) of NSCaseInsensitiveSearch, NSLiteralSearch, and NSBackwardsSearch.
  */
 -(NSRange)rangeOfCharacterFromSet:(NSCharacterSet *)aSet
@@ -312,7 +312,7 @@ typedef NSString * const NSSymbol;
 
 /*!
  \brief Returns the range of the first character in the character set, restricted to the given range and option mask.
- \param aSet NSSet of which the first character will be searched.
+ \param aSet Set of which the first character will be searched.
  \param mask Option mask as a combination (bitwise OR) of NSCaseInsensitiveSearch, NSLiteralSearch, and NSBackwardsSearch.
  \param aRange NSRange to restrict the search.
  */

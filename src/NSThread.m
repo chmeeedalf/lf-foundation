@@ -148,7 +148,7 @@ static void cleanupThread(void *thrId)
 {
 	self = [self init];
 
-	// NSSet running parameters
+	// Set running parameters
 	arg = anArgument;
 	return self;
 }

@@ -388,7 +388,7 @@ __BEGIN_DECLS
 - (id) replacementObjectForPortCoder:(NSPortCoder *)coder;
 
 /*!
- \brief NSSet the current version of the class.
+ \brief Set the current version of the class.
  \param version New class version.
  */
 +(void)setVersion:(int)version;

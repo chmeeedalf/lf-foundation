@@ -125,7 +125,7 @@ typedef enum
 - (void) resume;
 
 /*!
- * \brief NSSet the task object to run.
+ * \brief Set the task object to run.
  * \param obj New target object to start as the task.
  *
  * \details The task must not be running.

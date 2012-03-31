@@ -47,13 +47,13 @@
 }
 
 /*!
- * \brief NSSet up the transition to the given state using the given delegate and
+ * \brief Set up the transition to the given state using the given delegate and
  * selector.
  */
 - initWithDelegate:(id)del selector:(SEL)delSel targetState:(State *)next;
 
 /*!
- * \brief NSSet up the transition to the given state using an invocation.
+ * \brief Set up the transition to the given state using an invocation.
  * \param delInv Invocation for validator.  This allows you to configure the
  * validator however you wish, instead of requiring no arguments.
  * \param next Target state for this transition.
@@ -101,7 +101,7 @@
 - (void)addOutputState:(State *)toState transition:(StateTransition *)trans;
 
 /*!
- * \brief NSSet if this is a terminal state or not.
+ * \brief Set if this is a terminal state or not.
  * \param _isTerminalState \c true if this is to be a valid terminal state.
  */
 - (void)setIsTerminalState:(bool)_isTerminalState;
@@ -135,7 +135,7 @@
 @interface StateMachine : NSObject
 {
 	State *initialState;	/*!< \brief Initial state for the state machine. */
-	NSSet *states;			/*!< \brief NSSet of valid states in this state machine. */
+	NSSet *states;			/*!< \brief Set of valid states in this state machine. */
 	State *currentState;	/*!< \brief Current state for this state machine. */
 }
 
@@ -154,7 +154,7 @@
 - (bool)setState:(State *)newState;
 
 /*!
- * \brief NSSet the initial state for this state machine.
+ * \brief Set the initial state for this state machine.
  * \param startState Starting state.
  */
 - (void)setStartState:(State *)startState;

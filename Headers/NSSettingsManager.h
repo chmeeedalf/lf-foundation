@@ -94,14 +94,14 @@ SYSTEM_EXPORT NSString * const NSSettingsDidChangeNotification;
 
 // Setting settings
 /*!
- * \brief NSSet the object value for a given key, in the persistent domain.
+ * \brief Set the object value for a given key, in the persistent domain.
  * \param val NSValue to set.
  * \param key Key to set the value for.
  */
 - (void)setObject:(id)val forKey:(NSString *)key;
 
 /*!
- * \brief NSSet the integer value for a given key, in the persistent domain.
+ * \brief Set the integer value for a given key, in the persistent domain.
  * \param val NSValue to set.
  * \param key Key to set the value for.
  * \sa [SettingsManager setObject:forKey:]
@@ -109,7 +109,7 @@ SYSTEM_EXPORT NSString * const NSSettingsDidChangeNotification;
 - (void)setInteger:(int)val forKey:(NSString *)key;
 
 /*!
- * \brief NSSet the floating point value for a given key, in the persistent domain.
+ * \brief Set the floating point value for a given key, in the persistent domain.
  * \param val NSValue to set.
  * \param key Key to set the value for.
  * \sa [SettingsManager setObject:forKey:]
@@ -117,7 +117,7 @@ SYSTEM_EXPORT NSString * const NSSettingsDidChangeNotification;
 - (void)setFloat:(float)val forKey:(NSString *)key;
 
 /*!
- * \brief NSSet the boolean value for a given key, in the persistent domain.
+ * \brief Set the boolean value for a given key, in the persistent domain.
  * \param val NSValue to set.
  * \param key Key to set the value for.
  * \sa [SettingsManager setObject:forKey:]

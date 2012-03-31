@@ -56,7 +56,7 @@
 #import <Foundation/NSEnumerator.h>
 
 /*
- * Conre class for NSSet
+ * Core class for NSSet
  */
 
 @interface NSCoreSet : NSMutableSet

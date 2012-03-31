@@ -211,7 +211,7 @@ typedef enum {
  * \brief Invoked to inform the receiver that the specified change is about to
  * be executed at the given indexes in an ordered to-many relationship.
  * \param change The type of change being made.
- * \param indexes NSSet of indices to be changed.
+ * \param indexes Set of indices to be changed.
  * \param key The name of the property to be changed at each index.
  */
 -(void)willChange:(NSKeyValueChange)change valuesAtIndexes:(NSIndexSet *)indexes forKey:(NSString *)key;
@@ -220,7 +220,7 @@ typedef enum {
  * \brief Invoked to inform the receiver that the specified change has been
  * executed at the given indexes in an ordered to-many relationship.
  * \param change The type of change that was made.
- * \param indexes NSSet of indices that were affected.
+ * \param indexes Set of indices that were affected.
  * \param key The name of the property whose value was changed at each index.
  */
 -(void)didChange:(NSKeyValueChange)change valuesAtIndexes:(NSIndexSet *)indexes forKey:(NSString *)key;

@@ -79,7 +79,7 @@
 - (NSString *)destinationOfSymbolicLinkAtURL:(NSURL *)path error:(NSError **)errOut;
 
 /*!
- * \brief NSSet the attribute dictionary for the named object.
+ * \brief Set the attribute dictionary for the named object.
  * \param dict New attribute dictionary.
  * \param name Identifier to modify.
  */

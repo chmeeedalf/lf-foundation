@@ -91,7 +91,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	[_NSICUCharacterSet class] : (Class)self, 0, zone);
 }
 
-// Creating a Standard Character NSSet
+// Creating a Standard Character Set
 
 + (id)alphanumericCharacterSet
 {
@@ -179,7 +179,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	return emptyCharacterSet;
 }
 
-// Creating a Custom Character NSSet
+// Creating a Custom Character Set
 
 + (id)characterSetWithBitmapRepresentation:(NSData*)data
 {
@@ -210,7 +210,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	return nil;
 }
 
-// Testing NSSet Membership
+// Testing Set Membership
 
 - (bool)characterIsMember:(NSUniChar)aCharacter
 {
@@ -240,7 +240,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	return ![testSet isEqual:[NSCharacterSet emptyCharacterSet]];
 }
 
-// Inverting a Character NSSet
+// Inverting a Character Set
 
 - (NSCharacterSet*)invertedSet
 {
