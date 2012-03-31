@@ -59,23 +59,6 @@ typedef enum {
 } NSCalendarUnit;
 
 @interface NSDateComponents	:	NSObject<NSCoding,NSCopying>
-{
-	NSInteger era;
-	NSInteger year;
-	NSInteger month;
-	NSDate *date;
-	NSInteger day;
-	NSInteger hour;
-	NSInteger minute;
-	NSInteger second;
-	NSInteger week;
-	NSInteger weekday;
-	NSInteger weekdayOrdinal;
-	NSInteger quarter;
-	NSInteger weekOfMonth;
-	NSInteger weekOfYear;
-	NSInteger yearForWeekOfYear;
-}
 @property NSCalendar *calendar;
 @property NSTimeZone *timeZone;
 @property NSInteger era;

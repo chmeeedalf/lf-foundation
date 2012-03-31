@@ -46,7 +46,7 @@
 @synthesize era;
 @synthesize year;
 @synthesize month;
-@synthesize date;
+@dynamic date; // TODO -- use calendar
 @synthesize day;
 @synthesize hour;
 @synthesize minute;
