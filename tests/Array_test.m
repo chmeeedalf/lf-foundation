@@ -1,5 +1,6 @@
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSArray.h>
+ * All rights reserved.
 #import <Foundation/NSString.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>
@@ -266,7 +267,7 @@
 	fail_unless(0,
 		@"");
 }
-*/
+ */
 
 -(void) test_firstObjectCommonWithArray_
 {
@@ -306,7 +307,7 @@
 	fail_unless(0,
 		@"");
 }
-*/
+ */
 
 -(void) test_subarrayWithRange_
 {
@@ -346,7 +347,7 @@
 	fail_unless(0,
 		@"-[NSArray descriptionWithLocale:indent:] failed.");
 }
-*/
+ */
 
 -(void) test_addObject_
 {

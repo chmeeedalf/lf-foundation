@@ -1,5 +1,6 @@
 /* 
    NSArchiver.m
+ * All rights reserved.
 
    Copyright (C) 1998 MDlink online service center, Helge Hess
    All rights reserved.
@@ -49,7 +50,7 @@
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
    ---
-*/
+ */
 // $Id$
 
 #include <boost/serialization/serialization.hpp>
@@ -1057,4 +1058,4 @@ FINAL int _readInt(NSUnarchiver *self)
   c-basic-offset: 4
   tab-width: 8
   End:
-*/
+ */

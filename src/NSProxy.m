@@ -1,7 +1,8 @@
 /*
    NSProxy.m
+ * All rights reserved.
 
-   Copyright (C) 2005 Gold Project.
+   Copyright (C) 2005 Justin Hibbits.
    Copyright (C) 1998 MDlink online service center, Helge Hess
    All rights reserved.
 
@@ -22,7 +23,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 #include <stddef.h>
 #include <stdlib.h>
 

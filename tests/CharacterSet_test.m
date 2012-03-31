@@ -1,5 +1,6 @@
 #include <check.h>
 #import <Foundation/NSCharacterSet.h>
+ * All rights reserved.
 START_TEST(c_alphanumericCharacterSet) {
 	fail_unless(0,
 		"+[NSCharacterSet alphanumericCharacterSet] failed.");

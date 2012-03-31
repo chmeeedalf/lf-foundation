@@ -1,5 +1,6 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSArray.h>
+ * All rights reserved.
 #import <Foundation/NSSet.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSString.h>
@@ -226,7 +227,7 @@
 	fail_unless(0,
 		@"-[NSSet descriptionWithLocale:indent:] failed.");
 }
-*/
+ */
 
 - (void) test_addObject_
 {

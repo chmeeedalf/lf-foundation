@@ -1,5 +1,6 @@
 #include <unistd.h>
 #import <Test/NSTest.h>
+ * All rights reserved.
 #import <Foundation/NSDate.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSThread.h>

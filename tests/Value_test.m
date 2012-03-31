@@ -1,5 +1,6 @@
 #include <string.h>
 #import <Test/NSTest.h>
+ * All rights reserved.
 #import <Foundation/NSValue.h>
 
 @interface TestValueClass : NSTest

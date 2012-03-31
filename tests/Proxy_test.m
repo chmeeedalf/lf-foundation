@@ -1,5 +1,6 @@
 #include <check.h>
 #import <Foundation/NSProxy.h>
+ * All rights reserved.
 START_TEST(c_alloc) {
 	fail_unless(0,
 		"+[NSProxy alloc] failed.");

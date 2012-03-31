@@ -1,6 +1,7 @@
 /* $Gold$	*/
 /*
- * Copyright (c) 2009-2012	Gold Project
+ * All rights reserved.
+ * Copyright (c) 2009-2012	Justin Hibbits
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -14,10 +15,10 @@
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE PROJECT ``AS IS'' AND
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -90,7 +91,7 @@ enum
 	NSMutableArray *_operations;
 }
 @property NSInteger maxConcurrentOperationCount;
-@property NSString *name;
+@property(copy) NSString *name;
 
 + (id) currentQueue;
 + (id) mainQueue;
@@ -99,12 +100,15 @@ enum
 - (void) addOperations:(NSArray *)ops waitUntilFinished:(bool)wait;
 - (void) addOperationWithBlock:(void (^)(void))block;
 - (void) cancelAllOperations;
+
 - (bool) isSuspended;
+- (void) setSuspended:(bool)suspend;
+
 - (NSInteger) maxConcurrentOperationCount;
+- (void) setMaxConcurrentOperationCount:(NSInteger)count;
+
 - (NSUInteger) operationCount;
 - (NSArray *) operations;
-- (void) setMaxConcurrentOperationCount:(NSInteger)count;
-- (void) setSuspended:(bool)suspend;
 - (void) waitUntilAllOperationsAreFinished;
 @end
 

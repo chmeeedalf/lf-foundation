@@ -1,5 +1,6 @@
 /* 
    NSCompoundPredicate.h
+ * All rights reserved.
 
    Copyright (C) 2005, Helge Hess
    All rights reserved.
@@ -20,7 +21,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #ifndef __CompoundPredicate_H__
 #define __CompoundPredicate_H__
@@ -60,4 +61,4 @@ typedef enum {
   c-basic-offset: 4
   tab-width: 8
   End:
-*/
+ */

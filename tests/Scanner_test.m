@@ -1,5 +1,6 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSCharacterSet.h>
+ * All rights reserved.
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSScanner.h>
 

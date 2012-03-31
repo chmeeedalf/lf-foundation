@@ -1,5 +1,6 @@
 #import <Foundation/NSDate.h>
 #import <Foundation/NSLocale.h>
+ * All rights reserved.
 #import <Test/NSTest.h>
 
 @interface TestDateClass : NSTest

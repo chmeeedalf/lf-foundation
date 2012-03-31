@@ -1,5 +1,6 @@
 #import <Foundation/NSSocket.h>
 #import <Foundation/NSData.h>
+ * All rights reserved.
 #import <Foundation/NSDate.h>
 #import <Test/NSTest.h>
 #ifdef __FreeBSD__

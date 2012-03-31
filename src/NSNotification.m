@@ -1,7 +1,8 @@
 /*
    Notification.m
+ * All rights reserved.
 
-   Copyright (C) 2005-2012 Gold Project
+   Copyright (C) 2005-2012 Justin Hibbits
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -22,7 +23,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSDictionary.h>
@@ -180,5 +181,5 @@
   c-basic-offset: 4
   tab-width: 8
   End:
-*/
+ */
 

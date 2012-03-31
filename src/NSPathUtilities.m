@@ -1,5 +1,6 @@
 /* 
    PathUtilities.m
+ * All rights reserved.
 
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
@@ -20,7 +21,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #include <limits.h>			/* for PATH_MAX */
 #include <stdlib.h>

@@ -1,5 +1,6 @@
 #include <unistd.h>
 #import <Foundation/NSArray.h>
+ * All rights reserved.
 #import <Foundation/NSTask.h>
 #import <Foundation/NSURI.h>
 #import <Foundation/NSSet.h>

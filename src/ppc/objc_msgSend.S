@@ -1,12 +1,13 @@
 #include <machine/asm.h>
 
+ * All rights reserved.
 /*
  struct objc_super2
  {
     id        receiver;
     class_t  *class;
  };
-*/
+ */
 #define CLASS		4
 #define RECEIVER 	0
 
@@ -15,7 +16,7 @@
  {
     class_t *isa;
  };
-*/
+ */
 #define ISA			0
 
 /*
@@ -26,7 +27,7 @@
     cache_t *cache;
     ...
  };
-*/
+ */
 #define CACHE		8
 
 /*
@@ -35,7 +36,7 @@
     uintptr_t  count;
     method_t  *list;
  };
-*/
+ */
 #define COUNT		0
 #define LIST		4
 
@@ -45,7 +46,7 @@
     id  (*handler)(id,SEL, ...);
     SEL selector;
  };
-*/
+ */
 #define SELECTOR	4
 
 .macro PreCall
@@ -128,7 +129,7 @@
  *		struct objc_super2 *super,
  *		objc_message_ref *ref
  *		)
-*/
+ */
 ENTRY(objc_msgSend_fixedup)
 	lwz %r4,SELECTOR(%r4)
 ENTRY(objc_msgSend)
@@ -156,7 +157,7 @@ ENTRY(objc_msgSend)
  *		struct objc_super2 *super,
  *		objc_message_ref *ref
  *		)
-*/
+ */
 ENTRY(objc_msgSendSuper2_fixedup)
 	lwz %r4,SELECTOR(%r4)
 ENTRY(objc_msgSendSuper)
@@ -184,7 +185,7 @@ ENTRY(objc_msgSendSuper)
  *		struct objc_super2 *super,
  *		objc_message_ref *ref
  *		)
-*/
+ */
 ENTRY(objc_msgSendSuper2_stret_fixedup)
 	lwz %r5,SELECTOR(%r5)
 ENTRY(objc_msgSendSuper_stret)
@@ -212,7 +213,7 @@ ENTRY(objc_msgSendSuper_stret)
  *		struct objc_super2 *super,
  *		objc_message_ref *ref
  *		)
-*/
+ */
 ENTRY(objc_msgSend_stret_fixedup)
 	lwz %r5,SELECTOR(%r5)
 ENTRY(objc_msgSend_stret)

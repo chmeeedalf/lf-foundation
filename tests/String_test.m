@@ -1,5 +1,6 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSString.h>
+ * All rights reserved.
 
 @interface TestStringClass : NSTest
 @end
@@ -14,7 +15,7 @@
 	fail_unless(0,
 		@"+[NSString localizedStringWithFormat:] failed.");
 }
-*/
+ */
 
 - (void) test_stringWithCharacters_length_
 {
@@ -57,7 +58,7 @@
 	fail_unless(0,
 		@"+[NSString localizedNameOfStringEncoding:] failed.");
 }
-*/
+ */
 
 @end
 
@@ -188,7 +189,7 @@
 	fail_unless(0,
 		@"-[NSString compare:options:range:] failed.");
 }
-*/
+ */
 
 - (void) test_hasPrefix_
 {
@@ -232,7 +233,7 @@
 	fail_unless(0,
 		@"-[NSString capitalizedString] failed.");
 }
-*/
+ */
 
 - (void) test_lowercaseString
 {
@@ -276,7 +277,7 @@
 	fail_unless(0,
 		@"-[NSString floatValue] failed.");
 }
-*/
+ */
 
 - (void) test_intValue
 {
@@ -302,7 +303,7 @@
 	fail_unless(0,
 		@"-[NSString dataUsingEncoding:allowLossyConversion:] failed.");
 }
-*/
+ */
 
 - (void) test_fastestEncoding
 {
@@ -316,7 +317,7 @@
 	fail_unless(0,
 		@"-[NSString smallestEncoding] failed.");
 }
-*/
+ */
 
 - (void) test_indexOfString_fromIndex_
 {
@@ -386,6 +387,6 @@
 	fail_unless(0,
 		@"-[NSString initWithFormat:locale:arguments:] failed.");
 }
-*/
+ */
 
 @end

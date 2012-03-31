@@ -1,5 +1,6 @@
 #include <string.h>
 #import <Test/NSTest.h>
+ * All rights reserved.
 #import <Foundation/NSData.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSXMLParser.h>

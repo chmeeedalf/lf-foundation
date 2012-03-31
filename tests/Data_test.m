@@ -1,5 +1,6 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSData.h>
+ * All rights reserved.
 #include <string.h>
 
 @interface TestDataClass : NSTest

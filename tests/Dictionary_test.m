@@ -1,5 +1,6 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSDictionary.h>
+ * All rights reserved.
 #import <Foundation/NSString.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSEnumerator.h>
@@ -223,6 +224,6 @@
 	fail_unless(0,
 		@"-[NSDictionary descriptionWithLocale:indent:] failed.");
 }
-*/
+ */
 
 @end

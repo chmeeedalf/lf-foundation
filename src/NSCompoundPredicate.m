@@ -1,7 +1,8 @@
 /* 
    NSCompoundPredicate.m
+ * All rights reserved.
 
-   Copyright (C) 2010-2012, Gold Project
+   Copyright (C) 2010-2012, Justin Hibbits
    Copyright (C) 2005, Helge Hess
    All rights reserved.
 
@@ -21,7 +22,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #import <Foundation/NSCompoundPredicate.h>
 #import <Foundation/NSArray.h>

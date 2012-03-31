@@ -1,5 +1,6 @@
 #import <Foundation/NSLock.h>
 #import <Foundation/NSDate.h>
+ * All rights reserved.
 #import <Test/NSTest.h>
 
 static NSLock *lockTestLock;

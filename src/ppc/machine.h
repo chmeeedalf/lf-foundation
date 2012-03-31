@@ -1,5 +1,6 @@
 /* 
    powerpc.h
+ * All rights reserved.
 
    Copyright (C) 1998 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
@@ -20,7 +21,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #ifndef __powerpc_h__
 #define __powerpc_h__
@@ -262,4 +263,4 @@ static inline int __always_inline FUNCTION_ARG_ENCODING (CUMULATIVE_ARGS *CUM, c
   c-basic-offset: 4
   tab-width: 8
   End:
-*/
+ */

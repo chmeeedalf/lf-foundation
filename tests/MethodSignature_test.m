@@ -1,5 +1,6 @@
 #include <check.h>
 #import <Foundation/MethodSignature.h>
+ * All rights reserved.
 START_TEST(c_signatureWithObjCTypes_) {
 	fail_unless(0,
 		"+[MethodSignature signatureWithObjCTypes:] failed.");

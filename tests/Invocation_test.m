@@ -1,5 +1,6 @@
 #include <check.h>
 #import <Foundation/Invocation.h>
+ * All rights reserved.
 START_TEST(c_invocationWithMethodSignature_) {
 	fail_unless(0,
 		"+[Invocation invocationWithMethodSignature:] failed.");

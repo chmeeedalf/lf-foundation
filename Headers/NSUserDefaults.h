@@ -1,5 +1,6 @@
 /* 
    NSUserDefaults.h
+ * All rights reserved.
 
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
@@ -20,7 +21,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #ifndef __UserDefaults_h__
 #define __UserDefaults_h__
@@ -122,4 +123,4 @@ SYSTEM_EXPORT  NSString * const UserDefaultsDidChangeNotification;
   c-basic-offset: 4
   tab-width: 8
   End:
-*/
+ */

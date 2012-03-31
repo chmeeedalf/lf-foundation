@@ -1,5 +1,6 @@
 /* 
    PredicateParser.m
+ * All rights reserved.
 
    Copyright (C) 2000-2005 SKYRIX Software AG
    All rights reserved.
@@ -20,7 +21,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #define BOOST_SPIRIT_DEBUG
 #include <functional>

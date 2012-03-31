@@ -1,5 +1,6 @@
 #import <Foundation/NSProcessInfo.h>
 #import <Test/NSTest.h>
+ * All rights reserved.
 
 @interface TestProcessInfo	:	NSTest
 @end

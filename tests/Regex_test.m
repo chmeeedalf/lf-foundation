@@ -1,5 +1,6 @@
 #import <Foundation/NSRegex.h>
 #import <Foundation/NSString.h>
+ * All rights reserved.
 #import <Test/NSTest.h>
 
 @interface TestStringRegexExtension : NSTest

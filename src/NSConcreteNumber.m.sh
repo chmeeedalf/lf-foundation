@@ -1,5 +1,6 @@
 #!/bin/sh
 
+ * All rights reserved.
 template ()
 {
 NAME=$1

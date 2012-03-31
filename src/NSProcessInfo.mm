@@ -1,5 +1,6 @@
 /*
    ProcessInfo.m
+ * All rights reserved.
 
    Copyright (C) 2005-2012 Gold project
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
@@ -22,7 +23,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #include <unistd.h>
 #include <sys/timex.h>

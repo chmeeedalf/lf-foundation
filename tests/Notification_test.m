@@ -1,5 +1,6 @@
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSDictionary.h>
+ * All rights reserved.
 #import <Test/NSTest.h>
 
 @interface TestNotificationClass : NSTest

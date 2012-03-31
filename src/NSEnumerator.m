@@ -1,7 +1,8 @@
 /*
    NSEnumerator.m
+ * All rights reserved.
 
-   Copyright (C) 2005-2012 Gold Project.
+   Copyright (C) 2005-2012 Justin Hibbits.
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -22,7 +23,7 @@
    damages whatsoever resulting from loss of use, data or profits, whether in
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
-*/
+ */
 
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSArray.h>
