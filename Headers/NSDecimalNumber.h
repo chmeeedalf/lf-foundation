@@ -48,23 +48,17 @@
   NSDecimal decimal;
 }
 
-+ (void)setDefaultBehavior:(id<NSDecimalNumberBehaviors>)_beh;
-+ (id<NSDecimalNumberBehaviors>)defaultBehavior;
-
-+ (NSDecimalNumber *)zero;
-+ (NSDecimalNumber *)one;
-+ (NSDecimalNumber *)notANumber;
-+ (NSDecimalNumber *)maximumDecimalNumber;
-+ (NSDecimalNumber *)minimumDecimalNumber;
-
 + (NSDecimalNumber *)decimalNumberWithDecimal:(NSDecimal)_num;
 + (NSDecimalNumber *)decimalNumberWithMantissa:(unsigned long long)_mantissa
   exponent:(short)_exp
   isNegative:(bool)_flag;
-
 + (NSDecimalNumber *)decimalNumberWithString:(NSString *)_s;
 + (NSDecimalNumber *)decimalNumberWithString:(NSString *)_s
   locale:(NSLocale *)_locale;
+
++ (NSDecimalNumber *)one;
++ (NSDecimalNumber *)zero;
++ (NSDecimalNumber *)notANumber;
 
 - (id)initWithDecimal:(NSDecimal)_num;
 - (id)initWithMantissa:(unsigned long long)_mantissa
@@ -79,6 +73,8 @@
 - (NSDecimalNumber *)decimalNumberBySubtracting:(NSDecimalNumber *)_num;
 - (NSDecimalNumber *)decimalNumberByMultiplyingBy:(NSDecimalNumber *)_num;
 - (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num;
+- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSDecimalNumber *)_num;
+- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(NSDecimalNumber *)_num;
 
 - (NSDecimalNumber *)decimalNumberByAdding:(NSDecimalNumber *)_num
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
@@ -88,23 +84,41 @@
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
 - (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
+- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSDecimalNumber *)_num
+  withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
+- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(NSDecimalNumber *)_num
+  withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
+
+
+- (NSDecimalNumber *) decimalNumberByRoundingAccordingToBehavior:(id<NSDecimalNumberBehaviors>)behavior;
 
 /* values */
 
 - (NSDecimal)decimalValue;
 - (double)doubleValue;
 
-/* comparison */
-
-- (NSComparisonResult)compare:(NSNumber *)_num;
-
 /* description */
 
 - (NSString *)descriptionWithLocale:(NSLocale *)_locale;
 
+- (const char *) objCType;
+
++ (void)setDefaultBehavior:(id<NSDecimalNumberBehaviors>)_beh;
++ (id<NSDecimalNumberBehaviors>)defaultBehavior;
+
+/* comparison */
+
+- (NSComparisonResult)compare:(NSNumber *)_num;
+
++ (NSDecimalNumber *)maximumDecimalNumber;
++ (NSDecimalNumber *)minimumDecimalNumber;
+
 @end
 
 @interface NSDecimalNumberHandler : NSObject < NSDecimalNumberBehaviors >
++ (id) defaultDecimalNumber;
++ (id) decimalNumberHandlerWithRoundingMode:(NSRoundingMode)roundingMode scale:(short)scale raiseOnExactness:(bool)raiseOnExactness raiseOnOverflow:(bool)raiseOnOverflow raiseOnUnderflow:(bool)raiseOnUnderflow raiseOnDivideByZero:(bool)raiseOnDivZero;
+- (id) initWithRoundingMode:(NSRoundingMode)roundingMode scale:(short)scale raiseOnExactness:(bool)raiseOnExactness raiseOnOverflow:(bool)raiseOnOverflow raiseOnUnderflow:(bool)raiseOnUnderflow raiseOnDivideByZero:(bool)raiseOnDivZero;
 @end
 
 #endif /* __NSDecimalNumber_h__ */
