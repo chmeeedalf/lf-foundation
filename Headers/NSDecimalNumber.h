@@ -28,7 +28,7 @@
 #include <Foundation/NSValue.h>
 #include <Foundation/NSDecimal.h>
 
-@class NSDecimalNumber, NSString, NSDictionary;
+@class NSDecimalNumber, NSString, NSLocale;
 
 @protocol NSDecimalNumberBehaviors
 
@@ -64,14 +64,14 @@
 
 + (NSDecimalNumber *)decimalNumberWithString:(NSString *)_s;
 + (NSDecimalNumber *)decimalNumberWithString:(NSString *)_s
-  locale:(NSDictionary *)_locale;
+  locale:(NSLocale *)_locale;
 
 - (id)initWithDecimal:(NSDecimal)_num;
 - (id)initWithMantissa:(unsigned long long)_mantissa
   exponent:(short)_exp
   isNegative:(bool)_flag;
 - (id)initWithString:(NSString *)_s;
-- (id)initWithString:(NSString *)_s locale:(NSDictionary *)_locale;
+- (id)initWithString:(NSString *)_s locale:(NSLocale *)_locale;
 
 /* operations */
 
@@ -100,7 +100,7 @@
 
 /* description */
 
-- (NSString *)descriptionWithLocale:(NSDictionary *)_locale;
+- (NSString *)descriptionWithLocale:(NSLocale *)_locale;
 
 @end
 

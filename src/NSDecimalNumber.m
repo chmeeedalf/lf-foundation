@@ -99,7 +99,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
   return [[self alloc] initWithString:_s];
 }
 + (NSDecimalNumber *)decimalNumberWithString:(NSString *)_s
-  locale:(NSDictionary *)_locale
+  locale:(NSLocale *)_locale
 {
   return [[self alloc] initWithString:_s locale:_locale];
 }
@@ -143,7 +143,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
   return [self initWithDecimal:d];
 }
 
-- (id)initWithString:(NSString *)_s locale:(NSDictionary *)_locale
+- (id)initWithString:(NSString *)_s locale:(NSLocale *)_locale
 {
   return [self initWithDouble:[_s doubleValue]];
 }
@@ -499,7 +499,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
   return [self description];
 }
 
-- (NSString *)descriptionWithLocale:(NSDictionary *)_locale
+- (NSString *)descriptionWithLocale:(NSLocale *)_locale
 {
   return NSDecimalString(&(self->decimal), _locale);
 }
@@ -553,7 +553,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 /* description */
 
-- (NSString *)descriptionWithLocale:(NSDictionary *)_locale
+- (NSString *)descriptionWithLocale:(NSLocale *)_locale
 {
   return @"0";
 }
@@ -591,7 +591,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 /* description */
 
-- (NSString *)descriptionWithLocale:(NSDictionary *)_locale
+- (NSString *)descriptionWithLocale:(NSLocale *)_locale
 {
   return @"1";
 }
@@ -640,7 +640,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 /* description */
 
-- (NSString *)descriptionWithLocale:(NSDictionary *)_locale
+- (NSString *)descriptionWithLocale:(NSLocale *)_locale
 {
   return @"NaN";
 }
