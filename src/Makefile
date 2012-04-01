@@ -42,6 +42,8 @@ SRCS=	NSRange.m \
 		NSGeometry.m \
 		NSNumber.m NSConcreteNumber.m \
 		NSValue.m NSConcreteValue.m \
+		NSDecimalNumber.m \
+		NSDecimal.m \
 		NSApplication.m \
 		NSCoder.m \
 		NSKeyedArchiver.m \
