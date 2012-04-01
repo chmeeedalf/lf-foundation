@@ -1,4 +1,4 @@
-.PATH:	${.CURDIR}/URL \
+.PATH:	${.CURDIR}/NSURL \
 
 SRCS+=	NSCachedURLResponse.m \
 		NSHTTPURLResponse.m \
