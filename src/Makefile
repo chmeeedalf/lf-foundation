@@ -54,6 +54,7 @@ SRCS=	NSRange.m \
 		NSURL.m \
 		NSNotificationCenter.mm \
 		NSNotification.m \
+		NSDistributedNotificationCenter.m \
 		NSSettingsManager.m \
 		NSLocale.m NSConcreteLocale.mm \
 		NSTimer.m \
