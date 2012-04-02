@@ -29,6 +29,7 @@
  */
 
 #include <math.h>
+#include <pthread.h>
 #import <Foundation/NSLock.h>
 
 #import <Foundation/NSDate.h>
@@ -37,23 +38,10 @@
 #import <Foundation/NSString.h>
 
 /*
-   NSLock - lock of unlimited (MAX_INT) depth
-
-   In Gold all locks are recursive.
+   NSRecursiveLock - lock of unlimited (MAX_INT) depth
  */
 
-/* Brain dump:
- *
- * There can be a type of locking mechanism called a 'queued lock'.  This allows
- * a thread to be reentrant for signals (interrupted), while allowing
- * pseudo-recursive locking semantics.  If a thread takes a lock, and is
- * interrupted by a signal (expired timer, etc), the interrupt can be queued to
- * execute when the critical section is released if the interrupt attempts to
- * take the lock.  This should prevent deadlock occurrances, and using an
- * alternate stack should allow us to keep multiple yields in-flight if needed.
- */
-
-@implementation NSLock
+@implementation NSRecursiveLock
 {
 	NSString *name;
 	pthread_mutex_t mutex;
@@ -64,7 +52,10 @@
 
 - (id) init
 {
-	pthread_mutex_init(&mutex, NULL);
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&mutex, &attr);
 	return self;
 }
 
@@ -128,4 +119,4 @@
 	return isLocked;
 }
 
-@end /* NSLock:NSObject */
+@end /* NSRecursiveLock:NSObject */

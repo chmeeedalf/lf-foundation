@@ -48,18 +48,13 @@
 -(void)unlock;
 @end
 
-#if 0
 /*!
  * \class ConditionLock
  * \brief NSLock used for waiting on a condition.
  * NSCondition locks are not implemented yet.
  */
-@interface ConditionLock	: NSObject <Locking>
-{
-	struct objc_mutex *mutex;
-	int value;
-	struct objc_condition *condition;
-}
+@interface ConditionLock	: NSObject <NSLocking>
+@property(copy) NSString *name;
 
 // Initializing an ConditionLock
 /*!
@@ -86,6 +81,8 @@
  */
 -(void)unlockWithCondition:(int)condition;
 
+- (bool) lockBeforeDate:(NSDate *)lockDate;
+
 /*!
  * \brief Attempts to acquire a lock.
  * \returns Returns true if successful, false if not.
@@ -98,21 +95,35 @@
  */
 -(bool)tryLockWhenCondition:(int)condition;
 @end
-#endif
 
 /*!
  * \class NSLock
- * \brief Standard recursive lock.
- *
- * \details Since most locks used tend to be recursive, the default lock type
- * for Gold is recursive.
+ * \brief Standard lock.
  */
 @interface NSLock	: NSObject <NSLocking>
-{
-	NSString *name;
-	pthread_mutex_t mutex; /*!< \brief Underlying mutex. */
-	bool isLocked;
-}
+@property(copy) NSString *name;
+
+// Acquiring a lock
+/*!
+ * \brief Attempts to acquire a lock.  Returns immediately.
+ * \result Returns true if successful, false if not.
+ */
+-(bool)tryLock;
+
+- (bool) lockBeforeDate:(NSDate *)lockDate;
+
+/*!
+ * \brief Return if the lock is locked.
+ */
+-(bool)isLocked;
+
+@end
+
+/*!
+ * \class NSRecursiveLock
+ * \brief Standard recursive lock.
+ */
+@interface NSRecursiveLock	: NSObject <NSLocking>
 @property(copy) NSString *name;
 
 // Acquiring a lock
