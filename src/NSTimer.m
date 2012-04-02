@@ -104,33 +104,33 @@ TODO:
 @implementation NSTimer
 @synthesize isExpired;
 
-+ (NSTimer*)scheduledTimerWithNSTimeInterval:(NSTimeInterval)seconds
++ (NSTimer*)scheduledTimerWithTimeInterval:(NSTimeInterval)seconds
     invocation:(NSInvocation*)anInvocation
     repeats:(bool)_repeats
 {
-	id timer = [self timerWithNSTimeInterval:seconds
+	id timer = [self timerWithTimeInterval:seconds
 		invocation:anInvocation
 		repeats:_repeats];
-	[timer start];
+	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 	return timer;
 }
 
-+ (NSTimer*)scheduledTimerWithNSTimeInterval:(NSTimeInterval)seconds
++ (NSTimer*)scheduledTimerWithTimeInterval:(NSTimeInterval)seconds
     target:(id)anObject
     selector:(SEL)aSelector
     userInfo:(id)anArgument
     repeats:(bool)_repeats
 {
-	id timer = [self timerWithNSTimeInterval:seconds
+	id timer = [self timerWithTimeInterval:seconds
 		target:anObject
 		selector:aSelector
 		userInfo:anArgument
 		repeats:_repeats];
-	[timer start];
+	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 	return timer;
 }
 
-+ (NSTimer*)timerWithNSTimeInterval:(NSTimeInterval)seconds
++ (NSTimer*)timerWithTimeInterval:(NSTimeInterval)seconds
     invocation:(NSInvocation*)anInvocation
     repeats:(bool)_repeats
 {
@@ -140,7 +140,7 @@ TODO:
 	return timer;
 }
 
-+ (NSTimer*)timerWithNSTimeInterval:(NSTimeInterval)seconds
++ (NSTimer*)timerWithTimeInterval:(NSTimeInterval)seconds
     target:(id)anObject
     selector:(SEL)aSelector
     userInfo:(id)anArgument
@@ -215,11 +215,6 @@ TODO:
 		[[NSRunLoop currentRunLoop] removeTimer:self forMode:NSDefaultRunLoopMode];
 		running = false;
 	}
-}
-
-- (void)start
-{
-	[[NSRunLoop currentRunLoop] addTimer:self forMode:NSDefaultRunLoopMode];
 }
 
 - (id) userInfo		{ return userInfo; }
