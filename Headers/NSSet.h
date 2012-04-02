@@ -314,7 +314,7 @@
 /*!
  * \brief Returns an enumerator object that lets you access each object in the set.
  */
--(NSEnumerator *)enumerator;
+-(NSEnumerator *)objectEnumerator;
 
 // Sending messages to elements of the set
 /*!

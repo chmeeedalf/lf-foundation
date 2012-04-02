@@ -108,7 +108,7 @@ typedef std::unordered_multiset<id> _map_table;
 	return nil;
 }
 
--(NSEnumerator *)enumerator
+-(NSEnumerator *)objectEnumerator
 {
 	return [[_CountedSetEnumerator alloc] initWithTable:&table];
 }
