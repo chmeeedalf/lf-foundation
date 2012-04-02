@@ -29,6 +29,7 @@
 #include <sys/timex.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/utsname.h>
 #include <string.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
@@ -43,8 +44,6 @@
 /*
  * Static global vars
  */
-
-static NSString *operatingSystem = @"Gold version " @VERSION;
 
 // The shared ProcessInfo instance
 static NSProcessInfo *processInfo = nil;
@@ -106,9 +105,38 @@ unsigned int numThreads __private = 0;
 	return processInfo;
 }
 
-+ (NSString*)operatingSystem
+- (NSUInteger) operatingSystem
 {
-	return operatingSystem;
+	return NSBSDOperatingSystem;
+}
+
+- (NSString*)operatingSystemName
+{
+	return @"NSBSDOperatingSystem";
+}
+
+- (NSString *) operatingSystemVersionString
+{
+	static NSString *versionString;
+
+	if (versionString == nil)
+	{
+		@synchronized([NSProcessInfo class])
+		{
+			if (versionString == nil)
+			{
+				struct utsname uts;
+				
+				if (uname(&uts) != 0)
+				{
+					return nil;
+				}
+				versionString = [NSString stringWithCString:uts.release
+					encoding:[NSString defaultCStringEncoding]];
+			}
+		}
+	}
+	return versionString;
 }
 
 + (NSProcessInfo*)processInfo
@@ -177,7 +205,7 @@ unsigned int numThreads __private = 0;
 
 - (void)setProcessName:(NSString*)aName
 {
-	if (aName && [aName length])
+	if (aName != nil && [aName length] > 0)
 	{
 		processName = aName;
 	}
@@ -223,6 +251,11 @@ unsigned int numThreads __private = 0;
 		processors = Alepha::System::SysCtl("kern.smp.cpus");
 	}
 	return processors;
+}
+
+- (NSUInteger) activeProcessorCount
+{
+	return (unsigned long)Alepha::System::SysCtl("kern.smp.active");
 }
 
 - (unsigned long long) physicalMemory

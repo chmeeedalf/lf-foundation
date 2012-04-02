@@ -80,21 +80,9 @@ SYSTEM_EXPORT NSString *NSThreadWillExitNotification;
 	NSString			*name;
 	/* @} */
 }
-@property(copy) NSString *name;
+@property(nonatomic,copy) NSString *name;
 @property double threadPriority;
 @property size_t stackSize;
-
-/*!
- \brief Returns an object representing the current thread.
- */
-+(NSThread *)currentThread;
-+(NSThread *)mainThread;
-
-+ (NSArray *) callStackReturnAddresses;
-+ (NSArray *) callStackSymbols;
-
-+ (void) setThreadPriority:(double)newPrio;
-+ (double) threadPriority;
 
 /*!
  * \brief Initialize the thread data.  This is the designated initializer.
@@ -109,40 +97,7 @@ SYSTEM_EXPORT NSString *NSThreadWillExitNotification;
 - (id) initWithObject:(id)obj;
 - (id) initWithTarget:(id)target selector:(SEL)selector object:(id)argument;
 
-/*!
- \brief Has the receiver sleep until the specified time.
- \param date NSDate to wakeup.
- No input or timers will be processed in this interval.
- */
-+(void)sleepUntilDate:(NSDate *)date;
-
-/*!
- * \brief Sleep for the specified time interval.
- */
-+(void)sleepForTimeInterval:(NSTimeInterval)ti;
-
-/*!
- \brief Terminates the receiving thread.
- Before exiting the thread, this method posts the
- ThreadExitingNotification with the thread being exited to the default
- notification center.
- */
--(void)exit;
-
-/* \functiongroup Getting thread data */
-
-/*!
- * \brief Add a private thread item for a given key.
- * \param data Private thread data to add.
- * \param key Key to add the data under.
- */
--(void) setPrivateThreadData:(id)data forKey:(id)key;
-
-/*!
- * \brief Return the private data for a given key.
- * \param key Key to lookup in the private thread dictionary.
- */
--(id) privateThreadDataForKey:(id)key;
++ (void) detachNewThreadSelector:(SEL)aSel toTarget:(id)target withObject:(id)arg;
 
 /*!
  * \brief Main thread routine.
@@ -155,16 +110,15 @@ SYSTEM_EXPORT NSString *NSThreadWillExitNotification;
 /*!
  * \brief Spawn and run this thread.
  */
--(void) start;
+- (void) start;
 
 /*!
  * \brief Returns an indicator of whether the receiver is currently executing.
  */
--(bool)isExecuting;
+- (bool) isExecuting;
 
 - (bool) isFinished;
 
-- (void) cancel;
 - (bool) isCancelled;
 
 /*!
@@ -172,6 +126,46 @@ SYSTEM_EXPORT NSString *NSThreadWillExitNotification;
  * resources automatically.
  */
 - (void) detach;
+
+/*!
+ \brief Has the receiver sleep until the specified time.
+ \param date NSDate to wakeup.
+ No input or timers will be processed in this interval.
+ */
++ (void) sleepUntilDate:(NSDate *)date;
+
+/*!
+ * \brief Sleep for the specified time interval.
+ */
++ (void) sleepForTimeInterval:(NSTimeInterval)ti;
+
+/*!
+ \brief Terminates the receiving thread.
+ Before exiting the thread, this method posts the
+ ThreadExitingNotification with the thread being exited to the default
+ notification center.
+ */
+- (void) exit;
+
+- (void) cancel;
+
+/*!
+ \brief Returns an object representing the current thread.
+ */
++ (NSThread *) currentThread;
++ (NSArray *) callStackReturnAddresses;
++ (NSArray *) callStackSymbols;
+
++ (void) setThreadPriority:(double)newPrio;
++ (double) threadPriority;
+
++ (NSThread *) mainThread;
++ (bool) isMainThread;
+- (bool) isMainThread;
+
+/* \functiongroup Getting thread data */
+
+- (NSMutableDictionary *)threadDictionary;
 
 @end
 

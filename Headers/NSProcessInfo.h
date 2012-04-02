@@ -36,6 +36,18 @@
 @class NSArray;
 @class NSDictionary;
 
+enum
+{
+	NSWindowsNTOperatingSystem = 1,
+	NSWindows95OperatingSystem,
+	NSSolarisOperatingSystem,
+	NSHPUXOperatingsystem,
+	NSMACHOperatingSystem,
+	NSSunOSOperatingsystem,
+	NSOSF1OperatingSystem,
+	NSBSDOperatingSystem,
+};
+
 /*!
  \class ProcessInfo
  \brief ProcessInfo provides an interface to the operating system for
@@ -90,7 +102,7 @@
 /*!
   \brief Returns the number of threads in the current process.
   */
-- (unsigned int)threadCount;
+- (NSUInteger)threadCount;
 
 /*!
  \brief Sets the process name.
@@ -101,9 +113,13 @@
 -(void)setProcessName:(NSString *)newName;
 
 - (NSString *) hostName;
+- (NSUInteger) operatingSystem;
+- (NSString *) operatingSystemName;
+- (NSString *) operatingSystemVersionString;
 
 - (unsigned long long) physicalMemory;
 - (NSUInteger) processorCount;
+- (NSUInteger) activeProcessorCount;
 - (NSTimeInterval) systemUptime;
 
 /* Not yet implemented, don't know when it will. */

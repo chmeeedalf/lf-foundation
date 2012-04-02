@@ -50,6 +50,7 @@
 /*
 	XXX: REWRITE This.
 
+	Need to check ARC ownership on this.  Ownership should transfer at thread spawn.
 	The NSThread class currently is not implemented properly and should be
 	rewritten.  All member data should be created at instantiation time, rather
 	than launch time, to ease the ownership rights confusion.
@@ -125,6 +126,13 @@ static void cleanupThread(void *thrId)
 	}
 }
 
++ (void) detachNewThreadSelector:(SEL)aSel toTarget:(id)target withObject:(id)arg
+{
+	NSThread *thread = [[NSThread alloc] initWithTarget:target selector:aSel object:arg];
+	[thread start];
+	[thread detach];
+}
+
 /*
  * Instance Methods
  */
@@ -182,6 +190,16 @@ static void cleanupThread(void *thrId)
 	return symbols;
 }
 
++ (bool) isMainThread
+{
+	return (pthread_main_np() == 1);
+}
+
+- (bool) isMainThread
+{
+	return (self == mainThread);
+}
+
 // Do nothing
 - (void) main
 {
@@ -223,21 +241,9 @@ static void cleanupThread(void *thrId)
 	terminate();
 }
 
-- (void) setPrivateThreadData:(id)data forKey:(id)key
+- (NSMutableDictionary *) threadDictionary
 {
-	if (data == nil)
-	{
-		[privateThreadData removeObjectForKey:key];
-	}
-	else
-	{
-		[privateThreadData setObject:data forKey:key];
-	}
-}
-
-- (id) privateThreadDataForKey:(id)key
-{
-	return [privateThreadData objectForKey:key];
+	return privateThreadData;
 }
 
 - (void)dealloc
@@ -324,6 +330,12 @@ static void cleanupThread(void *thrId)
 	pthread_attr_getschedparam(&attrs, &params);
 
 	return (double)params.sched_priority / (prio_max - prio_min);
+}
+
+- (void) setName:(NSString *)newName
+{
+	pthread_set_name_np(base, [newName UTF8String]);
+	name = newName;
 }
 
 + (double) threadPriority
