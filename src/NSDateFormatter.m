@@ -368,7 +368,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 	return _GetSymbolArray(self, UDAT_STANDALONE_WEEKDAYS);
 }
 
-- (void) standaloneWeekdaySymbols:(NSArray *)weekdays
+- (void) setStandaloneWeekdaySymbols:(NSArray *)weekdays
 {
 	_SetSymbolArray(self, UDAT_STANDALONE_WEEKDAYS, weekdays);
 }
@@ -427,7 +427,7 @@ static void _SetSymbolArray(NSDateFormatter *self, UDateFormatSymbolType type, N
 }
 
 
-- (NSDate *)gregorianStartdate
+- (NSDate *)gregorianStartDate
 {
 	const UCalendar *cal = udat_getCalendar(_udf);
 	UErrorCode ec = U_ZERO_ERROR;
