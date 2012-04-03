@@ -41,6 +41,12 @@ typedef NSUInteger NSDataReadingOptions;
 
 enum
 {
+	NSDataWritingAtomic = 1UL << 0,
+};
+typedef NSUInteger NSDataWritingOptions;
+
+enum
+{
 	NSDataSearchBackwards = 1UL,
 	NSDataSearchAnchored = 1UL << 1,
 };
@@ -151,6 +157,8 @@ typedef NSUInteger NSDataSearchOptions;
  */
 -(NSData *)subdataWithRange:(NSRange)aRange;
 
+-(NSRange)rangeOfData:(NSData *)data options:(NSDataSearchOptions)options range:(NSRange)inRange;
+
 // Querying a data object
 /*!
  @brief Compares the receiver object to another data object.
@@ -159,8 +167,6 @@ typedef NSUInteger NSDataSearchOptions;
  */
 -(bool)isEqualToData:(NSData *)other;
 
--(NSRange)rangeOfData:(NSData *)data options:(NSDataSearchOptions)options range:(NSRange)inRange;
-
 /*!
  @brief Returns the number of bytes contained in the receiver.
  */
@@ -168,6 +174,8 @@ typedef NSUInteger NSDataSearchOptions;
 
 - (NSString *)encodedBase64String;
 
+- (bool) writeToURL:(NSURL *)url atomically:(bool)atomically;
+- (bool) writeToURL:(NSURL *)url options:(NSDataWritingOptions)mask error:(NSError **)errp;
 @end
 
 @interface NSMutableData	: NSData

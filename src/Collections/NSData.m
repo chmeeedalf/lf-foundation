@@ -145,6 +145,23 @@
 	return [self initWithBytes:[source bytes] length:[source length]];
 }
 
+- (bool) writeToURL:(NSURL *)url atomically:(bool)atomic
+{
+	NSDataWritingOptions opts = 0;
+
+	if (atomic)
+	{
+		opts = NSDataWritingAtomic;
+	}
+	return [self writeToURL:url options:opts error:NULL];
+}
+
+- (bool) writeToURL:(NSURL *)url options:(NSDataWritingOptions)opts error:(NSError **)errp
+{
+	TODO; // -[NSData writeToURL:options:error:]
+	return false;
+}
+
 - (id)copyWithZone:(NSZone*)zone
 {
 	return self;
