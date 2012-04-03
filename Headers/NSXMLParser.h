@@ -108,7 +108,7 @@ enum {
 	NSXMLParserNMTOKENRequiredError,
 	NSXMLParserNAMERequiredError,
 	NSXMLParserPCDATARequiredError,
-	NSXMLParserURLRequiredError,
+	NSXMLParserURIRequiredError,
 	NSXMLParserPublicIdentifierRequiredError,
 	NSXMLParserLTRequiredError,
 	NSXMLParserGTRequiredError,
@@ -129,8 +129,8 @@ enum {
 	NSXMLParserParsedEntityRefInInternalError,
 	NSXMLParserEntityRefLoopError,
 	NSXMLParserEntityBoundaryError,
-	NSXMLParserInvalidURLError,
-	NSXMLParserURLFragmentError,
+	NSXMLParserInvalidURIError,
+	NSXMLParserURIFragmentError,
 	NSXMLParserNoDTDError = 94,
 	NSXMLParserDelegateAbortedParseError = 512,
 };
@@ -271,6 +271,17 @@ typedef NSInteger NSXMLParserError;
  */
 - (void)parser:(NSXMLParser *)parser didEndMappingPrefix:(NSString *)prefix;
 
+- (NSData *)parser:(NSXMLParser *)parser resolveExternalEntityName:(NSString *)entityName systemID:(NSString *)systemID;
+
+/*!
+ * \brief Called when a fatal parsing error occurs.
+ * \param parser The parser object.
+ * \param parseError The object describing the error.
+ */
+- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError;
+
+- (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validationError;
+
 /*!
  * \brief Called to provide the delegate with some or all of the characters of
  * the current element.
@@ -283,12 +294,7 @@ typedef NSInteger NSXMLParserError;
  */
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string;
 
-/*!
- * \brief Called when the parser finds a comment in the XML.
- * \param parser The parser object.
- * \param comment The contents of the XML comment.
- */
-- (void)parser:(NSXMLParser *)parser foundComment:(NSString *)comment;
+- (void)parser:(NSXMLParser *)parser foundIgnorableWhitespace:(NSString *)whitespaceString;
 
 /*!
  * \brief Called when the parser finds a processing instruction.
@@ -299,24 +305,21 @@ typedef NSInteger NSXMLParserError;
 - (void)parser:(NSXMLParser *)parser foundProcessingInstructionWithTarget:(NSString *)target data:(NSString *)data;
 
 /*!
- * \brief Called when a fatal parsing error occurs.
+ * \brief Called when the parser finds a comment in the XML.
  * \param parser The parser object.
- * \param parseError The object describing the error.
+ * \param comment The contents of the XML comment.
  */
-- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError;
-
-- (NSData *)parser:(NSXMLParser *)parser resolveExternalEntityName:(NSString *)entityName systemID:(NSString *)systemID;
-
-- (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validationError;
+- (void)parser:(NSXMLParser *)parser foundComment:(NSString *)comment;
 
 - (void)parser:(NSXMLParser *)parser foundCDATA:(NSData *)comment;
-- (void)parser:(NSXMLParser *)parser foundIgnorableWhitespace:(NSString *)whitespaceString;
+
+
 - (void)parser:(NSXMLParser *)parser foundAttributeDeclarationWithName:(NSString *)attributeName forElement:(NSString *)elementName type:(NSString *)type defaultValue:(NSString *)defaultValue;
 - (void)parser:(NSXMLParser *)parser foundElementDeclarationWithName:(NSString *)elementName model:(NSString *)model;
 - (void)parser:(NSXMLParser *)parser foundExternalEntityDeclarationWithName:(NSString *)entityName publicID:(NSString *)publicID systemID:(NSString *)systemID;
 - (void)parser:(NSXMLParser *)parser foundInternalEntityDeclarationWithName:(NSString *)name value:(NSString *)value;
-- (void)parser:(NSXMLParser *)parser foundNotationDeclarationWithName:(NSString *)name publicID:(NSString *)publicID systemID:(NSString *)systemID;
 - (void)parser:(NSXMLParser *)parser foundUnparsedEntityDeclarationWithName:(NSString *)name publicID:(NSString *)publicID systemID:(NSString *)systemID notationName:(NSString *)notationName;
+- (void)parser:(NSXMLParser *)parser foundNotationDeclarationWithName:(NSString *)name publicID:(NSString *)publicID systemID:(NSString *)systemID;
 
 
 @end
