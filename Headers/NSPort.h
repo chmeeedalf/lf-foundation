@@ -35,9 +35,12 @@
 __BEGIN_DECLS
 
 @class NSArray, PortMessage, NSString, NSConnection, NSDate, NSRunLoop;
+@class NSSocket;
+
 @protocol NSEventSource;
 
 SYSTEM_EXPORT NSString * const NSPortDidBecomeInvalidNotification;
+typedef NSUInteger NSSocketNativeHandle;
 
 @protocol NSPortDelegate<NSObject>
 - (void) handlePortMessage:(PortMessage *)message;
@@ -61,13 +64,29 @@ SYSTEM_EXPORT NSString * const NSPortDidBecomeInvalidNotification;
 - (void) addConnection:(NSConnection *)conn toRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode;
 - (void) removeConnection:(NSConnection *)conn fromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode;
 
-- (uint32_t) newConversation;
 - (bool) sendBeforeDate:(NSDate *)date components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved;
-- (bool) sendBeforeDate:(NSDate *)date msgid:(uint32_t)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved;
+- (bool) sendBeforeDate:(NSDate *)date msgid:(NSUInteger)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved;
 - (size_t)reservedSpaceLength;
 
 - (void)scheduleInRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
 - (void)removeFromRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
+@end
+
+@interface NSSocketPort	:	NSPort
+- (id) init;
+- (id) initWithTCPPort:(unsigned short)port;
+- (id) initWithProtocolFamily:(int)family socketType:(int)type protocol:(int)protocol address:(NSData *)address;
+- (id) initWithProtocolFamily:(int)family socketType:(int)type protocol:(int)protocol socket:(NSSocketNativeHandle)sock;
+- (id) initWithSocket:(NSSocket *)socket;
+- (id) initRemoteWithTCPPort:(int)port host:(NSString *)hostName;
+- (id) initRemoteWithProtocolFamily:(int)family socketType:(int)type protocol:(int)protocol address:(NSData *)address;
+
+- (NSData *) address;
+- (int) protocol;
+- (int) protocolFamily;
+- (NSSocketNativeHandle) socket;
+- (int) socketType;
+
 @end
 
 __END_DECLS
