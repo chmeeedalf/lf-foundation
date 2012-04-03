@@ -42,81 +42,44 @@ typedef enum
 } NSDateFormatterStyle;
 
 @interface NSDateFormatter	:	NSFormatter
-@property(nonatomic,copy) NSDate *defaultDate;
+@property(nonatomic,strong) NSDate *defaultDate;
+@property(nonatomic,copy) NSString *AMSymbol;
+@property(nonatomic,copy) NSString *PMSymbol;
+@property(nonatomic,copy) NSArray *eraSymbols;
+@property(nonatomic,copy) NSArray *longEraSymbols;
+@property(nonatomic,copy) NSArray *monthSymbols;
+@property(nonatomic,copy) NSArray *shortMonthSymbols;
+@property(nonatomic,copy) NSArray *standaloneMonthSymbols;
+@property(nonatomic,copy) NSArray *shortStandaloneMonthSymbols;
+@property(nonatomic,copy) NSArray *veryShortStandaloneMonthSymbols;
+@property(nonatomic,copy) NSArray *shortWeekdaySymbols;
+@property(nonatomic,copy) NSArray *standaloneWeekdaySymbols;
+@property(nonatomic,copy) NSArray *shortStandaloneWeekdaySymbols;
+@property(nonatomic,copy) NSArray *weekdaySymbols;
+@property(nonatomic,copy) NSArray *veryShortWeekdaySymbols;
+@property(nonatomic,copy) NSArray *veryShortStandaloneWeekdaySymbols;
+@property(nonatomic,copy) NSArray *quarterSymbols;
+@property(nonatomic,copy) NSArray *shortQuarterSymbols;
+@property(nonatomic,copy) NSArray *shortStandaloneQuarterSymbols;
+@property(nonatomic,copy) NSArray *standaloneQuarterSymbols;
+@property(nonatomic,copy) NSCalendar *calendar;
+@property(nonatomic,strong) NSTimeZone *timeZone;
+@property(nonatomic,strong) NSDate *twoDigitStartDate;
+@property NSDateFormatterStyle dateStyle;
+@property NSDateFormatterStyle timeStyle;
+@property(setter=setLenient:) bool isLenient;
+@property(nonatomic,strong) NSLocale *locale;
+@property(nonatomic,strong) NSDate *gregorianStartDate;
+@property bool doesRelativeFormatting;
 
 + (NSString *)dateFormatFromTemplate:(NSString *)dfTemplate options:(unsigned long)opts locale:(NSLocale *)locale;
 - (id) init;
 
-- (NSString *)AMSymbol;
-- (void) setAMSymbol:(NSString *)newAM;
-- (NSString *)PMSymbol;
-- (void) setPMSymbol:(NSString *)newPM;
-- (NSArray *)eraSymbols;
-- (void) setEraSymbols:(NSArray *)newEra;
-- (NSCalendar *)calendar;
-- (void) setCalendar:(NSCalendar *)newCal;
 - (void) setDateFormat:(NSString *)dateFormat;
-- (NSDateFormatterStyle)dateStyle;
-- (void) setTimeStyle:(NSDateFormatterStyle)style;
-- (NSDateFormatterStyle)timeStyle;
-- (void) setDateStyle:(NSDateFormatterStyle)style;
-- (NSTimeZone *)timeZone;
-- (void) setTimeZone:(NSTimeZone *)tz;
-- (NSDate *)twoDigitStartDate;
-- (void) setTwoDigitStartDate:(NSDate *)date;
-
-- (NSArray *)monthSymbols;
-- (void) setMonthSymbols:(NSArray *)monthSymbols;
-- (NSArray *)shortMonthSymbols;
-- (void) setShortMonthSymbols:(NSArray *)shortSyms;
-- (NSArray *)shortStandaloneMonthSymbols;
-- (void) setShortStandaloneMonthSymbols:(NSArray *)shortSyms;
-- (NSArray *)shortStandaloneMonthSymbols;
-- (void) setShortStandaloneMonthSymbols:(NSArray *)newSyms;
-- (NSArray *)standaloneMonthSymbols;
-- (void) setStandaloneMonthSymbols:(NSArray *)newSyms;
-- (NSArray *)veryShortMonthSymbols;
-- (void) setVeryShortMonthSymbols:(NSArray *)newSyms;
-- (NSArray *)veryShortStandaloneMonthSymbols;
-- (void) setVeryShortStandaloneMonthSymbols:(NSArray *)newSyms;
-
-- (NSArray *)shortWeekdaySymbols;
-- (void) setShortWeekdaySymbols:(NSArray *)weekdays;
-- (NSArray *)shortStandaloneWeekdaySymbols;
-- (void) setShortStandaloneWeekdaySymbols:(NSArray *)weekdays;
-- (NSArray *)standaloneWeekdaySymbols;
-- (void) standaloneWeekdaySymbols:(NSArray *)weekdays;
-- (NSArray *) weekdaySymbols;
-- (void)setWeekdaySymbols:(NSArray *)weekdays;
-- (NSArray *)veryShortWeekdaySymbols;
-- (void) setVeryShortWeekdaySymbols:(NSArray *)newSyms;
-- (NSArray *)veryShortStandaloneWeekdaySymbols;
-- (void) setVeryShortStandaloneWeekdaySymbols:(NSArray *)newSyms;
-
-- (bool) isLenient;
-- (void) setLenient:(bool)b;
-- (NSLocale *)locale;
-- (void) setLocale:(NSLocale *)newLocale;
-
-- (NSDate *)gregorianStartdate;
-- (void) setGregorianStartDate:(NSDate *)newDate;
-- (NSArray *)longEraSymbols;
-- (void) setLongEraSymbols:(NSArray *)newSyms;
-
-- (NSArray *)quarterSymbols;
-- (void) setQuarterSymbols:(NSArray *)newSyms;
-- (NSArray *)shortQuarterSymbols;
-- (void) setShortQuarterSymbols:(NSArray *)newSyms;
-- (NSArray *)shortStandaloneQuarterSymbols;
-- (void) setShortStandaloneQuarterSymbols:(NSArray *)newSyms;
-- (NSArray *)standaloneQuarterSymbols;
-- (void) setStandaloneQuarterSymbols:(NSArray *)newSyms;
 
 - (bool) getObjectValue:(out id *)obj forString:(NSString *)str range:(inout NSRange *)rangep error:(out NSError **)err;
 
 - (NSDate *)dateFromString:(NSString *)str;
 - (NSString *)stringFromDate:(NSDate *)date;
 + (NSString *)localizedStringFromDate:(NSDate *)date dateStyle:(NSDateFormatterStyle)dateStyle timeStyle:(NSDateFormatterStyle)timeStyle;
-- (bool) doesRelativeFormatting;
-- (void) setDoesRelativeFormatting:(bool)doRel;
 @end
