@@ -42,10 +42,14 @@
 
 - (id) initWithSendPort:(NSPort *)sender receivePort:(NSPort *)receiver
 			 components:(NSArray *)components;
+
 - (bool) sendBeforeDate:(NSDate *)date;
+
 - (NSArray *) components;
+
 - (NSPort *) sendPort;
 - (NSPort *) receivePort;
+
 - (uint32_t) msgid;
 - (void) setMsgid:(uint32_t)msgid;
 @end
