@@ -30,7 +30,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSProcessInfo.h>
-#import <Foundation/NSPropertyListSerialization.h>
+#import <Foundation/NSPropertyList.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSUserDefaults.h>
 #import <Foundation/NSFileManager.h>
