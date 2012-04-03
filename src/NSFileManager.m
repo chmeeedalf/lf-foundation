@@ -79,11 +79,11 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 + (NSFileManager *) defaultManager
 {
-	id defaultManager = [[NSThread currentThread] privateThreadDataForKey:NSDefaultFileManager];
+	id defaultManager = [[[NSThread currentThread] threadDictionary] objectForKey:NSDefaultFileManager];
 	if (defaultManager == nil)
 	{
 		defaultManager = [NSFileManager new];
-		[[NSThread currentThread] setPrivateThreadData:defaultManager forKey:NSDefaultFileManager];
+		[[[NSThread currentThread] threadDictionary] setObject:defaultManager forKey:NSDefaultFileManager];
 	}
 	return defaultManager;
 }
@@ -117,7 +117,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 		return false;
 
 	if (isDirectory != NULL)
-		*isDirectory = [[d objectForKey:NSFileType] isEqual:NSDirectoryFileType];
+		*isDirectory = [[d objectForKey:NSFileType] isEqual:NSFileTypeDirectory];
 
 	return (d != nil);
 }
@@ -385,26 +385,38 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 @end
 
-NSString * const NSRegularFileType = @"NSFileTypeRegular";
-NSString * const NSDirectoryFileType = @"NSFileTypeDirectory";
-NSString * const NSSymbolicLinkFileType = @"NSFileTypeSymbolicLink";
-NSString * const NSCharacterSpecialFileType = @"NSFileTypeCharacterSpecial";
-NSString * const NSBlockSpecialFileType = @"NSFileTypeBlockSpecial";
-NSString * const NSSocketFileType = @"NSFileTypeSocket";
-NSString * const NSUnknownFileType = @"NSFileTypeUnknown";
-NSString * const NSFIFOFileType = @"NSFIFOFileType";
+NSString * constNSFileType = @"NSFileType";
+ NSString * const NSFileTypeRegular = @"NSString * const NSFileTypeRegular";
+ NSString * const NSFileTypeDirectory = @"NSString * const NSFileTypeDirectory";
+ NSString * const NSFileTypeSymbolicLink = @"NSString * const NSFileTypeSymbolicLink";
 
-NSString * const NSFileType = @"NSFileType";
+ NSString * const NSFileTypeCharacterSpecial = @"NSString * const NSFileTypeCharacterSpecial";
+ NSString * const NSFileTypeBlockSpecial = @"NSString * const NSFileTypeBlockSpecial";
+
+ NSString * const NSFileTypeSocket = @"NSString * const NSFileTypeSocket";
+
+ NSString * const NSFileTypeUnknown = @"NSString * const NSFileTypeUnknown";
+
 NSString * const NSFileSize = @"NSFileSize";
 NSString * const NSFileModificationDate = @"NSFileModificationDate";
+NSString * const NSFileReferenceCount = @"NSFileReferenceCount";
+NSString * const NSFileDeviceIdentifier = @"NSFileDeviceIdentifier";
 NSString * const NSFileOwnerAccountName = @"NSFileOwnerAccountName";
 NSString * const NSFileGroupOwnerAccountName = @"NSFileGroupOwnerAccountName";
 NSString * const NSFilePosixPermissions = @"NSFilePosixPermissions";
-NSString * const NSFileAccess = @"NSFileAccess";
-NSString * const NSFileReferenceCount = @"NSFileReferenceCount";
-NSString * const NSFileIdentifier = @"NSFileIdentifier";
-NSString * const NSFileDeviceIdentifier = @"NSFileDeviceIdentifier";
-
 NSString * const NSFileSystemNumber = @"NSFileSystemNumber";
+NSString * const NSFileSystemFileNumber = @"NSFileSystemFileNumber";
+NSString * const NSFileTypeImmutable = @"NSFileTypeImmutable";
+NSString * const NSFileTypeAppendOnly = @"NSFileTypeAppendOnly";
+NSString * const NSFileTypeCreationDate = @"NSFileTypeCreationDate";
+NSString * const NSFileTypeOwnerAccountID = @"NSFileTypeOwnerAccountID";
+NSString * const NSFileTypeGroupOwnerAccountID = @"NSFileTypeGroupOwnerAccountID";
+NSString * const NSFileTypeBusy = @"NSFileTypeBusy";
+NSString * const NSFileAccess = @"NSFileAccess";
+
+NSString * const NSFileIdentifier = @"NSFileIdentifier";
+
 NSString * const NSFileSystemSize = @"NSFileSystemSize";
 NSString * const NSFileSystemFreeSize = @"NSFileSystemFreeSize";
+NSString * const NSFileSystemNodes = @"NSFileSystemNodes";
+NSString * const NSFileSystemFreeNodes = @"NSFileSystemFreeNodes";

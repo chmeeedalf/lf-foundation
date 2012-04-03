@@ -138,19 +138,19 @@ static SchemeFileHandler *sharedHandler = nil;
 			   forKey:NSFilePosixPermissions];
 
 	if (S_ISREG(statBuf.st_mode))
-		[result setObject:NSRegularFileType forKey:NSFileType];
+		[result setObject:NSFileTypeRegular forKey:NSFileType];
 	if (S_ISDIR(statBuf.st_mode))
-		[result setObject:NSDirectoryFileType forKey:NSFileType];
+		[result setObject:NSFileTypeDirectory forKey:NSFileType];
 	else if (S_ISCHR(statBuf.st_mode))
-		[result setObject:NSCharacterSpecialFileType forKey:NSFileType];
+		[result setObject:NSFileTypeCharacterSpecial forKey:NSFileType];
 	else if (S_ISBLK(statBuf.st_mode))
-		[result setObject:NSBlockSpecialFileType forKey:NSFileType];
+		[result setObject:NSFileTypeBlockSpecial forKey:NSFileType];
 	else if (S_ISFIFO(statBuf.st_mode))
-		[result setObject:NSFIFOFileType forKey:NSFileType];
+		[result setObject:NSFileTypeFIFO forKey:NSFileType];
 	else if (S_ISLNK(statBuf.st_mode))
-		[result setObject:NSSymbolicLinkFileType forKey:NSFileType];
+		[result setObject:NSFileTypeSymbolicLink forKey:NSFileType];
 	else if (S_ISSOCK(statBuf.st_mode))
-		[result setObject:NSSocketFileType forKey:NSFileType];
+		[result setObject:NSFileTypeSocket forKey:NSFileType];
 
 	return result;
 }
