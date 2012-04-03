@@ -81,9 +81,7 @@ typedef enum
 - (NSNumber *) numberFromString:(NSString *)str;
 - (NSString *) stringFromNumber:(NSNumber *)number;
 
-- (void) setLocale:(NSLocale *)locale;
-- (NSLocale *) locale;
-
+@property NSLocale *locale;
 @property NSNumber *roundingIncrement;
 @property NSNumberFormatterRoundingMode roundingMode;
 
