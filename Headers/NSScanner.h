@@ -191,7 +191,7 @@
 -(bool)scanUpToString:(NSString *)aString intoString:(NSString **)value;
 
 /*!
- * @brief Returns true if at the end of the string, NO if not.
+ * @brief Returns true if at the end of the string, false if not.
  */
 -(bool)isAtEnd;
 
