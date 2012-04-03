@@ -26,7 +26,7 @@
 
 #import <Foundation/NSCoder.h>
 #import <Foundation/Memory.h>
-#import <Foundation/NSPropertyListSerialization.h>
+#import <Foundation/NSPropertyList.h>
 #import <Foundation/NSString.h>
 #import "internal.h"
 #include <stdlib.h>
