@@ -42,7 +42,7 @@ typedef enum
 	NSStreamStatusError,
 } NSStreamStatus;
 
-typedef enum
+enum
 {
 	NSStreamEventNone = 0,
 	NSStreamEventOpenCompleted = 1,
@@ -50,7 +50,8 @@ typedef enum
 	NSStreamEventHasSpaceAvailable = 1 << 2,
 	NSStreamEventErrorOccurred = 1 << 3,
 	NSStreamEventEndEncountered = 1 << 4,
-} NSStreamEvent;
+};
+typedef NSUInteger NSStreamEvent;
 
 @class NSStream, NSRunLoop, NSError, NSData, NSURL, NSHost;
 @class NSInputStream, NSOutputStream;
