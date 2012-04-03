@@ -33,6 +33,8 @@
 @class NSDate, NSString;
 @class NSDictionary, NSArray;
 
+extern NSString * const NSSysteTimeZoneDidChangeNotification;
+
 /*!
  * \class NSTimeZone
  * \brief Defines a global timezone.
@@ -46,25 +48,6 @@ typedef enum
 	NSTimeZoneStyleDaylightSaving,
 	NSTimeZoneStyleShortDaylightSaving
 } NSTimeZoneNameStyle;
-
-/*!
- * \brief Returns the default time zone as set for the current locale.
- */
-+(NSTimeZone *)defaultTimeZone;
-
-/*!
- * \brief Sets the specified time zone as the time zone appropriate for the current locale.
- * \param aTimeZone Time zone to set.
- * This new time zone replaced the previous default time zone.
- */
-+(void)setDefaultTimeZone:(NSTimeZone *)aTimeZone;
-
-/*!
- * \brief Returns the system's current time zone.
- */
-+(NSTimeZone *)systemTimeZone;
-
-+ (void) resetSystemTimeZone;
 
 // Creating and initializing an NSTimeZone
 /*!
@@ -95,6 +78,27 @@ typedef enum
 
 + (NSString *)timeZoneDataVersion;
 
+// Working with System Time Zones
++ (NSTimeZone *) localTimeZone;
+/*!
+ * \brief Returns the default time zone as set for the current locale.
+ */
++(NSTimeZone *)defaultTimeZone;
+
+/*!
+ * \brief Sets the specified time zone as the time zone appropriate for the current locale.
+ * \param aTimeZone Time zone to set.
+ * This new time zone replaced the previous default time zone.
+ */
++(void)setDefaultTimeZone:(NSTimeZone *)aTimeZone;
+
++ (void) resetSystemTimeZone;
+
+/*!
+ * \brief Returns the system's current time zone.
+ */
++(NSTimeZone *)systemTimeZone;
+
 // Getting time zone information
 /*!
  * \brief Returns a dictionary that maps abbreviations to region names, for example "PST" maps to "US Pacific".
@@ -104,19 +108,15 @@ typedef enum
  */
 +(NSDictionary *)abbreviationDictionary;
 
-
-/*!
- * \brief Returns the geopolitical name of the time zone.
- */
--(NSString *)name;
-
-// Getting arrays of time zones
 /*!
  * \brief Returns an array of string object arrays, each containing strings that show current geopolitical names for each time zone.
  * The subarrays are grouped by latitudinal region.
  */
 + (NSArray *)knownTimeZoneNames;
 
++ (void) setAbbreviationDictionary:(NSDictionary *)newAbbrv;
+
+// Getting Information about a Specific Time Zone
 // New methods from MacOSX, which are deemed useful
 /*!
  * \brief Returns the abbreviation, for example "EDT" for Eastern Daylight Time, for the receiver for the current date.
@@ -129,19 +129,9 @@ typedef enum
 -(NSString*)abbreviationForDate:(NSDate *)_date;
 
 /*!
- * \brief Returns true if the receiver is currently using daylight savings time.
+ * \brief Returns the geopolitical name of the time zone.
  */
--(bool)isDaylightSavingTime;
-
-/*!
- * \brief Returns true if the receiver uses daylight savings time at the specified date.
- */
--(bool)isDaylightSavingTimeForDate:(NSDate *)aDate;
-
-- (NSTimeInterval)daylightSavingTimeOffset;
-- (NSTimeInterval)daylightSavingTimeOffsetForDate:(NSDate *)aDate;
-- (NSDate *)nextDaylightSavingTimeTransition;
-- (NSDate *)nextDaylightSavingTimeTransitionAfterDate:(NSDate *)aDate;
+-(NSString *)name;
 
 /*!
  * \brief Returns the difference in seconds between the receiver and GMT for the current date.
@@ -153,9 +143,28 @@ typedef enum
  */
 -(int)secondsFromGMTForDate:(NSDate *)_date;
 
+// Comparing Time Zones
 - (bool)isEqualToTimeZone:(NSTimeZone *)other;
+
+// Describing a Time Zone
 - (NSString *)description;
 - (NSString *)localizedName:(NSTimeZoneNameStyle)style locale:(NSLocale *)locale;
+
+// Getting information about Daylight Saving
+/*!
+ * \brief Returns true if the receiver is currently using daylight savings time.
+ */
+-(bool)isDaylightSavingTime;
+
+- (NSTimeInterval)daylightSavingTimeOffset;
+/*!
+ * \brief Returns true if the receiver uses daylight savings time at the specified date.
+ */
+-(bool)isDaylightSavingTimeForDate:(NSDate *)aDate;
+
+- (NSTimeInterval)daylightSavingTimeOffsetForDate:(NSDate *)aDate;
+- (NSDate *)nextDaylightSavingTimeTransition;
+- (NSDate *)nextDaylightSavingTimeTransitionAfterDate:(NSDate *)aDate;
 @end
 
 /*

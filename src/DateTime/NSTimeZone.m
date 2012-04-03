@@ -42,10 +42,14 @@
 
 #import "NSConcreteTimeZone.h"
 
+@interface NSAutoTimeZone	:	NSTimeZone
+@end
+
 @implementation NSTimeZone
 
 static NSTimeZone *defaultTimeZone = nil;
 static NSTimeZone *systemTimeZone = nil;
+static NSTimeZone *autoTimeZone = nil;
 
 // Creating and initializing an NSTimeZone
 +(NSTimeZone *)defaultTimeZone
@@ -70,6 +74,18 @@ static NSTimeZone *systemTimeZone = nil;
 		}
 	}
 	return systemTimeZone;
+}
+
++ (NSTimeZone *) localTimeZone
+{
+	@synchronized(self)
+	{
+		if (autoTimeZone == nil)
+		{
+			autoTimeZone = [[NSAutoTimeZone alloc] init];
+		}
+	}
+	return autoTimeZone;
 }
 
 + (void) resetSystemTimeZone
@@ -302,4 +318,33 @@ static NSTimeZone *systemTimeZone = nil;
 	}
 	return zones;
 }
+@end
+
+@implementation NSAutoTimeZone
+
+-(NSString *)name
+{
+	return [[NSTimeZone defaultTimeZone] name];
+}
+
+-(NSDate *)nextDaylightSavingTimeTransitionAfterDate:(NSDate *)aDate
+{
+	return [defaultTimeZone nextDaylightSavingTimeTransitionAfterDate:aDate];
+}
+
+-(NSString*)abbreviationForDate:(NSDate *)_date
+{
+	return [defaultTimeZone abbreviationForDate:_date];
+}
+
+-(int)secondsFromGMTForDate:(NSDate *)_date
+{
+	return [defaultTimeZone secondsFromGMTForDate:_date];
+}
+
+-(bool)isDaylightSavingTimeForDate:(NSDate *)aDate
+{
+	return [defaultTimeZone isDaylightSavingTimeForDate:aDate];
+}
+
 @end
