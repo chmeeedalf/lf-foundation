@@ -199,6 +199,11 @@ sinceDate:(NSDate*)anotherDate
 	return nil;
 }
 
+- (NSDate *) dateByAddingTimeInterval:(NSTimeInterval)seconds
+{
+	return [[[self class] alloc] initWithTimeInterval:seconds sinceDate:self];
+}
+
 /* Representing Dates */
 
 - (NSString*)description

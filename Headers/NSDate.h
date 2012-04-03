@@ -52,50 +52,50 @@ typedef double NSTimeInterval;
 /*!
  * @brief Creates and returns an NSDate object set to the current date and time.
  */
-+(NSDate *)date;
++(id)date;
 
 /*!
  * @brief Creates and returns a new NSDate object given a string.
  * @param description NSString representation of a date in the format YYYY-MM-DD HH:MM:SS - HHMM
  */
-+(NSDate *)dateWithString:(NSString *)description;
++(id)dateWithString:(NSString *)description;
 
 /*!
  * @brief Creates and returns a NSDate set to given seconds from the current time.
  * @param seconds Seconds from the current time to set the NSDate.
  */
-+(NSDate *)dateWithTimeIntervalSinceNow:(NSTimeInterval)seconds;
++(id)dateWithTimeIntervalSinceNow:(NSTimeInterval)seconds;
 
 /*!
  * @brief Creates and returns a NSDate with a time interval relative to another NSDate object.
  * @param seconds Interval from the date object.
  * @param anotherDate Reference date from which to calculate the new date.
  */
-+(NSDate *)dateWithTimeInterval:(NSTimeInterval)seconds
++(id)dateWithTimeInterval:(NSTimeInterval)seconds
 	sinceDate:(NSDate *)anotherDate;
 
 /*!
  * @brief Creates and returns a NSDate set to the given seconds from the beginning of the UNIX Epoch.
  * @param seconds Seconds from the UNIX epoch (January 1, 1970, 00:00.00).
  */
-+(NSDate *)dateWithTimeIntervalSince1970:(NSTimeInterval)seconds;
++(id)dateWithTimeIntervalSince1970:(NSTimeInterval)seconds;
 
 /*!
  * @brief Creates and returns an NSDate set to the given seconds from the
  * absolute reference date (January 1, 2001, 00:00.00).
  * @param seconds Seconds from the absolute reference date.
  */
-+(NSDate *)dateWithTimeIntervalSinceReferenceDate:(NSTimeInterval)seconds;
++(id)dateWithTimeIntervalSinceReferenceDate:(NSTimeInterval)seconds;
 
 /*!
  * @brief Creates and returns an NSDate in the distant future.
  */
-+(NSDate *)distantFuture;
++(id)distantFuture;
 
 /*!
  * @brief Creates and returns an NSDate in the distant past.
  */
-+(NSDate *)distantPast;
++(id)distantPast;
 
 /*!
  * @brief Initializes a newly allocated NSDate to the current date and time.
@@ -213,6 +213,7 @@ typedef double NSTimeInterval;
  */
 -(NSDate *)laterDate:(NSDate *)anotherDate;
 
+- (id) dateByAddingTimeInterval:(NSTimeInterval)seconds;
 @end
 
 /*
