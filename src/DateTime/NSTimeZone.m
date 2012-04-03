@@ -42,6 +42,7 @@
 
 #import "NSConcreteTimeZone.h"
 
+NSString * const NSSystemTimeZoneDidChangeNotification = @"NSSystemTimeZoneDidChangeNotification";
 @interface NSAutoTimeZone	:	NSTimeZone
 @end
 
