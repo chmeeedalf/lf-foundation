@@ -280,7 +280,7 @@ static bool configureCalendar(NSCalendar *self)
 	if (self->calIdent)
 	{
 		NSMutableDictionary *comps = [[NSLocale componentsFromLocaleIdentifier:[[self locale] localeIdentifier]] mutableCopy];
-		[comps setObject:self->calIdent forKey:NSLocaleCalendarIdentifier];
+		[comps setObject:self forKey:NSLocaleCalendar];
 		NSString *locID = [NSLocale localeIdentifierFromComponents:comps];
 		[locID getCString:localeID maxLength:BUFFER_SIZE-1 encoding:NSASCIIStringEncoding];
 	}
@@ -290,7 +290,7 @@ static bool configureCalendar(NSCalendar *self)
 	}
 	UErrorCode ec = U_ZERO_ERROR;
 
-	self->cal = ucal_open(zoneID, zoneID_len, localeID, UCAL_TRADITIONAL, &ec);
+	self->cal = ucal_open(zoneID, zoneID_len, localeID, UCAL_DEFAULT, &ec);
 	free(localeID);
 	return U_SUCCESS(ec);
 }
