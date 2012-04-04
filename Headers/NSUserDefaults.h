@@ -1,7 +1,7 @@
 /* 
    NSUserDefaults.h
- * All rights reserved.
 
+   Copyright (C) 2012	Justin Hibbits
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -26,7 +26,7 @@
 #ifndef __UserDefaults_h__
 #define __UserDefaults_h__
 
-#include <Foundation/NSObject.h>
+#import <Foundation/NSObject.h>
 
 @class NSString, NSData, NSURL;
 @class NSArray, NSMutableArray;
@@ -49,17 +49,24 @@
 + (NSUserDefaults *)standardUserDefaults;
 + (void) resetStandardUserDefaults;
 
+/* Initializing the User Defaults */
+
+- (id)init;
+- (id)initWithUser:(NSString *)userName;
+
+- (void)registerDefaults:(NSDictionary *)dictionary;
+
 /* Getting and Setting a Default */
 
 - (NSArray *)arrayForKey:(NSString *)defaultName;
-- (NSDictionary *)dictionaryForKey:(NSString *)defaultName;
+- (bool)boolForKey:(NSString *)defaultName;
 - (NSData *)dataForKey:(NSString *)defaultName;
+- (NSDictionary *)dictionaryForKey:(NSString *)defaultName;
+- (float)floatForKey:(NSString *)defaultName;
+- (NSInteger)integerForKey:(NSString *)defaultName;
 - (NSArray *)stringArrayForKey:(NSString *)defaultName;
 - (NSString *)stringForKey:(NSString *)defaultName;
-- (bool)boolForKey:(NSString *)defaultName;
-- (float)floatForKey:(NSString *)defaultName;
 - (double)doubleForKey:(NSString *)defaultName;
-- (NSInteger)integerForKey:(NSString *)defaultName;
 - (NSURL *)URLForKey:(NSString *)defaultName;
 
 - (id)objectForKey:(NSString *)defaultName;
@@ -72,20 +79,14 @@
 - (void)setObject:(id)value forKey:(NSString *)defaultName;
 - (void)setURL:(NSURL *)value forKey:(NSString *)defaultName;
 
-/* Initializing the User Defaults */
-
-- (id)init;
-- (id)initWithUser:(NSString *)userName;
-
 /* Maintaining Persistent Domains */
 
+- (bool)synchronize;
 - (NSDictionary *)persistentDomainForName:(NSString *)domainName;
 - (NSArray *)persistentDomainNames;
 - (void)removePersistentDomainForName:(NSString *)domainName;
 - (void)setPersistentDomain:(NSDictionary *)domain
   forName:(NSString *)domainName;
-- (bool)synchronize;
-- (void)persistentDomainHasChanged:(NSString *)domainName;
 
 /* Maintaining Volatile Domains */
 
@@ -98,23 +99,18 @@
 /* Making Advanced Use of Defaults */
 
 - (NSDictionary *)dictionaryRepresentation;
-- (void)registerDefaults:(NSDictionary *)dictionary;
 
 - (void) addSuiteNamed:(NSString *)suiteName;
 - (void) removeSuiteNamed:(NSString *)suiteName;
 @end
 
 /* Defaults domains */
-SYSTEM_EXPORT NSString * const ArgumentDomain;
-SYSTEM_EXPORT NSString * const GlobalDomain;
-SYSTEM_EXPORT NSString * const RegistrationDomain;
+SYSTEM_EXPORT NSString * const NSArgumentDomain;
+SYSTEM_EXPORT NSString * const NSGlobalDomain;
+SYSTEM_EXPORT NSString * const NSRegistrationDomain;
 
-/* const  Defaults Domains */
-SYSTEM_EXPORT  NSString * const ArgumentDomain;
-SYSTEM_EXPORT  NSString * const GlobalDomain;
-SYSTEM_EXPORT  NSString * const RegistrationDomain;
-/* const  Notification name */
-SYSTEM_EXPORT  NSString * const UserDefaultsDidChangeNotification;
+/* Notification name */
+SYSTEM_EXPORT NSString * const NSUserDefaultsDidChangeNotification;
 
 #endif /* __UserDefaults_h__ */
 
