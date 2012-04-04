@@ -18,7 +18,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#import <Foundation/NSMutableURLRequest.h>
+#import <Foundation/NSURLRequest.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSString.h>
