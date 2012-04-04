@@ -30,13 +30,12 @@ SYSTEM_EXPORT NSString * const NSURLCredentialStorageChangedNotification;
 
 +(NSURLCredentialStorage *)sharedCredentialStorage;
 
--(NSDictionary *)allCredentials;
--(NSDictionary *)credentialsForProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 -(NSURLCredential *)defaultCredentialForProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
-
--(void)setCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 -(void)setDefaultCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 
+-(void)setCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 -(void)removeCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 
+-(NSDictionary *)allCredentials;
+-(NSDictionary *)credentialsForProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 @end
