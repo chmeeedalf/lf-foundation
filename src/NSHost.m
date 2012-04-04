@@ -93,6 +93,12 @@
 	return [self isEqualToHost:anotherHost];
 }
 
+- (NSString *)localizedName
+{
+	TODO; // -[NSHost localizedName]
+	return [self name];
+}
+
 - (NSString *)name
 {
 	return [[self names] objectAtIndex:0];

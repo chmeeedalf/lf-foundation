@@ -105,6 +105,8 @@ typedef enum {
  */
 - (NSArray *)names;
 
+- (NSString *) localizedName;
+
 /*!
   @brief Returns the primary address of the host.
  */
