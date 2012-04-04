@@ -28,7 +28,7 @@
  * 
  */
 
-#include "System/primitives.h"
+#include <Foundation/primitives.h>
 #include <Foundation/NSString.h>
 #include <unicode/uchar.h>
 
