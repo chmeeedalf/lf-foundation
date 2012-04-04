@@ -24,13 +24,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 @class NSURLProtocol,NSURLRequest,NSURLResponse,NSURLAuthenticationChallenge,NSCachedURLResponse,NSData,NSError,NSMutableURLRequest;
 
 @protocol NSURLProtocolClient
--(void)URLProtocol:(NSURLProtocol *)urlProtocol wasRedirectedToRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirect;
--(void)URLProtocol:(NSURLProtocol *)urlProtocol didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
--(void)URLProtocol:(NSURLProtocol *)urlProtocol didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
--(void)URLProtocol:(NSURLProtocol *)urlProtocol didReceiveResponse:(NSURLResponse *)response cacheStoragePolicy:(NSURLCacheStoragePolicy)policy;
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol cachedResponseIsValid:(NSCachedURLResponse *)response;
--(void)URLProtocol:(NSURLProtocol *)urlProtocol didLoadData:(NSData *)data;
+-(void)URLProtocol:(NSURLProtocol *)urlProtocol didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol didFailWithError:(NSError *)error;
+-(void)URLProtocol:(NSURLProtocol *)urlProtocol didLoadData:(NSData *)data;
+-(void)URLProtocol:(NSURLProtocol *)urlProtocol didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+-(void)URLProtocol:(NSURLProtocol *)urlProtocol didReceiveResponse:(NSURLResponse *)response cacheStoragePolicy:(NSURLCacheStoragePolicy)policy;
+-(void)URLProtocol:(NSURLProtocol *)urlProtocol wasRedirectedToRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirect;
 -(void)URLProtocolDidFinishLoading:(NSURLProtocol *)urlProtocol;
 @end
 
@@ -41,18 +41,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	id <NSURLProtocolClient> _client;
 }
 
+-(id)initWithRequest:(NSURLRequest *)request cachedResponse:(NSCachedURLResponse *)response client:(id <NSURLProtocolClient>)client;
+
 +(bool)registerClass:(Class)cls;
 +(void)unregisterClass:(Class)cls;
 
 + (id) propertyForKey:(NSString *)key inRequest:(NSURLRequest *)request;
-+(void)removePropertyForKey:(NSString *)key inRequest:(NSMutableURLRequest *)request;
-+(void)setProperty:value forKey:(NSString *)key inRequest:(NSMutableURLRequest *)request;
++ (void) setProperty:value forKey:(NSString *)key inRequest:(NSMutableURLRequest *)request;
++ (void) removePropertyForKey:(NSString *)key inRequest:(NSMutableURLRequest *)request;
 
 +(bool)canInitWithRequest:(NSURLRequest *)request;
-+(NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request;
-+(bool)requestIsCacheEquivalent:(NSURLRequest *)request toRequest:(NSURLRequest *)other;
 
--(id)initWithRequest:(NSURLRequest *)request cachedResponse:(NSCachedURLResponse *)response client:(id <NSURLProtocolClient>)client;
++(NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request;
+
++(bool)requestIsCacheEquivalent:(NSURLRequest *)request toRequest:(NSURLRequest *)other;
 
 -(NSURLRequest *)request;
 -(NSCachedURLResponse *)cachedResponse;
