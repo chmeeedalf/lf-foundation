@@ -27,7 +27,7 @@
 
 #include <Foundation/NSObject.h>
 
-@class NSString, NSDictionary;
+@class NSString, NSDictionary, NSLocale;
 
 /* not fixed yet */
 
@@ -86,6 +86,6 @@ void NSDecimalCopy(NSDecimal *dest, const NSDecimal *src);
 NSCalculationError NSDecimalNormalize
 (NSDecimal *number1, NSDecimal *number2, NSRoundingMode rmod);
 
-NSString *NSDecimalString(const NSDecimal *decimal, NSDictionary *locale);
+NSString *NSDecimalString(const NSDecimal *decimal, NSLocale *locale);
 
 #endif /* __NSDecimal_h__ */
