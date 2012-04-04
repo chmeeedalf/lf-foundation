@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 @implementation NSURLAuthenticationChallenge
 
--(id)initWithProtectionSpace:(NSURLProtectionSpace *)space proposedCredential:(NSURLCredential *)credential previousFailureCount:(int)failureCount failureResponse:(NSURLResponse *)failureResponse error:(NSError *)error sender:(id <NSURLAuthenticationChallengeSender>)sender
+-(id)initWithProtectionSpace:(NSURLProtectionSpace *)space proposedCredential:(NSURLCredential *)credential previousFailureCount:(NSInteger)failureCount failureResponse:(NSURLResponse *)failureResponse error:(NSError *)error sender:(id <NSURLAuthenticationChallengeSender>)sender
 {
 	_protectionSpace = [space copy];
 	_proposedCredential = [credential copy];
@@ -52,7 +52,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	return _proposedCredential;
 }
 
--(unsigned long)previousFailureCount
+-(NSInteger)previousFailureCount
 {
 	return _failureCount;
 }

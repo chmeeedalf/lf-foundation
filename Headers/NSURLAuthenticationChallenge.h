@@ -20,9 +20,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import <Foundation/NSObject.h>
 
-@class NSError,NSURLResponse,NSURLProtectionSpace,NSURLCredential;
+@class NSError,NSURLAuthenticationChallenge,NSURLResponse,NSURLProtectionSpace,NSURLCredential;
 
 @protocol NSURLAuthenticationChallengeSender <NSObject>
+- (void) cancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+- (void) continueWithoutCredentialForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+- (void) useCredential:(NSURLCredential *)credential forAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 @end
 
 @interface NSURLAuthenticationChallenge : NSObject
@@ -35,15 +38,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	id                    _sender;
 }
 
--(id) initWithProtectionSpace:(NSURLProtectionSpace *)space proposedCredential:(NSURLCredential *)credential previousFailureCount:(int)failureCount failureResponse:(NSURLResponse *)failureResponse error:(NSError *)error sender:(id <NSURLAuthenticationChallengeSender>)sender;
-
 -(id) initWithAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge sender:(id <NSURLAuthenticationChallengeSender>)sender;
+-(id) initWithProtectionSpace:(NSURLProtectionSpace *)space proposedCredential:(NSURLCredential *)credential previousFailureCount:(NSInteger)failureCount failureResponse:(NSURLResponse *)failureResponse error:(NSError *)error sender:(id <NSURLAuthenticationChallengeSender>)sender;
 
--(NSURLProtectionSpace *)protectionSpace;
--(NSURLCredential *)proposedCredential;
--(unsigned long)previousFailureCount;
--(NSURLResponse *)failureResponse;
 -(NSError *)error;
+-(NSURLResponse *)failureResponse;
+-(NSInteger)previousFailureCount;
+-(NSURLCredential *)proposedCredential;
+-(NSURLProtectionSpace *)protectionSpace;
 -(id<NSURLAuthenticationChallengeSender>)sender;
 
 @end
