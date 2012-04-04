@@ -1,6 +1,7 @@
 /* 
    NSDecimalNumber.h
 
+   Copyright (C) 2012 Justin Hibbits
    Copyright (C) 2001, MDlink online service center GmbH, Helge Hess
    All rights reserved.
 
@@ -116,7 +117,7 @@
 @end
 
 @interface NSDecimalNumberHandler : NSObject < NSDecimalNumberBehaviors >
-+ (id) defaultDecimalNumber;
++ (id) defaultDecimalNumberHandler;
 + (id) decimalNumberHandlerWithRoundingMode:(NSRoundingMode)roundingMode scale:(short)scale raiseOnExactness:(bool)raiseOnExactness raiseOnOverflow:(bool)raiseOnOverflow raiseOnUnderflow:(bool)raiseOnUnderflow raiseOnDivideByZero:(bool)raiseOnDivZero;
 - (id) initWithRoundingMode:(NSRoundingMode)roundingMode scale:(short)scale raiseOnExactness:(bool)raiseOnExactness raiseOnOverflow:(bool)raiseOnOverflow raiseOnUnderflow:(bool)raiseOnUnderflow raiseOnDivideByZero:(bool)raiseOnDivZero;
 @end
