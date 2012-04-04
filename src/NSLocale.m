@@ -185,12 +185,12 @@ static NSLocale *currentLocale = nil;
 	}
 }
 
-+ (id) localeWithIdentifier:(NSString *)localeName
++ (id) localeWithLocaleIdentifier:(NSString *)localeName
 {
-	return [[NSConcreteLocale alloc] initWithIdentifier:localeName];
+	return [[NSConcreteLocale alloc] initWithLocaleIdentifier:localeName];
 }
 
-- (id) initWithIdentifier:(NSString *)localeName
+- (id) initWithLocaleIdentifier:(NSString *)localeName
 {
 	return self;
 }

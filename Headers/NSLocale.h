@@ -75,7 +75,19 @@ typedef NSUInteger NSLocaleLanguageDirection;
  */
 + (id) localeWithIdentifier:(NSString *)localeName;
 
-- (id) initWithIdentifier:(NSString *)localeName;
+- (id) initWithLocaleIdentifier:(NSString *)localeName;
+
+- (NSString *)displayNameForKey:(id)key value:(id)value;
+/*!
+ * \brief Return the locale's "real" name
+ * */
+- (NSString *)localeIdentifier;
+
+/*!
+ * \brief Returns the locale information for a given key.
+ */
+- (id) objectForKey:(NSString *)key;
+
 
 // Identifier -- NSLocale pairs
 /*!
@@ -83,30 +95,18 @@ typedef NSUInteger NSLocaleLanguageDirection;
  * name.
  */
 + (NSArray *) availableLocaleIdentifiers;
-
-/*!
- * \brief Return the locale's "real" name
- * */
-- (NSString *)localeIdentifier;
-
-/*!
- * \brief Returns locale's "ISO" display name -- en_US, ...
- * */
-- (NSString *)localeDisplayName;
-
-/*!
- * \brief Returns the locale information for a given key.
- */
-- (id) objectForKey:(NSString *)key;
-
-- (NSString *)displayNameForKey:(id)key value:(id)value;
-
 + (NSArray *)ISOCountryCodes;
 + (NSArray *)ISOCurrencyCodes;
 + (NSArray *)ISOLanguageCodes;
 + (NSArray *)commonISOCurrencyCodes;
+
++ (NSString *) canonicalLocaleIdentifierFromString:(NSString *)str;
 + (NSDictionary *)componentsFromLocaleIdentifier:(NSString *)ident;
 + (NSString *)localeIdentifierFromComponents:(NSDictionary *)components;
++ (NSString *) canonicalLanguagesIdentifierFromString:(NSString *)str;
+
++ (NSArray *) preferredLanguages;
+
 + (NSLocaleLanguageDirection) characterDirectionForLanguage:(NSString *)isoLangCode;
 + (NSLocaleLanguageDirection) lineDirectionForLanguage:(NSString *)isoLangCode;
 
@@ -114,11 +114,11 @@ typedef NSUInteger NSLocaleLanguageDirection;
 
 extern NSString * const NSLocaleIdentifier;
 extern NSString * const NSLocaleLanguageCode;
+extern NSString * const NSLocaleCountryCode;
 extern NSString * const NSLocaleScriptCode;
 extern NSString * const NSLocaleVariantCode;
 extern NSString * const NSLocaleExemplarCharacterSet;
 extern NSString * const NSLocaleCalendar;
-extern NSString * const NSLocaleCalendarIdentifier;
 extern NSString * const NSLocaleCollationIdentifier;
 extern NSString * const NSLocaleUsesMetricSystem;
 extern NSString * const NSLocaleMeasurementSystem;

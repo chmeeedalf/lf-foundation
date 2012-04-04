@@ -90,12 +90,12 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 		/* en_US_POSIX is a recognized locale for libICU, so we use that just to
 		 * get the "POSIX"-ness from it. */
 		fallbackLocale = [[NSConcreteLocale alloc]
-			initWithIdentifier:@"en_US_POSIX"];
+			initWithLocaleIdentifier:@"en_US_POSIX"];
 	}
 	return fallbackLocale;
 }
 
-- (id) initWithIdentifier:(NSString *)localeIdent
+- (id) initWithLocaleIdentifier:(NSString *)localeIdent
 {
 	const char *locID = [localeIdent UTF8String];
 	int32_t localeLen;

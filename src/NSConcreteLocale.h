@@ -50,7 +50,7 @@ typedef struct icu_Locale _NSPrivateLocale;
 /* Fallback (C) locale */
 + (id) fallbackLocale;
 
-- (id) initWithIdentifier:(NSString *)localeIdent;
+- (id) initWithLocaleIdentifier:(NSString *)localeIdent;
 - (id) objectForKey:(NSString *)key;
 
 @end
