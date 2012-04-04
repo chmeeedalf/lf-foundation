@@ -37,29 +37,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	[self notImplemented:_cmd];
 }
 
--(id)initWithMemoryCapacity:(unsigned long)memoryCapacity diskCapacity:(unsigned long)diskCapacity diskPath:(NSString *)diskPath
+-(id)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(NSString *)diskPath
 {
 	[self notImplemented:_cmd];
 	return nil;
 }
 
--(unsigned long)memoryCapacity
+-(NSUInteger)memoryCapacity
 {
 	return _memoryCapacity;
 }
 
--(unsigned long)diskCapacity
+-(NSUInteger)diskCapacity
 {
 	return _diskCapacity;
 }
 
--(unsigned long)currentDiskUsage
+-(NSUInteger)currentDiskUsage
 {
 	[self notImplemented:_cmd];
 	return 0;
 }
 
--(unsigned long)currentMemoryUsage
+-(NSUInteger)currentMemoryUsage
 {
 	[self notImplemented:_cmd];
 	return 0;
@@ -71,12 +71,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	return nil;
 }
 
--(void)setMemoryCapacity:(unsigned long)memoryCapacity
+-(void)setMemoryCapacity:(NSUInteger)memoryCapacity
 {
 	[self notImplemented:_cmd];
 }
 
--(void)setDiskCapacity:(unsigned long)diskCapacity
+-(void)setDiskCapacity:(NSUInteger)diskCapacity
 {
 	[self notImplemented:_cmd];
 }
