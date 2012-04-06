@@ -63,7 +63,7 @@ SRCS=	NSRange.m \
 		NSProtocolChecker.m \
 		NSPortCoder.m \
 		NSPort.m \
-		NSTask.m \
+		NSTask.mm \
 		NSKeyValueCoding.mm \
 		NSKeyValueObserving.mm \
 		NSKVCMutableArray.m \
