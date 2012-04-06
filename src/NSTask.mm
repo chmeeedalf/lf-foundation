@@ -28,15 +28,22 @@
  * 
  */
 
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 #import "internal.h"
 #import <debug.h>
 #import <Foundation/NSTask.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSFileHandle.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSString.h>
-#include <sys/types.h>
+
+#include <unordered_map>
 #include <signal.h>
 #include <string.h>
 
@@ -51,13 +58,42 @@ NSString *NSTaskDidExitNotification = @"NSTaskDidExitNotification";
 	long as there is a local object to refer to it.
  */
 @implementation NSTask
+{
+	id			taskURL;	/*!< \brief The identifier for the task object. */
+	id			args;	/*!< \brief Argument(s) to pass to the new task. */
+	NSDictionary	*taskEnv;	/*!< \brief Environment in which to execute. */
+	NSString    *newDir;
+	int			result; 		/*!< \brief Result of execution (exit code).  Only valid once the process has terminated. */
+	NSTaskTerminationReason         terminateReason;
+	bool		isRunning;		/*!< Whether or not the task is running. */
+	id			stdIn;
+	id			stdOut;
+	id			stdErr;
+	pid_t		processID;	/*!< Process ID of the new task. */
+}
+
 @synthesize terminationHandler;
 
-static NSMutableArray *runningTasks;
+static std::unordered_map<pid_t, NSTask *> runningTasks;
+
+static void handle_sigchld(int sig, siginfo_t *info, void *data)
+{
+	wait4(info->si_pid, NULL, WNOHANG, NULL);
+	[runningTasks[info->si_pid] _handleTaskExitWithErrorCode:info->si_status
+		normalExit:(info->si_code == CLD_EXITED)];
+}
 
 + (void) initialize
 {
-	runningTasks = [NSMutableArray new];
+	static bool initialized = false;
+	if (!initialized)
+	{
+		struct sigaction sa = {};
+
+		sa.sa_sigaction = handle_sigchld;
+		sa.sa_flags = SA_NOCLDSTOP | SA_NOCLDWAIT | SA_SIGINFO;
+		sigaction(SIGCHLD, &sa, NULL);
+	}
 }
 
 + (id) spawnedTaskWithURL:(NSURL *)target object:(id)arg
@@ -68,6 +104,11 @@ static NSMutableArray *runningTasks;
 	return t;
 }
 
++ (id) launchedTaskWithLaunchURL:(NSURL *)url arguments:(NSArray *)args
+{
+	return [[self alloc] initWithURL:url object:args environment:nil];
+}
+
 - (id) init
 {
 	return self;
@@ -75,9 +116,9 @@ static NSMutableArray *runningTasks;
 
 - (id) initWithURL:(NSURL *)target object:(id)obj environment:(NSDictionary *)env
 {
-	_taskObject = target;
-	_taskArguments = [obj copy];
-	_environment = [env copy];
+	taskURL = target;
+	args = [obj copy];
+	taskEnv = [env copy];
 	return self;
 }
 
@@ -85,15 +126,78 @@ static NSMutableArray *runningTasks;
 {
 	if (isRunning)
 	{
-		NSLog(@"Process '%@' is already running.", _taskObject);
+		NSLog(@"Process '%@' is already running.", taskURL);
 		return;
 	}
 
-	if (spawnProcessWithURL(_taskObject, _taskArguments, _environment, &processUUID))
+	if (spawnProcessWithURL(taskURL, args, taskEnv, &processID))
 	{
 		isRunning = true;
-		[runningTasks addObject:self];
+		runningTasks[processID] = self;
 	}
+}
+
+- (void) setCurrentDirectory:(NSString *)newPath
+{
+	if ([self isRunning])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Task already running" userInfo:nil];
+	}
+	newDir = newPath;
+}
+
+- (void) setStandardError:(id)newStderr
+{
+	if ([self isRunning])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Task already running" userInfo:nil];
+	}
+	if (![newStderr isKindOfClass:[NSFileHandle class]] && ![newStderr isKindOfClass:[NSPipe class]])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Invalid object type being set as stderr" userInfo:nil];
+	}
+	stdErr = newStderr;
+}
+
+- (void) setStandardInput:(id)newStdin
+{
+	if ([self isRunning])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Task already running" userInfo:nil];
+	}
+	if (![newStdin isKindOfClass:[NSFileHandle class]] && ![newStdin isKindOfClass:[NSPipe class]])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Invalid object type being set as stdin" userInfo:nil];
+	}
+	stdIn = newStdin;
+}
+
+- (void) setStandardOutput:(id)newStdout
+{
+	if ([self isRunning])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Task already running" userInfo:nil];
+	}
+	if (![newStdout isKindOfClass:[NSFileHandle class]] && ![newStdout isKindOfClass:[NSPipe class]])
+	{
+		@throw [NSInvalidArgumentException exceptionWithReason:@"Invalid object type being set as stdout" userInfo:nil];
+	}
+	stdOut = newStdout;
+}
+
+- (void) setArguments:(NSArray *)newArgs
+{
+	args = [newArgs copy];
+}
+
+- (void) setEnvironment:(NSDictionary *)newEnv
+{
+	taskEnv = [newEnv copy];
+}
+
+- (void) setLaunchURL:(NSURL *)newURL
+{
+	taskURL = newURL;
 }
 
 - (void) _sendSignal:(int)sig
@@ -102,7 +206,7 @@ static NSMutableArray *runningTasks;
 	if (!isRunning)
 		return;
 
-	kill(processUUID.parts[3], sig);
+	kill(processID, sig);
 }
 
 - (void) resume
@@ -138,7 +242,7 @@ static NSMutableArray *runningTasks;
 
 - (void) setObject:(id)obj
 {
-	_taskArguments = obj;
+	args = obj;
 }
 
 - (bool) isRunning
@@ -164,9 +268,9 @@ static NSMutableArray *runningTasks;
 	return terminateReason;
 }
 
-- (void) getProcessIdentifier:(UUID *)uuid
+- (int) processIdentifier
 {
-	memcpy(uuid, &processUUID, sizeof(*uuid));
+	return processID;
 }
 
 /* Internal method, called when a task exits, by the NSApplication class (forward) */
@@ -180,23 +284,4 @@ static NSMutableArray *runningTasks;
 		self.terminationHandler(self);
 }
 
-+ (void) _dispatchExitToPid:(UUID)pid status:(int)status exitedNormally:(bool)normalExit
-{
-	UUID taskID;
-	for (id task in runningTasks)
-	{
-		[task getProcessIdentifier:&taskID];
-		if (memcmp(&taskID, &pid, sizeof(pid)) == 0)
-		{
-			[runningTasks removeObject:task];
-			[task _handleTaskExitWithErrorCode:status normalExit:normalExit];
-			break;
-		}
-	}
-}
-
 @end
-
-/*
-   vim:syntax=objc:
- */

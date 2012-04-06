@@ -44,16 +44,6 @@ typedef enum
  * \brief Manages spawning tasks, and interfacing with other processes.
  */
 @interface NSTask : NSObject 
-{
-	id			_taskObject;	/*!< \brief The identifier for the task object. */
-	id			_taskArguments;	/*!< \brief Argument(s) to pass to the new task. */
-	NSDictionary	*_environment;	/*!< \brief Environment in which to execute. */
-	int			result; 		/*!< \brief Result of execution (exit code).  Only valid once the process has terminated. */
-	int         terminateReason;
-	bool		isRunning;		/*!< Whether or not the task is running. */
-	UUID		processUUID;	/*!< Process ID of the new task. */
-}
-
 #if __has_feature(blocks)
 @property(copy) void (^terminationHandler)(NSTask *);
 #endif
@@ -68,6 +58,7 @@ typedef enum
  * \sa [NSTask initWithIdentifier:object:environment:]
  */
 + (id)spawnedTaskWithURL:(NSURL *)target object:(id)obj environment:(NSDictionary *)env;
++ (id)launchedTaskWithLaunchURL:(NSURL *)target arguments:(NSArray *)args;
 
 - (id)init;
 /*!
@@ -93,23 +84,6 @@ typedef enum
 - (id)initWithURL:(NSURL *)target object:(id)obj environment:(NSDictionary *)env;
 
 /*!
- * \brief Spawn the process.
- *
- * \details The task must not be running.
- */
-- (void) launch;
-
-/*!
- * \brief Stop the task.
- *
- * \details Equivalent to SIGTERM in UNIX signal terminology.
- */
-- (void) terminate;
-
-- (int) terminationStatus;
-- (NSTaskTerminationReason) terminationReason;
-
-/*!
  * \brief Force the task to stop.
  *
  * \details Equivalent to SIGKILL in UNIX terminology.  This is trapped by the
@@ -119,10 +93,26 @@ typedef enum
  */
 - (void) kill;
 
-- (void) suspend;
 - (void) interrupt;
-- (void) waitUntilExit;
+
+/*!
+ * \brief Spawn the process.
+ *
+ * \details The task must not be running.
+ */
+- (void) launch;
+
 - (void) resume;
+- (void) suspend;
+
+/*!
+ * \brief Stop the task.
+ *
+ * \details Equivalent to SIGTERM in UNIX signal terminology.
+ */
+- (void) terminate;
+
+- (void) waitUntilExit;
 
 /*!
  * \brief Set the task object to run.
@@ -136,20 +126,17 @@ typedef enum
  * \brief Check if the task is running.
  */
 - (bool) isRunning;
+- (int) terminationStatus;
+- (NSTaskTerminationReason) terminationReason;
 
-/*!
- * \brief Retrieve the process UUID.
- * \param uuid Pointer to the memory where to place the process UUID.
- */
-- (void) getProcessIdentifier:(UUID *)uuid;
-
-/*!
- * \brief Return the exit code of the task.
- * \return Exit code, a la calling exit() from a C program.
- *
- * \details This is for compatibility with standard C programs.
- */
-- (int) result;
+- (int) processIdentifier;
+- (void) setArguments:(NSArray *)newArgs;
+- (void) setCurrentDirectory:(NSString *)curDir;
+- (void) setEnvironment:(NSDictionary *)newEnv;
+- (void) setLaunchURL:(NSURL *)url;
+- (void) setStandardError:(id)newStderr;
+- (void) setStandardInput:(id)newStdin;
+- (void) setStandardOutput:(id)newStdout;
 @end
 
 /*

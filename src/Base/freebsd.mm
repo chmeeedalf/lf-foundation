@@ -222,7 +222,7 @@ bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *ta
 				argv.push_back(NULL);
 			}
 		}
-		else if ([args respondsToSelector:@selector(enumerator)])
+		else if ([args respondsToSelector:@selector(objectEnumerator)])
 		{
 			id item;
 			NSIndex size = 0;
@@ -274,15 +274,6 @@ bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *ta
 
 	}
 	return retval;
-}
-
-static void handle_sigchld(int sig, siginfo_t *info, void *data)
-{
-	UUID child;
-	wait4(info->si_pid, NULL, WNOHANG, NULL);
-	memset(&child, 0, sizeof(child));
-	child.parts[3] = info->si_pid;
-	[NSTask _dispatchExitToPid:child status:info->si_status exitedNormally:(info->si_code == CLD_EXITED)];
 }
 
 static fd_set readers;
@@ -379,10 +370,6 @@ int main(int argc, const char **argv, const char **environ)
 	((uint32_t*)eventPage[0].payload)[0] = pid;
 	memset(&eventPage[0].senderID, 0, sizeof(eventPage[0].senderID));
 	eventPage[0].message = (uint32_t)msgSel;
-
-	sa.sa_sigaction = handle_sigchld;
-	sa.sa_flags = 0x48; /* SA_NOCLDSTOP | SA_NOCLDWAIT | SA_SIGINFO */
-	sigaction(20, &sa, NULL);
 
 	sa.sa_handler = handle_sigio;
 	sa.sa_flags = 0x48;
