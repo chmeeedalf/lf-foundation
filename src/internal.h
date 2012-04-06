@@ -207,9 +207,9 @@ struct sockaddr_storage;
 @end
 
 @interface NSTask(PrivateBookkeeping)
-+ (void) _dispatchExitToPid:(UUID)child status:(int) status exitedNormally:(bool)normalExit;
+- (void) _handleTaskExitWithErrorCode:(int)err normalExit:(bool)normalExit;
 @end
-bool spawnProcessWithURL(NSURL *, id, NSDictionary *, UUID *);
+bool spawnProcessWithURL(NSURL *, id, NSDictionary *, pid_t *);
 
 static inline bool object_isInstance(id obj)
 {
