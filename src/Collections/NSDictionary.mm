@@ -64,7 +64,7 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSObject.h>
-#import <Foundation/NSPropertyListSerialization.h>
+#import <Foundation/NSPropertyList.h>
 #import <Foundation/NSRange.h>
 #import <Foundation/NSString.h>
 
@@ -684,6 +684,12 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 	return self;
 }
 
+- (bool) writeToURL:(NSURL *)url atomically:(bool)atomic
+{
+	NSData *d = [NSPropertyListSerialization dataWithPropertyList:self
+		format:NSPropertyListXMLFormat options:0 error:NULL];
+	return [d writeToURL:url atomically:atomic];
+}
 @end
 
 @implementation NSMutableDictionary

@@ -186,6 +186,7 @@
 - (NSSet *) keysOfEntriesWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id key, id obj, bool *stop))predicate;
 #endif
 
+- (bool) writeToURL:(NSURL *)url atomically:(bool)atomically;
 
 /// \category Counting entries
 /*!
