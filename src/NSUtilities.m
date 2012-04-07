@@ -59,7 +59,7 @@ void NSLogv(NSString *format, va_list args)
 	NSString* message = [[NSString alloc] initWithFormat:format arguments:args];
 	NSDate* date = [NSDate new];
 	NSString* header;
-	NSLocale *locale = [NSLocale localeWithIdentifier:@"en_US_POSIX"];
+	NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
 	const char *f;
 
 	/* We use en_US_POSIX so that it uses a consistant POSIX print */
