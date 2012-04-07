@@ -51,7 +51,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 @interface NSFileHandle	:	NSObject
 
 @property (copy) void (^readabilityHandler)(NSFileHandle *);
-@property (copy) void (^writeadabilityHandler)(NSFileHandle *);
+@property (copy) void (^writeabilityHandler)(NSFileHandle *);
 
 + (id) fileHandleForReadingFromURL:(NSURL *)url error:(NSError **)errp;
 + (id) fileHandleForWritingToURL:(NSURL *)url error:(NSError **)errp;
