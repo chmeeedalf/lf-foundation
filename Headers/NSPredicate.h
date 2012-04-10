@@ -1,6 +1,5 @@
 /* 
    NSPredicate.h
- * All rights reserved.
 
    Copyright (C) 2010-2012	Justin Hibbits
    Copyright (C) 2005, Helge Hess
@@ -37,6 +36,7 @@
 {
 }
 + (NSPredicate *)predicateWithValue:(bool)value;
++ (NSPredicate *) predicateWithBlock:(bool (^)(id, NSDictionary *))block;
 - (NSPredicate *)predicateWithSubstitutionVariables:(NSDictionary *)variables;
 
 /* evaluation */

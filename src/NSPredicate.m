@@ -85,6 +85,12 @@
 {
 	return self;
 }
+
++ (NSPredicate *) predicateWithBlock:(bool (^)(id, NSDictionary *))block
+{
+	TODO; // +[NSPredicate predicateWithBlock:]
+	return nil;
+}
 @end /* NSPredicate */
 
 
