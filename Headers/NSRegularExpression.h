@@ -74,19 +74,16 @@ typedef void (^NSRegexBlock)(NSTextCheckingResult *, NSMatchingFlags, bool *);
 	void *regex;
 	NSRegularExpressionOptions options;
 }
+@property (readonly) NSString *pattern;
+@property (readonly) NSRegularExpressionOptions options;
+@property (readonly) NSUInteger numberOfCaptureGroups;
+
 + (NSRegularExpression*)regularExpressionWithPattern: (NSString*)aPattern
                                              options: (NSRegularExpressionOptions)opts
                                                error: (NSError**)e;
 - (id) initWithPattern: (NSString*)aPattern
           options: (NSRegularExpressionOptions)opts
             error: (NSError**)e;
-+ (NSRegularExpression*)regularExpressionWithPattern: (NSString*)aPattern
-                                             options: (NSRegularExpressionOptions)opts
-                                               error: (NSError**)e;
-- (id) initWithPattern: (NSString*)aPattern
-          options: (NSRegularExpressionOptions)opts
-            error: (NSError**)e;
-- (NSString*)pattern;
 
 - (void)enumerateMatchesInString: (NSString*)string
                          options: (NSMatchingOptions)options
@@ -105,6 +102,7 @@ typedef void (^NSRegexBlock)(NSTextCheckingResult *, NSMatchingFlags, bool *);
 - (NSRange)rangeOfFirstMatchInString: (NSString*)string
                              options: (NSMatchingOptions)options
                                range: (NSRange)range;
+
 - (NSUInteger)replaceMatchesInString: (NSMutableString*)string
                              options: (NSMatchingOptions)options
                                range: (NSRange)range
@@ -113,17 +111,14 @@ typedef void (^NSRegexBlock)(NSTextCheckingResult *, NSMatchingFlags, bool *);
                                       options: (NSMatchingOptions)options
                                         range: (NSRange)range
                                  withTemplate: (NSString*)templat;
+
++ (NSString *) escapedTemplateForString:(NSString *)string;
++ (NSString *) escapedPatternForString:(NSString *)string;
+
 - (NSString*)replacementStringForResult: (NSTextCheckingResult*)result
                                inString: (NSString*)string
                                  offset: (NSInteger)offset
                                template: (NSString*)templat;
-#if GS_HAS_DECLARED_PROPERTIES
-@property (readonly) NSRegularExpressionOptions options;
-@property (readonly) NSUInteger numberOfCaptureGroups;
-#else
-- (NSRegularExpressionOptions)options;
-- (NSUInteger)numberOfCaptureGroups;
-#endif
 @end
 
 @interface NSDataDetector	:	NSRegularExpression

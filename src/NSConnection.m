@@ -34,6 +34,7 @@
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSPort.h>
+#import <Foundation/NSPortNameServer.h>
 #import <Foundation/NSProxy.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
@@ -61,6 +62,20 @@
  * should still be requested, though.
  */
 @implementation NSConnection
+{
+	NSPortNameServer *nameserver;
+	NSPort	*sendPort;
+	NSPort	*receivePort;
+	id<NSConnectionDelegate>	_delegate;
+	NSMutableDictionary *proxies;
+	NSMutableDictionary *localProxies;
+	NSMutableSet	*requestModes;
+	NSMutableSet	*runloops;
+	NSMapTable *served;
+	NSTimeInterval replyTimeout;
+	NSTimeInterval requestTimeout;
+	bool	independentQueueing;
+}
 
 static NSMutableSet *allConnections;
 
@@ -108,7 +123,29 @@ static NSMutableSet *allConnections;
 
 + (NSConnection *) connectionWithRegisteredName:(NSString *)name host:(NSString *)hostName
 {
-	TODO; // +connectionWithRegisteredName:host:
+	return [self connectionWithRegisteredName:name
+										 host:hostName
+							  usingNameServer:[NSPortNameServer systemDefaultPortNameServer]];
+}
+
++ (id) connectionWithRegisteredName:(NSString *)name
+							   host:(NSString *)hostName
+					usingNameServer:(NSPortNameServer *)server
+{
+	TODO; // +[NSConnectionconnectionWithRegisteredName:host:usingNameServer:]
+	return nil;
+}
+
++ (id) serviceConnectionWithName:(NSString *)name rootObject:(id)root
+{
+	return [self serviceConnectionWithName:name
+								rootObject:root
+						   usingNameServer:[NSPortNameServer systemDefaultPortNameServer]];
+}
+
++ (id) serviceConnectionWithName:(NSString *)name rootObject:(id)root usingNameServer:(NSPortNameServer *)server
+{
+	TODO; // +[NSConnection serviceConnectionWithName:rootObject:usingNameServer:]
 	return nil;
 }
 
@@ -128,6 +165,11 @@ static NSMutableSet *allConnections;
 	return [[self connectionWithRegisteredName:name host:host] rootProxy];
 }
 
++ (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *)name host:(NSString *)host usingNameServer:(NSPortNameServer *)nameserver
+{
+	return [[self connectionWithRegisteredName:name host:host usingNameServer:nameserver] rootProxy];
+}
+
 // Determining connections
 +(NSArray *)allConnections
 {
@@ -142,8 +184,21 @@ static NSMutableSet *allConnections;
 // Registering a connection...
 -(bool)registerName:(NSString *)name
 {
-	[self subclassResponsibility:_cmd];
-	return false;
+	return [self registerName:name withNameServer:[NSPortNameServer systemDefaultPortNameServer]];
+}
+
+- (bool) registerName:(NSString *)name withNameServer:(NSPortNameServer *)server
+{
+	bool result;
+
+	result = [server registerPort:sendPort name:name];
+
+	if (result)
+	{
+		[nameserver removePortForName:name];
+		nameserver = server;
+	}
+	return result;
 }
 
 // Assigning a delegate...
@@ -212,22 +267,22 @@ static NSMutableSet *allConnections;
 // Timeouts
 -(NSTimeInterval)replyTimeout
 {
-	return _replyTimeout;
+	return replyTimeout;
 }
 
 -(NSTimeInterval)requestTimeout
 {
-	return _replyTimeout;
+	return replyTimeout;
 }
 
 -(void)setReplyTimeout:(NSTimeInterval)interval
 {
-	_replyTimeout = interval;
+	replyTimeout = interval;
 }
 
 -(void)setRequestTimeout:(NSTimeInterval)interval
 {
-	_requestTimeout = interval;
+	requestTimeout = interval;
 }
 
 // Get statistics

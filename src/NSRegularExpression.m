@@ -64,6 +64,19 @@
 	options = opts;
 	return self;
 }
+
++ (NSString *) escapedTemplateForString:(NSString *)string
+{
+	TODO; // +[NSRegularExpression escapedTemplateForString:]
+	return nil;
+}
+
++ (NSString *) escapedPatternForString:(NSString *)string
+{
+	TODO; // +[NSRegularExpression escapedPatternForString:]
+	return nil;
+}
+
 - (NSString*)pattern
 {
 	UErrorCode s = 0;
