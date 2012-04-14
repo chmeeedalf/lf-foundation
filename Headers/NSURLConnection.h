@@ -20,7 +20,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import <Foundation/NSObject.h>
 
-@class NSInputStream,NSOutputStream,NSRunLoop,NSURLRequest,NSData,NSURLResponse,NSError,NSMutableArray,NSURLAuthenticationChallenge,NSCachedURLResponse,NSURLProtocol;
+@class NSInputStream,NSOutputStream;
+@class NSRunLoop;
+@class NSURLRequest,NSURLResponse,NSCachedURLResponse,NSURLProtocol;
+@class NSURLAuthenticationChallenge, NSURLProtectionSpace;
+@class NSOperationQueue;
+@class NSData;
+@class NSError;
+@class NSMutableArray;
 @protocol NSURLConnectionDelegate;
 
 @interface NSURLConnection : NSObject
@@ -34,30 +41,33 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 }
 
 +(bool)canHandleRequest:(NSURLRequest *)request;
+
 +(NSData *)sendSynchronousRequest:(NSURLRequest *)request returningResponse:(NSURLResponse **)response error:(NSError **)error;
 
 +(NSURLConnection *)connectionWithRequest:(NSURLRequest *)request delegate:(id<NSURLConnectionDelegate>)delegate;
-
--(id)initWithRequest:(NSURLRequest *)request delegate:(id<NSURLConnectionDelegate>)delegate startImmediately:(bool)startLoading;
 -(id)initWithRequest:(NSURLRequest *)request delegate:(id<NSURLConnectionDelegate>)delegate;
+-(id)initWithRequest:(NSURLRequest *)request delegate:(id<NSURLConnectionDelegate>)delegate startImmediately:(bool)startLoading;
 
++ (void) sendAsynchronousRequest:(NSURLRequest *)request queue:(NSOperationQueue *)queue completionHandler:(void (^)(NSURLResponse *, NSData *, NSError *))handler;
 -(void)start;
+
 -(void)cancel;
 
 -(void)scheduleInRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
+-(void) setDelegateQueue:(NSOperationQueue *)queue;
 -(void)unscheduleFromRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode;
 
 @end
 
 @protocol NSURLConnectionDelegate<NSObject>
 @optional
--(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
--(void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+-(void) connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+-(bool) connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)space;
 -(void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
--(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
--(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
--(NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)response;
--(NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
--(void)connectionDidFinishLoading:(NSURLConnection *)connection;
+-(void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+-(bool)connectionShouldUseCredentialStorage:(NSURLConnection *)connection;
 
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
+- (void) connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
+- (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
 @end

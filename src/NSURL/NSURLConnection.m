@@ -121,7 +121,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(void)start
 {
-	NSURL    *url = [_request NSURL];
+	NSURL    *url = [_request URL];
 	NSString *hostName = [url hostname];
 	NSNumber *portNumber = [url port];
 	NSInputStream *inStream;
@@ -184,12 +184,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-	// [_delegate connection:self didReceiveAuthenticationChallenge];
+	[_delegate connection:self didReceiveAuthenticationChallenge:challenge];
 }
 
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-	// [_delegate connection:self didCancelAuthenticationChallenge];
+	[_delegate connection:self didCancelAuthenticationChallenge:challenge];
 }
 
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol didReceiveResponse:(NSURLResponse *)response cacheStoragePolicy:(NSURLCacheStoragePolicy)policy
@@ -204,7 +204,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol didLoadData:(NSData *)data
 {
-	NSLog(@"NSURLProtocol:didLoadData:");
+	NSLog(@"URLProtocol:didLoadData:");
 	[_delegate connection:self didReceiveData:data];
 }
 
@@ -215,10 +215,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(void)URLProtocolDidFinishLoading:(NSURLProtocol *)urlProtocol
 {
-	NSLog(@"NSURLProtocolDidFinishLoading:");
+	NSLog(@"URLProtocolDidFinishLoading:");
 	if([_delegate respondsToSelector:@selector(connectionDidFinishLoading:)])
 		  [_delegate performSelector:@selector(connectionDidFinishLoading:) withObject:self];
 }
 
+-(void) setDelegateQueue:(NSOperationQueue *)queue
+{
+	TODO; // -[NSURLConnection setDelegateQueue:];
+}
 
++ (void) sendAsynchronousRequest:(NSURLRequest *)request queue:(NSOperationQueue *)queue completionHandler:(void (^)(NSURLResponse *, NSData *, NSError *))handler
+{
+	TODO; // +[NSURLConnection sendAsynchronousRequest:queue:completionHandler:]
+}
 @end
