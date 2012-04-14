@@ -53,8 +53,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSString.h>
 
-@class NSData,NSDate,NSDirectoryEnumerator,NSError,NSNumber,NSURL;
+@class NSData,NSDate,NSDirectoryEnumerator,NSError,NSFileHandle,NSNumber,NSURL;
 
+SYSTEM_EXPORT NSString * const NSFileDisplayName;
 SYSTEM_EXPORT NSString * const NSFileType;
   SYSTEM_EXPORT NSString * const NSFileTypeRegular;
   SYSTEM_EXPORT NSString * const NSFileTypeDirectory;
@@ -169,7 +170,10 @@ typedef NSUInteger NSFileManagerItemReplacementOptions;
 -(bool)changeCurrentDirectoryURL:(NSURL *)path;
 -(NSString *)currentDirectoryPath;
 
-
+/* Gold extensions */
+- (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path error:(NSError **)errp;
+- (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path error:(NSError **)errp;
+- (NSFileHandle *) fileHandleForUpdatingAtURL:(NSURL *)path error:(NSError **)errp;
 @end
 
 @protocol NSFileManagerDelegate<NSObject>

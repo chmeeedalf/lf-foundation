@@ -88,6 +88,11 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return defaultManager;
 }
 
+- (id) init
+{
+	return self;
+}
+
 -(bool)createFileAtURL:(NSURL *)path contents:(NSData *)data
 			attributes:(NSDictionary *)attributes
 {
@@ -96,11 +101,51 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return [fsHandler createFileAtURL:path contents:data attributes:attributes error:NULL];
 }
 
+- (NSDirectoryEnumerator *) enumeratorAtURL:(NSURL *)url
+{
+	return [self enumeratorAtURL:url
+	  includingPropertiesForKeys:nil
+						 options:0
+					errorHandler:nil];
+}
+
+-(NSDirectoryEnumerator *)enumeratorAtURL:(NSURL *)url
+			   includingPropertiesForKeys:(NSArray *)keys
+			   					  options:(NSDirectoryEnumerationOptions)mask
+			   				 errorHandler:(bool (^)(NSURL *, NSError *))handler
+{
+	TODO; // -[NSFileManager enumeratorAtURL:includingPropertiesForKeys:options:errorHandler:]
+	return nil;
+}
+
 -(NSArray *)contentsOfDirectoryAtURL:(NSURL *)path error:(NSError **)err
 {
 	id<NSFilesystem> fsHandler = [path handler];
 
 	return [fsHandler contentsOfDirectoryAtURL:path error:err];
+}
+
+-(NSArray *)contentsOfDirectoryAtURL:(NSURL *)path
+		  includingPropertiesForKeys:(NSArray *)keys
+		  					 options:(NSDirectoryEnumerationOptions)mask
+		  					   error:(NSError **)error
+{
+	NSString *dirent;
+	NSMutableArray *result = [NSMutableArray new];
+	NSDirectoryEnumerator *en = [self enumeratorAtURL:path];
+	[en skipDescendants];
+
+	for (dirent in [self enumeratorAtURL:path
+			  includingPropertiesForKeys:keys
+								 options:(mask | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
+								   errorHandler:^bool(NSURL *url, NSError *err){
+								   *error = err;
+								   return true;
+								   } ])
+	{
+		[result addObject:dirent];
+	}
+	return [result copy];
 }
 
 -(bool)createDirectoryAtURL:(NSURL *)path withIntermediateDirectories:(bool)intermediates attributes:(NSDictionary *)attributes error:(NSError **)err
@@ -142,6 +187,16 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return true;
 }
 
+-(bool)replaceItemAtURL:(NSURL *)original
+		  withItemAtURL:(NSURL *)newURL
+		 backupItemName:(NSString *)backupName
+		 		options:(NSFileManagerItemReplacementOptions)options
+	   resultingItemURL:(NSURL **)result
+	   			  error:(NSError **)errp
+{
+	TODO; //-[NSFileManager replaceItemAtURL:withItemAtURL:backupItemName:options:resultingItemURL:error:]
+	return nil;
+}
 
 -(bool)moveItemAtURL:(NSURL *)src toURL:(NSURL *)dest error:(NSError **)err
 {
@@ -272,6 +327,16 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return nil;
 }
 
+- (NSArray *) componentsToDisplayForURL:(NSURL *)url
+{
+	return [[url path] pathComponents];
+}
+
+- (NSString *) displayNameAtURL:(NSURL *)url
+{
+	return [[self attributesOfItemAtURL:url error:NULL] objectForKey:NSFileDisplayName];
+}
+
 -(NSDictionary *)attributesOfItemAtURL:(NSURL *)path error:(NSError **)errOut
 {
 	id<NSFilesystem> fsHandler = [path handler];
@@ -383,9 +448,51 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return false;
 }
 
+- (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path error:(NSError **)errp
+{
+	id<NSFilesystem> fsHandler = [path handler];
+	return [fsHandler fileHandleForWritingAtURL:path error:errp];
+}
+
+- (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path error:(NSError **)errp
+{
+	id<NSFilesystem> fsHandler = [path handler];
+	return [fsHandler fileHandleForWritingAtURL:path error:errp];
+}
+
+- (NSFileHandle *) fileHandleForUpdatingAtURL:(NSURL *)path error:(NSError **)errp
+{
+	id<NSFilesystem> fsHandler = [path handler];
+	return [fsHandler fileHandleForWritingAtURL:path error:errp];
+}
+
+- (NSURL *) URLForDirectory:(NSSearchPathDirectory)dir
+				   inDomain:(NSSearchPathDomainMask)domain
+		  appropriateForURL:(NSURL *)url
+		  			 create:(bool)shouldCreate
+		  			  error:(NSError **)errp
+{
+	TODO; // -[NSFileManager URLForDirectory:inDomain:appropriateForURL:create:error:]
+	return nil;
+}
+
+- (NSArray *) URLsForDirectory:(NSSearchPathDirectory)dir
+					 inDomains:(NSSearchPathDomainMask)domains
+{
+	TODO; // -[NSFileManager URLsForDirectory:inDomains:]
+	return nil;
+}
+
+-(NSArray *)mountedVolumeURLsIncludingResourceValuesForKeys:(NSArray *)propertyKeys options:(NSVolumeEnumerationOptions)options
+{
+	TODO; // -[NSFileManager mountedVolumeURLsIncludingResourceValuesForKeys:options:]
+	return nil;
+}
 @end
 
-NSString * constNSFileType = @"NSFileType";
+NSString * const NSFileDisplayName = @"NSFileDisplayName";
+
+NSString * const NSFileType = @"NSFileType";
  NSString * const NSFileTypeRegular = @"NSString * const NSFileTypeRegular";
  NSString * const NSFileTypeDirectory = @"NSString * const NSFileTypeDirectory";
  NSString * const NSFileTypeSymbolicLink = @"NSString * const NSFileTypeSymbolicLink";
