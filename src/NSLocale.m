@@ -37,8 +37,9 @@
 #import <Foundation/NSString.h>
 
 #import "NSConcreteLocale.h"
-#import <unicode/uloc.h>
-#import <unicode/ucurr.h>
+#include <unicode/uloc.h>
+#include <unicode/ucurr.h>
+#include <stdlib.h>
 
 // NSLocale strings
 NSString * const NSLocaleDecimalDigits = @"NSLocaleDecimalDigits";
@@ -117,7 +118,7 @@ static NSLocale *currentLocale = nil;
 	{
 		if (systemLocale == nil)
 		{
-			systemLocale = [self localeWithIdentifier:[[NSSettingsManager
+			systemLocale = [[self alloc] initWithLocaleIdentifier:[[NSSettingsManager
 				defaultSettingsManager] objectForKey:@"SystemLocale"]];
 			if (systemLocale == nil)
 				systemLocale = [NSConcreteLocale fallbackLocale];
@@ -141,6 +142,12 @@ static NSLocale *currentLocale = nil;
 	uloc_setDefault([[locale localeIdentifier] UTF8String], &ec);
 	if (!U_FAILURE(ec))
 		currentLocale = locale;
+}
+
++ (NSArray *) preferredLanguages
+{
+	TODO; // +[NSLocale preferredLanguages]
+	return nil;
 }
 
 + (NSLocaleLanguageDirection) characterDirectionForLanguage:(NSString *)lang
@@ -185,9 +192,29 @@ static NSLocale *currentLocale = nil;
 	}
 }
 
-+ (id) localeWithLocaleIdentifier:(NSString *)localeName
++ (NSString *) canonicalLanguageIdentifierFromString:(NSString *)str
 {
-	return [[NSConcreteLocale alloc] initWithLocaleIdentifier:localeName];
+	TODO; // +[NSLocale canonicalLanguageIdentifierFromString:]
+	return nil;
+}
+
++ (NSString *) canonicalLocaleIdentifierFromString:(NSString *)ident
+{
+	char *outName;
+	int32_t len;
+	UErrorCode ec = U_ZERO_ERROR;
+	const char *srcLocale = [ident UTF8String];
+
+	len = uloc_canonicalize(srcLocale, NULL, 0, &ec);
+
+	if (U_FAILURE(ec))
+		return nil;
+
+	outName = malloc(len);
+	uloc_canonicalize(srcLocale, outName, len, &ec);
+
+	return [[NSString alloc] initWithBytesNoCopy:outName length:len
+		encoding:NSASCIIStringEncoding freeWhenDone:true];
 }
 
 - (id) initWithLocaleIdentifier:(NSString *)localeName

@@ -73,7 +73,6 @@ typedef NSUInteger NSLocaleLanguageDirection;
 /*!
  * \brief Returns a locale with the given name.
  */
-+ (id) localeWithIdentifier:(NSString *)localeName;
 
 - (id) initWithLocaleIdentifier:(NSString *)localeName;
 
@@ -103,7 +102,7 @@ typedef NSUInteger NSLocaleLanguageDirection;
 + (NSString *) canonicalLocaleIdentifierFromString:(NSString *)str;
 + (NSDictionary *)componentsFromLocaleIdentifier:(NSString *)ident;
 + (NSString *)localeIdentifierFromComponents:(NSDictionary *)components;
-+ (NSString *) canonicalLanguagesIdentifierFromString:(NSString *)str;
++ (NSString *) canonicalLanguageIdentifierFromString:(NSString *)str;
 
 + (NSArray *) preferredLanguages;
 
