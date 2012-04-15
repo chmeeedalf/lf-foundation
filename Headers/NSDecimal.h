@@ -47,10 +47,16 @@ typedef enum {
   NSCalculationNotImplemented
 } NSCalculationError;
 
+#define NSDecimalMaxSize (8)
+#define NSDecimalNoScale (SHRT_MAX)
+
 typedef struct {
-  unsigned long long mantissa;
-  signed char        exponent;
-  bool               isNegative;
+	signed int exponent:8;
+	unsigned int length:4;
+	unsigned int isNegative:1;
+	unsigned int isCompact:1;
+	unsigned int reserved:18;
+	unsigned short mantissa[NSDecimalMaxSize];
 } NSDecimal;
 
 /* operations */
