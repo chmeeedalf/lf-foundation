@@ -93,8 +93,8 @@
 
 /*!
  */
-- (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path;
-- (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path;
+- (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path error:(NSError **)errp;
+- (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path error:(NSError **)errp;
 @end
 
 /*! \defgroup objattr Managed object attributes */
