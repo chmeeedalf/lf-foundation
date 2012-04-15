@@ -88,7 +88,7 @@ SYSTEM_EXPORT NSString * const NSRunLoopCommonModes;
 - (void) performSelector:(SEL)sel target:(id)target argument:(id)arg order:(unsigned long)order modes:(NSArray *)modes;
 - (void) cancelPerformSelector:(SEL)sel target:(id)target argument:(id)arg;
 - (void) cancelPerformSelectorsWithTarget:(id)target;
-- (void) removeRunLoopTarget:(id)tgt mode:(NSString *)mode;
+
 #ifdef __cplusplus
 - (void) addRunLoopSource:(Alepha::RunLoop::Source *)src target:(id)tgt selector:(SEL)sel mode:(NSString *)mode;
 - (Alepha::RunLoop *) coreRunLoop;

@@ -32,6 +32,7 @@
 #import <Alepha/Objective/Object.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
@@ -110,6 +111,10 @@ namespace
 
 @end
 
+@interface NSRunLoop()
+- (void) removeRunLoopTarget:(id)tgt mode:(NSString *)mode;
+@end
+
 @implementation NSRunLoop
 {
 	@private
@@ -150,7 +155,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 	if (threadRunLoop == nil)
 	{
 		loop = [NSRunLoop new];
-		[[NSThread currentThread] setPrivateThreadData:threadRunLoop
+		[[[NSThread currentThread] threadDictionary] setObject:threadRunLoop
 			forKey:NSRunLoopKey];
 
 		// The loop will persist until removed from the dictionary, which won't
@@ -163,7 +168,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 
 + (NSRunLoop *) mainRunLoop
 {
-	return [[NSThread mainThread] privateThreadDataForKey:NSRunLoopKey];
+	return [[[NSThread mainThread] threadDictionary] objectForKey:NSRunLoopKey];
 }
 
 - (id) init
