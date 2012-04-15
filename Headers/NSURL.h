@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2005-2012	Justin Hibbits
  * All rights reserved.
+ *
  * * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -65,6 +66,24 @@ SYSTEM_EXPORT NSString * const NSURLLabelColorKey;
 SYSTEM_EXPORT NSString * const NSURLLocalizedLabelKey;
 SYSTEM_EXPORT NSString * const NSURLEffectiveIconKey;
 SYSTEM_EXPORT NSString * const NSURLCustomIconKey;
+SYSTEM_EXPORT NSString * const NSURLFileResourceIdentifierKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIdentifierKey;
+SYSTEM_EXPORT NSString * const NSSURLPreferredIOBlockSizeKey;
+SYSTEM_EXPORT NSString * const NSSURLIsReadableKey;
+SYSTEM_EXPORT NSString * const NSSURLIsWritableKey;
+SYSTEM_EXPORT NSString * const NSSURLIsExecutableKey;
+SYSTEM_EXPORT NSString * const NSSURLIsMountTriggerKey;
+SYSTEM_EXPORT NSString * const NSSURLFileSecurityKey;
+SYSTEM_EXPORT NSString * const NSSURLFileResourceTypeKey;
+
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeNamedPipe;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeCharacterSpecial;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeDirectory;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeBlockSpecial;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeRegular;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeSymbolicLink;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeSocket;
+SYSTEM_EXPORT NSString * const NSURLFileResourceTypeUnknown;
 
 SYSTEM_EXPORT NSString * const NSURLVolumeLocalizedFormatDescriptionKey;
 SYSTEM_EXPORT NSString * const NSURLVolumeTotalCapacityKey;
@@ -79,10 +98,51 @@ SYSTEM_EXPORT NSString * const NSURLVolumeSupportsSparseFilesKey;
 SYSTEM_EXPORT NSString * const NSURLVolumeSupportsZeroRunsKey;
 SYSTEM_EXPORT NSString * const NSURLVolumeSupportsCaseSensitiveNamesKey;
 SYSTEM_EXPORT NSString * const NSURLVolumeSupportsCasePreservedNamesKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeSupportsRootDirectoryDatesKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeSupportsVolumeSizesKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeSupportsRenamingKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeSupportsAdvisoryFileLockingKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeSupportsExtendedSecurityKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsBrowsableKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeMaximumFileSizeKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsEjectableKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsRemovableKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsInternalKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsAutomountedKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsLocalKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeIsReadOnlyKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeCreationDateKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeURLForRemountingKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeUUIDStringKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeNameKey;
+SYSTEM_EXPORT NSString * const NSURLVolumeLocalizedNameKey;
 
 SYSTEM_EXPORT NSString * const NSURLFileSizeKey;
 SYSTEM_EXPORT NSString * const NSURLFileAllocatedSizeKey;
 SYSTEM_EXPORT NSString * const NSURLIsAliasFileKey;
+SYSTEM_EXPORT NSString * const NSURLTotalFileAllocatedSizeKey;
+SYSTEM_EXPORT NSString * const NSURLTotalFileSizeKey;
+
+SYSTEM_EXPORT NSString * const NSURLKeysOfUnsetValuesKey;
+
+enum
+{
+	NSURLBookmarkCreationPreferFileIDResolution		= (1UL << 8),
+	NSURLBookmarkCreationMinimalBookmark			= (1UL << 9),
+	NSURLBookmarkCreationSuitableForBookmarkFile	= (1UL << 10),
+	NSURLBookmarkCreationWithSecurityScope			= (1UL << 11),
+	NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess		= (1UL << 12),
+};
+typedef NSUInteger NSURLBookmarkCreationOptions;
+typedef NSUInteger NSURLBookmarkFileCreationOptions;
+
+enum
+{
+	NSURLBookmarkResolutionWithoutUI			= (1UL << 8),
+	NSURLBookmarkResolutionWithoutMounting		= (1UL << 9),
+	NSURLBookmarkResolutionWithSecuirtyScope	= (1UL << 10),
+};
+typedef NSUInteger NSURLBookmarkResolutionOptions;
 
 /*!
  * \brief NSURL type.
@@ -128,51 +188,51 @@ typedef enum NSURLType {
  * \returns The NSURL, or \c nil if the string is invalid.
  */
 - (id) initWithString:(NSString *)string;
+- (id) initWithString:(NSString *)string relativeToURL:(NSURL *)parent;
 - (id) initFileURLWithPath:(NSString *)path;
 - (id) initFileURLWithPath:(NSString *)path isDirectory:(bool)isDir;
-- (id) initWithString:(NSString *)string relativeToURL:(NSURL *)parent;
 - (id) initWithScheme:(NSString *)scheme host:(NSString *)host path:(NSString *)path;
 
-/*!
- * \brief Returns the NSURL's scheme (http, ftp, telnet, ...)
- */
-- (NSString *)scheme;
+- (bool) isEqual:(id)other;
 
-/*!
- * \brief Returns the NSURL's path.
- */
-- (NSString *)path;
+- (bool) checkResourceIsReachableAndReturnError:(NSError **)errp;
+- (bool) isFileURL;
+
+- (NSString *) absoluteString;
+- (NSURL *) absoluteURL;
+- (NSURL *) baseURL;
+- (NSString *) fragment;
 
 /*!
  * \brief Returns the NSURL's host data.
  */
 - (NSHost *) host;
 - (NSString *) hostname;
+- (NSString *) lastPathComponent;
+- (NSString *) parameterString;
+- (NSString *) password;
+/*!
+ * \brief Returns the NSURL's path.
+ */
+- (NSString *) path;
 
+- (NSArray *) pathComponents;
+- (NSString *) pathExtension;
 /*!
  * \brief Returns the NSURL's port, if it exists.
  */
 - (NSNumber *) port;
 
-- (bool) isEqual:(id)other;
-- (bool) isFileURL;
-- (NSString *) absoluteString;
-- (NSURL *) absoluteURL;
-- (NSURL *) baseURL;
+- (NSString *) query;
+- (NSString *) relativePath;
+- (NSString *) relativeString;
+- (NSString *) resourceSpecifier;
+/*!
+ * \brief Returns the NSURL's scheme (http, ftp, telnet, ...)
+ */
+- (NSString *)scheme;
 - (NSURL *) standardizedURL;
-
--(NSString *)parameterString;
-
--(NSString *)user;
--(NSString *)password;
--(NSString *)fragment;
--(NSString *)lastPathComponent;
--(NSArray *)pathComponents;
--(NSString *)pathExtension;
--(NSString *)query;
--(NSString *)relativePath;
--(NSString *)relativeString;
--(NSString *)resourceSpecifier;
+- (NSString *) user;
 
 - (NSURL *) URLByAppendingPathComponent:(NSString *)component;
 - (NSURL *) URLByAppendingPathComponent:(NSString *)component isDirectory:(bool)isDir;
@@ -187,6 +247,31 @@ typedef enum NSURLType {
 - (bool) setResourceValue:(id)value forKey:(NSString *)key error:(NSError **)errp;
 - (bool) setResourceValues:(NSDictionary *)keyedValues error:(NSError **)errp;
 
+@end
+
+/* Cocoa compatibility, no sandboxing (use Capsicum?) */
+@interface NSURL(NSAppSandboxing)
+- (bool) startAccessingSecurityScopedResource;
+- (bool) stopAccessingSecurityScopedResource;
+@end
+
+// TODO: This may need filesystem support, so belongs in an unimplemented
+// category for now
+@interface NSURL(NSFileReference)
+- (NSURL *) filePathURL;
+- (NSURL *) fileReferenceURL;
+- (bool) isFileReferenceURL;
+@end
+
+@interface NSURL(NSURL_Bookmarks)
+
++ (id) URLByResolvingBookmarkData:(NSData *)data options:(NSURLBookmarkResolutionOptions)options relativeToURL:(NSURL *)relURL bookmarkDataIsStale:(bool *)isStale error:(NSError **)errp;
+- (id) initByResolvingBookmarkData:(NSData *)data options:(NSURLBookmarkResolutionOptions)options relativeToURL:(NSURL *)relURL bookmarkDataIsStale:(bool *)isStale error:(NSError **)errp;
++ (NSDictionary *) resourceValuesForKeys:(NSArray *)keys forBookmarkData:(NSData *)bookmark;
+
++ (NSData *) bookmarkDataWithContentsOfURL:(NSURL *)bookmarkFile error:(NSError **)errp;
+- (NSData *) bookmarkDataWithOptions:(NSURLBookmarkCreationOptions)opts includingResourceValuesForKeys:(NSArray *)keys relativeToURL:(NSURL *)relURL error:(NSError **)errp;
++ (bool) writeBookmarkData:(NSData *)bookmarkData toURL:(NSURL *)bookmarkFileURL options:(NSURLBookmarkCreationOptions)opts error:(NSError **)errp;
 @end
 
 /*!
