@@ -28,10 +28,12 @@
 #import "NSCoreArray.h"
 
 #import <Foundation/NSCoder.h>
+#import <Foundation/NSData.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSIndexSet.h>
 #import <Foundation/NSNull.h>
 #import <Foundation/NSObject.h>
+#import <Foundation/NSPropertyList.h>
 #import <Foundation/NSRange.h>
 #import <Foundation/NSSortDescriptor.h>
 #import <Foundation/NSString.h>
@@ -113,6 +115,11 @@ static Class CoreArrayClass;
 			initWithObjects:objects count:count];
 }
 
++ (id) arrayWithContentsOfURL:(NSURL *)url
+{
+	return [[self alloc] initWithContentsOfURL:url];
+}
+
 - (id)init
 {
 	return self;
@@ -162,6 +169,21 @@ static Class CoreArrayClass;
 {
 	[self subclassResponsibility:_cmd];
 	return self;
+}
+
+-(id)initWithContentsOfURL:(NSURL *)url
+{
+	NSPropertyListFormat fmt;
+	return [NSPropertyListSerialization
+		propertyListWithData:[NSData dataWithContentsOfURL:url]
+		options:0 format:&fmt error:NULL];
+}
+
+- (bool) writeToURL:(NSURL *)url atomically:(bool)atomic
+{
+	NSData *d = [NSPropertyListSerialization dataWithPropertyList:self
+		format:NSPropertyListXMLFormat options:0 error:NULL];
+	return [d writeToURL:url atomically:atomic];
 }
 
 /* Querying the NSArray */
