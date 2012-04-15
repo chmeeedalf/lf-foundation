@@ -24,11 +24,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 typedef enum
 {
-	NSURLRequestUseProtocolCachePolicy,
-	NSURLRequestReloadIgnoringCacheData,
-	NSURLRequestReturnCacheDataElseLoad,
-	NSURLRequestReturnCacheDataDontLoad
+	NSURLRequestUseProtocolCachePolicy = 0,
+	NSURLRequestReloadIgnoringLocalCacheData = 1,
+	NSURLRequestReloadIgnoringLocalAndRemoteCacheData = 4,
+	NSURLRequestReloadIgnoringCacheData = NSURLRequestReloadIgnoringLocalCacheData,
+	NSURLRequestReturnCacheDataElseLoad = 2,
+	NSURLRequestReturnCacheDataDontLoad = 3,
+	NSURLRequestReloadRevalidatingCacheData = 5
 } NSURLRequestCachePolicy;
+
+typedef enum
+{
+	NSURLNetworkServiceTypeDefault = 0,
+	NSURLNetworkServiceTypeVoIP = 1,
+	NSURLNetworkServiceTypeVideo = 2,
+	NSURLNetworkServiceTypeBackground = 3,
+	NSURLNetworkServiceTypeVoice = 4
+} NSURLRequestNetworkServiceType;
 
 @interface NSURLRequest : NSObject <NSCopying,NSMutableCopying>
 {
@@ -42,25 +54,42 @@ typedef enum
 	bool                    _handleCookies;
 }
 
++(id)requestWithURL:(NSURL *)url;
 -(id)initWithURL:(NSURL *)url;
+
++(id)requestWithURL:(NSURL *)url cachePolicy:(NSURLRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
 -(id)initWithURL:(NSURL *)url cachePolicy:(NSURLRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
 
-+(id)requestWithURL:(NSURL *)url;
-+(id)requestWithURL:(NSURL *)url cachePolicy:(NSURLRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout;
 
--(NSURL *)NSURL;
 -(NSURLRequestCachePolicy)cachePolicy;
+-(bool) HTTPShouldUsePipelining;
+-(NSURL *)mainDocumentURL;
 -(NSTimeInterval)timeoutInterval;
-
--(NSString *)HTTPMethod;
--(NSData *)HTTPBody;
--(NSInputStream *)HTTPBodyStream;
+-(NSURLRequestNetworkServiceType) networkServiceType;
+-(NSURL *)URL;
 
 -(NSDictionary *)allHTTPHeaderFields;
+-(NSData *)HTTPBody;
+-(NSInputStream *)HTTPBodyStream;
+-(NSString *)HTTPMethod;
+-(bool)HTTPShouldHandleCookies;
 -(NSString *)valueForHTTPHeaderField:(NSString *)field;
 
--(NSURL *)mainDocumentURL;
+@end
 
--(bool)HTTPShouldHandleCookies;
+@interface NSMutableURLRequest : NSURLRequest
+
+-(void)setCachePolicy:(NSURLRequestCachePolicy)value;
+-(void)setURL:(NSURL *)value;
+-(void)setTimeoutInterval:(NSTimeInterval)value;
+-(void)setMainDocumentURL:(NSURL *)value;
+
+-(void)addValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+-(void)setAllHTTPHeaderFields:(NSDictionary *)allValues;
+-(void)setHTTPBody:(NSData *)value;
+-(void)setHTTPBodyStream:(NSInputStream *)value;
+-(void)setHTTPMethod:(NSString *)value;
+-(void)setHTTPShouldHandleCookies:(bool)value;
+-(void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
 
 @end

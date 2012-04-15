@@ -49,7 +49,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	[self notImplemented:_cmd];
 }
 
--(NSURL *)NSURL
+-(NSURL *)URL
 {
 	return _url;
 }

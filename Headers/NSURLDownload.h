@@ -35,20 +35,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	NSOutputStream        *_fileStream;
 }
 
-+(bool)canResumeDownloadDecodedWithEncodingMIMEType:(NSString *)mimeType;
-
 -(id)initWithRequest:(NSURLRequest *)requst delegate:(id<NSURLDownloadDelegate>)delegate;
+
++(bool)canResumeDownloadDecodedWithEncodingMIMEType:(NSString *)mimeType;
 -(id)initWithResumeData:(NSData *)data delegate:(id<NSURLDownloadDelegate>)delegate path:(NSString *)path;
-
--(NSURLRequest *)request;
 -(NSData *)resumeData;
-
+-(void)setDeletesFileUponFailure:(bool)flag;
 -(bool)deletesFileUponFailure;
 
--(void)setDeletesFileUponFailure:(bool)flag;
--(void)setDestination:(NSString *)path allowOverwrite:(bool)allowOverwrite;
-
 -(void)cancel;
+
+-(NSURLRequest *)request;
+
+-(void)setDestination:(NSString *)path allowOverwrite:(bool)allowOverwrite;
 
 @end
 

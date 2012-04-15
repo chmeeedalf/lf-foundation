@@ -68,6 +68,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -(bool)connectionShouldUseCredentialStorage:(NSURLConnection *)connection;
 
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
-- (void) connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
+- (NSURLRequest *) connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response;
 - (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
 @end

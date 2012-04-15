@@ -31,11 +31,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(id) initWithURL:(NSURL *)url MIMEType:(NSString *)mimeType expectedContentLength:(long)expectedLength textEncodingName:(NSString *)encoding;
 
--(NSURL *)NSURL;
--(NSString *)MIMEType;
 -(long long)expectedContentLength;
--(NSString *)textEncodingName;
-
 -(NSString *)suggestedFilename;
+-(NSString *)MIMEType;
+-(NSString *)textEncodingName;
+-(NSURL *)URL;
 
 @end

@@ -19,7 +19,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #import <Foundation/NSURLRequest.h>
-#import <Foundation/NSMutableURLRequest.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSStream.h>
@@ -30,7 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(id)initWithURLRequest:(NSURLRequest *)other
 {
-   _url = [[other NSURL] copy];
+   _url = [[other URL] copy];
    _cachePolicy = [other cachePolicy];
    _timeoutInterval = [other timeoutInterval];
    
@@ -83,7 +82,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    return [[NSMutableURLRequest alloc] initWithURLRequest:self];
 }
 
--(NSURL *)NSURL
+-(NSURL *)URL
 {
    return _url;
 }
@@ -141,4 +140,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    return _handleCookies;
 }
 
+-(bool) HTTPShouldUsePipelining
+{
+	TODO; // -[NSURLRequest HTTPShouldUsePipelining]
+	return false;
+}
+
+-(NSURLRequestNetworkServiceType) networkServiceType
+{
+	TODO; // -[NSURLRequest networkServiceType]
+	return 0;
+}
 @end

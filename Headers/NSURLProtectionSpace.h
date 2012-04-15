@@ -20,6 +20,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSURLCredential.h>
+
+SYSTEM_EXPORT NSSymbol NSURLProtectionSpaceHTTP;
+SYSTEM_EXPORT NSSymbol NSURLProtectionSpaceHTTPS;
+SYSTEM_EXPORT NSSymbol NSURLProtectionSpaceFTP;
 
 SYSTEM_EXPORT NSSymbol NSURLProtectionSpaceHTTPProxy;
 SYSTEM_EXPORT NSSymbol NSURLProtectionSpaceHTTPSProxy;
@@ -31,6 +36,7 @@ SYSTEM_EXPORT NSSymbol NSAuthenticationMethodHTTPBasic;
 SYSTEM_EXPORT NSSymbol NSAuthenticationMethodHTTPDigest;
 SYSTEM_EXPORT NSSymbol NSAuthenticationMethodHTMLForm;
 SYSTEM_EXPORT NSSymbol NSAuthenticationMethodNegotiate;
+SYSTEM_EXPORT NSSymbol NSAuthenticationMethodNTLM;
 SYSTEM_EXPORT NSSymbol NSAuthenticationMethodClientCertificate;
 SYSTEM_EXPORT NSSymbol NSAuthenticationMethodServerTrust;
 
@@ -47,17 +53,18 @@ SYSTEM_EXPORT NSSymbol NSAuthenticationMethodServerTrust;
 -(id)initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod;
 -(id)initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)proxyType realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod;
 
+-(NSString *)authenticationMethod;
+- (NSArray *) distinguishedNames;
 -(NSString *)host;
+-(bool)isProxy;
 -(int)port;
 -(NSString *)protocol;
--(NSString *)realm;
--(NSString *)authenticationMethod;
-
 -(NSString *)proxyType;
-
+-(NSString *)realm;
 -(bool)receivesCredentialsSecurely;
--(bool)isProxy;
 
-- (NSArray *) distinguishedNames;
+@end
 
+@interface NSURLProtectionSpace(NSMacOSXExtension)
+- (SecTrustRef) serverTrust;
 @end

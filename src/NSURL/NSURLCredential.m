@@ -22,6 +22,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSString.h>
 
 @implementation NSURLCredential
+{
+	NSString *_user;
+	NSString *_password;
+	NSURLCredentialPersistence _persistence;
+}
 
 +(NSURLCredential *)credentialWithUser:(NSString *)user password:(NSString *)password persistence:(NSURLCredentialPersistence)persistence
 {
