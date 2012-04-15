@@ -397,6 +397,19 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 			arguments:argList];
 }
 
++ (id) stringWithContentsOfURL:(NSURL *)url
+					  encoding:(NSStringEncoding)enc
+					  	 error:(NSError **)errp
+{
+	return [[self alloc] initWithContentsOfURL:url encoding:enc error:errp];
+}
+
+- (bool) writeToURL:(NSURL *)uri atomically:(bool)atomic encoding:(NSStringEncoding)enc error:(NSError **)err
+{
+	TODO; // -[NSString writeToURL:atomically:encoding:error:]
+	return false;
+}
+
 /* Getting a string's length */
 
 - (NSIndex)length
@@ -795,6 +808,16 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 	NSIndex end;
 	[self getParagraphStart:&start end:&end contentsEnd:NULL forRange:inRange];
 	return NSMakeRange(start, end - start);
+}
+
+- (void) enumerateLinesUsingBlock:(void (^)(NSString *, bool *))block
+{
+	TODO;	// -[NSString enumerateLinesUsingBlock:]
+}
+
+- (void) enumerateSubstringsInRange:(NSRange)range options:(NSStringEnumerationOptions)opts usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block
+{
+	TODO; // -[NSString enumerateSubstringsInRange:options:usingBlock:]
 }
 
 /* Identifying and comparing strings */
@@ -1211,8 +1234,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 			return @"SymbolStringEncoding";
 		case NSShiftJISStringEncoding:
 			return @"shift-jis";
-		case NSAdobeStandardCyrillicStringEncoding:
-			return @"AdobeStandardCyrillicStringEncoding";
 		default:
 			return @"Invalid encoding";
 	}
@@ -1479,10 +1500,15 @@ static inline int hexval(char digit)
 	[self notImplemented:_cmd];
 }
 
-+ (id) stringWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err
++ (id) stringWithContentsOfURL:(NSURL *)url usedEncoding:(NSStringEncoding*)enc error:(NSError **)errp
 {
-	TODO;
-	return [[NSString alloc] initWithData:[NSData dataWithContentsOfURL:uri] encoding:0];
+	return [[self alloc] initWithContentsOfURL:url usedEncoding:enc error:errp];
+}
+
+- (id) initWithContentsOfURL:(NSURL *)url usedEncoding:(NSStringEncoding*)enc error:(NSError **)err
+{
+	TODO;	// -[NSString initWithContentsOfURL:usedEncoding:error:]
+	return nil;
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder

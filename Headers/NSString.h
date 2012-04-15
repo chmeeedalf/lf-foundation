@@ -46,23 +46,30 @@
  * \brief Supported string encodings.
  */
 typedef enum {
-	NSASCIIStringEncoding,
-	NSNonLossyASCIIStringEncoding,
-	NSISOLatin1StringEncoding,
-	NSWinLatin1StringEncoding,
-	NSISOLatin2StringEncoding,
-	NSUTF8StringEncoding,
-	NSUCS2StringEncoding,	// 16-bit Unicode, BMP
-	NSUnicodeStringEncoding,
+	NSASCIIStringEncoding = 1,
+	NSNEXTSTEPStringEncoding = 2,
+	NSJapaneseEUCStringEncoding = 3,
+	NSUTF8StringEncoding = 4,
+	NSISOLatin1StringEncoding = 5,
+	NSSymbolStringEncoding = 6,
+	NSNonLossyASCIIStringEncoding = 7,
+	NSShiftJISStringEncoding = 8,
+	NSISOLatin2StringEncoding = 9,
+	NSUnicodeStringEncoding = 10,
+	NSWindowsCP1251StringEncoding = 11,
+	NSWindowsCP1252StringEncoding = 12,
+	NSWindowsCP1253StringEncoding = 13,
+	NSWindowsCP1254StringEncoding = 14,
+	NSWindowsCP1250StringEncoding = 15,
+	NSISO2022JPStringEncoding = 21,
+	NSMacOSRomanStringEncoding = 30,
 	NSUTF16StringEncoding = NSUnicodeStringEncoding,
-	NSUTF16LittleEndianStringEncoding,
-	NSUTF16BigEndianStringEncoding,
-	NSUTF32LittleEndianStringEncoding,
-	NSUTF32BigEndianStringEncoding,
-	NSJapaneseEUCStringEncoding,
-	NSSymbolStringEncoding,
-	NSShiftJISStringEncoding,
-	NSAdobeStandardCyrillicStringEncoding,
+	NSUTF16BigEndianStringEncoding = 0x90000100,
+	NSUTF16LittleEndianStringEncoding = 0x94000100,
+	NSUTF32StringEncoding = 0x8c000100,
+	NSUTF32BigEndianStringEncoding = 0x98000100,
+	NSUTF32LittleEndianStringEncoding = 0x9c000100,
+	NSProprietaryStringEncoding = 65536,
 } NSStringEncoding;
 
 enum {
@@ -84,6 +91,19 @@ enum {
 };
 
 typedef NSUInteger NSStringEncodingConversionOptions;
+
+typedef NSUInteger NSStringEnumerationOptions;
+enum
+{
+	NSStringEnumerationByLines = 0,
+	NSStringEnumerationByParagraphs = 1,
+	NSStringEnumerationByComposedCharacterSequence = 2,
+	NSStringEnumerationByWords = 3,
+	NSStringEnumerationBySentences = 4,
+	NSStringEnumerationReverse = 1UL << 8,
+	NSStringEnumerationSubstringNotRequired = 1UL << 9,
+	NSStringEnumerationLocalized = 1UL << 10
+};
 
 @class NSString;
 typedef NSString * const NSSymbol;
@@ -121,26 +141,18 @@ typedef NSString * const NSSymbol;
 +(id)string;
 
 /*!
+ \brief Returns a string created using the given format as a <b>printf()</b> style format string, and the following arguments as values to be substituted into the format string.
+ \param format Format string and associated arguments.
+ */
++(id)stringWithFormat:(NSString *)format,...;
+
+/*!
  \brief Returns a string created with the passed format as a <b>printf()</b> style format string.
  \param format Format for the string.
  \param locale NSLocale and arguments to create the string.
  */
 +(id)stringWithFormat:(NSString *)format locale:(NSLocale *)locale,...;
 +(id)localizedStringWithFormat:(NSString *)format,...;
-
-/*!
- \brief Returns a string containing the characters from the passed C-style
- string using UTF-8 encoding
- \param byteString C-style string to initialize the NSString with.
- */
-+(id)stringWithUTF8String:(const char *)byteString;
-
-/*!
- \brief Returns a string containing the characters from the passed C-style string using the default C encoding.
- \param byteString C-style string to initialize the NSString with.
- \param enc Encoding of C-style string.
- */
-+(id)stringWithCString:(const char *)byteString encoding:(NSStringEncoding)enc;
 
 /*!
  \brief Returns a string containing the passed unicode characters.
@@ -151,16 +163,30 @@ typedef NSString * const NSSymbol;
 	length:(NSIndex)length;
 
 /*!
- \brief Returns a string created using the given format as a <b>printf()</b> style format string, and the following arguments as values to be substituted into the format string.
- \param format Format string and associated arguments.
- */
-+(id)stringWithFormat:(NSString *)format,...;
-
-/*!
  \brief Returns a string containing the characters from the passed string object.
  \param string NSString instance to copy.
  */
 +(id)stringWithString:(NSString *)string;
+
+/*!
+ \brief Returns a string containing the characters from the passed C-style string using the default C encoding.
+ \param byteString C-style string to initialize the NSString with.
+ \param enc Encoding of C-style string.
+ */
++(id)stringWithCString:(const char *)byteString encoding:(NSStringEncoding)enc;
+
+/*!
+ \brief Returns a string containing the characters from the passed C-style
+ string using UTF-8 encoding
+ \param byteString C-style string to initialize the NSString with.
+ */
++(id)stringWithUTF8String:(const char *)byteString;
+
+
++ (id) stringWithContentsOfURL:(NSURL *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
++ (id) stringWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
+
+- (bool) writeToURL:(NSURL *)uri atomically:(bool)atomic encoding:(NSStringEncoding)enc error:(NSError **)err;
 
 // Getting a string's length
 /*!
@@ -218,6 +244,32 @@ typedef NSString * const NSSymbol;
 	encoding:(NSStringEncoding)encoding options:(NSStringEncodingConversionOptions)options
 	range:(NSRange)fromRange remainingRange:(NSRange*)remainingRange;
 
+// Getting C strings
+/*!
+  \brief Returns a representation of the receiver as a C string in the given
+  encoding.
+  \param enc Encoding to use.
+ */
+- (const char *)cStringUsingEncoding:(NSStringEncoding)enc;
+
+/*!
+ \brief Converts the receiver's contents to a given encoding and stores them in the given buffer.
+ \param buffer Buffer into which to place the C string representation of the receiver.
+ \param maxLength Maximum length of the C string.
+ \param encoding Encoding to use.
+
+ \details The passed buffer must be large enough to contain the resulting
+ C string plus a terminating null character, which is added by this method.
+ */
+-(bool)getCString:(char *)buffer maxLength:(NSIndex)maxLength encoding:(NSStringEncoding)encoding;
+
+/*!
+ \brief Returns a representation of the receiver as a C string in UTF8
+ encoding
+ */
+-(const char *)UTF8String;
+
+
 // Combining strings
 /*!
  * \brief Returns a string made by appending the passed format.
@@ -236,13 +288,6 @@ typedef NSString * const NSSymbol;
  */
 -(NSString *)stringByPaddingToLength:(size_t)newLength withString:(NSString *)pad startingAtIndex:(NSIndex)start;
 
-/*!
- * \brief Returns a string with the given character folding options applied.
- */
--(NSString *)stringByFoldingWithOptions:(NSStringCompareOptions)options locale:(NSLocale *)locale;
-
--(NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding)enc;
--(NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding)enc;
 
 // Dividing strings into substrings
 /*!
@@ -294,6 +339,7 @@ typedef NSString * const NSSymbol;
  lies beyond the end of the string.
  */
 -(NSString *)substringToIndex:(NSIndex)index;
+
 
 // Finding ranges of characters and substrings
 /*!
@@ -352,21 +398,8 @@ typedef NSString * const NSSymbol;
 -(NSRange)rangeOfString:(NSString *)aString
 	options:(NSStringCompareOptions)mask range:(NSRange)aRange locale:(NSLocale *)locale;
 
-- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSIndex)idx;
-- (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange)range;
-
-- (void) getLineStart:(NSIndex *)startIndex end:(NSIndex *)lineEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange;
-- (void) getParagraphStart:(NSIndex *)startIndex end:(NSIndex *)parEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange;
-
-/*!
- * \brief Returns the range of a line of text within the given range.
- */
-- (NSRange) lineRangeForRange:(NSRange)r;
-
-/*!
- * \brief Returns the range of a paragraph of text within the given range.
- */
-- (NSRange) paragraphRangeForRange:(NSRange)r;
+- (void) enumerateLinesUsingBlock:(void (^)(NSString *, bool *))block;
+- (void) enumerateSubstringsInRange:(NSRange)range options:(NSStringEnumerationOptions)opts usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block;
 
 // Replacing substrings
 /*!
@@ -386,6 +419,23 @@ typedef NSString * const NSSymbol;
  * range are replaced by a different string.
  */
 -(NSString *)stringByReplacingCharactersInRange:(NSRange)range withString:(NSString *)newString;
+
+
+- (void) getLineStart:(NSIndex *)startIndex end:(NSIndex *)lineEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange;
+
+/*!
+ * \brief Returns the range of a line of text within the given range.
+ */
+- (NSRange) lineRangeForRange:(NSRange)r;
+
+- (void) getParagraphStart:(NSIndex *)startIndex end:(NSIndex *)parEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange;
+/*!
+ * \brief Returns the range of a paragraph of text within the given range.
+ */
+- (NSRange) paragraphRangeForRange:(NSRange)r;
+
+- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSIndex)idx;
+- (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange)range;
 
 // Identifying and comparing strings
 /*!
@@ -444,6 +494,12 @@ typedef NSString * const NSSymbol;
 -(bool)hasSuffix:(NSString *)aString;
 
 /*!
+ \brief Returns true if both the receiver and the passed object have the same <b>id</b> or if they compare as OrderedSame.
+ \param aString NSString to compare with the receiver.
+ */
+-(bool)isEqualToString:(NSString *)aString;
+
+/*!
  \brief Returns an unsigned integer that can be used as a table address in a hash table structure.
 
  \details If two string objects are equal (as determined by
@@ -452,16 +508,9 @@ typedef NSString * const NSSymbol;
 -(NSHashCode)hash;
 
 /*!
- \brief Returns true if both the receiver and the passed object have the same <b>id</b> or if they compare as OrderedSame.
- \param aString NSString to compare with the receiver.
+ * \brief Returns a string with the given character folding options applied.
  */
--(bool)isEqualToString:(NSString *)aString;
-
-// Storing the string
-/*!
- \brief Returns the string itself.
- */
--(NSString *)description;
+-(NSString *)stringByFoldingWithOptions:(NSStringCompareOptions)options locale:(NSLocale *)locale;
 
 // Getting a shared prefix
 /*!
@@ -488,30 +537,11 @@ typedef NSString * const NSSymbol;
  */
 -(NSString *)uppercaseString;
 
-// Getting C strings
-/*!
-  \brief Returns a representation of the receiver as a C string in the given
-  encoding.
-  \param enc Encoding to use.
- */
-- (const char *)cStringUsingEncoding:(NSStringEncoding)enc;
-
-/*!
- \brief Converts the receiver's contents to a given encoding and stores them in the given buffer.
- \param buffer Buffer into which to place the C string representation of the receiver.
- \param maxLength Maximum length of the C string.
- \param encoding Encoding to use.
-
- \details The passed buffer must be large enough to contain the resulting
- C string plus a terminating null character, which is added by this method.
- */
--(bool)getCString:(char *)buffer maxLength:(NSIndex)maxLength encoding:(NSStringEncoding)encoding;
-
-/*!
- \brief Returns a representation of the receiver as a C string in UTF8
- encoding
- */
--(const char *)UTF8String;
+// Getting Strings with Mappings
+- (NSString *) decomposedStringWithCanonicalMapping;
+- (NSString *) decomposedStringWithCompatibilityMapping;
+- (NSString *) precomposedStringWithCanonicalMapping;
+- (NSString *) precomposedStringWithCompatibilityMapping;
 
 // Getting numeric values
 /*!
@@ -605,6 +635,12 @@ typedef NSString * const NSSymbol;
 -(NSData *)dataUsingEncoding:(NSStringEncoding)encoding
 	allowLossyConversion:(bool)flag;
 
+// Storing the string
+/*!
+ \brief Returns the string itself.
+ */
+-(NSString *)description;
+
 /*!
  \brief Returns the encoding in which this string can be expressed (with lossless conversion) most quickly.
  */
@@ -625,10 +661,8 @@ typedef NSString * const NSSymbol;
  */
 - (NSIndex)indexOfString:(NSString*)substring;
 
-- (NSString *) decomposedStringWithCanonicalMapping;
-- (NSString *) decomposedStringWithCompatibilityMapping;
-- (NSString *) precomposedStringWithCanonicalMapping;
-- (NSString *) precomposedStringWithCompatibilityMapping;
+-(NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding)enc;
+-(NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding)enc;
 
 @end
 
@@ -636,7 +670,7 @@ typedef NSString * const NSSymbol;
  \category NSString(stringInitialization)
  \brief NSString initialization methods.
  */
-@interface NSString (stringInitialization)
+@interface NSString (NSStringInitialization)
 // Initializing newly allocated strings
 /*!
  \brief Initializes a newly allocated NSString to contain no characters.
@@ -667,16 +701,6 @@ typedef NSString * const NSSymbol;
 	encoding:(NSStringEncoding)encoding freeWhenDone:(bool)flag;
 
 /*!
- \brief Initializes an NSString with the given C-style string.
- \param byteString A C-style (null-terminated) string in the default C encoding.
- \param enc Encoding of byte string.
-
- \details This method converts the one-byte characters in the string into
- Unicode characters.
- */
--(id)initWithCString:(const char *)byteString encoding:(NSStringEncoding)enc;
-
-/*!
  \brief Initializes an NSString containing the passed unicode characters.
  \param chars Characters to place into the string.
  \param length NSNumber of characters from the unicode string to place into the NSString object.
@@ -698,14 +722,21 @@ typedef NSString * const NSSymbol;
 	length:(NSIndex)length freeWhenDone:(bool)flag;
 
 /*!
- \brief Initializes an NSString by converting the bytes in the given data object into Unicode characters.
- \param data NSData object to convert to Unicode.
- \param encoding Encoding of data object.
-
- \details The data object must be an NSData object containing bytes in the
- given encoding and in the default "plain text" format for that encoding.
+ \brief Initializes an NSString with the contents of the given string.
+ \param string NSString to create a copy of in the receiver.
  */
--(id)initWithData:(NSData *)data encoding:(NSStringEncoding)encoding;
+-(id)initWithString:(NSString *)string;
+
+/*!
+ \brief Initializes an NSString with the given C-style string.
+ \param byteString A C-style (null-terminated) string in the default C encoding.
+ \param enc Encoding of byte string.
+
+ \details This method converts the one-byte characters in the string into
+ Unicode characters.
+ */
+-(id)initWithCString:(const char *)byteString encoding:(NSStringEncoding)enc;
+- (id)initWithUTF8String:(const char *)utf8String;
 
 /*!
  \brief Initializes an NSString created using the given format as a <b>printf()</b> style format string, and the following arguments as values to be substituted into the format string.
@@ -738,12 +769,15 @@ typedef NSString * const NSSymbol;
 	locale:(NSLocale *)dictionary arguments:(va_list)argList;
 
 /*!
- \brief Initializes an NSString with the contents of the given string.
- \param string NSString to create a copy of in the receiver.
- */
--(id)initWithString:(NSString *)string;
+ \brief Initializes an NSString by converting the bytes in the given data object into Unicode characters.
+ \param data NSData object to convert to Unicode.
+ \param encoding Encoding of data object.
 
-- (id)initWithUTF8String:(const char *)utf8String;
+ \details The data object must be an NSData object containing bytes in the
+ given encoding and in the default "plain text" format for that encoding.
+ */
+-(id)initWithData:(NSData *)data encoding:(NSStringEncoding)encoding;
+
 /*
 - (id) initWithMessageFormat:(NSString *)format locale:(NSLocale *)locale
 	arguments:(va_list)argList;
@@ -752,11 +786,8 @@ typedef NSString * const NSSymbol;
 - (id) initWithMessageFormat:(NSString *)format,...;
  */
 
-+ (id) stringWithContentsOfURL:(NSURL *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
-+ (id) stringWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
 - (id) initWithContentsOfURL:(NSURL *)uri encoding:(NSStringEncoding)enc error:(NSError **)err;
 - (id) initWithContentsOfURL:(NSURL *)uri usedEncoding:(NSStringEncoding*)enc error:(NSError **)err;
-- (bool) writeToURL:(NSURL *)uri atomically:(bool)atomic encoding:(NSStringEncoding)enc error:(NSError **)err;
 @end
 
 /*!
