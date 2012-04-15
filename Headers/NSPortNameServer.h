@@ -36,7 +36,7 @@
 
 /* port registry */
 
-- (bool) registerPort:(NSPort *)aPort forName:(NSString *)aPortName;
+- (bool) registerPort:(NSPort *)aPort name:(NSString *)aPortName;
 - (void) removePortForName:(NSString *)aPortName;
 
 /* port lookup */
