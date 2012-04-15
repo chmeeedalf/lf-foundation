@@ -52,8 +52,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 __BEGIN_DECLS
 @class NSArray,NSMutableArray,Invocation;
 
-enum {
- NSUndoCloseGroupingRunLoopOrdering=350000,
+enum
+{
+	NSUndoCloseGroupingRunLoopOrdering=350000,
 };
 
 SYSTEM_EXPORT NSString * const NSUndoManagerCheckpointNotification;
@@ -71,7 +72,8 @@ SYSTEM_EXPORT NSString * const NSUndoManagerDidRedoChangeNotification;
 SYSTEM_EXPORT NSString * const NSUndoManagerGroupIsDiscardableKey;
 
 
-@interface NSUndoManager : NSObject {
+@interface NSUndoManager	:	NSObject
+{
     NSMutableArray *_undoStack;
     NSMutableArray *_redoStack;
     bool _groupsByEvent;
@@ -85,54 +87,50 @@ SYSTEM_EXPORT NSString * const NSUndoManagerGroupIsDiscardableKey;
     bool _performRegistered;
 }
 
--(NSArray *)runLoopModes;
--(unsigned long)levelsOfUndo;
--(bool)groupsByEvent;
+-(void)registerUndoWithTarget:(id)target selector:(SEL)selector object:(id)object;
+-(id)prepareWithInvocationTarget:(id)target;
 
--(void)setRunLoopModes:(NSArray *)modes;
--(void)setLevelsOfUndo:(unsigned long)levels;
--(void)setGroupsByEvent:(bool)flag;
+-(bool)canUndo;
+-(bool)canRedo;
 
--(bool)isUndoRegistrationEnabled;
--(void)disableUndoRegistration;
--(void)enableUndoRegistration;
+-(void)undo;
+-(void)undoNestedGroup;
+-(void)redo;
+
+-(void)setLevelsOfUndo:(NSUInteger)levels;
+-(NSUInteger)levelsOfUndo;
 
 -(void)beginUndoGrouping;
 -(void)endUndoGrouping;
+-(bool)groupsByEvent;
+-(void)setGroupsByEvent:(bool)flag;
+-(NSInteger)groupingLevel;
 
--(long)groupingLevel;
+-(void)disableUndoRegistration;
+-(void)enableUndoRegistration;
+-(bool)isUndoRegistrationEnabled;
 
--(bool)canUndo;
--(void)undo;
--(void)undoNestedGroup;
 -(bool)isUndoing;
-
--(bool)canRedo;
--(void)redo;
 -(bool)isRedoing;
-
--(void)registerUndoWithTarget:(id)target selector:(SEL)selector object:(id)object;
 
 -(void)removeAllActions;
 -(void)removeAllActionsWithTarget:(id)target;
 
--(id)prepareWithInvocationTarget:(id)target;
--(void)forwardInvocation:(Invocation *)invocation;
-
+-(void)setActionName:(NSString *)name;
+-(NSString *)redoActionName;
 -(NSString *)undoActionName;
+
+-(NSString *)redoMenuItemTitle;
 -(NSString *)undoMenuItemTitle;
 -(NSString *)undoMenuTitleForUndoActionName:(NSString *)name;
--(void)setActionName:(NSString *)name;
-
--(NSString *)redoActionName;
--(NSString *)redoMenuItemTitle;
 -(NSString *)redoMenuTitleForUndoActionName:(NSString *)name;
 
-- (void)clearRedoStackIfStateIsNormal;
+-(NSArray *)runLoopModes;
+-(void)setRunLoopModes:(NSArray *)modes;
 
+- (void) setActionIsDiscardable:(bool)discard;
 - (bool) redoActionIsDiscardable;
 - (bool) undoActionIsDiscardable;
-- (void) setActionIsDiscardable:(bool)discard;
 @end
 
 __END_DECLS
