@@ -282,7 +282,7 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 	return self;
 }
 
-- (id) initWithAddress:(uint8_t *)addr_src
+- (id) initWithAddress:(const uint8_t *)addr_src
 {
 	memcpy(&addr, addr_src, sizeof(addr));
 	return self;
@@ -330,7 +330,7 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 	return self;
 }
 
-- (id) initWithAddress:(uint8_t *)addr_src
+- (id) initWithAddress:(const uint8_t *)addr_src
 {
 	memcpy(addr, addr_src, sizeof(addr));
 	return self;

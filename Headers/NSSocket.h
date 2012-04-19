@@ -155,7 +155,7 @@ typedef enum NSSocketType
  *
  * \details The address must be in network-endian byte order.
  */
-- (id) initWithAddress:(uint8_t *)_addr;
+- (id) initWithAddress:(const uint8_t *)_addr;
 
 /*!
  * \brief Initialize the object with the given string encoded IPv4 address.
@@ -193,7 +193,7 @@ typedef enum NSSocketType
  *
  * \details The address must be in network-endian byte order.
  */
-- (id) initWithAddress:(uint8_t *)addrBytes;
+- (id) initWithAddress:(const uint8_t *)addrBytes;
 
 /*!
  * \brief Initialize the object with the given string encoded IPv6 address.
@@ -315,6 +315,8 @@ typedef enum NSSocketType
  * \brief Asynchronously connect to the remote target.
  */
 - (void) connect;
+
+- (NSNetworkAddress *) address;
 
 @end
 
