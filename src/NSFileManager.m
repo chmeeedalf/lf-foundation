@@ -167,11 +167,10 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return (d != nil);
 }
 
--(bool)removeItemAtURL:(NSURL *)path error:(NSError **)err
+-(bool)removeItemAtURL:(NSURL *)path error:(NSError **)errp
 {
 	id<NSFilesystem> fsHandler = [path handler];
-	err = (err != NULL) ? err : &(NSError *){nil};
-
+	
 	if([[path path] isEqualToString:@"."] || [[path path] isEqualToString:@".."])
 		@throw [NSInvalidArgumentException exceptionWithReason:@"Invalid path"
 													userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self,@"NSObject",
@@ -180,9 +179,9 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 	[[self delegate] fileManager:self shouldRemoveItemAtURL:path];
 
-	if (![fsHandler deleteItemAtURL:path error:err])
+	if (![fsHandler deleteItemAtURL:path error:errp])
 	{
-		return [delegate fileManager:self shouldProceedAfterError:*err removingItemAtURL:path];
+		return [delegate fileManager:self shouldProceedAfterError:(errp?*errp:nil) removingItemAtURL:path];
 	}
 	return true;
 }
@@ -232,15 +231,13 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return true;
 }
 
--(bool)copyItemAtURL:(NSURL *)src toURL:(NSURL *)dest error:(NSError **)err
+-(bool)copyItemAtURL:(NSURL *)src toURL:(NSURL *)dest error:(NSError **)errp
 {
 	bool isDirectory;
 
-	err = (err != NULL) ? err : &(NSError *){nil};
-
 	if(![self fileExistsAtURL:src isDirectory:&isDirectory])
 	{
-		return [delegate fileManager:self shouldProceedAfterError:(err ? *err : nil) copyingItemAtURL:src toURL:dest];
+		return [delegate fileManager:self shouldProceedAfterError:(errp ? *errp : nil) copyingItemAtURL:src toURL:dest];
 	}
 
 	if (![delegate fileManager:self shouldCopyItemAtURL:src toURL:dest])
@@ -257,7 +254,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 			return [self _errorHandler:handler src:src dest:dest operation:@"copyPath: open() for writing"];
 #endif
 		if ((r = open([[src path] fileSystemRepresentation], O_RDONLY)) == -1)
-			return [delegate fileManager:self shouldProceedAfterError:(err ? *err : nil) copyingItemAtURL:src toURL:dest];
+			return [delegate fileManager:self shouldProceedAfterError:(errp ? *errp : nil) copyingItemAtURL:src toURL:dest];
 
 		while ((count = read(r, &buf, sizeof(buf))) > 0)
 		{
@@ -275,7 +272,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 		close(r);
 
 		if (count == -1)
-			return [delegate fileManager:self shouldProceedAfterError:(err ? *err : nil) copyingItemAtURL:src toURL:dest];
+			return [delegate fileManager:self shouldProceedAfterError:(errp ? *errp : nil) copyingItemAtURL:src toURL:dest];
 		else
 			return true;
 	}
@@ -306,7 +303,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 			subsrc=[src URLByAppendingPathComponent:name];
 			subdst=[dest URLByAppendingPathComponent:name];
 
-			if([self copyItemAtURL:subsrc toURL:subdst error:err] == false) 
+			if([self copyItemAtURL:subsrc toURL:subdst error:errp] == false) 
 				return false;
 		}
 
