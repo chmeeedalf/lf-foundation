@@ -132,7 +132,7 @@ static NSMutableSet *allConnections;
 							   host:(NSString *)hostName
 					usingNameServer:(NSPortNameServer *)server
 {
-	TODO; // +[NSConnectionconnectionWithRegisteredName:host:usingNameServer:]
+	TODO; // +[NSConnection connectionWithRegisteredName:host:usingNameServer:]
 	return nil;
 }
 
