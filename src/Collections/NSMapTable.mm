@@ -47,7 +47,16 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 #define NSWeakObjects \
 (NSPointerFunctionsZeroingWeakMemory|NSPointerFunctionsObjectPointerPersonality)
 
-@interface NSConcreteMapTable	:	NSMapTable
+@interface _MapTableEnumerator	:	NSEnumerator
+{
+	NSMapTable *table;
+	intern_map::const_iterator iter;
+	bool second;
+}
+- (id) initWithTable:(NSMapTable *)table iterateValues:(bool)useValues;
+@end
+
+@implementation NSMapTable
 {
 	@package
 	NSPointerFunctions *keyFuncs;
@@ -55,26 +64,6 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	Gold::Hash hasher;
 	Gold::Equal equaler;
 	intern_map table;
-}
-@end
-
-@interface _MapTableEnumerator	:	NSEnumerator
-{
-	NSConcreteMapTable *table;
-	intern_map::const_iterator iter;
-	bool second;
-}
-- (id) initWithTable:(NSConcreteMapTable *)table iterateValues:(bool)useValues;
-@end
-
-@implementation NSMapTable
-
-+ (id) allocWithZone:(NSZone *)zone
-{
-	if (self == [NSMapTable class])
-		return NSAllocateObject([NSConcreteMapTable class], 0, zone);
-	else
-		return [super allocWithZone:zone];
 }
 
 + (id) mapTableWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts
@@ -111,141 +100,15 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 
 - (id) initWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts capacity:(size_t)cap
 {
-	NSPointerFunctions *keyFuncs = [NSPointerFunctions
+	NSPointerFunctions *keyFns = [NSPointerFunctions
 		pointerFunctionsWithOptions:keyOpts];
-	NSPointerFunctions *valFuncs = [NSPointerFunctions
+	NSPointerFunctions *valFns = [NSPointerFunctions
 		pointerFunctionsWithOptions:valOpts];
-	return [self initWithKeyPointerFunctions:keyFuncs
-		valuePointerFunctions:valFuncs
+	return [self initWithKeyPointerFunctions:keyFns
+		valuePointerFunctions:valFns
 		capacity:cap];
 }
 
-- (id) initWithKeyPointerFunctions:(NSPointerFunctions *)keyFuncts valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
-{
-	// Nothing to do here, move along.
-	return self;
-}
-
-
-- (id)objectForKey:(id)key
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (const void *)pointerForKey:(const void *)key
-{
-	[self subclassResponsibility:_cmd];
-	return NULL;
-}
-
-- (NSEnumerator *)keyEnumerator
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (NSEnumerator *)objectEnumerator
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (size_t)count
-{
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-
-- (void)setObject:(id)obj forKey:(id)key
-{
-	[self subclassResponsibility:_cmd];
-}
-
-- (void) setPointer:(const void *)ptr forKey:(const void *)key
-{
-	[self subclassResponsibility:_cmd];
-}
-
-- (void)removeObjectForKey:(id)key
-{
-	[self subclassResponsibility:_cmd];
-}
-
-- (void)removeAllObjects
-{
-	TODO; // -[NSMapTable removeAllObjects]
-}
-
-- (NSDictionary *)dictionaryRepresentation
-{
-	if ([self count] == 0)
-		return [NSDictionary dictionary];
-
-	NSEnumerator *keyEnum = [self keyEnumerator];
-	NSEnumerator *valEnum = [self objectEnumerator];
-	NSMutableArray *keys = [[NSMutableArray alloc] initWithCapacity:[self count]];
-	NSMutableArray *objs = [[NSMutableArray alloc] initWithCapacity:[self count]];
-	NSDictionary *dictRep;
-
-	for (id key in keyEnum)
-	{
-		[keys addObject:key];
-	}
-	for (id obj in valEnum)
-	{
-		[objs addObject:obj];
-	}
-
-	dictRep = [NSDictionary dictionaryWithObjects:objs forKeys:keys];
-	return dictRep;
-}
-
-
-- (NSPointerFunctions *)keyPointerFunctions
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (NSPointerFunctions *)valuePointerFunctions
-{
-	return [self subclassResponsibility:_cmd];
-}
-
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id *)stackBuf count:(unsigned long)len
-{
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-- (id) copyWithZone:(NSZone *)zone
-{
-	NSMapTable *other = [[NSMapTable allocWithZone:zone]
-		initWithKeyPointerFunctions:[self keyPointerFunctions]
-		valuePointerFunctions:[self valuePointerFunctions]
-		capacity:[self count]];
-
-	for (id key in self)
-	{
-		const void *val = [self pointerForKey:(__bridge const void *)key];
-		[other setPointer:val forKey:(__bridge void *)key];
-	}
-
-	return other;
-}
-
-- (void) encodeWithCoder:(NSCoder *)coder
-{
-	[self subclassResponsibility:_cmd]; // -[NSMapTable encodeWithCoder:]
-}
-
-- (id) initWithCoder:(NSCoder *)coder
-{
-	[self subclassResponsibility:_cmd]; // -[NSMapTable encodeWithCoder:]
-	return nil;
-}
-@end
-
-@implementation NSConcreteMapTable
 - (id) initWithKeyPointerFunctions:(NSPointerFunctions *)keyFuncts
 valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 {
@@ -283,15 +146,26 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	return NULL;
 }
 
-- (void) setObject:(id)obj forKey:(id)key
+- (NSEnumerator *) keyEnumerator
 {
-	table[keyFuncs.acquireFunction((__bridge void *)key, keyFuncs.sizeFunction, false)] =
-		valFuncs.acquireFunction((__bridge void *)obj, valFuncs.sizeFunction, false);
+	return [[_MapTableEnumerator alloc] initWithTable:self iterateValues:false];
+}
+
+- (NSEnumerator *) objectEnumerator
+{
+	return [[_MapTableEnumerator alloc] initWithTable:self iterateValues:true];
 }
 
 - (size_t) count
 {
 	return table.size();
+}
+
+
+- (void) setObject:(id)obj forKey:(id)key
+{
+	table[keyFuncs.acquireFunction((__bridge void *)key, keyFuncs.sizeFunction, false)] =
+		valFuncs.acquireFunction((__bridge void *)obj, valFuncs.sizeFunction, false);
 }
 
 - (void) setPointer:(const void *)ptr forKey:(const void *)key
@@ -312,6 +186,36 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	}
 }
 
+- (void)removeAllObjects
+{
+	table.clear();
+}
+
+- (NSDictionary *)dictionaryRepresentation
+{
+	if ([self count] == 0)
+		return [NSDictionary dictionary];
+
+	NSEnumerator *keyEnum = [self keyEnumerator];
+	NSEnumerator *valEnum = [self objectEnumerator];
+	NSMutableArray *keys = [[NSMutableArray alloc] initWithCapacity:[self count]];
+	NSMutableArray *objs = [[NSMutableArray alloc] initWithCapacity:[self count]];
+	NSDictionary *dictRep;
+
+	for (id key in keyEnum)
+	{
+		[keys addObject:key];
+	}
+	for (id obj in valEnum)
+	{
+		[objs addObject:obj];
+	}
+
+	dictRep = [NSDictionary dictionaryWithObjects:objs forKeys:keys];
+	return dictRep;
+}
+
+
 - (NSPointerFunctions *) keyPointerFunctions
 {
 	return [keyFuncs copy];
@@ -320,16 +224,6 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 - (NSPointerFunctions *) valuePointerFunctions
 {
 	return [valFuncs copy];
-}
-
-- (NSEnumerator *) keyEnumerator
-{
-	return [[_MapTableEnumerator alloc] initWithTable:self iterateValues:false];
-}
-
-- (NSEnumerator *) objectEnumerator
-{
-	return [[_MapTableEnumerator alloc] initWithTable:self iterateValues:true];
 }
 
 - (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
@@ -356,11 +250,37 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	return j;
 }
 
+- (id) copyWithZone:(NSZone *)zone
+{
+	NSMapTable *other = [[NSMapTable allocWithZone:zone]
+		initWithKeyPointerFunctions:[self keyPointerFunctions]
+		valuePointerFunctions:[self valuePointerFunctions]
+		capacity:[self count]];
+
+	for (id key in self)
+	{
+		const void *val = [self pointerForKey:(__bridge const void *)key];
+		[other setPointer:val forKey:(__bridge void *)key];
+	}
+
+	return other;
+}
+
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+	TODO; // -[NSMapTable encodeWithCoder:]
+}
+
+- (id) initWithCoder:(NSCoder *)coder
+{
+	TODO; // -[NSMapTable encodeWithCoder:]
+	return nil;
+}
 @end
 
 @implementation _MapTableEnumerator
 
-- (id) initWithTable:(NSConcreteMapTable *)_table iterateValues:(bool)iterVals
+- (id) initWithTable:(NSMapTable *)_table iterateValues:(bool)iterVals
 {
 	table = _table;
 	iter = table->table.begin();

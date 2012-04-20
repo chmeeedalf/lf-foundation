@@ -43,41 +43,25 @@
 
 typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
 
-@interface NSConcreteHashTable	:	NSHashTable
-{
-@public
-	NSPointerFunctions *callbacks;
-	Gold::Hash hasher;
-	Gold::Equal equaler;
-	intern_set table;
-}
-@end
-
 @interface _ConcreteHashEnumerator	:	NSEnumerator
 {
 	intern_set *table;
 	intern_set::iterator i;
 }
 
-- (id) initWithHashTable:(NSConcreteHashTable *)tbl;
+- (id) initWithHashTable:(NSHashTable *)tbl;
 @end
 
 @implementation NSHashTable
+{
+	@package
+	NSPointerFunctions *callbacks;
+	Gold::Hash hasher;
+	Gold::Equal equaler;
+	intern_set table;
+}
+
 static Class HashTableClass;
-static Class ConcreteHashTableClass;
-
-+ (void) initialize
-{
-	HashTableClass = [NSHashTable class];
-	ConcreteHashTableClass = [NSConcreteHashTable class];
-}
-
-+ (id) allocWithZone:(NSZone *)zone
-{
-	if (self == HashTableClass)
-		return NSAllocateObject(ConcreteHashTableClass, 0, zone);
-	return [super allocWithZone:zone];
-}
 
 + (id) hashTableWithOptions:(NSPointerFunctionsOptions)options
 {
@@ -99,8 +83,31 @@ static Class ConcreteHashTableClass;
 
 - (id) initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
 {
-	[self subclassResponsibility:_cmd];
-	return nil;
+	callbacks=[pfuncts copy];
+	[callbacks _fixupEmptyFunctions];
+	hasher = Gold::Hash(callbacks);
+	equaler = Gold::Equal(callbacks);
+	table = intern_set(10, hasher, equaler);
+
+	return self;
+}
+
+- (NSString *) description
+{
+	NSMutableString *string=[NSMutableString new];
+	NSString *fmt=@"%p";
+
+	for (intern_set::iterator i = table.begin(); i != table.end();
+			i++)
+	{
+		NSString *desc;
+		if((desc=callbacks.descriptionFunction(*i))!=nil)
+			[string appendString:desc];
+		else
+			[string appendString:[NSString stringWithFormat:fmt,*i]];
+	}
+
+	return string;
 }
 
 - (NSArray *)allObjects
@@ -124,20 +131,22 @@ static Class ConcreteHashTableClass;
 	return ([self member:obj] != NULL);
 }
 
-- (size_t)count
+- (size_t) count
 {
-	[self subclassResponsibility:_cmd];
-	return 0;
+	return table.size();
 }
 
-- (id)member:(id)obj
+- (id) member:(id)obj
 {
-	return [self subclassResponsibility:_cmd];
+	intern_set::iterator i = table.find((__bridge void *)(obj));
+	if (i != table.end())
+		return (__bridge id)(*i);
+	return NULL;
 }
 
-- (NSEnumerator *)objectEnumerator
+- (id) objectEnumerator
 {
-	return [self subclassResponsibility:_cmd];
+	return [[_ConcreteHashEnumerator alloc] initWithHashTable:self];
 }
 
 - (NSSet *)setRepresentation
@@ -146,21 +155,28 @@ static Class ConcreteHashTableClass;
 }
 
 
-- (void)addObject:(id)obj
+- (void) addObject:(id)obj
 {
-	[self subclassResponsibility:_cmd];
+	callbacks.acquireFunction((__bridge void *)obj, callbacks.sizeFunction, false);
+	table.insert((__bridge void *)(obj));
 }
 
-- (void)removeAllObjects
+- (void) removeAllObjects
 {
-	TODO; // -[NSHashTable removeAllObjects]
+	std::for_each(table.begin(), table.end(),
+			std::bind2nd(std::ptr_fun(callbacks.relinquishFunction),callbacks.sizeFunction));
+	table.clear();
 }
 
-- (void)removeObject:(id)obj
+- (void) removeObject:(id)obj
 {
-	[self subclassResponsibility:_cmd];
+	intern_set::iterator i = table.find((__bridge void *)(obj));
+	if (i != table.end())
+	{
+		callbacks.relinquishFunction(*i, callbacks.sizeFunction);
+		table.erase(i);
+	}
 }
-
 
 - (bool)intersectsHashTable:(NSHashTable *)other
 {
@@ -238,103 +254,15 @@ static Class ConcreteHashTableClass;
 - (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
 	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
-	[self subclassResponsibility:_cmd];
-	return 0;
-}
-
-@end
-
-@implementation NSConcreteHashTable
-
-- (id) initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
-{
-	callbacks=[pfuncts copy];
-	[callbacks _fixupEmptyFunctions];
-	hasher = Gold::Hash(callbacks);
-	equaler = Gold::Equal(callbacks);
-	table = intern_set(10, hasher, equaler);
-
-	return self;
-}
-
-- (void) dealloc
-{
-	std::for_each(table.begin(), table.end(),
-			std::bind2nd(std::ptr_fun(callbacks.relinquishFunction),callbacks.sizeFunction));
-}
-
-- (void) addObject:(id)obj
-{
-	callbacks.acquireFunction((__bridge void *)obj, callbacks.sizeFunction, false);
-	table.insert((__bridge void *)(obj));
-}
-
-- (void) removeAllObjects
-{
-	std::for_each(table.begin(), table.end(),
-			std::bind2nd(std::ptr_fun(callbacks.relinquishFunction),callbacks.sizeFunction));
-	table.clear();
-}
-
-- (size_t) count
-{
-	return table.size();
-}
-
-- (id) member:(id)obj
-{
-	intern_set::iterator i = table.find((__bridge void *)(obj));
-	if (i != table.end())
-		return (__bridge id)(*i);
-	return NULL;
-}
-
-- (void) removeObject:(id)obj
-{
-	intern_set::iterator i = table.find((__bridge void *)(obj));
-	if (i != table.end())
-	{
-		callbacks.relinquishFunction(*i, callbacks.sizeFunction);
-		table.erase(i);
-	}
-}
-
-- (NSString *) description
-{
-	NSMutableString *string=[NSMutableString new];
-	NSString *fmt=@"%p";
-
-	for (intern_set::iterator i = table.begin(); i != table.end();
-			i++)
-	{
-		NSString *desc;
-		if((desc=callbacks.descriptionFunction(*i))!=nil)
-			[string appendString:desc];
-		else
-			[string appendString:[NSString stringWithFormat:fmt,*i]];
-	}
-
-	return string;
-}
-
-- (id) objectEnumerator
-{
-	return [[_ConcreteHashEnumerator alloc] initWithHashTable:self];
-}
-
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
-{
-	intern_set::const_iterator i;
+	intern_set::const_iterator i = table.begin();
 	unsigned long j = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;
-		i = table.begin();
 	}
 	else
 	{
-		i = table.find((void *)state->extra[1]);
+		std::advance(i, state->extra[1]);
 	}
 	state->itemsPtr = stackBuf;
 	for (; j < len && i != table.end(); j++, i++)
@@ -344,15 +272,21 @@ static Class ConcreteHashTableClass;
 	state->mutationsPtr = (unsigned long *)&table;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != table.end())
-		state->extra[1] = (unsigned long)(void *)*i;
+		state->extra[1] = std::distance(table.begin(), i);
 	return j;
+}
+
+- (void) dealloc
+{
+	std::for_each(table.begin(), table.end(),
+			std::bind2nd(std::ptr_fun(callbacks.relinquishFunction),callbacks.sizeFunction));
 }
 
 @end
 
 @implementation _ConcreteHashEnumerator
 
-- (id) initWithHashTable:(NSConcreteHashTable *)tbl
+- (id) initWithHashTable:(NSHashTable *)tbl
 {
 	table = &tbl->table;
 	i = table->begin();
