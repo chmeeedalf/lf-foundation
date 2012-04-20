@@ -406,8 +406,9 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 - (bool) writeToURL:(NSURL *)uri atomically:(bool)atomic encoding:(NSStringEncoding)enc error:(NSError **)err
 {
-	TODO; // -[NSString writeToURL:atomically:encoding:error:]
-	return false;
+	return [[self dataUsingEncoding:enc allowLossyConversion:false] writeToURL:uri 
+							options:NSDataWritingAtomic
+							  error:err];
 }
 
 /* Getting a string's length */
