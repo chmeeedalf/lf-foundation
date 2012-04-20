@@ -99,71 +99,6 @@ int64_t SystemTime(void)
 	return theTime;
 }
 
-#if 0
-/// {{{ Threaded Signal Handling
-struct handledSignalFrame {
-	SEL filter;
-	SEL handler;
-	NSArray *threads;
-	bool exclusive;
-};
-
-/* 128 is the _SIG_MAXSIG for FreeBSD */
-static struct handledSignalFrame handledThreadedSignals[128];
-static void handleAllSignals(int sig, siginfo_t *si, void *ignore);
-/* This function creates a signal handler for a specific signal, that will
- * guarantee threaded behavior.  Pass in the signal number, an array of a type,
- * and a filtering selector.  The filtering selector will have to return a
- * Thread* object, which will be checked against currentThread, and dispatched
- * as appropriate.  A return of nil will mean that thread doesn't handle this
- * signal.  The method optionally accepts a single argument -- the signal.
- */
-void threadedSignalHandler(int sig, NSArray *managerArray, SEL filter, SEL handler, bool exclusive)
-{
-	struct sigaction sa;
-	
-	memset(&sa, 0, sizeof(sa));
-
-	handledThreadedSignals[sig].threads = managerArray;
-	handledThreadedSignals[sig].filter = filter;
-	handledThreadedSignals[sig].handler = handler;
-	handledThreadedSignals[sig].exclusive = exclusive;
-
-	sa.sa_sigaction = handleAllSignals;
-	sa.sa_flags = 0; /* SA_NOCLDSTOP | SA_NOCLDWAIT | SA_SIGINFO */
-	sigaction(sig, &sa, NULL);
-}
-
-@implementation NSThread(FreeBSD_Private)
-static void handleAllSignals(int sig, siginfo_t *si, void *ignore)
-{
-	NSArray *sigArray = handledThreadedSignals[sig].threads;
-	SEL selector = handledThreadedSignals[sig].filter;
-	SEL handler = handledThreadedSignals[sig].handler;
-	bool exclusive = handledThreadedSignals[sig].exclusive;
-
-	if (sigArray == nil)
-		return;
-	for (id element in sigArray)
-	{
-		NSThread *thread = class_getMethodImplementation(object_getClass(element), selector)(element, selector, sig);
-		if (thread == nil)
-			continue;
-		if (thread == currentThread)
-			class_getMethodImplementation(object_getClass(element), handler)(element, handler, sig);
-		else
-		{
-			//UUID thrUUID;
-			//[thread getUUID:&thrUUID];
-			pthread_kill((thread)->base, sig);
-		}
-		if (exclusive)
-			break;
-	}
-}
-@end
-///}}}
-#endif
 
 /*
  * args can be any object, with some considerations:
@@ -176,9 +111,6 @@ static void handleAllSignals(int sig, siginfo_t *si, void *ignore)
  * '--<key>=<value>' is used.
  * Keys of length 1 become prefixed '-', if value is Null.
  * Keys with value of Null are conveyed as-is.
- */
-/* TODO: We should create a MapTable of PID -> Task, so when SIGCHLD is
- * received, we can switch the Task to isRunning = false.
  */
 /* TODO: Handle environment -- translate from CamelCase to
  * UPPERCASE_AND_UNDERSCORE, and back again in main()
@@ -224,16 +156,7 @@ bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *ta
 		}
 		else if ([args respondsToSelector:@selector(objectEnumerator)])
 		{
-			id item;
-			NSIndex size = 0;
-
-			for (item in args)
-			{
-				size++;
-			}
-			size = 1;
-
-			for (item in args)
+			for (id item in args)
 			{
 				argv.push_back([[item description] UTF8String]);
 			}
@@ -358,7 +281,6 @@ void _AsyncUnwatchDescriptor(int fd, bool writing)
 
 // FreeBSD entry point
 // we just take all 3 arguments
-// TODO: Pass argv, environ as event arguments (address, page count)
 int main(int argc, const char **argv, const char **environ)
 {
 	__private extern Event_t eventPage[PAGE_SIZE/sizeof(Event_t)];
