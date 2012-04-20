@@ -538,7 +538,6 @@
 -(void)addIndexesInRange:(NSRange)range
 {
 	NSUInteger i = 0;
-	// TODO: Finish
 
 	for (NSRange &r: indexes)
 	{

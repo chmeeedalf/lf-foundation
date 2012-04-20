@@ -1349,7 +1349,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 
 -(NSString *)stringByFoldingWithOptions:(NSStringCompareOptions)options locale:(NSLocale *)locale
 {
-	TODO;
+	TODO;	// -[NSString stringByFoldingWithOptions:locale:]
 	return nil;
 #if 0
 
@@ -1458,18 +1458,20 @@ static inline int hexval(char digit)
 
 - (NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding)enc
 {
-	TODO;
+	TODO; // -[NSString stringByAddingPercentEscapesUsingEncoding:];
 	return self;
 }
 
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSIndex)idx
 {
+	TODO; // -[NSString rangeOfComposedCharacterSequenceAtIndex:];
 	[self notImplemented:_cmd];
 	return NSMakeRange(0,0);
 }
 
 - (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange)range
 {
+	TODO; // -[NSString rangeOfComposedCharacterSequencesForRange:];
 	[self notImplemented:_cmd];
 	return NSMakeRange(0,0);
 }
