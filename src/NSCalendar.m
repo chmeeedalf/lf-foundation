@@ -513,7 +513,7 @@ static bool configureCalendar(NSCalendar *self)
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSCalendar initWithCoder:]
+	TODO; // -[NSCalendar encodeWithCoder:]
 }
 
 - (id) initWithCoder:(NSCoder *)coder
