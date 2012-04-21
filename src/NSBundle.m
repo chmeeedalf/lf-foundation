@@ -351,6 +351,7 @@ static bool canReadFile(NSURL *path)
 
 + (NSArray *)allFrameworks
 {
+	TODO; // +[NSBundle allFrameworks]
 	return nil;
 }
 
