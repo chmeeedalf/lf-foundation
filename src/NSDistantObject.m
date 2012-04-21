@@ -117,10 +117,12 @@
 {
 	NSParameterAssert([coder isKindOfClass:[NSPortCoder class]]);
 
+	TODO; // -[NSDistantObject encodeWithCoder:]
 }
 
 - (id) initWithCoder:(NSCoder *)coder
 {
+	TODO; // -[NSDistantObject initWithCoder:]
 	return self;
 }
 @end
