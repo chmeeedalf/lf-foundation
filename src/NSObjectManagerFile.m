@@ -172,12 +172,16 @@ static SchemeFileHandler *sharedHandler = nil;
 			if (lutimes([[path path] cStringUsingEncoding:NSUTF8StringEncoding], spec) < 0)
 			{
 				if (errOut)
+				{
+					char buf[NL_TEXTMAX];
+					strerror_r(errno, buf, sizeof(buf));
 					*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
 												  code:errno
 											  userInfo:@{
-						  NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
+						  NSLocalizedFailureReasonErrorKey : @(buf),
 								 NSLocalizedDescriptionKey : @"Unable to set the file modification time"}];
-		//	[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithCString:strerror(errno) encoding:NSUTF8StringEncoding],NSLocalizedFailureReasonErrorKey,@"Unable to set the file modification time.",NSLocalizedDescriptionKey,nil]];
+				}
+		//	[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithCString:strerror_r(errno) encoding:NSUTF8StringEncoding],NSLocalizedFailureReasonErrorKey,@"Unable to set the file modification time.",NSLocalizedDescriptionKey,nil]];
 			}
 		}
 		else if ([key isEqualToString:NSFileAccess])
@@ -244,11 +248,15 @@ static SchemeFileHandler *sharedHandler = nil;
 	if (path_len < 0)
 	{
 		if (errOut)
+		{
+			char buf[NL_TEXTMAX];
+			strerror_r(errno, buf, sizeof(buf));
 			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
 										  code:errno
 									  userInfo:@{
-				  NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-						 NSLocalizedDescriptionKey : @"Unable to read the link target"}];
+			 NSLocalizedFailureReasonErrorKey : @(buf),
+					NSLocalizedDescriptionKey : @"Unable to read the link target"}];
+		}
 		return nil;
 	}
 	sldest[path_len] = 0;
@@ -279,11 +287,15 @@ static SchemeFileHandler *sharedHandler = nil;
 	if (dirp == NULL)
 	{
 		if (errOut)
+		{
+			char buf[NL_TEXTMAX];
+			strerror_r(errno, buf, sizeof(buf));
 			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
 										  code:errno
 									  userInfo:@{
-				 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
+			 NSLocalizedFailureReasonErrorKey : @(buf),
 						NSLocalizedDescriptionKey : @"Unable to open directory"}];
+		}
 	}
 
 	while ((dire = readdir(dirp)))
@@ -298,12 +310,15 @@ static SchemeFileHandler *sharedHandler = nil;
 	closedir(dirp);
 
 	if (errno != 0 && errOut != NULL)
+	{
+		char buf[NL_TEXTMAX];
+		strerror_r(errno, buf, sizeof(buf));
 		*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
 									  code:errno
 								  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
+		 NSLocalizedFailureReasonErrorKey : @(buf),
 					NSLocalizedDescriptionKey : @"Error reading directory."}];
-
+	}
 	return result;
 }
 
@@ -328,69 +343,58 @@ static SchemeFileHandler *sharedHandler = nil;
 	void *buffer;
 	struct stat sb;
 	const char *path = [[uri path] fileSystemRepresentation];
+	NSString *errMess;
 	int fd;
 
 	if (stat(path, &sb) < 0)
 	{
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"Unable to stat file"}];
-		return nil;
+		errMess = @"Unable to stat file";
+		goto err_out;
 	}
 
 	if ((fd = open(path, O_RDONLY)) < 0)
 	{
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"Error opening file."}];
-		return nil;
+		errMess = @"Error opening file.";
+		goto err_out;
 	}
 
 	/* If it won't fit in the buffer anyway, fail */
 	if (sb.st_size > SIZE_MAX)
 	{
 		TODO; // Add support for mapped data files.
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"File size too big for buffer."}];
-		return nil;
+		errMess = @"File size too big for buffer.";
+		goto err_out;
 	}
 
 	buffer = malloc(sb.st_size);
 
 	if (buffer == NULL)
 	{
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"File size too big for buffer."}];
-		return nil;
+		errMess = @"File size too big for buffer.";
+		goto err_out;
 	}
 
 	if (read(fd, buffer, sb.st_size) < 0)
 	{
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"Error reading file."}];
 		free(buffer);
-		return nil;
+		errMess = @"Error reading file.";
+		goto err_out;
 	}
-	NSData *d = [NSData dataWithBytesNoCopy:buffer length:sb.st_size freeWhenDone:true];
-	return d;
+	return [NSData dataWithBytesNoCopy:buffer length:sb.st_size freeWhenDone:true];
+
+err_out:
+
+	if (errOut != NULL)
+	{
+		char buf[NL_TEXTMAX];
+		strerror_r(errno, buf, sizeof(buf));
+		*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
+									  code:errno
+								  userInfo:@{
+		 NSLocalizedFailureReasonErrorKey : @(buf),
+				NSLocalizedDescriptionKey : errMess}];
+	}
+	return nil;
 }
 
 - (bool)createFileAtURL:(NSURL *)uri contents:(NSData *)data attributes:(NSDictionary *)attributes error:(NSError **)errOut
@@ -398,15 +402,11 @@ static SchemeFileHandler *sharedHandler = nil;
 	const char *path = [[uri path] fileSystemRepresentation];
 	int fd;
 	mode_t mode = [[attributes objectForKey:NSFilePosixPermissions] longValue];
+	NSString *errMess;
 
 	if ((fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, mode ? mode : 0640)) < 0)
 	{
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"Unable to create the target file."}];
+		errMess = @"Unable to create the target file.";
 		return false;
 	}
 	if (![self setAttributes:attributes ofItemAtURL:uri error:errOut])
@@ -417,15 +417,23 @@ static SchemeFileHandler *sharedHandler = nil;
 
 	if ((written = write(fd, [data bytes], len)) < 0)
 	{
-		if (errOut != NULL)
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(strerror(errno)),
-					NSLocalizedDescriptionKey : @"Unable to completely write the target file."}];
+		errMess = @"Unable to completely write the target file.";
+		goto err_out;
 		return false;
 	}
 	return (written == len);
+err_out:
+	if (errOut != NULL)
+	{
+		char buf[NL_TEXTMAX];
+		strerror_r(errno, buf, sizeof(buf));
+		*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
+									  code:errno
+								  userInfo:@{
+		 NSLocalizedFailureReasonErrorKey : @(buf),
+				NSLocalizedDescriptionKey : errMess}];
+	}
+	return false;
 }
 
 - (bool) linkItemAtURL:(NSURL *)from toURL:(NSURL *)to error:(NSError **)errp
