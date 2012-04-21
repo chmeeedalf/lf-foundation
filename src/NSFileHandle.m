@@ -216,9 +216,10 @@ extern NSString * const NSFileHandleNotificationDataItem;
 		rd = read(fd, buf, rlen);
 		if (rd < 0)
 		{
-			NSString *reason = [NSString stringWithFormat:@"%s",strerror(errno)];
+			char buf[NL_TEXTMAX];
+			strerror_r(errno, buf, sizeof(buf));
 
-			@throw [NSFileHandleOperationException exceptionWithReason:reason userInfo:nil];
+			@throw [NSFileHandleOperationException exceptionWithReason:@(buf) userInfo:nil];
 		}
 		[d appendBytes:buf length:rd];
 		length -= rd;
@@ -236,9 +237,10 @@ extern NSString * const NSFileHandleNotificationDataItem;
 {
 	if (write(fd, [data bytes], [data length]) < 0)
 	{
-		NSString *reason = [NSString stringWithFormat:@"%s",strerror(errno)];
+		char buf[NL_TEXTMAX];
+		strerror_r(errno, buf, sizeof(buf));
 
-		@throw [NSFileHandleOperationException exceptionWithReason:reason userInfo:nil];
+		@throw [NSFileHandleOperationException exceptionWithReason:@(buf) userInfo:nil];
 	}
 }
 
