@@ -85,7 +85,7 @@ SYSTEM_EXPORT NSString * const NSRunLoopCommonModes;
 - (bool) isCanceled;
 - (bool) isTerminated;
 
-- (void) performSelector:(SEL)sel target:(id)target argument:(id)arg order:(unsigned long)order modes:(NSArray *)modes;
+- (void) performSelector:(SEL)sel target:(id)target argument:(id)arg order:(NSUInteger)order modes:(NSArray *)modes;
 - (void) cancelPerformSelector:(SEL)sel target:(id)target argument:(id)arg;
 - (void) cancelPerformSelectorsWithTarget:(id)target;
 

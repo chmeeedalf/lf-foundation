@@ -125,9 +125,6 @@ namespace
 		id		currentMode;
 }
 
-/* Since this is thread-local, making it unsafe-unretained is safe. */
-static __unsafe_unretained __thread NSRunLoop *threadRunLoop = nil;
-
 static uint32_t ModeIndexFromString(NSString *mode)
 {
 	modes m;
@@ -150,20 +147,20 @@ static uint32_t ModeIndexFromString(NSString *mode)
 
 + (id) currentRunLoop
 {
-	NSRunLoop *loop = threadRunLoop;
+	NSRunLoop *loop = [[[NSThread currentThread] threadDictionary]
+		objectForKey:NSRunLoopKey];
 
-	if (threadRunLoop == nil)
+	if (loop == nil)
 	{
 		loop = [NSRunLoop new];
-		[[[NSThread currentThread] threadDictionary] setObject:threadRunLoop
+		[[[NSThread currentThread] threadDictionary] setObject:loop
 			forKey:NSRunLoopKey];
 
 		// The loop will persist until removed from the dictionary, which won't
 		// happen until the thread exits
-		threadRunLoop = loop;
 	}
 
-	return threadRunLoop;
+	return loop;
 }
 
 + (NSRunLoop *) mainRunLoop
@@ -280,7 +277,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 }
 
 - (void) performSelector:(SEL)sel target:(id)target argument:(id)arg
-	order:(unsigned long)order modes:(NSArray *)modes
+	order:(NSUInteger)order modes:(NSArray *)modes
 {
 	TODO; // -[NSRunLoop performSelector:target:argument:order:modes:]
 }
