@@ -31,6 +31,7 @@
 #import <objc/runtime.h>
 #import <Foundation/NSClassDescription.h>
 #import <Foundation/NSDictionary.h>
+#import <Foundation/NSNotification.h>
 
 extern NSString *NSClassDescriptionNeededForClassNotification;
 
@@ -39,25 +40,25 @@ static NSMutableDictionary *classDescriptionTable;
 @implementation NSClassDescription
 + (NSClassDescription *) classDescriptionForClass:(Class)cls
 {
+	id descr;
 	@synchronized(self)
 	{
-		id ret;
-
-		for (;cls != nil;cls = class_getSuperclass(cls))
+		descr = [classDescriptionTable objectForKey:cls];
+		if (descr == nil)
 		{
-			ret = [classDescriptionTable objectForKey:cls];
-			if (ret != nil)
-			{
-				break;
-			}
+			[[NSNotificationCenter defaultCenter] postNotificationName:NSClassDescriptionNeededForClassNotification object:cls];
 		}
-		return [ret new];
+		descr = [classDescriptionTable objectForKey:cls];
 	}
+	return [descr new];
 }
 
 + (void) invalidateClassDescriptionCache
 {
-	TODO; // +[NSClassDescription invalidateClassDescriptionCache]
+	@synchronized(self)
+	{
+		[classDescriptionTable removeAllObjects];
+	}
 }
 
 + (void) registerClassDescription:(NSClassDescription *)desc forClass:(Class)cls
