@@ -39,6 +39,7 @@
 
 #import <Foundation/NSData.h>
 #import <Foundation/NSFileManager.h>
+#import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
 
 @class NSArray;
@@ -247,7 +248,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) acceptConnectionInBackgroundAndNotify
 {
-	TODO; // -[NSFileHandle acceptConnectionInBackgroundAndNotify]
+	[self acceptConnectionInBackgroundAndNotifyForModes:nil];
 }
 
 - (void) acceptConnectionInBackgroundAndNotifyForModes:(NSArray *)modes
@@ -257,7 +258,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) readInBackgroundAndNotify
 {
-	TODO; // -[NSFileHandle readInBackgroundAndNotify]
+	[self readInBackgroundAndNotifyForModes:nil];
 }
 
 - (void) readInBackgroundAndNotifyForModes:(NSArray *)modes
@@ -267,7 +268,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) readToEndOfFileInBackgroundAndNotify
 {
-	TODO; // -[NSFileHandle readToEndOfFileInBackgroundAndNotify]
+	[self readToEndOfFileInBackgroundAndNotifyForModes:nil];
 }
 
 - (void) readToEndOfFileInBackgroundAndNotifyForModes:(NSArray *)modes
@@ -277,7 +278,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) waitForDataInBackgroundAndNotify
 {
-	TODO; // -[NSFileHandle waitForDataInBackgroundAndNotify]
+	[self waitForDataInBackgroundAndNotifyForModes:nil];
 }
 
 - (void) waitForDataInBackgroundAndNotifyForModes:(NSArray *)modes
