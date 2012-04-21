@@ -252,18 +252,6 @@ static NSMutableSet *allConnections;
 	[served setObject:anObject forKey:path];
 }
 
-// Request mode
--(NSString *)requestMode
-{
-	TODO;	// -requestMode
-	return nil;
-}
-
--(void)setRequestMode:(NSString *)mode
-{
-	TODO; // -[NSConnection setRequestMode:]
-}
-
 // Timeouts
 -(NSTimeInterval)replyTimeout
 {
@@ -325,11 +313,25 @@ static NSMutableSet *allConnections;
 
 - (void) addRequestMode:(NSString *)mode
 {
+	if ([requestModes containsObject:mode])
+		return;
+
 	[requestModes addObject:mode];
+	for (NSRunLoop *loop in runloops)
+	{
+		[receivePort addConnection:self toRunLoop:loop forMode:mode];
+	}
 }
 
 - (void) removeRequestMode:(NSString *)mode
 {
+	if (![requestModes containsObject:mode])
+		return;
+
+	for (NSRunLoop *loop in runloops)
+	{
+		[receivePort removeConnection:self fromRunLoop:loop forMode:mode];
+	}
 	[requestModes removeObject:mode];
 }
 
