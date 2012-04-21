@@ -48,13 +48,13 @@ using std::lock_guard;
 struct cached_object
 {
 	cached_object(id inobj, NSUInteger _cost, NSUInteger _accTime, id k) :
-		obj(inobj), key(k), cost(_cost), count(0), lastAccess(_accTime) {}
-	cached_object() : obj(nil), key(nil), cost(0), count(0), lastAccess(0) {}
+		obj(inobj), key(k), cost(_cost) {}
+	cached_object() {}
 	__strong id obj;
 	__weak id key;	// Weak reference to the key.
-	NSUInteger cost;
-	NSUInteger count;
-	NSUInteger lastAccess;
+	NSUInteger cost = 0;
+	NSUInteger count = 0;
+	NSUInteger lastAccess = 0;
 };
 
 typedef unordered_map<id, cached_object> table_type;
