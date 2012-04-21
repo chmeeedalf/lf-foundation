@@ -813,7 +813,19 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 
 - (void) enumerateLinesUsingBlock:(void (^)(NSString *, bool *))block
 {
-	TODO;	// -[NSString enumerateLinesUsingBlock:]
+	NSScanner *scanner = [NSScanner scannerWithString:self];
+	NSCharacterSet *chars = [NSCharacterSet newlineCharacterSet];
+	bool stop = false;
+
+	while (![scanner isAtEnd] && !stop)
+	{
+		NSString *s;
+		if ([scanner scanUpToCharactersFromSet:chars intoString:&s])
+		{
+			block(s, &stop);
+		}
+		[scanner scanCharactersFromSet:chars intoString:NULL];
+	}
 }
 
 - (void) enumerateSubstringsInRange:(NSRange)range options:(NSStringEnumerationOptions)opts usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block
