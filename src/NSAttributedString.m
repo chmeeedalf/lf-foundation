@@ -30,9 +30,11 @@
 
 #import "NSCoreAttributedString.h"
 #import <Foundation/NSAttributedString.h>
+#import <Foundation/NSCoder.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 @implementation NSAttributedString
@@ -298,14 +300,70 @@
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
-	TODO; // encodeWithCoder:
+	size_t len = [self length];
+	if ([coder allowsKeyedCoding])
+	{
+		__block NSMutableDictionary *attribs = [NSMutableDictionary new];
+
+		[coder encodeObject:[self string] forKey:@"NSString"];
+		/* Cache both the ranges and the attributes into a NSDictionary, for
+		 * simplicity.
+		 */
+		[self enumerateAttributesInRange:NSMakeRange(0, len) options:0
+							  usingBlock:^(id value, NSRange r, bool *stop)
+							  {
+								  [attribs setObject:value forKey:[NSValue valueWithRange:r]];
+							  }];
+		[coder encodeObject:attribs forKey:@"NSAttributes"];
+	}
+	else
+	{
+		[coder encodeObject:[self string]];
+		[self enumerateAttributesInRange:NSMakeRange(0, len) options:0
+							  usingBlock:^(id value, NSRange r, bool *stop)
+							  {
+								  [coder encodeValueOfObjCType:@encode(NSRange) at:&r];
+								  [coder encodeObject:value];
+							  }];
+		/* The list terminator is a zero-length range. */
+		[coder encodeValueOfObjCType:@encode(NSRange) at:&(NSRange){0,0}];
+	}
 	return;
 }
 
 - (id) initWithCoder:(NSCoder *)coder
 {
-	TODO; // initWithCoder:
-	return nil;
+	if ([coder allowsKeyedCoding])
+	{
+		__block NSMutableAttributedString *s = [[NSMutableAttributedString alloc] initWithString:[coder decodeObjectForKey:@"NSString"]];
+
+		/* Since the ranges and attributes both are stored in the dictionary,
+		 * it's dead simple to iterate over and set the attributes.
+		 */
+		NSDictionary *attribs = [coder decodeObjectForKey:@"NSAttributes"];
+
+		[attribs enumerateKeysAndObjectsUsingBlock:^(id key, id val, bool *stop){
+			NSRange r = [(NSValue *)key rangeValue];
+			[s setAttributes:val range:r];
+		}];
+		return [s copy];
+	}
+	else
+	{
+		NSMutableAttributedString *s = [[NSMutableAttributedString alloc] init];
+		NSRange r;
+		NSDictionary *attribs;
+
+		while (1)
+		{
+			[coder decodeValueOfObjCType:@encode(NSRange) at:&r];
+			if (r.length == 0)
+				break;
+			attribs = [coder decodeObject];
+			[s setAttributes:attribs range:r];
+		}
+		return [s copy];
+	}
 }
 
 @end
@@ -392,7 +450,14 @@
 
 - (void) removeAttribute:(NSString *)attrib range:(NSRange)r
 {
-	TODO; // -[NSMutableAttributedString removeAttribute:range:]
+	for (size_t loc = r.location; loc < NSMaxRange(r);)
+	{
+		NSRange tmpRange;
+		NSMutableDictionary *attrs = [[self attributesAtIndex:loc effectiveRange:&tmpRange] mutableCopy];
+		[attrs removeObjectForKey:attrib];
+		[self setAttributes:attrs range:NSIntersectionRange(tmpRange, r)];
+		loc += NSIntersectionRange(tmpRange, r).length;
+	}
 }
 
 - (void) appendAttributedString:(NSAttributedString *)attribString
