@@ -378,6 +378,41 @@
 		return [super allocWithZone:zone];
 }
 
+- (id) initWithCoder:(NSCoder *)coder
+{
+	if ([coder allowsKeyedCoding])
+	{
+		__block NSMutableAttributedString *s = [[NSMutableAttributedString alloc] initWithString:[coder decodeObjectForKey:@"NSString"]];
+
+		/* Since the ranges and attributes both are stored in the dictionary,
+		 * it's dead simple to iterate over and set the attributes.
+		 */
+		NSDictionary *attribs = [coder decodeObjectForKey:@"NSAttributes"];
+
+		[attribs enumerateKeysAndObjectsUsingBlock:^(id key, id val, bool *stop){
+			NSRange r = [(NSValue *)key rangeValue];
+			[s setAttributes:val range:r];
+		}];
+		return s;
+	}
+	else
+	{
+		NSMutableAttributedString *s = [[NSMutableAttributedString alloc] init];
+		NSRange r;
+		NSDictionary *attribs;
+
+		while (1)
+		{
+			[coder decodeValueOfObjCType:@encode(NSRange) at:&r];
+			if (r.length == 0)
+				break;
+			attribs = [coder decodeObject];
+			[s setAttributes:attribs range:r];
+		}
+		return s;
+	}
+}
+
 - (NSMutableString *)mutableString
 {
 	return [self subclassResponsibility:_cmd];
