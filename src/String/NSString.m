@@ -1471,8 +1471,37 @@ static inline int hexval(char digit)
 
 - (NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding)enc
 {
-	TODO; // -[NSString stringByAddingPercentEscapesUsingEncoding:];
-	return self;
+	NSData *d = [self dataUsingEncoding:enc];
+
+	if (d != nil)
+	{
+		size_t len = [d length];
+		const char *b = [d bytes];
+		char *outBytes = malloc(len * 3);
+		static const char legal[] = {';', '/', '?', ':', '@', '&', '=', '+', '$', ',',
+			'-', '_', '.', '!', '~', '*', '\'', '(', ')'};
+		static const char hex[] = "0123456789abcdef";
+		int outLen;
+
+		for (size_t i = 0, outLen = 0; i < len; i++)
+		{
+			if (!isalnum(b[i]) && !strchr(legal, b[i]))
+			{
+				outBytes[outLen++] = '%';
+				outBytes[outLen++] = hex[((unsigned char)b[i] >> 4) & 0xF];
+				outBytes[outLen++] = hex[(unsigned char)b[i] & 0xF];
+			}
+			else
+			{
+				outBytes[outLen++] = b[i];
+			}
+		}
+		return [[NSString alloc] initWithBytesNoCopy:outBytes
+											  length:outLen
+											encoding:NSASCIIStringEncoding
+										freeWhenDone:true];
+	}
+	return nil;
 }
 
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSIndex)idx
