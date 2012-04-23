@@ -132,12 +132,12 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 
 - (void) scheduleInRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
-	TODO; // -[NSStream scheduleInRunLoop:forMode:]
+	[self subclassResponsibility:_cmd];
 }
 
 - (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
-	TODO; // -[NSStream removeFromRunLoop:forMode:]
+	[self subclassResponsibility:_cmd];
 }
 
 @end
@@ -206,18 +206,12 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 
 - (id) initToMemory
 {
-#if 0
 	return [[NSOutputStream_memory alloc] initToMemory];
-#endif
-	return nil;
 }
 
 - (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap
 {
-#if 0
 	return [[NSOutputStream_buffer alloc] initToBuffer:buf capacity:cap];
-#endif
-	return nil;
 }
 
 - (id) initWithURL:(NSURL *)uri append:(bool)append

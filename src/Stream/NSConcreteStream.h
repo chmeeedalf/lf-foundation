@@ -41,7 +41,7 @@
 - (id) initWithData:(NSData *)d;
 @end
 
-@interface NSOutputStream_memory	:	NSInputStream
+@interface NSOutputStream_memory	:	NSOutputStream
 {
 	id<NSStreamDelegate> delegate;
 	NSMutableData *d;
@@ -49,7 +49,7 @@
 - (id) initToMemory;
 @end
 
-@interface NSOutputStream_buffer	:	NSInputStream
+@interface NSOutputStream_buffer	:	NSOutputStream
 {
 	id<NSStreamDelegate> delegate;
 	uint8_t	*buffer;
