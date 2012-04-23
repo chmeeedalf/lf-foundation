@@ -69,7 +69,7 @@ unsigned int numThreads __private = 0;
 {
 	if (self != [NSProcessInfo class])
 		return;
-	size_t count = (long)Alepha::System::SysCtl("kern.argmax");
+	size_t count = (unsigned long)Alepha::System::SysCtl("kern.argmax");
 	char *args = new char[count];
 	int argmib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ARGS, getpid() };
 	processInfo = [NSAllocateObject([NSProcessInfo class], 0, NULL) init];
@@ -88,7 +88,7 @@ unsigned int numThreads __private = 0;
 		tmpArgs = [[NSMutableArray alloc] initWithCapacity:argc];
 		for (i = 0; i < count;)
 		{
-			[tmpArgs addObject:[NSString stringWithUTF8String:&args[i]]];
+			[tmpArgs addObject:@(&args[i])];
 			i += strlen(&args[i]) + 1;
 		}
 	}
