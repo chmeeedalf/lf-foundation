@@ -24,6 +24,7 @@
    or in connection with the use or performance of this software.
  */
 
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSIndexSet.h>
 #import <Foundation/NSPredicate.h>
 #import <Foundation/NSString.h>
@@ -32,6 +33,13 @@
 @end
 
 @interface NSFalsePredicate : NSPredicate
+@end
+
+@interface NSBlockPredicate : NSPredicate
+{
+	bool (^block)(id, NSDictionary *);
+	NSDictionary *substVars;
+}
 @end
 
 @implementation NSPredicate
@@ -78,7 +86,7 @@
 
 - (bool) evaluateWithObject:(id)obj substitutionVariables:(NSDictionary *)substVars
 {
-	return [self evaluateWithObject:obj];
+	return [[self predicateWithSubstitutionVariables:substVars] evaluateWithObject:obj];
 }
 
 - (NSPredicate *) predicateWithSubstitutionVariables:(NSDictionary *)vars
@@ -88,7 +96,6 @@
 
 + (NSPredicate *) predicateWithBlock:(bool (^)(id, NSDictionary *))block
 {
-	TODO; // +[NSPredicate predicateWithBlock:]
 	return nil;
 }
 @end /* NSPredicate */
@@ -136,6 +143,30 @@
 
 @end /* NSFalsePredicate */
 
+@implementation NSBlockPredicate
+
+- (id) initWithBlock:(bool (^)(id, NSDictionary *))blk
+{
+	block = blk;
+	return self;
+}
+
+- (bool) evaluateWithObject:(id)obj
+{
+	return block(obj, substVars);
+}
+
+- (id) predicateWithSubstitutionVariables:(NSDictionary *)substitutionVars
+{
+	NSBlockPredicate *other = [[NSBlockPredicate alloc] init];
+
+	other->block = block;
+	other->substVars = [substitutionVars copy];
+
+	return other;
+}
+
+@end
 
 @implementation NSArray(NSPredicate)
 
