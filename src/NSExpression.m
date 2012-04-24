@@ -38,10 +38,11 @@
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSMethodSignature.h>
-#import <Foundation/NSValue.h>
+#import <Foundation/NSObjCRuntime.h>
+#import <Foundation/NSPredicate.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSString.h>
-#import <Foundation/NSObjCRuntime.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 /*!
@@ -507,6 +508,47 @@
 
 @end/*}}}*/
 
+@interface _SubqueryExpression	:	NSExpression/*{{{*/
+{
+	NSExpression *query;
+	NSString *variable;
+	id predicate;
+}
+- (id)initWithSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)varName predicate:(id)pred;
+@end
+@implementation _SubqueryExpression
+- (id)initWithSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)varName predicate:(id)pred
+{
+	if ((self = [super initWithExpressionType:NSSubqueryExpressionType]) == nil)
+		return nil;
+
+	query = expr;
+	variable = [varName copy];
+	predicate = pred;
+	return self;
+}
+
+- (id)_expressionWithSubstitutionVariables:(NSDictionary *)substVars
+{
+	return [NSExpression expressionForConstantValue:[substVars objectForKey:variable]];
+}
+
+- (id)expressionValueWithObject:(id)obj context:(NSMutableDictionary *)context
+{
+	id retval = [[[obj class] alloc] init];
+	for (id o in obj)
+	{
+		[context setValue:o forKey:variable];
+		if ([predicate evaluateWithObject:o substitutionVariables:context])
+		{
+			[retval addObject:o];
+		}
+	}
+	return retval;
+}
+
+@end/*}}}*/
+
 @interface _SetExpression	:	NSExpression/*{{{*/
 {
 	NSExpression *left;
@@ -606,8 +648,7 @@
 
 + (id)expressionForSubquery:(NSExpression *)expr usingIteratorVariable:(NSString *)var predicate:(id)pred
 {
-	TODO; // +[NSExpression expressionForSubquery:usingIteratorVariable:predicate:]
-	return nil;
+	return [[_SubqueryExpression alloc] initWithSubquery:expr usingIteratorVariable:var predicate:pred];
 }
 
 + (id)expressionForFunction:(NSString *)func arguments:(NSArray *)args
