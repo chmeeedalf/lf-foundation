@@ -28,19 +28,25 @@
  * 
  */
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <array>
 
 #import <Foundation/NSFileHandle.h>
 
 #import <Foundation/NSData.h>
 #import <Foundation/NSFileManager.h>
+#import <Foundation/NSNotification.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSValue.h>
 
 @class NSArray;
 @class NSData;
@@ -59,12 +65,19 @@ extern NSString * const NSFileHandleNotificationDataItem;
 @implementation NSFileHandleOperationException
 @end
 
+@interface NSFileHandle()
+- (void) setNonBlock:(bool)noblock;
+@end
+
 @implementation NSFileHandle
 {
 	int fd;
 	bool closeOnDealloc;
+	bool isNonBlocked;
+	bool isRegularFile;
 }
 
+// TODO: Deal with the readability and writeability handlers
 @synthesize readabilityHandler;
 @synthesize writeabilityHandler;
 
@@ -163,9 +176,21 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (id) initWithFileDescriptor:(int)desc closeOnDealloc:(bool)doClose
 {
+	struct stat sb;
 	closeOnDealloc = doClose;
 	fd = desc;
 
+	if (fstat(desc, &sb) < 0)
+		return nil;
+
+	if (S_ISREG(sb.st_mode))
+	{
+		isRegularFile = true;
+	}
+	else
+	{
+		isRegularFile = false;
+	}
 	return self;
 }
 
@@ -183,8 +208,40 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (NSData *) availableData
 {
-	TODO; // -[NSFileHandle availableData]
-	return [self readDataToEndOfFile];
+	if (isRegularFile)
+	{
+		return [self readDataToEndOfFile];
+	}
+	else
+	{
+		char buf[BUFSIZ];
+		ssize_t read_count;
+
+		[self setNonBlock:true];
+		read_count = read(fd, buf, sizeof(buf));
+		if (read_count <= 0)
+		{
+			[self setNonBlock:false];
+			read_count = read(fd, buf, 1);
+			if (read_count <= 0)
+			{
+				char buf[NL_TEXTMAX];
+				strerror_r(errno, buf, sizeof(buf));
+
+				@throw [NSFileHandleOperationException
+					exceptionWithReason:@"Unable to read from descriptor."
+					userInfo:@{
+						@"NSFileHandleError" : @(buf)}];
+			}
+			else
+			{
+				[self setNonBlock:true];
+				read_count = read(fd, &buf[1], sizeof(buf) - 1);
+				read_count++;
+			}
+		}
+		return [NSData dataWithBytes:buf length:read_count];
+	}
 }
 
 - (NSData *) readDataToEndOfFile
@@ -200,11 +257,21 @@ extern NSString * const NSFileHandleNotificationDataItem;
 	return outData;
 }
 
+- (void) setNonBlock:(bool)noblock
+{
+	if (noblock != isNonBlocked)
+	{
+		fcntl(fd, F_SETFL, noblock ? O_NONBLOCK : 0);
+		isNonBlocked = noblock;
+	}
+}
+
 - (NSData *) readDataOfLength:(NSUInteger)length
 {
 	NSMutableData *d = [NSMutableData new];
-	char *buf = malloc(BUFSIZ);
+	std::array<char, BUFSIZ> buf;
 
+	[self setNonBlock:false];
 	do
 	{
 		NSUInteger rlen = BUFSIZ;
@@ -214,7 +281,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 		{
 			rlen = length;
 		}
-		rd = read(fd, buf, rlen);
+		rd = read(fd, &buf[0], rlen);
 		if (rd < 0)
 		{
 			char buf[NL_TEXTMAX];
@@ -222,7 +289,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 			@throw [NSFileHandleOperationException exceptionWithReason:@(buf) userInfo:nil];
 		}
-		[d appendBytes:buf length:rd];
+		[d appendBytes:&buf[0] length:rd];
 		length -= rd;
 		if (rd == 0)
 		{
@@ -245,6 +312,98 @@ extern NSString * const NSFileHandleNotificationDataItem;
 	}
 }
 
+- (void) _acceptConnection
+{
+	int acceptedFd = accept(fd, NULL, NULL);
+	id outHandle = nil;
+
+	if (acceptedFd >= 0)
+	{
+		outHandle = [[[self class] alloc] initWithFileDescriptor:acceptedFd];
+	}
+	[[NSNotificationCenter defaultCenter]
+		postNotificationName:NSFileHandleConnectionAcceptedNotification
+		object:self
+		userInfo:@{
+			NSFileHandleNotificationFileHandleItem : outHandle ?: self,
+			@"NSFileHandleError" : @(errno)}];
+}
+
+- (void) _readDataBackground
+{
+	NSData *data;
+	char buf[BUFSIZ];
+
+	[self setNonBlock:true];
+	ssize_t read_data = read(fd, buf, BUFSIZ);
+	data = [NSData dataWithBytes:buf length:read_data];
+	[[NSNotificationCenter defaultCenter]
+		postNotificationName:NSFileHandleReadCompletionNotification
+		object:self
+		userInfo:@{
+			NSFileHandleNotificationDataItem : data,
+			@"NSFileHandleError" : @(errno)}];
+}
+
+- (void) _readDataToEndBackground
+{
+	static char key = 'f';
+	NSMutableData *data;
+	char buf[BUFSIZ];
+	int err;
+
+	ssize_t read_data = read(fd, buf, BUFSIZ);
+	err = errno;
+	data = objc_getAssociatedObject(self, &key);
+
+	if (data == nil)
+	{
+		data = [NSMutableData new];
+		objc_setAssociatedObject(self, &key, data,
+				OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	if (read_data > 0)
+	{
+		[data appendBytes:buf length:read_data];
+		return;
+	}
+
+	[[NSNotificationCenter defaultCenter]
+		postNotificationName:NSFileHandleReadCompletionNotification
+		object:self
+		userInfo:@{
+NSFileHandleNotificationDataItem : data,
+								 @"NSFileHandleError" : @(err)}];
+}
+
+- (void) _dataAvailableBackground
+{
+	[[NSNotificationCenter defaultCenter]
+		postNotificationName:NSFileHandleDataAvailableNotification
+		object:self];
+}
+
+- (void) _addRunLoopSourceEventHandlerForModes:(NSArray *)modes selector:(SEL)selector
+{
+	if (modes != nil)
+	{
+		for (id mode in modes)
+		{
+			[[NSRunLoop currentRunLoop]
+				addRunLoopSource:(new Alepha::RunLoop::File(fd))
+				target:self
+				selector:@selector(acceptConnection) mode:mode];
+		}
+	}
+	else
+	{
+		[[NSRunLoop currentRunLoop]
+			addRunLoopSource:(new Alepha::RunLoop::File(fd))
+			target:self
+			selector:@selector(acceptConnection) mode:NSDefaultRunLoopMode];
+	}
+}
 
 - (void) acceptConnectionInBackgroundAndNotify
 {
@@ -253,7 +412,8 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) acceptConnectionInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	TODO; // -[NSFileHandle acceptConnectionInBackgroundAndNotifyForModes:]
+	[self _addRunLoopSourceEventHandlerForModes:modes
+		selector:@selector(_acceptConnection)];
 }
 
 - (void) readInBackgroundAndNotify
@@ -263,7 +423,8 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) readInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	TODO; // -[NSFileHandle readInBackgroundAndNotifyForModes:]
+	[self _addRunLoopSourceEventHandlerForModes:modes
+		selector:@selector(_readDataBackground)];
 }
 
 - (void) readToEndOfFileInBackgroundAndNotify
@@ -273,7 +434,9 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) readToEndOfFileInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	TODO; // -[NSFileHandle readToEndOfFileInBackgroundAndNotifyForModes:]
+	[self setNonBlock:false];
+	[self _addRunLoopSourceEventHandlerForModes:modes
+		selector:@selector(_readDataBackground)];
 }
 
 - (void) waitForDataInBackgroundAndNotify
@@ -283,7 +446,8 @@ extern NSString * const NSFileHandleNotificationDataItem;
 
 - (void) waitForDataInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	TODO; // -[NSFileHandle waitForDataInBackgroundAndNotifyForModes:]
+	[self _addRunLoopSourceEventHandlerForModes:modes
+		selector:@selector(_dataAvailableBackground)];
 }
 
 
@@ -299,7 +463,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 		switch (errno)
 		{
 			case ESPIPE:
-				reason = @"File descriptor is a pipe or socket";
+				reason = @"File descriptor is not a regular file";
 				break;
 			case EBADF:
 				reason = @"File descriptor is closed";
@@ -322,7 +486,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 		switch (errno)
 		{
 			case ESPIPE:
-				reason = @"File descriptor is a pipe or socket";
+				reason = @"File descriptor is not a regular file";
 				break;
 			case EBADF:
 				reason = @"File descriptor is closed";
@@ -344,7 +508,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 		switch (errno)
 		{
 			case ESPIPE:
-				reason = @"File descriptor is a pipe or socket";
+				reason = @"File descriptor is not a regular file";
 				break;
 			case EBADF:
 				reason = @"File descriptor is closed";
@@ -377,7 +541,7 @@ extern NSString * const NSFileHandleNotificationDataItem;
 		switch (errno)
 		{
 			case ESPIPE:
-				reason = @"File descriptor is a pipe or socket";
+				reason = @"File descriptor is not a regular file";
 				break;
 			case EBADF:
 				reason = @"File descriptor is closed";
@@ -426,7 +590,3 @@ extern NSString * const NSFileHandleNotificationDataItem;
 	return writeHandle;
 }
 @end
-
-/*
-  vim:syntax=objc:
- */
