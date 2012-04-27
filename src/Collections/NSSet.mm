@@ -56,6 +56,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <vector>
+#include <dispatch/dispatch.h>
 
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSArray.h>
@@ -434,7 +435,29 @@ static Class CoreSetClass;
 
 - (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id obj, bool *stop))block
 {
-	TODO; // -[NSSet enumerateObjectsWithOptions:usingBlock:]
+	dispatch_queue_t queue;
+
+	if (opts & NSEnumerationConcurrent)
+	{
+		queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+	}
+	else
+	{
+		queue = dispatch_queue_create(NULL, NULL);
+	}
+	for (id obj in self)
+	{
+		__block bool stop = false;
+		dispatch_async(queue, ^{ block(obj, &stop);});
+		if (stop)
+		{
+			break;
+		}
+	}
+	if (!(opts & NSEnumerationConcurrent))
+	{
+		dispatch_release(queue);
+	}
 }
 
 - (NSSet *) objectsPassingTest:(bool (^)(id obj, bool *stop))predicate
