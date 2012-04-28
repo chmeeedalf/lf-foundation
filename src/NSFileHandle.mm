@@ -256,6 +256,8 @@ extern NSString * const NSFileHandleNotificationDataItem;
 {
 	dispatch_source_cancel(readSource);
 	dispatch_source_cancel(writeSource);
+	dispatch_release(readSource);
+	dispatch_release(writeSource);
 	dispatch_release(dispatchQueue);
 	if (closeOnDealloc)
 		close(fd);
