@@ -351,7 +351,6 @@
  *
  * Things left TODO:
  * - Enforce the maxConcurrentOperationCount.
- * - Thread priority on operations.
  */
 @synthesize maxConcurrentOperationCount = _maxConcurrentOperationCount;
 @synthesize name;
@@ -547,13 +546,6 @@ static char assocObjKey;
 	}
 }
 
-/* This actually runs the operation on the appropriate global queue. */
-static void run_operation(void *ctx)
-{
-	NSOperation *op = (__bridge NSOperation *)ctx;
-	[op start];
-}
-
 /* This processes an NSOperation on the NSOperationQueue's dispatch_queue. */
 static void queue_operation(void *ctx)
 {
@@ -577,6 +569,8 @@ static void queue_operation(void *ctx)
 			queue = DISPATCH_QUEUE_PRIORITY_DEFAULT;
 			break;
 	}
-	dispatch_async_f(dispatch_get_global_queue(queue, 0), (__bridge void *)op, run_operation);
+	dispatch_async(dispatch_get_global_queue(queue, 0), ^{
+			[op start];
+			});
 }
 @end
