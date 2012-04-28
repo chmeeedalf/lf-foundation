@@ -22,11 +22,10 @@
    or in connection with the use or performance of this software.
 */
 
-#include <Foundation/NSPortNameServer.h>
-#include <Foundation/NSLock.h>
-#include <Foundation/NSException.h>
-
-extern NSRecursiveLock *libFoundationLock;
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSException.h>
+#import <Foundation/NSLock.h>
+#import <Foundation/NSPortNameServer.h>
 
 @implementation NSPortNameServer
 
