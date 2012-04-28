@@ -90,6 +90,12 @@
  * \param name NSObject identifier to retrieve attributes for.
  */
 - (NSDictionary *)attributesOfItemAtURL:(NSURL *)path error:(NSError **)errOut;
+- (NSDictionary *)attributesOfFileSystemForURL:(NSURL *)path error:(NSError **)errOut;
+
+-(NSDirectoryEnumerator *)enumeratorAtURL:(NSURL *)url
+			   includingPropertiesForKeys:(NSArray *)keys
+			   					  options:(NSDirectoryEnumerationOptions)mask
+			   				 errorHandler:(bool (^)(NSURL *, NSError *))handler;
 
 /*!
  */

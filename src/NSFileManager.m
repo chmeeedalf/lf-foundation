@@ -35,6 +35,13 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#include <sys/param.h>
+#include <sys/ucred.h>
+#include <sys/mount.h>
+
+#include <fcntl.h>
+#include <unistd.h>
+
 #import "internal.h"
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSArray.h>
@@ -44,13 +51,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSException.h>
 #import <Foundation/NSHost.h>
 #import <Foundation/NSPathUtilities.h>
+#import <Foundation/NSSet.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSURL.h>
+#import <Foundation/NSValue.h>
 #import <Foundation/Plugins/Filesystem.h>
-
-#include <unistd.h>
-#include <fcntl.h>
 
 static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
@@ -114,8 +120,12 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 			   					  options:(NSDirectoryEnumerationOptions)mask
 			   				 errorHandler:(bool (^)(NSURL *, NSError *))handler
 {
-	TODO; // -[NSFileManager enumeratorAtURL:includingPropertiesForKeys:options:errorHandler:]
-	return nil;
+	id<NSFilesystem> fsHandler = [url handler];
+
+	return [fsHandler enumeratorAtURL:url
+		   includingPropertiesForKeys:nil
+							  options:0
+						 errorHandler:nil];
 }
 
 -(NSArray *)contentsOfDirectoryAtURL:(NSURL *)path error:(NSError **)err
@@ -343,8 +353,9 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 -(NSDictionary *)attributesOfFileSystemForURL:(NSURL *)path error:(NSError **)errorp
 {
-	TODO;	// attributesOfFileSystemForURL:error:
-	return nil;
+	id<NSFilesystem> fsHandler = [path handler];
+
+	return [fsHandler attributesOfFileSystemForURL:path error:errorp];
 }
 
 -(bool)isReadableFileAtURL:(NSURL *)path
@@ -393,10 +404,22 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return [[path path] cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
--(NSArray *)subpathsOfDirectoryAtURL:(NSURL *)uriDir error:(NSError **)err
+-(NSArray *)subpathsOfDirectoryAtURL:(NSURL *)urlDir error:(NSError **)errp
 {
-	TODO;	// subpathsOfDirectoryAtURL:error:
-	return nil;
+	NSMutableArray *retval = [NSMutableArray new];
+	NSDirectoryEnumerator *enumerator = [self enumeratorAtURL:urlDir
+								   includingPropertiesForKeys:nil
+													  options:0
+												 errorHandler:^bool(NSURL *url, NSError *err){
+												 	 if (errp != NULL)
+												 	 	 *errp = err;
+												 	 return true;
+												 }];
+	for (id path in enumerator)
+	{
+		[retval addObject:path];
+	}
+	return [retval copy];
 }
 
 - (NSData *)contentsOfFileAtURL:(NSURL *)path shared:(bool)shared error:(NSError **)err
@@ -476,30 +499,80 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 - (NSArray *) URLsForDirectory:(NSSearchPathDirectory)dir
 					 inDomains:(NSSearchPathDomainMask)domains
 {
-	TODO; // -[NSFileManager URLsForDirectory:inDomains:]
-	return nil;
+	NSMutableArray *retval = [NSMutableArray new];
+
+	for (int i = 0; (domains & ((1 << i) - 1)) != 0; i++)
+	{
+		NSURL *val = [self URLForDirectory:dir
+								  inDomain:(1 << i)
+						 appropriateForURL:nil
+									create:false
+									 error:NULL];
+		if (val != nil)
+		{
+			[retval addObject:val];
+		}
+	}
+	return retval;
 }
 
 -(NSArray *)mountedVolumeURLsIncludingResourceValuesForKeys:(NSArray *)propertyKeys options:(NSVolumeEnumerationOptions)options
 {
-	TODO; // -[NSFileManager mountedVolumeURLsIncludingResourceValuesForKeys:options:]
-	return nil;
+	NSMutableArray *retval = [NSMutableArray new];
+	NSInteger fsCount = getfsstat(NULL, 0, MNT_WAIT);
+	/* Cache the array in a Set for O(1) access. */
+	NSSet *intPropertyKeys = [NSSet setWithArray:propertyKeys];
+
+	if (fsCount <= 0)
+		return nil;
+
+	struct statfs fsBuf[fsCount];
+	getfsstat(fsBuf, fsCount * sizeof(struct statfs), MNT_WAIT);
+
+	for (int i = 0; i < fsCount; i++)
+	{
+		NSURL *url = [NSURL fileURLWithPath:@(fsBuf[i].f_mntonname) isDirectory:true];
+
+		if ([intPropertyKeys member:NSURLVolumeLocalizedFormatDescriptionKey])
+		{
+			[url _cacheResourceValue:@(fsBuf[i].f_fstypename)
+							  forKey:NSURLVolumeLocalizedFormatDescriptionKey];
+		}
+		if ([intPropertyKeys member:NSURLVolumeTotalCapacityKey])
+		{
+			[url _cacheResourceValue:@(fsBuf[i].f_blocks * fsBuf[i].f_bsize)
+							  forKey:NSURLVolumeTotalCapacityKey];
+		}
+		if ([intPropertyKeys member:NSURLVolumeAvailableCapacityKey])
+		{
+			[url _cacheResourceValue:@(fsBuf[i].f_bfree * fsBuf[i].f_bsize)
+							  forKey:NSURLVolumeTotalCapacityKey];
+		}
+		if ([intPropertyKeys member:NSURLVolumeResourceCountKey])
+		{
+			[url _cacheResourceValue:@(fsBuf[i].f_files)
+							  forKey:NSURLVolumeResourceCountKey];
+		}
+		// TODO: More volume keys
+		[retval addObject:url];
+	}
+	return [retval copy];
 }
 @end
 
 NSString * const NSFileDisplayName = @"NSFileDisplayName";
 
 NSString * const NSFileType = @"NSFileType";
- NSString * const NSFileTypeRegular = @"NSString * const NSFileTypeRegular";
- NSString * const NSFileTypeDirectory = @"NSString * const NSFileTypeDirectory";
- NSString * const NSFileTypeSymbolicLink = @"NSString * const NSFileTypeSymbolicLink";
+ NSString * const NSFileTypeRegular = @"NSFileTypeRegular";
+ NSString * const NSFileTypeDirectory = @"NSFileTypeDirectory";
+ NSString * const NSFileTypeSymbolicLink = @"NSFileTypeSymbolicLink";
 
- NSString * const NSFileTypeCharacterSpecial = @"NSString * const NSFileTypeCharacterSpecial";
- NSString * const NSFileTypeBlockSpecial = @"NSString * const NSFileTypeBlockSpecial";
+ NSString * const NSFileTypeCharacterSpecial = @"NSFileTypeCharacterSpecial";
+ NSString * const NSFileTypeBlockSpecial = @"NSFileTypeBlockSpecial";
 
- NSString * const NSFileTypeSocket = @"NSString * const NSFileTypeSocket";
+ NSString * const NSFileTypeSocket = @"NSFileTypeSocket";
 
- NSString * const NSFileTypeUnknown = @"NSString * const NSFileTypeUnknown";
+ NSString * const NSFileTypeUnknown = @"NSFileTypeUnknown";
 
 NSString * const NSFileSize = @"NSFileSize";
 NSString * const NSFileModificationDate = @"NSFileModificationDate";

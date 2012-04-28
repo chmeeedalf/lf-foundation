@@ -182,7 +182,8 @@ struct sockaddr_storage;
 @end
 
 @interface NSURL(URL_ObjectManager)
-- (id)handler;
+- (id) handler;
+- (void) _cacheResourceValue:(id)val forKey:(NSString *)key;
 @end
 
 @interface NSConnection()
