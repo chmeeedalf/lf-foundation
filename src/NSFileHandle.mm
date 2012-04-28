@@ -37,7 +37,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include <array>
+
+#include <dispatch/dispatch.h>
 
 #import <Foundation/NSFileHandle.h>
 
@@ -72,14 +75,68 @@ extern NSString * const NSFileHandleNotificationDataItem;
 @implementation NSFileHandle
 {
 	int fd;
+
+	dispatch_source_t readSource;
+	dispatch_source_t writeSource;
+	dispatch_queue_t dispatchQueue;
+	void (^readabilityHandler)(NSFileHandle *);
+	void (^writeabilityHandler)(NSFileHandle *);
+
 	bool closeOnDealloc;
 	bool isNonBlocked;
 	bool isRegularFile;
 }
 
-// TODO: Deal with the readability and writeability handlers
 @synthesize readabilityHandler;
 @synthesize writeabilityHandler;
+
+- (void) setReadabilityHandler:(void (^)(NSFileHandle *))handler
+{
+	if (handler == NULL)
+	{
+		dispatch_source_cancel(readSource);
+	}
+	else
+	{
+		if (readSource == 0)
+		{
+			readSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0,
+					dispatchQueue);
+		}
+		else
+		{
+			dispatch_suspend(readSource);
+		}
+		dispatch_source_set_event_handler(readSource, ^{
+				readabilityHandler(self);
+				});
+		dispatch_resume(readSource);
+	}
+}
+
+- (void) setWriteabilityHandler:(void (^)(NSFileHandle *))handler
+{
+	if (handler == NULL)
+	{
+		dispatch_source_cancel(writeSource);
+	}
+	else
+	{
+		if (writeSource == 0)
+		{
+			writeSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0,
+					dispatchQueue);
+		}
+		else
+		{
+			dispatch_suspend(writeSource);
+		}
+		dispatch_source_set_event_handler(writeSource, ^{
+				writeabilityHandler(self);
+				});
+		dispatch_resume(writeSource);
+	}
+}
 
 + (id) fileHandleForReadingFromURL:(NSURL *)url error:(NSError **)errp
 {
@@ -191,11 +248,15 @@ extern NSString * const NSFileHandleNotificationDataItem;
 	{
 		isRegularFile = false;
 	}
+	dispatchQueue = dispatch_queue_create(NULL, NULL);
 	return self;
 }
 
 - (void) dealloc
 {
+	dispatch_source_cancel(readSource);
+	dispatch_source_cancel(writeSource);
+	dispatch_release(dispatchQueue);
 	if (closeOnDealloc)
 		close(fd);
 }
