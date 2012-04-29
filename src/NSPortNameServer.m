@@ -31,12 +31,12 @@
 
 + (id) systemDefaultPortNameServer
 {
-    return [self notImplemented:_cmd];
+	return [NSSocketPortNameServer sharedInstance];
 }
 
 /* port registry */
 
-- (bool) registerPort:(NSPort *)aPort forName:(NSString *)aPortName
+- (bool) registerPort:(NSPort *)aPort name:(NSString *)aPortName
 {
     [self notImplemented:_cmd];
     return false;
