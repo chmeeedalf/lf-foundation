@@ -36,22 +36,6 @@
 
 @implementation NSPortCoder
 
-- (id) initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
-{
-	_conn = [[NSConnection alloc] initWithReceivePort:receivePort sendPort:sendPort];
-	return self;
-}
-
-+ (id) portCoderWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components
-{
-	return [[self alloc] initWithReceivePort:receivePort sendPort:sendPort components:components];
-}
-
--(NSConnection *)connection
-{
-	return _conn;
-}
-
 -(void)encodePortObject:(NSPort *)port
 {
 	TODO; // -[NSPortCoder encodePortObject:]
@@ -61,11 +45,6 @@
 {
 	TODO; // -[NSPortCoder decodePortObject]
 	return nil;
-}
-
-- (void) encodeObject:(id)object
-{
-	TODO; // -[NSPortCoder encodeObject:]
 }
 
 - (void) encodeValueOfObjCType:(const char *)type at:(const void *)address
@@ -110,11 +89,6 @@
 -(bool)isByref
 {
 	return _byref;
-}
-
--(void)dispatch
-{
-	TODO; // -[NSPortCoder dispatch]
 }
 
 - (void) encodeException:(NSException *)except

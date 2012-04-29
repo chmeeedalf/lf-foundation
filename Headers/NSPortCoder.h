@@ -40,12 +40,6 @@
 	bool		 _byref;
 }
 
-- (id) initWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components;
-
-+ (id) portCoderWithReceivePort:(NSPort *)receivePort sendPort:(NSPort *)sendPort components:(NSArray *)components;
-
--(NSConnection *)connection;
-
 -(void)encodePortObject:(NSPort *)port;
 
 -(NSPort *)decodePortObject;
@@ -53,8 +47,6 @@
 -(bool)isBycopy;
 
 -(bool)isByref;
-
--(void)dispatch;
 
 /* This allows the port-specific coder to encode an error return. */
 - (void) encodeException:(NSException *)except;
