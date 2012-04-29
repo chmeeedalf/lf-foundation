@@ -29,6 +29,8 @@
  */
 
 #import <Foundation/NSObject.h>
+
+#import <Foundation/NSArray.h>
 #import <Foundation/NSEnumerator.h>
 
 @class NSArray, NSEnumerator, NSIndexSet, NSString, NSLocale, NSSet;
@@ -47,24 +49,26 @@
 + (id) orderedSetWithOrderedSet:(NSOrderedSet *)set;
 + (id) orderedSetWithOrderedSet:(NSOrderedSet *)set range:(NSRange)range copyItems:(bool)copy;
 + (id) orderedSetWithSet:(NSSet *)set;
-+ (id) orderedSetWithSet:(NSSet *)set range:(NSRange)range copyItems:(bool)copy;
++ (id) orderedSetWithSet:(NSSet *)set copyItems:(bool)copy;
 
 - (id) initWithArray:(NSArray *)array;
+- (id) initWithArray:(NSArray *)array copyItems:(bool)copy;
 - (id) initWithArray:(NSArray *)array range:(NSRange)range copyItems:(bool)copy;
 - (id) initWithObject:(id)obj;
 - (id) initWithObjects:(id)obj,...;
 - (id) initWithObjects:(const id[])objs count:(NSUInteger)count;
 - (id) initWithOrderedSet:(NSOrderedSet *)set;
+- (id) initWithOrderedSet:(NSOrderedSet *)set copyItems:(bool)copy;
 - (id) initWithOrderedSet:(NSOrderedSet *)set range:(NSRange)range copyItems:(bool)copy;
 - (id) initWithSet:(NSSet *)set;
-- (id) initWithSet:(NSSet *)set range:(NSRange)range copyItems:(bool)copy;
+- (id) initWithSet:(NSSet *)set copyItems:(bool)copy;
 
 - (NSUInteger) count;
 
 - (bool) containsObject:(id)obj;
-- (void) enumerateObjectsAtIndexes:(NSIndexSet *)indexes options:(NSEnumerationOptions) usingBlock:(void (^)(id, NSUInteger, bool *))block;
+- (void) enumerateObjectsAtIndexes:(NSIndexSet *)indexes options:(NSEnumerationOptions)opts usingBlock:(void (^)(id, NSUInteger, bool *))block;
 - (void) enumerateObjectsUsingBlock:(void (^)(id, NSUInteger, bool *))block;
-- (void) enumerateObjectsWithOptions:(NSEnumerationOptions) usingBlock:(void (^)(id, NSUInteger, bool *))block;
+- (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id, NSUInteger, bool *))block;
 - (id) firstObject;
 - (id) lastObject;
 - (id) objectAtIndex:(NSUInteger)index;
@@ -73,10 +77,10 @@
 - (NSUInteger) indexOfObject:(id)obj inSortedRange:(NSRange)range options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp;
 - (NSUInteger) indexOfObjectAtIndexes:(NSIndexSet *)indexes options:(NSEnumerationOptions)opts passingTest:(bool (^)(id, NSUInteger, bool *))predicate;
 - (NSUInteger) indexOfObjectPassingTest:(bool (^)(id, NSUInteger, bool *))predicate;
-- (NSUInteger) indexOfObjectWithOptions:(NSBinarySearchingOptions)opts passingTest:(bool (^)(id, NSUInteger, bool *))predicate;;
+- (NSUInteger) indexOfObjectWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id, NSUInteger, bool *))predicate;
 - (NSIndexSet *) indexesOfObjectsAtIndexes:(NSIndexSet *)indexes options:(NSEnumerationOptions)opts passingTest:(bool (^)(id, NSUInteger, bool *))predicate;
 - (NSIndexSet *) indexesOfObjectsPassingTest:(bool (^)(id, NSUInteger, bool *))predicate;
-- (NSIndexSet *) indexesOfObjectsWithOptions:(NSBinarySearchingOptions)opts passingTest:(bool (^)(id, NSUInteger, bool *))predicate;;
+- (NSIndexSet *) indexesOfObjectsWithOptions:(NSBinarySearchingOptions)opts passingTest:(bool (^)(id, NSUInteger, bool *))predicate;
 - (NSEnumerator *) objectEnumerator;
 - (NSEnumerator *) reverseObjectEnumerator;
 - (NSOrderedSet *) reversedOrderedSet;
@@ -109,7 +113,7 @@
 - (void) insertObject:(id)obj atIndex:(NSUInteger)idx;
 - (void) insertObjects:(NSArray *)objs atIndexes:(NSIndexSet *)idxs;
 - (void) removeObject:(id)obj;
-- (void) removeObjectAtIndex:(id)idx;
+- (void) removeObjectAtIndex:(NSUInteger)idx;
 - (void) removeObjectsAtIndexes:(NSIndexSet *)idxs;
 - (void) removeObjectsInArray:(NSArray *)array;
 - (void) removeObjectsInRange:(NSRange)range;
