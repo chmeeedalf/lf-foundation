@@ -182,8 +182,8 @@ __attribute__((__objc_exception__))
 	do { \
 		if (!(cond)) \
 			[[NSAssertionHandler currentHandler] handleFailureInFunction:\
-				[NSString stringWithCString:__func__ encoding:NSASCIIStringEncoding] \
-				file:[NSString stringWithCString:__FILE__ encoding:NSASCIIStringEncoding] lineNumber:__LINE__ \
+				[NSString stringWithUTF8String:__func__] \
+				file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ \
 				description:descr,##__VA_ARGS__]; \
 	} while (0)
 #else
@@ -194,7 +194,7 @@ __attribute__((__objc_exception__))
 #define NSParameterAssert(condition) \
 	NSExceptAssert(condition, NSInvalidArgumentException, nil, \
 		@"Invalid parameter not satisfying: %@", \
-		[NSString stringWithCString:#condition encoding:NSASCIIStringEncoding])
+		[NSString stringWithUTF8String:#condition])
 
 #define NSCParameterAssert(condition) \
 	NSCAssert(condition, @"Invalid parameter not satisfying: %@", \
