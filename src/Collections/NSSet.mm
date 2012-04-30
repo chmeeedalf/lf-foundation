@@ -448,7 +448,7 @@ static Class CoreSetClass;
 	for (id obj in self)
 	{
 		__block bool stop = false;
-		dispatch_async(queue, ^{ block(obj, &stop);});
+		dispatch_async(queue, ^{ if (stop) return; block(obj, &stop);});
 		if (stop)
 		{
 			break;
