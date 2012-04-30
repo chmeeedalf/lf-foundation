@@ -76,3 +76,24 @@
 	}
 }
 @end
+
+@implementation NSBlockEnumerator
+{
+	id ^enumBlock();
+}
+
+- (id) initWithBlock:(id(^)())block
+{
+	enumBlock = block;
+	return self;
+}
+
+- (id) nextObject
+{
+	if (nextObject == nil)
+		return nil;
+	nextObject = enumBlock();
+
+	return nextObject;
+}
+@end

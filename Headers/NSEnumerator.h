@@ -82,6 +82,12 @@ struct NSFastEnumerationState
 - (NSArray *) allObjects;
 @end
 
+@interface NSBlockEnumerator : NSEnumerator
+{
+}
+- (id) initWithBlock:(id (^)())block;
+@end
+
 /*
    vim:syntax=objc:
  */
