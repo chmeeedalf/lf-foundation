@@ -79,7 +79,7 @@
 
 @implementation NSBlockEnumerator
 {
-	id ^enumBlock();
+	id (^enumBlock)();
 }
 
 - (id) initWithBlock:(id(^)())block
