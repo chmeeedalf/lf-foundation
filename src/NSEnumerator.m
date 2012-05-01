@@ -84,7 +84,7 @@
 
 - (id) initWithBlock:(id(^)())block
 {
-	enumBlock = block;
+	enumBlock = [block copy];
 	return self;
 }
 

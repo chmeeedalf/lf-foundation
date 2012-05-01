@@ -85,6 +85,8 @@ struct NSFastEnumerationState
 @interface NSBlockEnumerator : NSEnumerator
 {
 }
+
+// The block gets copied.
 - (id) initWithBlock:(id (^)())block;
 @end
 
