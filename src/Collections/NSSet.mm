@@ -400,7 +400,13 @@ static Class CoreSetClass;
 	{
 		state->state = 1;
 		state->extra[0] = 0;
+		state->extra[1] = [self count];
 	}
+	if (state->extra[0] == state->extra[1])
+	{
+		return 0;
+	}
+
 	state->itemsPtr = stackBuf;
 
 	for (; i < state->extra[0]; i++)
@@ -415,7 +421,7 @@ static Class CoreSetClass;
 			break;
 		stackBuf[i] = obj;
 	}
-	state->extra[0] = i;
+	state->extra[0] += i;
 
 	return i;
 }
