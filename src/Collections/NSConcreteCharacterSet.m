@@ -77,7 +77,7 @@
 	if (self != nil)
 	{
 		size_t len = [string length];
-		for (NSIndex i = 0; i < len; i++)
+		for (NSUInteger i = 0; i < len; i++)
 		{
 			uset_add(set, [string characterAtIndex:i]);
 		}

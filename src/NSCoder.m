@@ -134,7 +134,7 @@
 	at:(void*)address
 {
 	unsigned i, offset;
-	NSIndex item_size = objc_sizeof_type(types);
+	NSUInteger item_size = objc_sizeof_type(types);
 	IMP imp = [self methodForSelector:@selector(decodeValueOfObjCType:at:)];
 
 	for(i = offset = 0; i < count; i++, offset += item_size)

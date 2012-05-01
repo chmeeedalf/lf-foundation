@@ -44,7 +44,7 @@
 
 - (id) initWithName:(NSString *)name
 {
-	NSIndex tzLen = [name length];
+	NSUInteger tzLen = [name length];
 	NSUniChar ch[tzLen];
 	
 	if (name == nil)
@@ -108,13 +108,13 @@
 
 -(NSString*)abbreviationForDate:(NSDate *)_date
 {
-	NSIndex tzLen = [timeZoneName length];
+	NSUInteger tzLen = [timeZoneName length];
 	NSUniChar ch[tzLen];
 	UDateFormat *dat;
 	UErrorCode ec = U_ZERO_ERROR;
 	NSUniChar pattern[] = {'V'};
 	NSUniChar *output;
-	NSIndex len;
+	NSUInteger len;
 	NSString *ret = nil;
 
 	[timeZoneName getCharacters:ch range:NSMakeRange(0, tzLen)];

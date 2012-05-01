@@ -88,7 +88,7 @@
 /*!
  * @brief Returns the character Returns the character index at which the scanner will begin its next scanning operation.
  */
--(NSIndex)scanLocation;
+-(NSUInteger)scanLocation;
 
 /*!
  * @brief Sets whether or not the scanner should be case sensitive.
@@ -112,7 +112,7 @@
  * @brief Sets the location at which the next scan will begin.
  * @param anIndex Index to begin the next scan.
  */
--(void)setScanLocation:(NSIndex)anIndex;
+-(void)setScanLocation:(NSUInteger)anIndex;
 
 // Scanning a string
 /*!

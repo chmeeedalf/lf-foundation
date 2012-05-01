@@ -160,7 +160,7 @@ typedef NSString * const NSSymbol;
  \param length NSNumber of characters from the unicode string to place into the NSString object.
  */
 +(id)stringWithCharacters:(const NSUniChar *)chars
-	length:(NSIndex)length;
+	length:(NSUInteger)length;
 
 /*!
  \brief Returns a string containing the characters from the passed string object.
@@ -194,7 +194,7 @@ typedef NSString * const NSSymbol;
  This number includes the individual characters of composed
  character sequences.
  */
--(NSIndex)length;
+-(NSUInteger)length;
 
 /*!
  * \brief Returns the number of bytes given a specific encoding.
@@ -215,7 +215,7 @@ typedef NSString * const NSSymbol;
  \details This method raises an StringBoundsError exception if the index
  is beyond the end of the string.
  */
--(NSUniChar)characterAtIndex:(NSIndex)index;
+-(NSUniChar)characterAtIndex:(NSUInteger)index;
 
 /*!
  \brief Copies the characters in the given range from the receiver into the passed buffer.
@@ -240,7 +240,7 @@ typedef NSString * const NSSymbol;
  This method raises an StringBoundsError exception if any part of the range
  is beyond the end of the string.
  */
-- (bool)getBytes:(void*)bytes maxLength:(NSIndex)maxLength usedLength:(NSIndex *)used
+- (bool)getBytes:(void*)bytes maxLength:(NSUInteger)maxLength usedLength:(NSUInteger *)used
 	encoding:(NSStringEncoding)encoding options:(NSStringEncodingConversionOptions)options
 	range:(NSRange)fromRange remainingRange:(NSRange*)remainingRange;
 
@@ -261,7 +261,7 @@ typedef NSString * const NSSymbol;
  \details The passed buffer must be large enough to contain the resulting
  C string plus a terminating null character, which is added by this method.
  */
--(bool)getCString:(char *)buffer maxLength:(NSIndex)maxLength encoding:(NSStringEncoding)encoding;
+-(bool)getCString:(char *)buffer maxLength:(NSUInteger)maxLength encoding:(NSStringEncoding)encoding;
 
 /*!
  \brief Returns a representation of the receiver as a C string in UTF8
@@ -286,7 +286,7 @@ typedef NSString * const NSSymbol;
  * \brief Returns a new string with the receiver's contents either truncated or
  * padded to the specified length.
  */
--(NSString *)stringByPaddingToLength:(size_t)newLength withString:(NSString *)pad startingAtIndex:(NSIndex)start;
+-(NSString *)stringByPaddingToLength:(size_t)newLength withString:(NSString *)pad startingAtIndex:(NSUInteger)start;
 
 
 // Dividing strings into substrings
@@ -320,7 +320,7 @@ typedef NSString * const NSSymbol;
  \details This method raises an StringBoundsError exception if the index
  lies beyond the end of the string.
  */
--(NSString *)substringFromIndex:(NSIndex)index;
+-(NSString *)substringFromIndex:(NSUInteger)index;
 
 /*!
  \brief Returns a string object containing the characters of the receiver which lie in the given range.
@@ -338,7 +338,7 @@ typedef NSString * const NSSymbol;
  \details This method raises an StringBoundsError exception if the index
  lies beyond the end of the string.
  */
--(NSString *)substringToIndex:(NSIndex)index;
+-(NSString *)substringToIndex:(NSUInteger)index;
 
 
 // Finding ranges of characters and substrings
@@ -421,20 +421,20 @@ typedef NSString * const NSSymbol;
 -(NSString *)stringByReplacingCharactersInRange:(NSRange)range withString:(NSString *)newString;
 
 
-- (void) getLineStart:(NSIndex *)startIndex end:(NSIndex *)lineEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange;
+- (void) getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEnd forRange:(NSRange)aRange;
 
 /*!
  * \brief Returns the range of a line of text within the given range.
  */
 - (NSRange) lineRangeForRange:(NSRange)r;
 
-- (void) getParagraphStart:(NSIndex *)startIndex end:(NSIndex *)parEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange;
+- (void) getParagraphStart:(NSUInteger *)startIndex end:(NSUInteger *)parEndIndex contentsEnd:(NSUInteger *)contentsEnd forRange:(NSRange)aRange;
 /*!
  * \brief Returns the range of a paragraph of text within the given range.
  */
 - (NSRange) paragraphRangeForRange:(NSRange)r;
 
-- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSIndex)idx;
+- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSUInteger)idx;
 - (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange)range;
 
 // Identifying and comparing strings
@@ -654,12 +654,12 @@ typedef NSString * const NSSymbol;
 /*!
  \brief Returns the index of the given substring in the receiver, found from the given index.
  */
--(NSIndex)indexOfString:(NSString*)substring fromIndex:(NSIndex)index;
+-(NSUInteger)indexOfString:(NSString*)substring fromIndex:(NSUInteger)index;
 
 /*!
  \brief Returns the index of the given substring in the receiver.
  */
-- (NSIndex)indexOfString:(NSString*)substring;
+- (NSUInteger)indexOfString:(NSString*)substring;
 
 -(NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding)enc;
 -(NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding)enc;
@@ -685,7 +685,7 @@ typedef NSString * const NSSymbol;
  \param length Length of the byte string.
  \param encoding NSString encoding of the bytes.
  */
-- (id)initWithBytes:(const void *)bytes length:(NSIndex)length
+- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)encoding;
 
 /*!
@@ -697,7 +697,7 @@ typedef NSString * const NSSymbol;
 
  \details The object takes full ownership of the byte string.
  */
-- (id)initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
+- (id)initWithBytesNoCopy:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)encoding freeWhenDone:(bool)flag;
 
 /*!
@@ -706,7 +706,7 @@ typedef NSString * const NSSymbol;
  \param length NSNumber of characters from the unicode string to place into the NSString object.
  */
 -(id)initWithCharacters:(const NSUniChar *)chars
-	length:(NSIndex)length;
+	length:(NSUInteger)length;
 
 /*!
  \brief Initializes an NSString containing the passed unicode characters.
@@ -719,7 +719,7 @@ typedef NSString * const NSSymbol;
  the C string when it no longer needs it.
  */
 -(id)initWithCharactersNoCopy:(const NSUniChar *)chars
-	length:(NSIndex)length freeWhenDone:(bool)flag;
+	length:(NSUInteger)length freeWhenDone:(bool)flag;
 
 /*!
  \brief Initializes an NSString with the contents of the given string.

@@ -74,7 +74,7 @@
 	return str;
 }
 
-- (NSDictionary *)attributesAtIndex:(NSIndex)idx effectiveRange:(NSRange *)range
+- (NSDictionary *)attributesAtIndex:(NSUInteger)idx effectiveRange:(NSRange *)range
 {
 	for (_AttributedRange *r in attributeRanges)
 	{

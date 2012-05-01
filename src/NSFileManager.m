@@ -434,7 +434,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return false;
 }
 
-- (NSString *)stringWithFileSystemRepresentation:(const char *)fsRep length:(NSIndex)len
+- (NSString *)stringWithFileSystemRepresentation:(const char *)fsRep length:(NSUInteger)len
 {
 	return [[NSString alloc] initWithBytes:fsRep length:len encoding:NSUTF8StringEncoding];
 }

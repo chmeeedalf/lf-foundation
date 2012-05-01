@@ -244,7 +244,7 @@ static Class CoreSetClass;
 	return [self member:anObject] ? true : false;
 }
 
-- (NSIndex)count
+- (NSUInteger)count
 {
 	[self subclassResponsibility:_cmd];
 	return 0;

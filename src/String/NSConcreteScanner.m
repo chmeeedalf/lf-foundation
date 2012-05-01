@@ -65,7 +65,7 @@
     return self;
 }
 
-- (void)setScanLocation:(NSIndex)index
+- (void)setScanLocation:(NSUInteger)index
 {
     scanLocation = index;
 }
@@ -86,7 +86,7 @@
 }
 
 - (NSString*)string				{ return string; }
-- (NSIndex)scanLocation			{ return scanLocation; }
+- (NSUInteger)scanLocation			{ return scanLocation; }
 - (bool)caseSensitive				{ return caseSensitive; }
 - (NSCharacterSet*)charactersToBeSkipped	{ return skipSet; }
 - (NSLocale*)locale				{ return locale; }

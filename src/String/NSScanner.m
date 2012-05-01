@@ -108,12 +108,12 @@
 	return nil;
 }
 
-- (void)setScanLocation:(NSIndex)index
+- (void)setScanLocation:(NSUInteger)index
 {
 	[self subclassResponsibility:_cmd];
 }
 
-- (NSIndex)scanLocation
+- (NSUInteger)scanLocation
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -145,9 +145,9 @@
 intoString:(NSString**)value
 {
 	id string = [self string];
-	NSIndex orig = [self scanLocation];
-	NSIndex length = [string length];
-	NSIndex location = orig;
+	NSUInteger orig = [self scanLocation];
+	NSUInteger length = [string length];
+	NSUInteger location = orig;
 
 	for (; location < length; location++)
 	{
@@ -191,9 +191,9 @@ static bool scanNumber(int numType, void *dest, NSScanner *self)
 	NSCharacterSet* decimals = nil;
 	NSString *string = [self string];
 	NSLocale *locale = [self locale];
-	NSIndex orig;
-	NSIndex length = [string length];
-	NSIndex location;
+	NSUInteger orig;
+	NSUInteger length = [string length];
+	NSUInteger location;
 	NSUniChar thousandSep = ',';
 	NSUniChar decimalSep = '.';
 	NSUniChar exponentSep = 'e';
@@ -302,7 +302,7 @@ static inline bool ScanHexInteger(NSScanner *self, unsigned long long *result)
 {
 	unsigned long long val = 0;
 	int i = 0;
-	NSIndex scanLoc;
+	NSUInteger scanLoc;
 	NSUniChar chars[2 * sizeof(int)];
 
 	// skip the leading 0x/0X
@@ -373,7 +373,7 @@ static inline bool ScanHexInteger(NSScanner *self, unsigned long long *result)
 
 - (bool) scanHexFloat:(float *)value
 {
-	NSIndex idx = [self scanLocation];
+	NSUInteger idx = [self scanLocation];
 	double d;
 
 	if (![self scanHexDouble:&d] || (d > FLT_MAX))
@@ -426,10 +426,10 @@ static inline bool ScanHexInteger(NSScanner *self, unsigned long long *result)
 - (bool)scanString:(NSString*)searchString intoString:(NSString**)value
 {
 	id string = [self string];
-	NSIndex searchStringLength = [searchString length];
+	NSUInteger searchStringLength = [searchString length];
 	NSRange range;
 	unsigned int options;
-	NSIndex location;
+	NSUInteger location;
 
 	/* First skip the blank characters */
 	[self scanCharactersFromSet:[self charactersToBeSkipped] intoString:NULL];
@@ -470,7 +470,7 @@ static inline bool ScanHexInteger(NSScanner *self, unsigned long long *result)
 	int length = [string length];
 	NSRange range, lastRange;
 	unsigned int options = 0;
-	NSIndex location;
+	NSUInteger location;
 
 	/* First skip the blank characters */
 	[self scanCharactersFromSet:[self charactersToBeSkipped] intoString:NULL];

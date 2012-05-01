@@ -129,7 +129,7 @@ static NSString *makeScheme(NSUniChar **str)
 {
 	bool first = true;
 	char ch;
-	NSIndex i = 0;
+	NSUInteger i = 0;
 	for (;;)
 	{
 		ch = (*str)[i];
@@ -242,7 +242,7 @@ static inline NSString *_hostname(NSUniChar **strp)
 {
 	NSUniChar *str = *strp;
 	NSString *lastStr, *prevStr = nil;
-	NSIndex len;
+	NSUInteger len;
 
 	while ((lastStr = _domain_top_label(strp)))
 	{
@@ -707,7 +707,7 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 	// we can mess with this pointer, it's autoreleased
 	NSUniChar *str;
 	NSUniChar *strBack;
-	NSIndex len = [string length] + 1;
+	NSUInteger len = [string length] + 1;
 	NSRange range = NSMakeRange(0, len - 1);
 
 	str = malloc(len * sizeof(NSUniChar));

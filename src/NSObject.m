@@ -565,7 +565,7 @@ static NSMutableString *inspectObject(id self, Class startAt)
  */
 @interface NSObject(compare)
 - (NSComparisonResult) compare:other;
-- (NSIndex) indexOfObjectIdenticalTo:other;
+- (NSUInteger) indexOfObjectIdenticalTo:other;
 @end
 
 @implementation NSObject (ComparisonMethods)

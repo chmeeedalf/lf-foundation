@@ -186,7 +186,7 @@
 	if (!_private->matcher->find())
 		return NSRange(0,0);
 	UErrorCode ec = U_ZERO_ERROR;
-	NSIndex i = _private->matcher->start(ec);
+	NSUInteger i = _private->matcher->start(ec);
 	if (U_FAILURE(ec))
 		return NSRange(0,0);
 	return NSRange(i, _private->matcher->end(ec) - i);
@@ -210,7 +210,7 @@
 	return [NSString stringWithCharacters:us.getBuffer() length:us.length()];
 }
 
-- (NSString *)groupWithIndexInLastMatch:(NSIndex)indx
+- (NSString *)groupWithIndexInLastMatch:(NSUInteger)indx
 {
 	UErrorCode ec = U_ZERO_ERROR;
 	UnicodeString us = _private->matcher->group(indx, ec);
@@ -228,7 +228,7 @@
 	return [NSString stringWithCharacters:us.getBuffer() length:us.length()];
 }
 
-- (NSIndex)numberOfGroups
+- (NSUInteger)numberOfGroups
 {
 	return _private->matcher->groupCount();
 }
@@ -270,7 +270,7 @@
 {
 	NSRegexMatcher *matcher = [pattern matcherForString:self];
 	NSRange r;
-	NSIndex i = 0;
+	NSUInteger i = 0;
 	NSMutableArray *arr = [NSMutableArray array];
 
 	do
@@ -314,7 +314,7 @@
 @implementation NSScanner(RegularExpressions)
 - (bool) scanUpToPattern:(NSRegexPattern *)pattern intoString:(NSString **)str
 {
-	NSIndex i = [self scanLocation];
+	NSUInteger i = [self scanLocation];
 	NSRange r = [[pattern matcherForString:[[self string]
 		substringFromIndex:i]] rangeOfNextMatch];
 	if (r.length == 0)
@@ -329,7 +329,7 @@
 
 - (bool) scanPattern:(NSRegexPattern *)pattern intoString:(NSString **)str
 {
-	NSIndex i = [self scanLocation];
+	NSUInteger i = [self scanLocation];
 	NSRange r = [[pattern matcherForString:[[self string]
 		substringFromIndex:i]] rangeOfNextMatch];
 	if (r.length == 0 || r.location != 0)

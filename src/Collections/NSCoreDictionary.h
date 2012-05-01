@@ -77,7 +77,7 @@ typedef struct _map_table *_map_table;
 
 /* Accessing keys and values */
 - (id)objectForKey:(id)aKey;
-- (NSIndex)count;
+- (NSUInteger)count;
 - (NSEnumerator *)keyEnumerator;
 
 /* Private */

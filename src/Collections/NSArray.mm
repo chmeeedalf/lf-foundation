@@ -132,9 +132,9 @@ static Class CoreArrayClass;
 
 - (id)initWithArray:(NSArray*)anotherArray copyItems:(bool)flag
 {
-	NSIndex i;
+	NSUInteger i;
 	std::vector<id> objects;
-	NSIndex count = [anotherArray count];
+	NSUInteger count = [anotherArray count];
 
 	for (i = 0; i < count; i++)
 	{
@@ -193,27 +193,27 @@ static Class CoreArrayClass;
 	return ([self indexOfObject:anObject] == NSNotFound) ? false : true;
 }
 
-- (NSIndex)count
+- (NSUInteger)count
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
 }
 
-- (NSIndex)indexOfObject:(id)anObject
+- (NSUInteger)indexOfObject:(id)anObject
 {
 	return [self indexOfObject:anObject
 		inRange:NSRange(0, [self count])];
 }
 
-- (NSIndex)indexOfObjectIdenticalTo:(id)anObject
+- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject
 {
 	return [self indexOfObjectIdenticalTo:anObject
 		inRange:NSRange(0, [self count])];
 }
 
-- (NSIndex)indexOfObject:(id)anObject inRange:(NSRange)aRange
+- (NSUInteger)indexOfObject:(id)anObject inRange:(NSRange)aRange
 {
-	NSIndex index;
+	NSUInteger index;
 
 	for (index = 0; index < aRange.length; index++)
 	{
@@ -225,9 +225,9 @@ static Class CoreArrayClass;
 	return NSNotFound;
 }
 
-- (NSIndex)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
+- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
 {
-	NSIndex index;
+	NSUInteger index;
 
 	for (index = 0; index < aRange.length; index++)
 		if (anObject == [self objectAtIndex:aRange.location+index])
@@ -235,21 +235,21 @@ static Class CoreArrayClass;
 	return NSNotFound;
 }
 
-- (NSIndex) indexOfObjectPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+- (NSUInteger) indexOfObjectPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
 {
 	return [self indexOfObjectWithOptions:0 passingTest:predicate];
 }
 
-- (NSIndex) indexOfObjectWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+- (NSUInteger) indexOfObjectWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
 {
 	return [self indexOfObjectAtIndexes:[NSIndexSet
 		indexSetWithIndexesInRange:NSMakeRange(0, [self count])] options:opts
 		passingTest:predicate];
 }
 
-- (NSIndex) indexOfObjectAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
+- (NSUInteger) indexOfObjectAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate
 {
-	__block NSIndex i = NSNotFound;
+	__block NSUInteger i = NSNotFound;
 
 	[indexSet enumerateIndexesWithOptions:opts usingBlock:^(NSUInteger idx, bool
 			*stop){
@@ -290,13 +290,13 @@ static Class CoreArrayClass;
 	return iset;
 }
 
-- (NSIndex) indexOfObject:(id)obj inSortedRange:(NSRange)srange
+- (NSUInteger) indexOfObject:(id)obj inSortedRange:(NSRange)srange
 options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 {
-	NSIndex i = srange.location + (srange.length / 2);
+	NSUInteger i = srange.location + (srange.length / 2);
 	int delta = srange.length / 4;	// How far to move
 	NSComparisonResult result;
-	NSIndex goodFound = NSNotFound;
+	NSUInteger goodFound = NSNotFound;
 
 	while (1)
 	{
@@ -332,7 +332,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (id)firstObject
 {
-	NSIndex count = [self count];
+	NSUInteger count = [self count];
 	return count ? [self objectAtIndex:0] : nil;
 }
 
@@ -349,7 +349,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (id)lastObject
 {
-	NSIndex count = [self count];
+	NSUInteger count = [self count];
 
 	return count ? [self objectAtIndex:count - 1] : nil;
 }
@@ -415,7 +415,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (void) enumerateObjectsUsingBlock:(void (^)(id obj, NSUInteger idx, bool *stop))block
 {
-	NSIndex i = 0;
+	NSUInteger i = 0;
 	bool stop = false;
 
 	for (id obj in self)
@@ -459,8 +459,8 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (bool)isEqualToArray:(NSArray*)otherArray
 {
-	NSIndex index;
-	NSIndex count;
+	NSUInteger index;
+	NSUInteger count;
 
 	if( otherArray == self )
 	{
@@ -512,7 +512,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSString*)componentsJoinedByString:(NSString*)separator
 {
-	NSIndex count = [self count];
+	NSUInteger count = [self count];
 
 	if(!separator)
 	{
@@ -625,8 +625,8 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSArray*)map:(SEL)aSelector
 {
-	NSIndex index;
-	NSIndex count = [self count];
+	NSUInteger index;
+	NSUInteger count = [self count];
 	id array = [NSMutableArray arrayWithCapacity:count];
 
 	for (index = 0; index < count; index++)
@@ -640,8 +640,8 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSArray*)map:(SEL)aSelector with:anObject
 {
-	NSIndex index;
-	NSIndex count = [self count];
+	NSUInteger index;
+	NSUInteger count = [self count];
 	id array = [NSMutableArray arrayWithCapacity:count];
 
 	for (index = 0; index < count; index++)
@@ -655,8 +655,8 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSArray*)map:(SEL)aSelector with:anObject with:otherObject
 {
-	NSIndex index;
-	NSIndex count = [self count];
+	NSUInteger index;
+	NSUInteger count = [self count];
 	id array = [NSMutableArray arrayWithCapacity:count];
 
 	for (index = 0; index < count; index++)
@@ -673,8 +673,8 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 // function returns true
 {
 	unsigned i;
-	NSIndex m;
-	NSIndex n = [self count];
+	NSUInteger m;
+	NSUInteger n = [self count];
 	std::vector<id> objects;
 	id array;
 
@@ -760,14 +760,14 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 	[indices getIndexes:&indexes[0] maxCount:count inIndexRange:NULL];
 
-	for (NSIndex i = 0; i < count; i++)
+	for (NSUInteger i = 0; i < count; i++)
 	{
 		objects[i] = [self objectAtIndex:indexes[count]];
 	}
 	return [NSArray arrayWithObjects:&objects[0] count:count];
 }
 
-- (id):(NSIndex)idx
+- (id):(NSUInteger)idx
 {
 	return [self objectAtIndex:idx];
 }
@@ -798,9 +798,9 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 - (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
 	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
 {
-	NSIndex i = 0;
-	NSIndex j = 0;
-	NSIndex count = [self count];
+	NSUInteger i = 0;
+	NSUInteger j = 0;
+	NSUInteger count = [self count];
 
 	if (state->state == 0)
 	{
@@ -1203,8 +1203,8 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 
 - (void)removeObjectsThat:(bool(*)(id anObject))comparator
 {
-	NSIndex index;
-	NSIndex count = [self count];
+	NSUInteger index;
+	NSUInteger count = [self count];
 	NSMutableIndexSet *indexes = [[NSMutableIndexSet alloc] init];
 
 	for (index = 0; index < count; index++)
@@ -1232,7 +1232,7 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 	TODO; // -[NSMutableArray sortWithOptions:usingComparator:]
 }
 
-- (void) exchangeObjectAtIndex:(NSIndex)idx1 withObjectAtIndex:(NSIndex)idx2
+- (void) exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2
 {
 	id obj1 = [self objectAtIndex:idx1];
 
@@ -1242,7 +1242,7 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 
 - (void) removeObjectsAtIndexes:(NSIndexSet *)indexes
 {
-	for (NSIndex i = [indexes lastIndex]; i != NSNotFound; i = [indexes indexLessThanIndex:i])
+	for (NSUInteger i = [indexes lastIndex]; i != NSNotFound; i = [indexes indexLessThanIndex:i])
 	{
 		[self removeObjectAtIndex:i];
 	}

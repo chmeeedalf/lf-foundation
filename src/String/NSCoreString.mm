@@ -52,12 +52,12 @@
 	return self;
 }
 
-- (NSIndex)length
+- (NSUInteger)length
 {
 	return length;
 }
 
-- (NSUniChar)characterAtIndex:(NSIndex)index
+- (NSUniChar)characterAtIndex:(NSUInteger)index
 {
 	if (index < length)
 	{
@@ -97,14 +97,14 @@
 	return [self initWithCString:NULL length:0];
 }
 
-- (id) initWithBytes:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytes:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)enc
 {
 	return [self initWithBytes:bytes length:length encoding:enc copy:true
 		freeWhenDone:false];
 }
 
-- (id) initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytesNoCopy:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)enc freeWhenDone:(bool)flag
 {
 	return [self initWithBytes:bytes length:length encoding:enc copy:false
@@ -133,13 +133,13 @@
 	return self;
 }
 
-- (id) initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length
+- (id) initWithCharacters:(const NSUniChar*)chars length:(NSUInteger)length
 {
 	return [self initWithBytes:(const void *)chars length:length * sizeof(NSUniChar)
 		encoding:NSUnicodeStringEncoding copy:true freeWhenDone:false];
 }
 
-- (id) initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length
+- (id) initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSUInteger)length
 	freeWhenDone:(bool)flag
 {
 	return [self initWithBytes:(const void *)chars length:length * sizeof(NSUniChar)
@@ -152,12 +152,12 @@
 		copy:true];
 }
 
-- (id) initWithCString:(const char*)byteString length:(NSIndex)length
+- (id) initWithCString:(const char*)byteString length:(NSUInteger)length
 {
 	return [self initWithCString:byteString length:length copy:true];
 }
 
-- (id) initWithCString:(const char*)byteString length:(NSIndex)length
+- (id) initWithCString:(const char*)byteString length:(NSUInteger)length
 	  copy:(bool)flag
 {
 	return [self initWithBytes:(const void *)byteString length:length
@@ -170,7 +170,7 @@
 		freeWhenDone:flag];
 }
 
-- (id) initWithCStringNoCopy:(const char*)byteString length:(NSIndex)length
+- (id) initWithCStringNoCopy:(const char*)byteString length:(NSUInteger)length
 	freeWhenDone:(bool)flag
 {
 	self = [self initWithBytes:byteString length:length
@@ -205,7 +205,7 @@
 	return encoding;
 }
 
-- (NSUniChar)characterAtIndex:(NSIndex)index
+- (NSUniChar)characterAtIndex:(NSUInteger)index
 {
 	return str->charAt(index);
 }
@@ -215,7 +215,7 @@
 	str->extract(aRange.location, aRange.length, (UChar *)buffer);
 }
 
-- (NSIndex) length
+- (NSUInteger) length
 {
 	return str->length();
 }
@@ -245,7 +245,7 @@
 
 -(void)replaceCharactersInRange:(NSRange)aRange withString:(NSString *)aString
 {
-	NSIndex len = [aString length];
+	NSUInteger len = [aString length];
 	const UChar *others = new UChar[len];
 	[aString getCharacters:(NSUniChar *)others range:NSRange(0, len)];
 	str->replace(aRange.location, aRange.length, others, len);

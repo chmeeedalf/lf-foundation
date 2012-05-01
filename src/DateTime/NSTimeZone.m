@@ -121,7 +121,7 @@ static NSTimeZone *autoTimeZone = nil;
 +(void)setDefaultTimeZone:(NSTimeZone *)aTimeZone
 {
 	NSString *tzName = [aTimeZone name];
-	NSIndex len = [tzName length];
+	NSUInteger len = [tzName length];
 	NSUniChar ch[len + 1];
 	UErrorCode ec = U_ZERO_ERROR;
 	[tzName getCharacters:ch range:NSMakeRange(0, len)];

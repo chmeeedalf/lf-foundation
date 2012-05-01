@@ -62,15 +62,15 @@
 {
 	NSLocale* locale;
 	NSString* string;
-	NSIndex scanLocation;
+	NSUInteger scanLocation;
 	bool caseSensitive;
 	NSCharacterSet* skipSet;
 }
 
 - (id)initWithString:(NSString*)string;
 - (NSString*)string;
-- (void)setScanLocation:(NSIndex)index;
-- (NSIndex)scanLocation;
+- (void)setScanLocation:(NSUInteger)index;
+- (NSUInteger)scanLocation;
 - (void)setCaseSensitive:(bool)flag;
 - (bool)caseSensitive;
 - (void)setCharactersToBeSkipped:(NSCharacterSet*)skipSet;

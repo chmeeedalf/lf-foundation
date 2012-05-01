@@ -51,7 +51,7 @@
 - (id) initWithAttributedString:(NSAttributedString *)str;
 - (id) string;
 
-- (NSDictionary *)attributesAtIndex:(NSIndex)idx effectiveRange:(NSRange *)range;
+- (NSDictionary *)attributesAtIndex:(NSUInteger)idx effectiveRange:(NSRange *)range;
 @end
 
 @interface CoreMutableAttributedString	:	NSMutableAttributedString

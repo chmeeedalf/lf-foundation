@@ -95,7 +95,7 @@ typedef std::unordered_multiset<id> _map_table;
 	return self;
 }
 
--(NSIndex)count
+-(NSUInteger)count
 {
 	return table.size();
 }

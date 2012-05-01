@@ -165,7 +165,7 @@ typedef NSUInteger NSFileManagerItemReplacementOptions;
 -(bool)contentsEqualAtURL:(NSURL *)path1 andURL:(NSURL *)path2;
 
 -(const char *)fileSystemRepresentationWithURL:(NSURL *)path;
--(NSString *)stringWithFileSystemRepresentation:(const char *)string length:(NSIndex)length;
+-(NSString *)stringWithFileSystemRepresentation:(const char *)string length:(NSUInteger)length;
 
 -(bool)changeCurrentDirectoryURL:(NSURL *)path;
 -(NSString *)currentDirectoryPath;

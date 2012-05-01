@@ -67,7 +67,7 @@
 
 /* Accessing keys and values */
 
-- (NSIndex)count;
+- (NSUInteger)count;
 - (id)member:(id)anObject;
 - (NSEnumerator *)objectEnumerator;
 

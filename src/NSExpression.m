@@ -439,7 +439,7 @@
 	id t = [target expressionValueWithObject:obj context:context];
 	Method m = class_getInstanceMethod(t, selector);
 	NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)]];
-	NSIndex count = [arguments count];
+	NSUInteger count = [arguments count];
 	unsigned int i = 0;
 	[inv setTarget:t];
 	[inv setSelector:selector];

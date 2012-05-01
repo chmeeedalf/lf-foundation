@@ -138,7 +138,7 @@
 /*!
  * \brief Returns the number of objects currently in the set.
  */
--(NSIndex)count;
+-(NSUInteger)count;
 
 /*!
  * \brief Returns the object in the set that is equal to the given object, or <b>nil</b> if none is equal.
@@ -303,7 +303,7 @@
 /*!
  * \brief Returns the number of objects currently in the set.
  */
--(NSIndex)count;
+-(NSUInteger)count;
 
 /*!
  * \brief Returns the object in the set that is equal to the given object, or <b>nil</b> if none is equal.

@@ -80,7 +80,7 @@ typedef std::unordered_set<id> intern_set;
 
 /* Accessing keys and values */
 
-- (NSIndex)count
+- (NSUInteger)count
 {
 	return set.size();
 }

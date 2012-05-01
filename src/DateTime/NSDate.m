@@ -153,7 +153,7 @@ static NSDate *distantPast = nil;
 	dfmt = udat_open(UDAT_IGNORE, UDAT_IGNORE, NULL, NULL, -1, DEFAULT_FORMAT, -1, &ec);
 	if (U_FAILURE(ec))
 		goto error;
-	NSIndex descLen = [description length] + 1;
+	NSUInteger descLen = [description length] + 1;
 	UDate parsedDate;
 	descChars = (UChar *)malloc(descLen * sizeof(NSUniChar));
 	[description getCharacters:descChars range:NSMakeRange(0, descLen - 1)];
@@ -223,8 +223,8 @@ sinceDate:(NSDate*)anotherDate
 	locale:(NSLocale*)locale
 {
 	NSString *result;
-	NSIndex len = [format length] + 1;
-	NSIndex outLen;
+	NSUInteger len = [format length] + 1;
+	NSUInteger outLen;
 	UDate icuDate;
 	NSUniChar *formatChars;
 	if (format == nil)

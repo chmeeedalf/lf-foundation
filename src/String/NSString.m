@@ -347,13 +347,13 @@ static Class MutableStringClass;
 }
 
 + (id)stringWithCharacters:(const NSUniChar*)chars
-length:(NSIndex)length
+length:(NSUInteger)length
 {
 	return [[self alloc] initWithCharacters:chars length:length];
 }
 
 + (id)stringWithCharactersNoCopy:(NSUniChar*)chars
-length:(NSIndex)length freeWhenDone:(bool)flag
+length:(NSUInteger)length freeWhenDone:(bool)flag
 {
 	return [[self alloc] initWithCharactersNoCopy:chars
 			length:length freeWhenDone:flag];
@@ -413,7 +413,7 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 /* Getting a string's length */
 
-- (NSIndex)length
+- (NSUInteger)length
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -421,7 +421,7 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 /* Accessing characters	*/
 
-- (NSUniChar)characterAtIndex:(NSIndex)index
+- (NSUniChar)characterAtIndex:(NSUInteger)index
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
@@ -435,8 +435,8 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 - (void)getCharacters:(NSUniChar*)buffer range:(NSRange)aRange
 {
-	NSIndex i = 0;
-	typedef NSUniChar (*UIMP)(id, SEL, NSIndex);
+	NSUInteger i = 0;
+	typedef NSUniChar (*UIMP)(id, SEL, NSUInteger);
 	UIMP imp = (UIMP)[self methodForSelector:@selector(characterAtIndex:)];
 
 	VERIFY_RANGE(aRange);
@@ -463,9 +463,9 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 - (NSString*)stringByAppendingString:(NSString*)aString
 {
-	NSIndex len = [self length];
-	NSIndex aLen = [aString length];
-	NSIndex length = len + aLen;
+	NSUInteger len = [self length];
+	NSUInteger aLen = [aString length];
+	NSUInteger length = len + aLen;
 
 	if (len == 0 && aLen == 0)
 	{
@@ -483,7 +483,7 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	return [NSString stringWithCharactersNoCopy:chars length:length freeWhenDone:true];
 }
 
-- (NSString *)stringByPaddingToLength:(size_t)len withString:(NSString *)pad startingAtIndex:(NSIndex)startIdx
+- (NSString *)stringByPaddingToLength:(size_t)len withString:(NSString *)pad startingAtIndex:(NSUInteger)startIdx
 {
 	NSMutableString *outStr;
 	size_t padLength = [pad length];
@@ -559,8 +559,8 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 
 - (NSArray*)componentsSeparatedByString:(NSString*)separator
 {
-	NSIndex first = 0, last = 0;
-	NSIndex slen = [separator length];
+	NSUInteger first = 0, last = 0;
+	NSUInteger slen = [separator length];
 	NSMutableArray* components = [NSMutableArray array];
 
 	while((first = [self indexOfString:separator fromIndex:last])
@@ -597,14 +597,14 @@ length:(NSIndex)length freeWhenDone:(bool)flag
 	return [NSString stringWithCharactersNoCopy:buf length:aRange.length freeWhenDone:true];
 }
 
-- (NSString*)substringFromIndex:(NSIndex)index
+- (NSString*)substringFromIndex:(NSUInteger)index
 {
 	NSRange range = NSMakeRange(index, [self length] - index);
 
 	return [self substringWithRange:range];
 }
 
-- (NSString*)substringToIndex:(NSIndex)index
+- (NSString*)substringToIndex:(NSUInteger)index
 {
 	NSRange range = {0, index};
 
@@ -642,9 +642,9 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 - (NSRange)rangeOfCharacterFromSet:(NSCharacterSet*)aSet
 	options:(NSStringCompareOptions)mask range:(NSRange)aRange
 {
-	NSIndex i = 0;
-	NSIndex begin;
-	NSIndex end;
+	NSUInteger i = 0;
+	NSUInteger begin;
+	NSUInteger end;
 	int delta;
 	SEL characterIsMemberSel = @selector(characterIsMember:);
 	IMP imp = [aSet methodForSelector:characterIsMemberSel];
@@ -720,7 +720,7 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 
 	VERIFY_RANGE(aRange);
 
-	NSIndex a = [aString length];
+	NSUInteger a = [aString length];
 
 	if (!a || aRange.length < a)
 	{
@@ -773,7 +773,7 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 	return range;
 }
 
-- (NSIndex)indexOfString:(NSString*)substring
+- (NSUInteger)indexOfString:(NSString*)substring
 {
 	NSRange range = NSMakeRange(0, [self length]);
 
@@ -781,7 +781,7 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 	return range.length ? range.location : NSNotFound;
 }
 
-- (NSIndex)indexOfString:(NSString*)substring fromIndex:(NSIndex)index
+- (NSUInteger)indexOfString:(NSString*)substring fromIndex:(NSUInteger)index
 {
 	NSRange range = NSMakeRange(index, [self length]-index);
 
@@ -789,7 +789,7 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 	return range.length ? range.location : NSNotFound;
 }
 
-- (NSIndex)indexOfString:(NSString*)substring range:(NSRange)range
+- (NSUInteger)indexOfString:(NSString*)substring range:(NSRange)range
 {
 	range = [self rangeOfString:substring options:0 range:range];
 	return range.length ? range.location : NSNotFound;
@@ -797,16 +797,16 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 
 - (NSRange) lineRangeForRange:(NSRange)inRange
 {
-	NSIndex start;
-	NSIndex end;
+	NSUInteger start;
+	NSUInteger end;
 	[self getLineStart:&start end:&end contentsEnd:NULL forRange:inRange];
 	return NSMakeRange(start, end - start);
 }
 
 - (NSRange) paragraphRangeForRange:(NSRange)inRange
 {
-	NSIndex start;
-	NSIndex end;
+	NSUInteger start;
+	NSUInteger end;
 	[self getParagraphStart:&start end:&end contentsEnd:NULL forRange:inRange];
 	return NSMakeRange(start, end - start);
 }
@@ -894,8 +894,8 @@ options:(NSStringCompareOptions)mask range:(NSRange)aRange
 
 - (bool)hasPrefix:(NSString*)aString
 {
-	NSIndex mLen = [self length];
-	NSIndex aLen = [aString length];
+	NSUInteger mLen = [self length];
+	NSUInteger aLen = [aString length];
 	NSRange range = {0, aLen};
 
 	if (aLen > mLen)
@@ -908,8 +908,8 @@ options:(NSStringCompareOptions)mask range:(NSRange)aRange
 
 - (bool)hasSuffix:(NSString*)aString
 {
-	NSIndex mLen = [self length];
-	NSIndex aLen = [aString length];
+	NSUInteger mLen = [self length];
+	NSUInteger aLen = [aString length];
 	NSRange range = {mLen-aLen, aLen};
 
 	if (aLen > mLen)
@@ -951,7 +951,7 @@ options:(NSStringCompareOptions)mask range:(NSRange)aRange
 - (NSHashCode)hash
 {
 	NSHashCode hash = 0, hash2;
-	NSIndex i, n = [self length];
+	NSUInteger i, n = [self length];
 
 	for(i = 0; i < n; i++)
 	{
@@ -974,9 +974,9 @@ options:(NSStringCompareOptions)mask range:(NSRange)aRange
 {
 	// ENCODINGS - this code applies to the system's default encoding
 	NSRange range = {0, 0};
-	NSIndex mLen;
-	NSIndex aLen;
-	NSIndex i;
+	NSUInteger mLen;
+	NSUInteger aLen;
+	NSUInteger i;
 
 	mLen = [self length];
 	aLen = [aString length];
@@ -1001,7 +1001,7 @@ options:(NSStringCompareOptions)mask range:(NSRange)aRange
 /* Changing case */
 static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t, const UChar *, int32_t, const char *, UErrorCode *))
 {
-	NSIndex length = [self length];
+	NSUInteger length = [self length];
 	UErrorCode ec = U_ZERO_ERROR;
 	NSUniChar* buf = malloc(sizeof(NSUniChar) * (length + 1));
 	[self getCharacters:buf range:NSMakeRange(0,length)];
@@ -1017,7 +1017,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 {
 	// UNICODE
 	// ENCODINGS - this code applies to the system's default encoding
-	NSIndex length = [self length];
+	NSUInteger length = [self length];
 	UErrorCode ec = U_ZERO_ERROR;
 	NSUniChar* buf = malloc(sizeof(NSUniChar) * (length + 1));
 	[self getCharacters:buf range:NSMakeRange(0,length)];
@@ -1079,7 +1079,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	return [[[NSData alloc] initWithBytesNoCopy:utf8Str length:len+1 freeWhenDone:true] bytes];
 }
 
-- (bool)getCString:(char *)buffer maxLength:(NSIndex)maxLength encoding:(NSStringEncoding)enc
+- (bool)getCString:(char *)buffer maxLength:(NSUInteger)maxLength encoding:(NSStringEncoding)enc
 {
 	NSRange len = {0, [self length]};
 	bool result = [self getBytes:buffer maxLength:maxLength-1 usedLength:NULL encoding:enc
@@ -1088,15 +1088,15 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	return result;
 }
 
-- (bool)getBytes:(void*)buffer maxLength:(NSIndex)maxLength
-	usedLength:(NSIndex*)used
+- (bool)getBytes:(void*)buffer maxLength:(NSUInteger)maxLength
+	usedLength:(NSUInteger*)used
 	encoding:(NSStringEncoding)encoding
 	options:(NSStringEncodingConversionOptions)options
 	range:(NSRange)fromRange
 	remainingRange:(NSRange*)remainingRange
 {
-	NSIndex toMove = (maxLength < fromRange.length)? maxLength : fromRange.length;
-	NSIndex cLength = [self length];
+	NSUInteger toMove = (maxLength < fromRange.length)? maxLength : fromRange.length;
+	NSUInteger cLength = [self length];
 	UErrorCode err;
 	UConverter *conv;
 	char *target = buffer;
@@ -1134,7 +1134,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	if (target < targetEnd)
 		*target = 0;
 	if (used != NULL)
-		*used = (NSIndex)(target - (char *)buffer);
+		*used = (NSUInteger)(target - (char *)buffer);
 	ucnv_close(conv);
 	return true;
 }
@@ -1268,7 +1268,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 {
 	size_t maxLen = [self maximumLengthOfBytesUsingEncoding:enc];
 	char *buffer = malloc(maxLen);
-	NSIndex usedLen = 0;
+	NSUInteger usedLen = 0;
 	NSData *d = nil;
 	if ([self getBytes:buffer maxLength:maxLen usedLength:&usedLen encoding:enc
 		options:(flag?NSStringEncodingConversionAllowLossy:0)
@@ -1376,8 +1376,8 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 
 - (NSString *) _composedStringUsingNormalizationMode:(UNormalizationMode)mode
 {
-	NSIndex len = [self length];
-	NSIndex outLen;
+	NSUInteger len = [self length];
+	NSUInteger outLen;
 	UChar *inChars = malloc(len * sizeof(UChar));
 	UChar *outChars;
 	UErrorCode ec = U_ZERO_ERROR;
@@ -1504,7 +1504,7 @@ static inline int hexval(char digit)
 	return nil;
 }
 
-- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSIndex)idx
+- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSUInteger)idx
 {
 	TODO; // -[NSString rangeOfComposedCharacterSequenceAtIndex:];
 	[self notImplemented:_cmd];
@@ -1534,12 +1534,12 @@ static inline int hexval(char digit)
 	return [self compare:other options:NSCaseInsensitiveSearch range:NSMakeRange(0, [self length]) locale:[NSLocale currentLocale]];
 }
 
-- (void) getLineStart:(NSIndex *)startIndex end:(NSIndex *)lineEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange
+- (void) getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEnd forRange:(NSRange)aRange
 {
 	[self notImplemented:_cmd];
 }
 
-- (void) getParagraphStart:(NSIndex *)startIndex end:(NSIndex *)parEndIndex contentsEnd:(NSIndex *)contentsEnd forRange:(NSRange)aRange
+- (void) getParagraphStart:(NSUInteger *)startIndex end:(NSUInteger *)parEndIndex contentsEnd:(NSUInteger *)contentsEnd forRange:(NSRange)aRange
 {
 	[self notImplemented:_cmd];
 }
@@ -1751,27 +1751,27 @@ static NSTemporaryString *zoneStrings = nil;
 	return str;
 }
 
-- (id) initWithBytes:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytes:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)enc
 {
 	return (id)[[NSCoreString alloc] initWithBytes:bytes length:length encoding:enc copy:true
 		freeWhenDone:false];
 }
 
-- (id) initWithBytesNoCopy:(const void *)bytes length:(NSIndex)length
+- (id) initWithBytesNoCopy:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)encoding freeWhenDone:(bool)flag
 {
 	return (id)[[NSCoreString alloc] initWithBytesNoCopy:bytes length:length
 		encoding:encoding freeWhenDone:flag];
 }
 
-- (id) initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length
+- (id) initWithCharacters:(const NSUniChar*)chars length:(NSUInteger)length
 {
 	return (id)[[NSCoreString alloc] initWithCharacters:chars length:length];
 }
 
 - (id) initWithCharactersNoCopy:(const NSUniChar*)chars
-length:(NSIndex)length freeWhenDone:(bool)flag
+length:(NSUInteger)length freeWhenDone:(bool)flag
 {
 	// UNICODE
 	return (id)[[NSCoreString alloc] initWithCharactersNoCopy:chars length:length

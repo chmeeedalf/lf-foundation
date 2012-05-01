@@ -348,7 +348,7 @@ static void DecodeFromDBus(DBusMessageIter *iter, const char *type, void *data)
 			break;
 		case _C_ARY_B:
 			{
-				NSIndex i;
+				NSUInteger i;
 				type++;
 				i = strtol(type, NULL, 10);
 				dbus_message_iter_append_fixed_array(&iter, dbType, address, i);

@@ -85,7 +85,7 @@
 	return self;
 }
 
-- (NSIndex)count
+- (NSUInteger)count
 {
 	return items.size();
 }

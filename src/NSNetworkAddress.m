@@ -190,7 +190,7 @@ static bool parseIPv6Address(NSString *strAddr, uint8_t *output)
 		else
 		{
 			uint16_t val;
-			NSIndex len = [str length];
+			NSUInteger len = [str length];
 			NSUniChar chars[len + 1];
 			[str getCharacters:chars range:NSMakeRange(0, len)];
 			chars[len] = 0;

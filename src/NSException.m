@@ -79,7 +79,7 @@ userInfo:(NSDictionary*)_userInfo
 {
 	NSInteger retaddr;
 	NSArray *callstack;
-	NSIndex i = 0;
+	NSUInteger i = 0;
 
 	self.name = _name;
 	self.reason = _reason;

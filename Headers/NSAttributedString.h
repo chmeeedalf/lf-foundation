@@ -45,10 +45,10 @@ typedef NSUInteger NSAttributedStringEnumerationOptions;
 - (NSString *) string;
 - (size_t) length;
 
-- (NSDictionary *) attributesAtIndex:(NSIndex)idx effectiveRange:(NSRange *)range;
-- (NSDictionary *) attributesAtIndex:(NSIndex)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange;
-- (id) attribute:(NSString *)attrib atIndex:(NSIndex)idx effectiveRange:(NSRange *)range;
-- (id) attribute:(NSString *)attrib atIndex:(NSIndex)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange;
+- (NSDictionary *) attributesAtIndex:(NSUInteger)idx effectiveRange:(NSRange *)range;
+- (NSDictionary *) attributesAtIndex:(NSUInteger)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange;
+- (id) attribute:(NSString *)attrib atIndex:(NSUInteger)idx effectiveRange:(NSRange *)range;
+- (id) attribute:(NSString *)attrib atIndex:(NSUInteger)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange;
 
 - (NSAttributedString *) attributedSubstringFromRange:(NSRange)range;
 - (bool) isEqualToAttributedString:(NSAttributedString *)otherString;
@@ -73,7 +73,7 @@ typedef NSUInteger NSAttributedStringEnumerationOptions;
 - (void) addAttribute:(NSString *)attribs value:(id)val range:(NSRange)r;
 - (void) removeAttribute:(NSString *)attrib range:(NSRange)r;
 - (void) appendAttributedString:(NSAttributedString *)attribString;
-- (void) insertAttributedString:(NSAttributedString *)str atIndex:(NSIndex)idx;
+- (void) insertAttributedString:(NSAttributedString *)str atIndex:(NSUInteger)idx;
 
 - (void) beginEditing;
 - (void) endEditing;

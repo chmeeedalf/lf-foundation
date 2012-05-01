@@ -83,8 +83,8 @@ enum {
 /* initWith* methods from NSString */
 
 - (id)init;
-- (id)initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
-- (id)initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
+- (id)initWithCharacters:(const NSUniChar*)chars length:(NSUInteger)length;
+- (id)initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSUInteger)length 
 	freeWhenDone:(bool)flag;
 - (id)initWithString:(NSString*)aString;
 - (id)initWithFormat:(NSString*)format, ...;
@@ -108,15 +108,15 @@ enum {
  */
 @interface NSCoreString : NSString
 
-- (id)initWithCharacters:(const NSUniChar*)chars length:(NSIndex)length;
-- (id)initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSIndex)length 
+- (id)initWithCharacters:(const NSUniChar*)chars length:(NSUInteger)length;
+- (id)initWithCharactersNoCopy:(const NSUniChar*)chars length:(NSUInteger)length 
 	freeWhenDone:(bool)flag;
 - (id)initWithCString:(const char*)byteString;
-- (id)initWithCString:(const char*)byteString length:(NSIndex)length;
-- (id)initWithCString:(const char*)byteString length:(NSIndex)length
+- (id)initWithCString:(const char*)byteString length:(NSUInteger)length;
+- (id)initWithCString:(const char*)byteString length:(NSUInteger)length
 	copy:(bool)copy;
 - (id)initWithCStringNoCopy:(const char*)byteString freeWhenDone:(bool)flag;
-- (id)initWithCStringNoCopy:(const char*)byteString length:(NSIndex)length 
+- (id)initWithCStringNoCopy:(const char*)byteString length:(NSUInteger)length 
 	freeWhenDone:(bool)flag;
 - (id)initWithString:(NSString*)aString;
 - (id)initWithData:(NSData*)data encoding:(NSStringEncoding)encoding;

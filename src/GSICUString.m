@@ -311,11 +311,11 @@ UText* UTextInitWithNSString(UText *txt, NSString *str)
 	memcpy(&txt, &t, sizeof(t));
 	return self;
 }
-- (NSIndex)length
+- (NSUInteger)length
 {
 	return utext_nativeLength(&txt);
 }
-- (unichar)characterAtIndex: (NSIndex)idx
+- (unichar)characterAtIndex: (NSUInteger)idx
 {
 	unichar c;
 	[self getCharacters: &c range: NSMakeRange(idx, 1)];
@@ -345,11 +345,11 @@ UText* UTextInitWithNSString(UText *txt, NSString *str)
 	memcpy(&txt, &t, sizeof(t));
 	return self;
 }
-- (NSIndex)length
+- (NSUInteger)length
 {
 	return utext_nativeLength(&txt);
 }
-- (unichar)characterAtIndex: (NSIndex)idx
+- (unichar)characterAtIndex: (NSUInteger)idx
 {
 	unichar c;
 	[self getCharacters: &c range: NSMakeRange(idx, 1)];

@@ -156,7 +156,7 @@ enum
  * @brief Returns the number of objects currently in the array.
  * @return Returns the number of objects currently in the array.
  */
--(NSIndex)count;
+-(NSUInteger)count;
 
 /*!
  */
@@ -207,7 +207,7 @@ enum
  * @return Returns the index the object occurs at.
  * @details This method uses isEqual: to compare objects.
  */
--(NSIndex)indexOfObject:(id)anObject;
+-(NSUInteger)indexOfObject:(id)anObject;
 
 /*!
  * @brief Returns the index an object occurs at.
@@ -216,7 +216,7 @@ enum
  * @return Returns the index the object occurs at.
  * @details This method uses isEqual: to compare objects.
  */
--(NSIndex)indexOfObject:(id)anObject inRange:(NSRange)range;
+-(NSUInteger)indexOfObject:(id)anObject inRange:(NSRange)range;
 
 /*!
  * @brief Returns the index of an object identical to the passed object.
@@ -224,7 +224,7 @@ enum
  * @return Returns the index of the object identical to the passed object, or NotFound.
  * @details This method checks last to first, and compares id's.
  */
--(NSIndex)indexOfObjectIdenticalTo:(id)anObject;
+-(NSUInteger)indexOfObjectIdenticalTo:(id)anObject;
 
 /*!
  * @brief Returns the index of an object identical to the passed object.
@@ -233,14 +233,14 @@ enum
  * @return Returns the index of the object identical to the passed object, or NotFound.
  * @details This method checks last to first, and compares id's.
  */
--(NSIndex)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)range;
+-(NSUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)range;
 
 #if __has_feature(blocks)
-- (NSIndex) indexOfObjectPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
+- (NSUInteger) indexOfObjectPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
 
-- (NSIndex) indexOfObjectWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
+- (NSUInteger) indexOfObjectWithOptions:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
 
-- (NSIndex) indexOfObjectAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
+- (NSUInteger) indexOfObjectAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
 
 - (NSIndexSet *) indexesOfObjectsPassingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
 
@@ -249,7 +249,7 @@ enum
 - (NSIndexSet *) indexesOfObjectsAtIndexes:(NSIndexSet *)indexSet options:(NSEnumerationOptions)opts passingTest:(bool (^)(id obj, NSUInteger idx, bool *stop))predicate;
 #endif
 
-- (NSIndex) indexOfObject:(id)obj inSortedRange:(NSRange)r options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp;
+- (NSUInteger) indexOfObject:(id)obj inSortedRange:(NSRange)r options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp;
 
 // Sending messages to elements
 
@@ -357,7 +357,7 @@ enum
   @brief Return the object at the given index.
    This is short-hand for objectAtIndex:
  */
--(id):(NSIndex)idx;
+-(id):(NSUInteger)idx;
 
 @end
 
@@ -511,7 +511,7 @@ enum
 /*!
  * \brief Exchange two objects in the receiver.
  */
--(void)exchangeObjectAtIndex:(NSIndex)idx1 withObjectAtIndex:(NSIndex)idx2;
+-(void)exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2;
 /*!
  * @brief Sorts the array using the given function.
  * @param comparator Comparing function to sort with.

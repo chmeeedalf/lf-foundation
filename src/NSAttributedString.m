@@ -76,12 +76,12 @@
 }
 
 
-- (NSDictionary *)attributesAtIndex:(NSIndex)idx effectiveRange:(NSRange *)range
+- (NSDictionary *)attributesAtIndex:(NSUInteger)idx effectiveRange:(NSRange *)range
 {
 	return [self subclassResponsibility:_cmd];
 }
 
-- (NSDictionary *)attributesAtIndex:(NSIndex)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange
+- (NSDictionary *)attributesAtIndex:(NSUInteger)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange
 {
 	NSDictionary *attrs, *tmpDict;
 	NSRange attrRange;
@@ -166,7 +166,7 @@
 	return str;
 }
 
-- (id) attribute:(NSString *)attrib atIndex:(NSIndex)idx effectiveRange:(NSRange *)range
+- (id) attribute:(NSString *)attrib atIndex:(NSUInteger)idx effectiveRange:(NSRange *)range
 {
 	NSRange tempRange;
 	NSDictionary *attributes = [self attributesAtIndex:idx effectiveRange:&tempRange];
@@ -181,7 +181,7 @@
 	return nil;
 }
 
-- (id) attribute:(NSString *)attrib atIndex:(NSIndex)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange
+- (id) attribute:(NSString *)attrib atIndex:(NSUInteger)idx longestEffectiveRange:(NSRange *)range inRange:(NSRange)inRange
 {
 	if (NSMaxRange(*range) > [self length])
 		@throw [NSRangeException exceptionWithReason:@"-[NSAttributedString attribute:atIndex:longestEffectiveRange:inRange:] invalid range" userInfo:nil];
@@ -500,7 +500,7 @@
 	[self replaceCharactersInRange:NSMakeRange([[self string] length],0) withAttributedString:attribString];
 }
 
-- (void) insertAttributedString:(NSAttributedString *)str atIndex:(NSIndex)idx
+- (void) insertAttributedString:(NSAttributedString *)str atIndex:(NSUInteger)idx
 {
 	[self replaceCharactersInRange:NSMakeRange(idx,0) withAttributedString:str];
 }

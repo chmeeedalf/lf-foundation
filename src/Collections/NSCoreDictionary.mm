@@ -85,7 +85,7 @@
 	return nil;
 }
 
-- (NSIndex)count
+- (NSUInteger)count
 {
 	return table.size();
 }
