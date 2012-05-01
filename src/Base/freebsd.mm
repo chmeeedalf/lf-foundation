@@ -112,9 +112,6 @@ int64_t SystemTime(void)
  * Keys of length 1 become prefixed '-', if value is Null.
  * Keys with value of Null are conveyed as-is.
  */
-/* TODO: Handle environment -- translate from CamelCase to
- * UPPERCASE_AND_UNDERSCORE, and back again in main()
- */
 bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *targetUUID)
 {
 	std::vector<std::string> argv;
