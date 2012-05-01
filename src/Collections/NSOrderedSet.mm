@@ -31,6 +31,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#include <dispatch/dispatch.h>
+
 #include <vector>
 
 #import <Foundation/NSOrderedSet.h>
@@ -42,6 +44,14 @@
 #import <Foundation/NSString.h>
 
 @class NSArray, NSEnumerator, NSIndexSet, NSString, NSLocale, NSSet;
+
+@interface _NSOrderedSetArrayFacade	:	NSArray
+- (id) initWithOrderedSet:(NSOrderedSet *)set;
+@end
+
+@interface _NSOrderedSetSetFacade	:	NSSet
+- (id) initWithOrderedSet:(NSOrderedSet *)set;
+@end
 
 @implementation NSOrderedSet
 
@@ -213,7 +223,33 @@
 
 - (void) enumerateObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (^)(id, NSUInteger, bool *))block
 {
-	TODO; // -[NSOrderedSet enumerateObjectsWithOptions:usingBlock:];
+	dispatch_queue_t queue;
+
+	if (opts & NSEnumerationConcurrent)
+	{
+		queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+	}
+	else
+	{
+		queue = dispatch_queue_create(NULL, NULL);
+	}
+	NSUInteger count = [self count];
+	for (NSUInteger i = 0; i < count; i++)
+	{
+		__block bool stop = false;
+		dispatch_async(queue, ^{
+				if (stop)
+					return;
+				block([self objectAtIndex:i], i, &stop);});
+		if (stop)
+		{
+			break;
+		}
+	}
+	if (!(opts & NSEnumerationConcurrent))
+	{
+		dispatch_release(queue);
+	}
 }
 
 - (id) firstObject
@@ -388,20 +424,36 @@
 
 - (NSEnumerator *) objectEnumerator
 {
-	TODO; // -[NSOrderedSet objectEnumerator]
-	return nil;
+	__block NSUInteger idx = 0;
+	NSUInteger count = [self count];
+
+	return [[NSBlockEnumerator alloc] initWithBlock:^{
+		if (idx == count)
+			return nil;
+		return [self objectAtIndex:idx++];
+	}];
 }
 
 - (NSEnumerator *) reverseObjectEnumerator
 {
-	TODO; // -[NSOrderedSet reverseObjectEnumerator]
-	return nil;
+	__block NSUInteger idx = [self count];
+
+	return [[NSBlockEnumerator alloc] initWithBlock:^{
+		if (idx == 0)
+			return nil;
+		return [self objectAtIndex:--idx];
+	}];
 }
 
 - (NSOrderedSet *) reversedOrderedSet
 {
-	TODO; // -[NSOrderedSet reversedOrderedSet]
-	return nil;
+	std::vector<id> objects;
+
+	for (id obj in [self reverseObjectEnumerator])
+	{
+		objects.push_back(obj);
+	}
+	return [[NSOrderedSet alloc] initWithObjects:&objects[0] count:objects.size()];
 }
 
 - (void) getObjects:(id[])objs range:(NSRange)range
@@ -536,14 +588,12 @@
 
 - (NSArray *) array
 {
-	TODO; // -[NSOrderedSet array]
-	return nil;
+	return [[_NSOrderedSetArrayFacade alloc] initWithOrderedSet:self];
 }
 
 - (NSSet *) set
 {
-	TODO; // -[NSOrderedSet set]
-	return nil;
+	return [[_NSOrderedSetSetFacade alloc] initWithOrderedSet:self];
 }
 
 // Adopted protocols
@@ -776,6 +826,16 @@
 - (void) sortRange:(NSRange)range options:(NSSortOptions)opts usingComparator:(NSComparator)cmp
 {
 	TODO; // -[NSMutableOrderedSet sortRange:options:usingComparator:]
+#if 0
+	Parallel is only necessary after a threshold;
+	
+	Break it into multiple blocks, and use a mergesort to merge them all
+		together.
+
+		We can use std::merge() to perform the mergesort.
+		Perhaps pull the pairs out into a vector of pair<id,index>, sort based
+		on the id.
+#endif
 }
 
 
@@ -827,5 +887,62 @@
 	}];
 }
 
+
+@end
+
+@implementation _NSOrderedSetArrayFacade
+{
+	NSOrderedSet *realSet;
+}
+
+- (id) initWithOrderedSet:(NSOrderedSet *)set
+{
+	realSet = set;
+	return self;
+}
+
+- (NSUInteger) count
+{
+	return [realSet count];
+}
+
+- (id) objectAtIndex:(NSUInteger)index
+{
+	return [realSet objectAtIndex:index];
+}
+@end
+
+@implementation _NSOrderedSetSetFacade
+{
+	NSOrderedSet *realSet;
+}
+
+- (id) initWithOrderedSet:(NSOrderedSet *)set
+{
+	realSet = set;
+	return self;
+}
+
+- (NSUInteger) count
+{
+	return [realSet count];
+}
+
+- (id) member:(id)obj
+{
+	NSUInteger idx = [realSet indexOfObject:obj];
+
+	if (idx != NSNotFound)
+	{
+		return [realSet objectAtIndex:idx];
+	}
+
+	return nil;
+}
+
+- (id) objectEnumerator
+{
+	return [realSet objectEnumerator];
+}
 
 @end
