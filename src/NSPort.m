@@ -95,12 +95,13 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 - (void) encodeWithCoder:(NSCoder *)coder
 {
 	NSParameterAssert([coder isKindOfClass:[NSPortCoder class]]);
+	[(NSPortCoder *)coder encodePortObject:self];
 }
 
 - (id) initWithCoder:(NSCoder *)coder
 {
 	NSParameterAssert([coder isKindOfClass:[NSPortCoder class]]);
-	return self;
+	return [(NSPortCoder *)coder decodePortObject];
 }
 
 - (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
