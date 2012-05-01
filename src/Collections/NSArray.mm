@@ -362,14 +362,26 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSEnumerator*)objectEnumerator
 {
-	return [[_ArrayEnumerator alloc]
-			initWithArray:self reverse:false];
+	__block NSUInteger idx = 0;
+	__block NSUInteger count = [self count];
+	return [[NSBlockEnumerator alloc]
+			initWithBlock:^{
+				if (idx == count)
+					return nil;
+				return [self objectAtIndex:idx++];
+			}];
 }
 
 - (NSEnumerator*)reverseObjectEnumerator
 {
-	return [[_ArrayEnumerator alloc]
-			initWithArray:self reverse:true];
+	__block NSUInteger idx = [self count];
+
+	return [[NSBlockEnumerator alloc]
+			initWithBlock:^{
+				if (idx == 0)
+					return nil;
+				return [self objectAtIndex:--idx];
+			}];
 }
 
 /* Sending Messages to Elements */
@@ -1234,55 +1246,6 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 	{
 		[self removeObjectAtIndex:i];
 	}
-}
-
-@end
-
-/*
- * ArrayEnumerator class
- */
-
-@implementation _ArrayEnumerator
-
-- (id)initWithArray:(NSArray*)anArray reverse:(bool)isReverse
-{
-	unsigned count = [anArray count];
-
-	reverse = isReverse;
-	array = anArray;
-	index = (reverse)
-		? (count ? count - 1 : NSNotFound)
-		: (count ? 0 : NSNotFound);
-	return self;
-}
-
-- (id)nextObject
-{
-	id object;
-
-	NSAssert(array, @"Invalid NSArray enumerator");
-	if (index == NSNotFound)
-		return nil;
-
-	object = [array objectAtIndex:index];
-	if (reverse)
-	{
-		if (index == 0)
-		{
-			index = NSNotFound;
-		} else
-		{
-			index--;
-		}
-	}
-	else
-	{
-		index++;
-		if (index >= [array count])
-			index = NSNotFound;
-	}
-
-	return object;
 }
 
 @end

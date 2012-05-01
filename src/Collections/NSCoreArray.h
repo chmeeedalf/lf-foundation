@@ -81,19 +81,3 @@
 - (void)removeObjectsFrom:(unsigned int)index count:(unsigned int)count;
 
 @end
-
-/*
- * ArrayEnumerator class
- */
-
-@interface _ArrayEnumerator : NSEnumerator
-{
-	NSArray *array;
-	unsigned int index;
-	bool reverse;
-}
-
-- (id)initWithArray:(NSArray*)anArray reverse:(bool)isReverse;
-- (id)nextObject;
-
-@end
