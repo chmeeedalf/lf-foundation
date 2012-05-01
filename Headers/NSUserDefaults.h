@@ -34,15 +34,6 @@
 @class NSMutableSet;
 
 @interface NSUserDefaults : NSObject
-{
-	NSURL               *directoryForSaving;
-	NSString            *appDomain;
-	NSMutableDictionary *persistentDomains;
-	NSMutableDictionary *volatileDomains;
-	NSMutableArray      *searchList;
-	NSMutableSet        *domainsToRemove;
-	NSMutableSet        *dirtyDomains;
-}
 
 /* Creation of defaults */
 
