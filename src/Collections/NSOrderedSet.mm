@@ -581,8 +581,44 @@
 
 - (NSString *) descriptionWithLocale:(NSLocale *)locale indent:(NSUInteger)indent
 {
-	TODO; // -[NSOrderedSet descriptionWithLocale:indent:]
-	return nil;
+	unsigned int indent1 = indent + 4;
+	NSString* indentation = [NSString stringWithFormat:
+		[NSString stringWithFormat:@"%%%dc", indent1], ' '];
+	unsigned int count = [self count];
+
+	if(count)
+	{
+		id stringRepresentation;
+		NSMutableString* description = [NSMutableString stringWithString:@"(\n"];
+		NSMutableArray *descrArray = [NSArray array];
+
+		for (id object in self)
+		{
+			if ([object respondsToSelector:
+					@selector(descriptionWithLocale:indent:)])
+			{
+				stringRepresentation = [object descriptionWithLocale:locale
+					indent:indent1];
+			}
+			else if ([object
+					respondsToSelector:@selector(descriptionWithLocale:)])
+			{
+				stringRepresentation = [object descriptionWithLocale:locale];
+			}
+			else
+			{
+				stringRepresentation = [object description];
+			}
+			[descrArray addObject:[indentation stringByAppendingString:stringRepresentation]];
+		}
+		[description appendString:[descrArray componentsJoinedByString:@",\n"]];
+		[description appendString:@"\n"];
+		if (indent)
+			[description appendString:[NSString stringWithFormat:[NSString stringWithFormat:@"%%%dc",indent],' ']];
+		[description appendString:@")"];
+		return description;
+	}
+	return [indentation stringByAppendingString:@"()"];
 }
 
 
