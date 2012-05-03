@@ -253,11 +253,18 @@ static IMP forward2(id self, SEL _cmd)
 	return (IMP)func;
 }
 
+static pthread_key_t slot_key;
 static struct objc_slot *forward3(id self, SEL _cmd)
 {
-	static __thread struct objc_slot slot = {};
-	slot.method = forward2(self, _cmd);
-	return &slot;
+	struct objc_slot *slot;
+	pthread_getspecific(&slot_key);
+	if (slot == NULL)
+	{
+		slot = malloc(sizeof(*slot));
+		pthread_setspecific(&slot_key, slot);
+	}
+	slot->method = forward2(self, _cmd);
+	return slot;
 }
 
 @implementation NSInvocation
@@ -265,6 +272,8 @@ static struct objc_slot *forward3(id self, SEL _cmd)
 + (void) initialize
 {
 	__objc_msg_forward3 = forward3;
+	__objc_msg_forward2 = forward2;
+	pthread_key_create(&slot_key, free);
 }
 
 +(NSInvocation *)invocationWithMethodSignature:(NSMethodSignature *)sig
