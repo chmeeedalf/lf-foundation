@@ -129,7 +129,7 @@ NSConcreteNumber.m: NSConcreteNumber.m.sh
 OPTFLAGS+=-O0 -fno-inline -g3
 .endif
 
-CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fexceptions #-Wall -fno-unit-at-a-time 
+CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fblocks  -fexceptions #-Wall -fno-unit-at-a-time 
 .if ${CC} == "clang"
 CCXXFLAGS+=-Qunused-arguments
 .endif
@@ -138,7 +138,7 @@ CXXFLAGS+=-std=c++11 -stdlib=libc++
 CSTD=gnu99
 
 OBJCCXXFLAGS=-fobjc-exceptions -fobjc-abi-version=3 
-OBJCCXXFLAGS+=-fgnu-runtime -fconstant-string-class=NSConstantString -fblocks 
+OBJCCXXFLAGS+=-fgnu-runtime -fconstant-string-class=NSConstantString
 OBJCCXXFLAGS+=-fobjc-arc -fobjc-arc-exceptions -Wno-arc-performSelector-leaks 
 #OBJCCXXFLAGS+=-fcolor-diagnostics
 WARNS=3
@@ -147,4 +147,4 @@ CFLAGS+=$(CCXXFLAGS) -B/usr/local/bin/
 OBJCFLAGS=$(CFLAGS) $(OBJCCXXFLAGS)
 .include <bsd.lib.mk>
 CFLAGS+= -Wno-system-headers
-CXXFLAGS+= -Wno-system-headers
+CXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage
