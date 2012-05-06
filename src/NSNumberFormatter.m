@@ -38,7 +38,6 @@
 /*
  * Things TODO:
  * - Positive/Negative infinity (currently just deals with 'infinity')
- * - Positive/Negative formats
  */
 
 #define BUFFER_SIZE 768
@@ -69,6 +68,8 @@
 @synthesize generatesDecimalNumbers;
 @synthesize minimum = _minimum;
 @synthesize maximum = _maximum;
+@synthesize negativeFormat;
+@synthesize positiveFormat;
 
 static void _InitPrivate(NSNumberFormatter *self)
 {
@@ -290,12 +291,6 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 	return [NSNumber numberWithDouble:_GetDoubleAttribute(self, UNUM_MULTIPLIER)];
 }
 
-- (NSString *) negativeFormat
-{
-	TODO;	// negativeFormat
-	return nil;
-}
-
 - (NSString *) negativeInfinitySymbol
 {
 	return _GetSymbol(self, UNUM_INFINITY_SYMBOL);
@@ -349,12 +344,6 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 - (NSString *) plusSign
 {
 	return _GetSymbol(self, UNUM_PLUS_SIGN_SYMBOL);
-}
-
-- (NSString *) positiveFormat
-{
-	TODO;	// positiveFormat
-	return nil;
 }
 
 - (NSString *) positiveInfinitySymbol
@@ -493,11 +482,6 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 	_SetDoubleAttribute(self, UNUM_MULTIPLIER, [newMult doubleValue]);
 }
 
-- (void) setNegativeFormat:(NSString *)negForm
-{
-	TODO; //-[NSNumberFormatter setNegativeFormat:]
-}
-
 - (void) setNegativeInfinitySymbol:(NSString *)newNeg
 {
 	_SetSymbol(self, UNUM_INFINITY_SYMBOL, newNeg);
@@ -556,11 +540,6 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 - (void) setPlusSign:(NSString *)newPlus
 {
 	_SetSymbol(self, UNUM_PLUS_SIGN_SYMBOL, newPlus);
-}
-
-- (void) setPositiveFormat:(NSString *)posForm
-{
-	TODO; //-[NSNumberFormatter setPositiveFormat:]
 }
 
 - (void) setPositiveInfinitySymbol:(NSString *)newPos
@@ -687,6 +666,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 
 - (NSString *) stringFromNumber:(NSNumber *)number
 {
+	NSString *pattern;
 	UChar buffer[BUFFER_SIZE];
 	UErrorCode ec = U_ZERO_ERROR;
 	int len;
@@ -695,6 +675,24 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 	if (number == nil)
 	{
 		return [self nilSymbol];
+	}
+
+	if ([number doubleValue] >= 0)
+	{
+		pattern = [self positiveFormat];
+	}
+	else
+	{
+		pattern = [self negativeFormat];
+	}
+
+	if (pattern != nil)
+	{
+		UChar chars[[pattern length]];
+		UErrorCode ec = U_ZERO_ERROR;
+
+		[pattern getCharacters:chars range:NSMakeRange(0,[pattern length])];
+		unum_applyPattern(_unf, true, chars, sizeof(chars), NULL, &ec);
 	}
 
 	if ([self allowsFloats])
