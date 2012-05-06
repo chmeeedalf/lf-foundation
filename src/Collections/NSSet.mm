@@ -166,7 +166,8 @@ static Class CoreSetClass;
 	id object;
 	std::vector<id> objs;
 
-	for (object = firstObject; object; object = va_arg(argList,id))
+	for (object = firstObject; object;
+			object = va_arg(argList,__unsafe_unretained id))
 	{
 		objs.push_back(object);
 	}

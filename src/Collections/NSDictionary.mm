@@ -778,10 +778,11 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 	std::vector<id> keys;
 	std::vector<id> values;
 
-	for (object = firstObject; object != nil; object = va_arg(argList,id))
+	for (object = firstObject; object != nil;
+			object = va_arg(argList,__unsafe_unretained id))
 	{
 		values.push_back(object);
-		keys.push_back(va_arg(argList, id));
+		keys.push_back(va_arg(argList, __unsafe_unretained id));
 		if (*keys.rbegin() == nil)
 		{
 			@throw([NSInvalidArgumentException

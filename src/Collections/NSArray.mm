@@ -94,7 +94,7 @@ static Class CoreArrayClass;
 	std::vector<id> objects;
 
 	va_start(list, firstObj);
-	for (obj = firstObj; obj != nil; obj = va_arg(list,id))
+	for (obj = firstObj; obj != nil; obj = va_arg(list,__unsafe_unretained id))
 	{
 		objects.push_back(obj);
 	}
@@ -155,7 +155,7 @@ static Class CoreArrayClass;
 	std::vector<id> objects;
 
 	va_start(list, firstObj);
-	for (obj = firstObj; obj; obj = va_arg(list,id))
+	for (obj = firstObj; obj; obj = va_arg(list,__unsafe_unretained id))
 	{
 		objects.push_back(obj);
 	}
