@@ -24,7 +24,11 @@
    or in connection with the use or performance of this software.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #import <Foundation/NSArray.h>
+
 #import "NSCoreArray.h"
 
 #import <Foundation/NSCoder.h>
@@ -37,8 +41,8 @@
 #import <Foundation/NSRange.h>
 #import <Foundation/NSSortDescriptor.h>
 #import <Foundation/NSString.h>
-#include <stdlib.h>
-#include <string.h>
+
+#import "internal.h"
 
 /*
  * NSArray Implementation
@@ -1229,7 +1233,8 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 
 - (void) sortWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp
 {
-	TODO; // -[NSMutableArray sortWithOptions:usingComparator:]
+	NSSortRangeUsingOptionsAndComparator(self, NSMakeRange(0,[self count]),
+				opts, cmp);
 }
 
 - (void) exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2
