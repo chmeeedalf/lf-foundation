@@ -33,6 +33,8 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#include <dispatch/dispatch.h>
+
 #import "internal.h"
 #import <debug.h>
 #import <Foundation/NSTask.h>
@@ -70,31 +72,10 @@ NSString *NSTaskDidExitNotification = @"NSTaskDidExitNotification";
 	id			stdOut;
 	id			stdErr;
 	pid_t		processID;	/*!< Process ID of the new task. */
+	dispatch_source_t taskDispatch;
 }
 
 @synthesize terminationHandler;
-
-static std::unordered_map<pid_t, NSTask *> runningTasks;
-
-static void handle_sigchld(int sig, siginfo_t *info, void *data)
-{
-	wait4(info->si_pid, NULL, WNOHANG, NULL);
-	[runningTasks[info->si_pid] _handleTaskExitWithErrorCode:info->si_status
-		normalExit:(info->si_code == CLD_EXITED)];
-}
-
-+ (void) initialize
-{
-	static bool initialized = false;
-	if (!initialized)
-	{
-		struct sigaction sa = {};
-
-		sa.sa_sigaction = handle_sigchld;
-		sa.sa_flags = SA_NOCLDSTOP | SA_NOCLDWAIT | SA_SIGINFO;
-		sigaction(SIGCHLD, &sa, NULL);
-	}
-}
 
 + (id) spawnedTaskWithURL:(NSURL *)target object:(id)arg
 		 environment:(NSDictionary *)env
@@ -133,7 +114,14 @@ static void handle_sigchld(int sig, siginfo_t *info, void *data)
 	if (spawnProcessWithURL(taskURL, args, taskEnv, &processID))
 	{
 		isRunning = true;
-		runningTasks[processID] = self;
+		taskDispatch = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC,
+				processID, DISPATCH_PROC_EXIT, dispatch_get_main_queue());
+		dispatch_source_set_event_handler(taskDispatch, ^{
+				int status;
+				waitpid(processID, &status, WNOHANG);
+				[self _handleTaskExitWithErrorCode:WEXITSTATUS(status)
+				normalExit:WIFEXITED(status)];
+				});
 	}
 }
 
