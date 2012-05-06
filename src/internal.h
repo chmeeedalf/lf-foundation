@@ -218,6 +218,12 @@ static inline bool object_isInstance(id obj)
 }
 #endif
 
+// collToSort must respond to the following
+// -objectAtIndex:
+// -exchangeObjectAtIndex:withObjectAtIndex:
+void NSSortRangeUsingOptionsAndComparator(id collToSort, NSRange range,
+		NSSortOptions opts, NSComparator cmp);
+
 // 1MB stacks should be plenty big
 #define THR_STACK_SIZE	(1024 * 1024)
 

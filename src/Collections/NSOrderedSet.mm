@@ -33,13 +33,16 @@
 
 #include <dispatch/dispatch.h>
 
+#include <numeric>
 #include <vector>
 
 #import <Foundation/NSOrderedSet.h>
 
+#import <Foundation/NSCoder.h>
 #import <Foundation/NSIndexSet.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSString.h>
 
@@ -84,7 +87,7 @@
 	objects.push_back(obj);
 	va_start(args, obj);
 
-	for (o = va_arg(args, id); o != nil;)
+	for (o = va_arg(args, __unsafe_unretained id); o != nil;)
 	{
 		objects.push_back(o);
 	}
@@ -157,7 +160,7 @@
 	objects.push_back(obj);
 	va_start(args, obj);
 
-	for (o = va_arg(args, id); o != nil;)
+	for (o = va_arg(args, __unsafe_unretained id); o != nil;)
 	{
 		objects.push_back(o);
 	}
@@ -636,13 +639,14 @@
 // NSCoding
 - (id)initWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSOrderedSet initWithCoder:]
-	return nil;
+	NSArray *arrayRep = [coder decodeObject];
+
+	return [self initWithArray:arrayRep];
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSOrderedSet encodeWithCoder:];
+	[coder encodeObject:[self array]];
 }
 
 // NSCopying
@@ -824,7 +828,12 @@
 
 - (void) moveObjectsAtIndexes:(NSIndexSet *)idxs toIndex:(NSUInteger)newIdx
 {
-	TODO; // -[NSMutableOrderedSet moveObjectsAtIndexes:toIndex:]
+	NSArray *objects = [self objectsAtIndexes:idxs];
+
+	[self removeObjectsAtIndexes:idxs];
+	newIdx -= [idxs countOfIndexesInRange:NSMakeRange(0,newIdx)];
+	[self insertObjects:objects
+		atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(newIdx, 0)]];
 }
 
 - (void) exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2
@@ -861,17 +870,7 @@
 
 - (void) sortRange:(NSRange)range options:(NSSortOptions)opts usingComparator:(NSComparator)cmp
 {
-	TODO; // -[NSMutableOrderedSet sortRange:options:usingComparator:]
-#if 0
-	Parallel is only necessary after a threshold;
-	
-	Break it into multiple blocks, and use a mergesort to merge them all
-		together.
-
-		We can use std::merge() to perform the mergesort.
-		Perhaps pull the pairs out into a vector of pair<id,index>, sort based
-		on the id.
-#endif
+	NSSortRangeUsingOptionsAndComparator(self, range, opts, cmp);
 }
 
 

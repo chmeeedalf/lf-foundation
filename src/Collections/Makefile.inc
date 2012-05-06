@@ -17,4 +17,5 @@ SRCS+= NSArray.mm \
 	   NSMapTable.mm \
 	   NSIndexSet.mm \
 	   NSCountedSet.mm \
-	   NSOrderedSet.mm
+	   NSOrderedSet.mm \
+	   NSSortFunctions.mm
