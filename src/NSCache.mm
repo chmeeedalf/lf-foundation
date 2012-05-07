@@ -138,13 +138,6 @@ typedef unordered_map<id, cached_object> table_type;
 
 - (void) _evictOldObjectsIfNeededForObjectWithCost:(NSUInteger)cost
 {
-	struct cache_sorter {
-		bool operator()(cached_object *a, cached_object *b)
-		{
-			return (a->lastAccess < b->lastAccess);
-		}
-	};
-
 	if ((currentCost + cost <= totalCostLimit) && 
 			([self countLimit] > table.size()))
 	{
@@ -157,7 +150,9 @@ typedef unordered_map<id, cached_object> table_type;
 	{
 		objs.push_back(&i.second);
 	}
-	std::sort(objs.begin(), objs.end(), cache_sorter());
+	std::sort(objs.begin(), objs.end(), [&](cached_object *a, cached_object *b){
+			return (a->lastAccess < b->lastAccess);
+			});
 
 	for (auto j : objs)
 	{
