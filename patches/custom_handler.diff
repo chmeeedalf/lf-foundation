@@ -1,0 +1,96 @@
+diff -ur ../../icu.old/source/io/unicode/ustdio.h io/unicode/ustdio.h
+--- ../../icu.old/source/io/unicode/ustdio.h	2011-05-30 22:12:32.000000000 -0400
++++ io/unicode/ustdio.h	2011-06-04 19:50:42.000000000 -0400
+@@ -945,6 +945,12 @@
+         const UChar     *patternSpecification,
+         va_list         ap);
+ 
++/* The handler can be called twice, if the precision is undefined. */
++typedef int32_t u_printf_handler_t(const void *, UChar *, int32_t);
++
++U_DRAFT void U_EXPORT2
++u_register_printf_handler(int spec,
++		u_printf_handler_t *handler);
+ #endif
+ #endif
+ 
+diff -ur ../../icu.old/source/io/uprntf_p.c io/uprntf_p.c
+--- ../../icu.old/source/io/uprntf_p.c	2011-05-30 22:12:32.000000000 -0400
++++ io/uprntf_p.c	2011-06-05 08:39:25.000000000 -0400
+@@ -944,7 +944,7 @@
+  characters 20-7F from Unicode. Using any other codepage specific
+  characters will make it very difficult to format the string on
+  non-Unicode machines */
+-static const u_printf_info g_u_printf_infos[UPRINTF_NUM_FMT_HANDLERS] = {
++static u_printf_info g_u_printf_infos[UPRINTF_NUM_FMT_HANDLERS] = {
+ /* 0x20 */
+     UFMT_EMPTY,         UFMT_EMPTY,         UFMT_EMPTY,         UFMT_EMPTY,
+     UFMT_EMPTY,         UFMT_SIMPLE_PERCENT,UFMT_EMPTY,         UFMT_EMPTY,
+@@ -1586,4 +1586,67 @@
+     return (int32_t)(alias - fmt);
+ }
+ 
++static u_printf_handler_t *g_handlers[0x7F - 0x20] = {0};
++
++static int32_t
++u_printf_custom_pointer_handler(const u_printf_stream_handler  *handler,
++                         void                           *context,
++                         ULocaleBundle                  *formatBundle,
++                         const u_printf_spec_info       *info,
++                         const ufmt_args                *args)
++{
++    int32_t len, written;
++    const void *arg = (const UChar*)(args[0].ptrValue);
++	UChar *output;
++
++	len = info->fPrecision;
++	
++	/* If buffer size is not defined, ask the handler to define it. */
++	if (len == -1) {
++		len = g_handlers[info->fSpec - 0x20](arg, NULL, 0);
++		if (len == 0)
++		{
++			len = u_strlen(gNullStr);
++		}
++	}
++
++	output = uprv_malloc(sizeof(UChar) * len);
++
++    /* allocate enough space for the buffer */
++
++    /* width = minimum # of characters to write */
++    /* precision = maximum # of characters to write */
++    len = g_handlers[info->fSpec - 0x20](arg, output, len);
++
++    if (arg == NULL) {
++        u_strcpy(output, gNullStr);
++    }
++    /* determine if the string should be padded */
++    written = handler->pad_and_justify(context, info, output, len);
++    uprv_free(output);
++
++    return written;
++}
++
++void u_register_printf_handler(int specifier, 
++		u_printf_handler_t *handler)
++{
++	/* Ignore any specifier not in the ASCII range we want. */
++	if (specifier < 0x20 || specifier > (sizeof(g_u_printf_infos)/sizeof(g_u_printf_infos[0]) + 0x20)) {
++		return;
++	}
++
++	specifier -= 0x20;
++	if (handler == NULL) {
++		g_u_printf_infos[specifier].info = 0;
++		g_u_printf_infos[specifier].handler = NULL;
++		g_handlers[specifier] = NULL;
++	}
++	else {
++		g_u_printf_infos[specifier].info = ufmt_pointer;
++		g_u_printf_infos[specifier].handler = u_printf_custom_pointer_handler;
++		g_handlers[specifier] = handler;
++	}
++}
++
+ #endif /* #if !UCONFIG_NO_FORMATTING */
