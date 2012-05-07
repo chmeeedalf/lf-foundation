@@ -87,6 +87,7 @@ typedef enum
 
 @property NSUInteger formatWidth;
 @property (copy) NSString *negativeFormat;
+@property (copy) NSString *positiveFormat;
 @property NSNumber *multiplier;
 
 @property NSString *percentSymbol;

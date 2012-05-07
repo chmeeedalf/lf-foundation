@@ -44,6 +44,11 @@ NSApplication *App = nil;
 @end
 
 @implementation NSApplication
+{
+	UUID processID;		/*!< \brief Process ID */
+	UUID parentID;		/*!< \brief Parent process ID */
+	NSMutableArray *threadList;	/*!< \brief List of registered threads in this process. */
+}
 
 + (NSApplication *)currentApplication
 {

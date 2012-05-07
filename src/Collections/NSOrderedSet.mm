@@ -36,6 +36,8 @@
 #include <numeric>
 #include <vector>
 
+#import "internal.h"
+
 #import <Foundation/NSOrderedSet.h>
 
 #import <Foundation/NSCoder.h>

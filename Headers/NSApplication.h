@@ -28,7 +28,8 @@
  * 
  */
 
-#include <types.h>
+#include <sys/types.h>
+
 #import <Foundation/primitives.h>
 #import <Foundation/NSObject.h>
 
@@ -44,11 +45,6 @@
  first, to validate access to objects.
  */
 @interface NSApplication	: NSObject
-{
-	UUID processID;		/*!< \brief Process ID */
-	UUID parentID;		/*!< \brief Parent process ID */
-	NSMutableArray *threadList;	/*!< \brief List of registered threads in this process. */
-}
 
 /*! 
  *  \brief  Returns the application object.

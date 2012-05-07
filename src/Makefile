@@ -1,23 +1,18 @@
-TOPDIR=${.CURDIR}/../../../../../
-CONTRIB= ${TOPDIR}/contrib
 DBUSFLAGS!=pkg-config --cflags dbus-1
 LIBXMLFLAGS!=pkg-config --cflags libxml-2.0
-CPPFLAGS=	-I$(PWD) -I${TOPDIR}/system/include -I/usr/local/include
+CPPFLAGS=	-I$(PWD) -I$(PWD)/../Headers -I/usr/local/include
 CPPFLAGS+= -DVERSION=\"1.0\" -DGOLD -DNO_LSDID
 CPPFLAGS+= ${DBUSFLAGS}
 CPPFLAGS+= ${LIBXMLFLAGS}
-LDADD=-L/GoldRoot/obj -L/system/lib -L/usr/local/lib -lAlepha -lexecinfo -ldbus-1 -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2 #-lboost_serialization
-LIB=	System
+LDADD=-L/usr/local/lib -lAlepha -lexecinfo -ldbus-1 -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2 #-lboost_serialization
+LIB=	Foundation
 SHLIB_MAJOR= 1
 SHLIB_MINOR= 0
 NO_MAN=true
-LIBDIR=	/system/lib/libs
 PICFLAG=-fPIC
 
 CLEANFILES=	ConcreteNumber.m
 # Only included for now
-
-.include "${TOPDIR}/contrib/Rules.mk"
 
 CXX=clang++
 CC=clang

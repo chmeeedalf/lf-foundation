@@ -35,7 +35,7 @@
 #ifdef __cplusplus
 #include <functional>
 #endif
-#include <SysCall.h>
+//#include <SysCall.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <objc/encoding.h>
 #include <Foundation/primitives.h>

@@ -1,9 +1,4 @@
-all: machine
-
-machine: arch/${MACHINE_ARCH}
-	ln -s arch/${MACHINE_ARCH} ${.TARGET}
-
-clean:
-	rm -f machine
+all:
+	ln -s $(PWD) Foundation
 
 .include <bsd.own.mk>

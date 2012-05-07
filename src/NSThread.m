@@ -238,7 +238,7 @@ static void cleanupThread(void *thrId)
 
 	[App removeThread:self];
 	__sync_fetch_and_add(&numThreads, -1);
-	terminate();
+	pthread_exit(NULL);
 }
 
 - (NSMutableDictionary *) threadDictionary

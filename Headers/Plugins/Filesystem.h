@@ -28,7 +28,7 @@
  * 
  */
 
-#import <Foundation/NSObject.h>
+#import <Foundation/NSFileManager.h>
 
 /*!
  * \file Plugins/Filesystem.h

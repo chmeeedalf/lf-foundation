@@ -52,8 +52,9 @@
    or in connection with the use or performance of this software.
  */
 
-#include <SysCall.h>
+#include <sys/time.h>
 #include <stdlib.h>
+
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSException.h>
@@ -62,12 +63,8 @@
 #import <Foundation/NSTimeZone.h>
 
 #import "NSConcreteDate.h"
-#define NSLocale ICULocale
-#define NSTimeZone ICUTimeZone
 #include "unicode/udat.h"
 #include "unicode/ucal.h"
-#undef NSLocale
-#undef NSTimeZone
 
 //static NSString *DEFAULT_FORMAT = @"Y-MM-dd HH:mm:ss z";
 static UChar DEFAULT_FORMAT[] = {'Y','-','M','M','-','d','d',' ','H','H',':','m','m',':','s','s',' ','z', 0};
@@ -278,7 +275,17 @@ sinceDate:(NSDate*)anotherDate
 
 + (NSTimeInterval)timeIntervalSinceReferenceDate
 {
-	return SystemTime();
+	NSTimeInterval	theTime = UNIX_OFFSET;
+
+	struct timeval tp;
+
+	// XXX: Get this out of the way when we have LSD timekeeping
+	gettimeofday(&tp, NULL);
+
+	/* the constant of '10' is because we use 100ns counting, which is 1/10 us*/
+	theTime += tp.tv_sec + tp.tv_usec / 1000000;
+
+	return theTime;
 }
 
 - (NSTimeInterval)timeIntervalSinceReferenceDate
