@@ -73,6 +73,12 @@ NSString *NSTaskDidExitNotification = @"NSTaskDidExitNotification";
 	id			stdErr;
 	pid_t		processID;	/*!< Process ID of the new task. */
 	dispatch_source_t taskDispatch;
+	/* The isOverSem is used to signal when the task is completed.  It acts as a
+	 * sort of single-byte message queue between the -[NSTask waitUntilExit] and
+	 * the actual exit logic, so that -waitUntilExit is notified appropriately
+	 * when the task has exited.
+	 */
+	dispatch_semaphore_t isOverSem;
 }
 
 @synthesize terminationHandler;
@@ -116,9 +122,12 @@ NSString *NSTaskDidExitNotification = @"NSTaskDidExitNotification";
 		isRunning = true;
 		taskDispatch = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC,
 				processID, DISPATCH_PROC_EXIT, dispatch_get_main_queue());
+		isOverSem = dispatch_semaphore_create(1);
+		dispatch_semaphore_wait(isOverSem, DISPATCH_TIME_FOREVER);
 		dispatch_source_set_event_handler(taskDispatch, ^{
 				int status;
 				waitpid(processID, &status, WNOHANG);
+				dispatch_semaphore_signal(isOverSem);
 				[self _handleTaskExitWithErrorCode:WEXITSTATUS(status)
 				normalExit:WIFEXITED(status)];
 				});
@@ -225,7 +234,7 @@ NSString *NSTaskDidExitNotification = @"NSTaskDidExitNotification";
 - (void) waitUntilExit
 {
 	while ([self isRunning])
-		hold();
+		dispatch_semaphore_wait(isOverSem, DISPATCH_TIME_FOREVER);
 }
 
 - (void) setObject:(id)obj
