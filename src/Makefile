@@ -82,6 +82,7 @@ SRCS=	NSRange.m \
 		NSUserDefaults.mm \
 		NSDelegate.m \
 		NSPredicate.m \
+		NSPredicateParser.mm \
 		NSCompoundPredicate.m \
 		NSComparisonPredicate.m \
 		NSHost.m \
@@ -102,7 +103,6 @@ SRCS=	NSRange.m \
 		NSTextCheckingResult.m \
 		GSICUString.m \
 
-#		NSPredicateParser.mm \
 #		DBusPort.mm \
 #		DBusCoder.m \
 #		DBusProxy.m \
