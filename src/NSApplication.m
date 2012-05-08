@@ -29,7 +29,6 @@
  */
 
 #import "internal.h"
-#import <Event.h>
 #import <Foundation/NSApplication.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSThread.h>
@@ -45,8 +44,8 @@ NSApplication *App = nil;
 
 @implementation NSApplication
 {
-	UUID processID;		/*!< \brief Process ID */
-	UUID parentID;		/*!< \brief Parent process ID */
+	pid_t processID;		/*!< \brief Process ID */
+	pid_t parentID;		/*!< \brief Parent process ID */
 	NSMutableArray *threadList;	/*!< \brief List of registered threads in this process. */
 }
 
@@ -104,7 +103,7 @@ NSApplication *App = nil;
 {
 	[threadList makeObjectsPerformSelector:@selector(exit)];
 
-	terminate();
+	exit(0);
 }
 
 - (void) startThread:(NSThread *)threadID :(void *[])data
@@ -118,19 +117,6 @@ NSApplication *App = nil;
 - (void) startProcess:(void *[1])data
 {
 	id thread = nil;
-
-#if 0
-	UUID senderTest = {{0}};
-	UUID *procData = (UUID *)data;
-	register Event_t *rawEvent __asm__("%r6");
-	Event_t *realEvent = rawEvent;
-	/* Security check -- only the kernel should send a startProcess: message */
-	if (memcmp(realEvent->senderID, &senderTest, sizeof(UUID)) != 0)
-		return;
-
-	memcpy(&processID, procData[0], sizeof(processID));
-	memset(realEvent, 0, sizeof(*realEvent));
-#endif
 
 	size_t count = 0;
 	Class *threads = class_copySubclassList([NSThread class], &count);

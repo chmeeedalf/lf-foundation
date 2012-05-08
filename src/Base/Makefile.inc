@@ -1,5 +1,4 @@
 .PATH: ${.CURDIR}/Base
 
-SRCS+= lsd.m \
-       Memory.m \
+SRCS+= Memory.m \
        freebsd.mm

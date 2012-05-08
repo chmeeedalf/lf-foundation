@@ -34,8 +34,8 @@
 
 #include <sys/cdefs.h>
 #include <sys/param.h>
-#include <SysCall.h>
-#include <Event.h>
+//#include <SysCall.h>
+//#include <Event.h>
 #import <Foundation/NSApplication.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSInvocation.h>

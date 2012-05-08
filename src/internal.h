@@ -40,6 +40,7 @@
 #include <objc/encoding.h>
 #include <Foundation/primitives.h>
 #ifdef __OBJC__
+#import <Foundation/NSApplication.h>
 #import <Foundation/NSCalendar.h>
 #import <Foundation/NSConnection.h>
 #import <Foundation/NSExpression.h>
@@ -155,6 +156,10 @@ void class_insert_class (Class class_ptr) __private;
 #ifdef __OBJC__
 @class NSProxy;
 @class NSDictionary;
+
+@interface NSApplication()
+- (void) startProcess:(void *[1])data;
+@end
 
 @interface NSThread()
 - (pthread_t) _pthreadId;

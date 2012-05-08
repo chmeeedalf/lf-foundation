@@ -29,7 +29,6 @@
  * 
  */
 
-#import <Alepha/Objective/Object.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
@@ -38,7 +37,6 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSTimer.h>
-#include <Alepha/Atomic/primitive.h>
 #include <unordered_map>
 #include "internal.h"
 #include <atomic>
@@ -65,7 +63,7 @@ namespace
 		class Delegate	:	public Alepha::RunLoop::Delegate
 		{
 			private:
-				Alepha::Objective::Object<id> target;
+				id target;
 				SEL sel;
 				Alepha::RunLoop::Source *source;
 			public:

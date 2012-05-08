@@ -43,8 +43,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <Event.h>
-
 #include <string>
 #include <vector>
 
@@ -63,8 +61,6 @@
 #import <Foundation/NSURL.h>
 #import "DateTime/NSConcreteDate.h"	/* for UNIX_OFFSET */
 #import "internal.h"
-
-extern void eventHandler (Event_t *_eventPage);
 
 /* Emulation of the Gold APIs */
 
@@ -115,7 +111,7 @@ int64_t SystemTime(void)
  * Keys of length 1 become prefixed '-', if value is Null.
  * Keys with value of Null are conveyed as-is.
  */
-bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *targetUUID)
+bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, pid_t *targetID)
 {
 	std::vector<std::string> argv;
 	std::vector<std::string> environ;
@@ -190,7 +186,7 @@ bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, UUID *ta
 				_exit(errno);
 				break;
 			default:
-				targetUUID->parts[3] = pid;
+				*targetID = pid;
 				retval = true;
 				break;
 		}
@@ -283,19 +279,5 @@ void _AsyncUnwatchDescriptor(int fd, bool writing)
 // we just take all 3 arguments
 int main(int argc, const char **argv, const char **environ)
 {
-	__private extern Event_t eventPage[PAGE_SIZE/sizeof(Event_t)];
-	uint32_t pid = getpid();
-	struct sigaction sa;
-	SEL msgSel = @selector(startProcess:);
-	memset(&sa, 0, sizeof(sa));
-	memset(eventPage, 0, sizeof(eventPage));
-	((uint32_t*)eventPage[0].payload)[0] = pid;
-	memset(&eventPage[0].senderID, 0, sizeof(eventPage[0].senderID));
-	eventPage[0].message = (uint32_t)msgSel;
-
-	sa.sa_handler = handle_sigio;
-	sa.sa_flags = 0x48;
-	sigaction(23, &sa, NULL);
-
-	eventHandler(&eventPage[0]);
+	[[NSApplication new] startProcess:NULL];
 }
