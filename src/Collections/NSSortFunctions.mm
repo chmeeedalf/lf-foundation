@@ -49,7 +49,7 @@ void NSSortRangeUsingOptionsAndComparator(id collToSort, NSRange range,
 	static NSUInteger numCores = [[NSProcessInfo processInfo] activeProcessorCount];
 	NSUInteger count = [collToSort count];
 	NSUInteger coresToUse = 1;
-	std::vector<NSUInteger> indexes;
+	__block std::vector<NSUInteger> indexes;
 
 	indexes.reserve(range.length);
 	std::iota(indexes.begin(), indexes.end(), range.location);
