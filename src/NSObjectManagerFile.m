@@ -100,6 +100,12 @@ static SchemeFileHandler *sharedHandler = nil;
 	return nil;
 }
 
+- (NSDictionary *)attributesOfFileSystemForURL:(NSURL *)path error:(NSError **)errOut
+{
+	TODO; // -[SchemeFileHandler attributesOfFileSystemForURL:error:]
+	return nil;
+}
+
 - (NSDictionary *)attributesOfItemAtURL:(NSURL *)uri error:(NSError **)errOut
 {
 	NSMutableDictionary *result=[NSMutableDictionary dictionary];
@@ -446,6 +452,15 @@ err_out:
 		return false;
 	}
 	return true;
+}
+
+-(NSDirectoryEnumerator *)enumeratorAtURL:(NSURL *)url
+			   includingPropertiesForKeys:(NSArray *)keys
+			   					  options:(NSDirectoryEnumerationOptions)mask
+			   				 errorHandler:(bool (^)(NSURL *, NSError *))handler
+{
+	TODO; // -[SchemeFileHandler enumeratorAtURL:includingPropertiesForKeys:options:errorHandler:]
+	return nil;
 }
 
 @end

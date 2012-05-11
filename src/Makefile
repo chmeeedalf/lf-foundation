@@ -1,7 +1,6 @@
 DBUSFLAGS!=pkg-config --cflags dbus-1
 LIBXMLFLAGS!=pkg-config --cflags libxml-2.0
 CPPFLAGS=	-I$(PWD) -I$(PWD)/../Headers -I/usr/local/include
-CPPFLAGS+= -DVERSION=\"1.0\" -DGOLD -DNO_LSDID
 CPPFLAGS+= ${DBUSFLAGS}
 CPPFLAGS+= ${LIBXMLFLAGS}
 LDADD=-L/usr/local/lib -lAlepha -lexecinfo -ldbus-1 -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2 #-lboost_serialization
