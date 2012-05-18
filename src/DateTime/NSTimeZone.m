@@ -177,10 +177,10 @@ static NSTimeZone *autoTimeZone = nil;
 	size_t outLen = ucal_getTimeZoneDisplayName(cal, (UCalendarDisplayNameType)style, [[locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], NULL, 0, &ec);
 	if (U_SUCCESS(ec))
 	{
-		UChar buf[outLen + 1];
-		ucal_getTimeZoneDisplayName(cal, (UCalendarDisplayNameType)style, [[locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], buf, outLen, &ec);
-		buf[outLen] = 0;
-		localizedName = [NSString stringWithCharacters:buf length:outLen];
+		UChar outbuf[outLen + 1];
+		ucal_getTimeZoneDisplayName(cal, (UCalendarDisplayNameType)style, [[locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], outbuf, outLen, &ec);
+		outbuf[outLen] = 0;
+		localizedName = [NSString stringWithCharacters:outbuf length:outLen];
 	}
 	ucal_close(cal);
 	return localizedName;

@@ -314,7 +314,7 @@
 
 - (NSUInteger) numberOfRanges
 {
-	return nil;
+	return 0;
 }
 
 - (NSOrthography*)orthography

@@ -689,7 +689,6 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 	if (pattern != nil)
 	{
 		UChar chars[[pattern length]];
-		UErrorCode ec = U_ZERO_ERROR;
 
 		[pattern getCharacters:chars range:NSMakeRange(0,[pattern length])];
 		unum_applyPattern(_unf, true, chars, sizeof(chars), NULL, &ec);

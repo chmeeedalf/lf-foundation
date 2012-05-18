@@ -408,7 +408,13 @@ static inline bool ScanHexInteger(NSScanner *self, unsigned long long *result)
 {
 	if (sizeof(NSInteger) == sizeof(long long))
 	{
-		return [self scanLongLong:(long long*)value];
+		long long tmp;
+		bool ret = [self scanLongLong:&tmp];
+		if (value)
+		{
+			*value = tmp;
+		}
+		return ret;
 	}
 	return [self scanInt:(int *)value];
 }

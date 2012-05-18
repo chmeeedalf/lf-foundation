@@ -257,11 +257,11 @@ static pthread_key_t slot_key;
 static struct objc_slot *forward3(id self, SEL _cmd)
 {
 	struct objc_slot *slot;
-	pthread_getspecific(&slot_key);
+	pthread_getspecific(slot_key);
 	if (slot == NULL)
 	{
 		slot = malloc(sizeof(*slot));
-		pthread_setspecific(&slot_key, slot);
+		pthread_setspecific(slot_key, slot);
 	}
 	slot->method = forward2(self, _cmd);
 	return slot;

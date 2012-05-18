@@ -679,7 +679,7 @@
 
 - (const char*)objCType
 {
-	return @encode(NSPoint);
+	return @encode(NSRange);
 }
 
 - (NSHashCode)hash

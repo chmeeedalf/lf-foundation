@@ -93,9 +93,9 @@
 - (NSUInteger)countOfIndexesInRange:(NSRange)range
 {
 	__block NSUInteger count;
-	[self enumerateRangesInRange:range options:0 usingBlock:^(NSRange range,
+	[self enumerateRangesInRange:range options:0 usingBlock:^(NSRange r,
 			bool *stop){
-		count += range.length;
+		count += r.length;
 	}];
 	return count;
 }

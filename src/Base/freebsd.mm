@@ -200,38 +200,6 @@ static fd_set writers;
 static bool watching = false;
 static NSInvocation *fd_invoke_write[FD_SETSIZE];
 static NSInvocation *fd_invoke_read[FD_SETSIZE];
-static NSArray *sigio_filters = nil;
-
-static void handle_sigio(int sig)
-{
-	struct timeval tv = {0, 0};
-	fd_set readers_copy;
-	fd_set writers_copy;
-	size_t i = [sigio_filters count];
-
-	/* First run through the watched filters */
-	for (; i > 0; i--)
-	{
-		[[sigio_filters objectAtIndex:(i-1)] invoke];
-	}
-	FD_COPY(&readers, &readers_copy);
-	FD_COPY(&writers, &writers_copy);
-	int count = select(FD_SETSIZE, &readers_copy, &writers_copy, NULL, &tv);
-	if (count <= 0)
-		return;
-
-	for (i = 0; i < FD_SETSIZE; i++)
-	{
-		if (FD_ISSET(i, &readers_copy))
-		{
-			[fd_invoke_read[i] invoke];
-		}
-		if (FD_ISSET(i, &writers_copy))
-		{
-			[fd_invoke_write[i] invoke];
-		}
-	}
-}
 
 void _AsyncWatchDescriptor(int fd, id obj, SEL sel, bool writing)
 {

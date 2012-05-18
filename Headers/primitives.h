@@ -54,9 +54,9 @@ typedef UCS2Char	NSUniChar;
 
 typedef uint32_t	NSOptionFlags;
 
-typedef unsigned long	NSHashCode;
 typedef intptr_t NSInteger;
 typedef uintptr_t NSUInteger;
+typedef NSUInteger	NSHashCode;
 
 #define NSIntegerMax	INTPTR_MAX
 #define NSIntegerMin	INTPTR_MIN

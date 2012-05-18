@@ -1123,9 +1123,9 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	while (target != targetEnd && fromRange.length > 0)
 	{
 		size_t buflen = MIN(BYTES_BUFSIZE, fromRange.length);
-		UErrorCode err;
 		const UChar *buf = internalBuffer;
 		[self getCharacters:internalBuffer range:NSMakeRange(fromRange.location, buflen)];
+		err = U_ZERO_ERROR;
 		ucnv_fromUnicode(conv, &target, targetEnd, &buf, internalBuffer + buflen, NULL, (buflen < fromRange.length), &err);
 		fromRange.length -= buflen;
 		if (err == U_BUFFER_OVERFLOW_ERROR)
@@ -1344,7 +1344,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 		char target[512];
 		const UChar *bufptr = buffer;
 		UChar *bufend = &buffer[bufsize];
-		UErrorCode err = U_BUFFER_OVERFLOW_ERROR;
+		err = U_BUFFER_OVERFLOW_ERROR;
 		[self getCharacters:buffer range:NSMakeRange(i, MIN(len - i, bufsize))];
 		while (err == U_BUFFER_OVERFLOW_ERROR)
 		{
@@ -1481,9 +1481,9 @@ static inline int hexval(char digit)
 		static const char legal[] = {';', '/', '?', ':', '@', '&', '=', '+', '$', ',',
 			'-', '_', '.', '!', '~', '*', '\'', '(', ')'};
 		static const char hex[] = "0123456789abcdef";
-		int outLen;
+		int outLen = 0;
 
-		for (size_t i = 0, outLen = 0; i < len; i++)
+		for (size_t i = 0; i < len; i++)
 		{
 			if (!isalnum(b[i]) && !strchr(legal, b[i]))
 			{

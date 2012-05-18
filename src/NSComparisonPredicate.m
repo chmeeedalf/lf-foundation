@@ -383,9 +383,9 @@
 		if (![lobj conformsToProtocol:@protocol(NSFastEnumeration)])
 			enumerator = [lobj objectEnumerator];
 
-		for (id obj in enumerator)
+		for (id o in enumerator)
 		{
-			if ([self _evaluateLeft:obj right:robj] != baseline)
+			if ([self _evaluateLeft:o right:robj] != baseline)
 				return !baseline;
 		}
 		return baseline;

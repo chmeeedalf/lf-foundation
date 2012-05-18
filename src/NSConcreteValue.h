@@ -68,8 +68,8 @@
 
 @interface NSConcreteObjCValue : NSConcreteValue
 {
-	char* objctype;
-	char  data[0];
+	char *objctype;
+	void *data;
 }
 @end
 
