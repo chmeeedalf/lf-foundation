@@ -878,6 +878,11 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 	return a;
 }
 
+- (id) objectAtIndexedSubscript:(NSUInteger)index
+{
+	return [self objectAtIndex:index];
+}
+
 - (void) encodeWithCoder:(NSCoder *)coder
 {
 	size_t count = [self count];
@@ -1019,30 +1024,21 @@ static Class MutableArrayClass;
 	[self removeObjectsAtIndexes:indices];
 }
 
-static int __cmp_unsigned_ints(unsigned int* i1, unsigned int* i2)
-{
-	return (*i1 == *i2) ? 0 : ((*i1 < *i2) ? -1 : +1);
-}
-
 - (void)removeObjectsFromIndices:(unsigned int*)indices
 	numIndices:(unsigned int)count
 {
-	unsigned int *indexes;
-	int i;
+	std::vector<NSUInteger> indexes(count);
 
 	if (!count)
 		return;
 
-	indexes = new unsigned int[count];
-	memcpy(indexes, indices, count * sizeof(unsigned int));
-	qsort(indexes, count, sizeof(unsigned int),
-			(int(*)(const void *,const void *))__cmp_unsigned_ints);
+	std::copy(indices, indices + count, indexes.begin());
+	std::sort(indexes.begin(), indexes.end());
 
-	for (i = count - 1; i >= 0; i--)
+	for (auto i: {indexes.rbegin(), indexes.rend()})
 	{
-		[self removeObjectAtIndex:indexes[i]];
+		[self removeObjectAtIndex:*i];
 	}
-	delete[] indexes;
 }
 
 - (void)removeObjectsInArray:(NSArray*)otherArray
@@ -1253,4 +1249,15 @@ static NSComparisonResult descriptor_compare(id elem1, id elem2, void *comparato
 	}
 }
 
+- (void) setObject:(id)newObject atIndexedSubscript:(NSUInteger)index
+{
+	if (index == [self count])
+	{
+		[self addObject:newObject];
+	}
+	else
+	{
+		[self replaceObjectAtIndex:index withObject:newObject];
+	}
+}
 @end

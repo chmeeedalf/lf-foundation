@@ -359,6 +359,7 @@ enum
  */
 -(id):(NSUInteger)idx;
 
+- (id) objectAtIndexedSubscript:(NSUInteger)index;
 @end
 
 /*!
@@ -534,6 +535,7 @@ enum
 - (void) sortUsingComparator:(NSComparator)cmp;
 - (void) sortWithOptions:(NSSortOptions)opts usingComparator:(NSComparator)cmp;
 
+- (void) setObject:(id)newObject atIndexedSubscript:(NSUInteger)index;
 @end
 
 /*!
