@@ -29,23 +29,10 @@
  */
 
 #import <Foundation/NSLocale.h>
-#include <unicode/ulocdata.h>
-#ifdef __cplusplus
-#include <unicode/locid.h>
-typedef icu::Locale _NSPrivateLocale;
-#else
-typedef struct icu_Locale _NSPrivateLocale;
-#endif
 
 @class NSDictionary;
 
 @interface NSConcreteLocale	:	NSLocale
-{
-	NSString *localeID;
-	NSMutableDictionary *localeDict;
-	_NSPrivateLocale *locale;
-	ULocaleData *locData;
-}
 
 /* Fallback (C) locale */
 + (id) fallbackLocale;

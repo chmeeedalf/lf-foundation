@@ -28,17 +28,21 @@
  * 
  */
 
+#include <stdlib.h>
+
+#include <cstdio>
+#include <vector>
+
+#include <unicode/tztrans.h>
+#include <unicode/simpletz.h>
+#include <unicode/ucal.h>
+#include <unicode/udat.h>
+
 #import <Foundation/NSDate.h>
 #import <Foundation/NSString.h>
 #import "String/NSCoreString.h"
 #import "NSConcreteDate.h"
 #import "NSConcreteTimeZone.h"
-#include <stdlib.h>
-#include <unicode/tztrans.h>
-#include <unicode/simpletz.h>
-#include <unicode/ucal.h>
-#include <unicode/udat.h>
-#include <cstdio>
 
 @implementation NSConcreteTimeZone
 
@@ -113,7 +117,7 @@
 	UDateFormat *dat;
 	UErrorCode ec = U_ZERO_ERROR;
 	NSUniChar pattern[] = {'V'};
-	NSUniChar *output;
+	std::vector<NSUniChar> output;
 	NSUInteger len;
 	NSString *ret = nil;
 
@@ -124,15 +128,14 @@
 	len = udat_format(dat, ICU_MSEC([_date timeIntervalSinceReferenceDate]),
 			NULL, 0, NULL, &ec);
 
-	output = new NSUniChar[len];
+	output.reserve(len);
 	ec = U_ZERO_ERROR;
 	udat_format(dat, ICU_MSEC([_date timeIntervalSinceReferenceDate]),
-			output, len, NULL, &ec);
+			&output[0], len, NULL, &ec);
 	udat_close(dat);
 
 	if (!U_FAILURE(ec))
-		ret = [NSString stringWithCharacters:output length:len];
-	delete[] output;
+		ret = [NSString stringWithCharacters:&output[0] length:len];
 	return ret;
 }
 

@@ -31,12 +31,6 @@
 #import <Foundation/NSObject.h>
 
 @interface NSIndexPath	:	NSObject<NSCopying,NSCoding>
-{
-	NSUInteger *_indexes;
-	size_t _length;
-	NSHashCode _hash;
-}
-
 + (id) indexPathWithIndex:(NSUInteger)index;
 + (id) indexPathWithIndexes:(NSUInteger *)indexes length:(size_t)length;
 - (id) initWithIndex:(NSUInteger)index;

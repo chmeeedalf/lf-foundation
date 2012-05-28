@@ -51,6 +51,12 @@
    or in connection with the use or performance of this software.
  */
 
+#include <ctype.h>
+#include <float.h>
+#include <stdlib.h>
+
+#include <unicode/unum.h>
+
 #import <Foundation/NSScanner.h>
 #import "NSConcreteScanner.h"
 
@@ -58,10 +64,8 @@
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSRange.h>
 #import <Foundation/NSString.h>
-#include <ctype.h>
-#include <float.h>
-#include <stdlib.h>
-#include <unicode/unum.h>
+
+#import "internal.h"
 
 @implementation NSScanner
 
@@ -199,7 +203,7 @@ static bool scanNumber(int numType, void *dest, NSScanner *self)
 	NSUniChar exponentSep = 'e';
 	NSUniChar plusChar = '+';
 	NSUniChar minusChar = '-';
-	NSUniChar *numChars;
+	NSUniChar *numChars __cleanup(cleanup_pointer) = NULL;
 	NSUniChar c;
 	UErrorCode ec = U_ZERO_ERROR;
 	UNumberFormat *numFmt;
@@ -280,7 +284,6 @@ static bool scanNumber(int numType, void *dest, NSScanner *self)
 	}
 
 	[self setScanLocation:location];
-	free(numChars);
 
 	if (ec != U_ZERO_ERROR)
 		return false;

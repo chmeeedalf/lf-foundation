@@ -33,9 +33,6 @@
 #import <Foundation/NSDate.h>
 #ifdef __cplusplus
 #include <Alepha/RunLoop.h>
-typedef Alepha::RunLoop ARunLoop;
-#else
-typedef struct ARunLoop ARunLoop;
 #endif
 
 typedef enum

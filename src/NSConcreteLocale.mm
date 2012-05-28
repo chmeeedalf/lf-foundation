@@ -42,6 +42,9 @@
 
 #import "NSConcreteLocale.h"
 #import "String/NSCoreString.h"
+
+#include <unicode/ulocdata.h>
+#include <unicode/locid.h>
 #include <unicode/uloc.h>
 #include <unicode/dcfmtsym.h>
 
@@ -49,6 +52,12 @@ static NSConcreteLocale *fallbackLocale;
 static NSMutableDictionary *localeCache;
 
 @implementation NSConcreteLocale
+{
+	NSString *localeID;
+	NSMutableDictionary *localeDict;
+	icu::Locale *locale;
+	ULocaleData *locData;
+}
 
 static void LocaleDataOpen(NSConcreteLocale *self)
 {

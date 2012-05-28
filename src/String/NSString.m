@@ -115,7 +115,8 @@ static NSString* Avsprintf(NSString* format, NSLocale *locale, va_list args)
 {
 	FILE *strFile;
 	UFILE *uniFile;
-	UChar *patternSpecification = malloc(([format length] + 1) * sizeof(UChar));
+	UChar *patternSpecification __cleanup(cleanup_pointer) =
+		malloc(([format length] + 1) * sizeof(UChar));
 	NSMutableString *str;
 
 	strFile = fwopen((__bridge const void *)str, _StringFileWrite);
@@ -125,7 +126,6 @@ static NSString* Avsprintf(NSString* format, NSLocale *locale, va_list args)
 
 	if (uniFile == NULL)
 	{
-		free(patternSpecification);
 		return nil;
 	}
 	str = [NSMutableString new];
@@ -135,7 +135,6 @@ static NSString* Avsprintf(NSString* format, NSLocale *locale, va_list args)
 	u_vfprintf_u(uniFile, patternSpecification, args);
 	u_fclose(uniFile);
 	fclose(strFile);
-	free(patternSpecification);
 	return str;
 }
 
@@ -744,8 +743,8 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 	}
 
 	UCollator *coll = _CollatorFromOptions(mask, locale);
-	UChar *myChars = malloc(sizeof(UChar) * aRange.length);
-	UChar *otherChars = malloc(sizeof(UChar) * a);
+	UChar *myChars __cleanup(cleanup_pointer) = malloc(sizeof(UChar) * aRange.length);
+	UChar *otherChars __cleanup(cleanup_pointer) = malloc(sizeof(UChar) * a);
 	UErrorCode ec = U_ZERO_ERROR;
 
 	[self getCharacters:myChars range:aRange];
@@ -767,8 +766,6 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 		if (start != USEARCH_DONE)
 			range = NSMakeRange(start + aRange.location, a);
 	}
-	free(myChars);
-	free(otherChars);
 
 	return range;
 }
@@ -1003,13 +1000,12 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 {
 	NSUInteger length = [self length];
 	UErrorCode ec = U_ZERO_ERROR;
-	NSUniChar* buf = malloc(sizeof(NSUniChar) * (length + 1));
+	NSUniChar* buf __cleanup(cleanup_pointer) = malloc(sizeof(NSUniChar) * (length + 1));
 	[self getCharacters:buf range:NSMakeRange(0,length)];
 
 	xlate(buf, length, buf, length, NULL, &ec);
 	buf[length] = 0;
 	NSString *s = [[NSString alloc] initWithCharacters:buf length:length];
-	free(buf);
 	return s;
 }
 
@@ -1019,13 +1015,12 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	// ENCODINGS - this code applies to the system's default encoding
 	NSUInteger length = [self length];
 	UErrorCode ec = U_ZERO_ERROR;
-	NSUniChar* buf = malloc(sizeof(NSUniChar) * (length + 1));
+	NSUniChar* buf __cleanup(cleanup_pointer) = malloc(sizeof(NSUniChar) * (length + 1));
 	[self getCharacters:buf range:NSMakeRange(0,length)];
 
 	u_strToTitle(buf, length, buf, length, NULL, NULL, &ec);
 	buf[length] = 0;
 	NSString *s = [[NSString alloc] initWithCharacters:buf length:length];
-	free(buf);
 	return s;
 }
 
@@ -1054,7 +1049,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	char *utf8Str;
 	int32_t len;
 	int32_t selfLen = [self length];
-	NSUniChar *chars = malloc(selfLen * sizeof(NSUniChar));
+	NSUniChar *chars __cleanup(cleanup_pointer) = malloc(selfLen * sizeof(NSUniChar));
 	int error = 0;
 
 	[self getCharacters:chars range:NSMakeRange(0, selfLen)];
@@ -1075,7 +1070,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 		return NULL;
 	}
 	u_strToUTF8(utf8Str, len+1, &len, chars, selfLen, &error);
-	free(chars);
 	return [[[NSData alloc] initWithBytesNoCopy:utf8Str length:len+1 freeWhenDone:true] bytes];
 }
 
@@ -1267,7 +1261,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	  allowLossyConversion:(bool)flag
 {
 	size_t maxLen = [self maximumLengthOfBytesUsingEncoding:enc];
-	char *buffer = malloc(maxLen);
+	char *buffer __cleanup(cleanup_pointer) = malloc(maxLen);
 	NSUInteger usedLen = 0;
 	NSData *d = nil;
 	if ([self getBytes:buffer maxLength:maxLen usedLength:&usedLen encoding:enc
@@ -1276,7 +1270,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	{
 		d = [NSData dataWithBytes:buffer length:usedLen];
 	}
-	free(buffer);
 	return d;
 }
 
@@ -1378,7 +1371,7 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 {
 	NSUInteger len = [self length];
 	NSUInteger outLen;
-	UChar *inChars = malloc(len * sizeof(UChar));
+	UChar *inChars __cleanup(cleanup_pointer) = malloc(len * sizeof(UChar));
 	UChar *outChars;
 	UErrorCode ec = U_ZERO_ERROR;
 	NSString *retVal;
@@ -1387,7 +1380,6 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	outLen = unorm_normalize(inChars, len, mode, 0, NULL, 0, &ec);
 	if (U_FAILURE(ec) && ec != U_BUFFER_OVERFLOW_ERROR)
 	{
-		free(inChars);
 		return nil;
 	}
 	outChars = malloc(sizeof(UChar) * outLen);
@@ -1395,12 +1387,10 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	free(inChars);
 	if (U_FAILURE(ec))
 	{
-		free(outChars);
 		return nil;
 	}
 
 	retVal = [NSString stringWithCharacters:outChars length:outLen];
-	free(outChars);
 	return retVal;
 }
 
@@ -1563,12 +1553,11 @@ static inline int hexval(char digit)
 	if (count > 0)
 	{
 		NSStringEncoding enc = NSUnicodeStringEncoding;
-		NSUniChar *chars = malloc(count * sizeof(NSUniChar));
+		NSUniChar *chars __cleanup(cleanup_pointer) = malloc(count * sizeof(NSUniChar));
 
 		[coder encodeValueOfObjCType:@encode(NSStringEncoding) at:&enc];
 		[self getCharacters:chars range:NSMakeRange(0, count)];
 		[coder encodeArrayOfObjCType:@encode(NSUniChar) count:count at:chars];
-		free(chars);
 	}
 }
 
@@ -1593,6 +1582,7 @@ static inline int hexval(char digit)
 @end /* NSString */
 
 @implementation NSMutableString
+
 + (id)allocWithZone:(NSZone *)zone
 {
 	return (self == MutableStringClass) ? 

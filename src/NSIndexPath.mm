@@ -28,16 +28,22 @@
  * 
  */
 
+#include <algorithm>
+#include <vector>
+
 #import <Foundation/NSIndexPath.h>
 #import <Foundation/NSByteOrder.h>
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSString.h>
-#include <algorithm>
 
 // TODO: Uniquify IndexPaths and cache them in a hash table.
 @implementation NSIndexPath
+{
+	std::vector<NSUInteger> _indexes;
+	NSHashCode _hash;
+}
 
 + (id) indexPathWithIndex:(NSUInteger)index
 {
@@ -56,62 +62,53 @@
 
 - (id) initWithIndexes:(NSUInteger *)indexes length:(size_t)len
 {
-	_indexes = new NSUInteger[len];
-	_length = len;
-	
-	std::copy(indexes, indexes + len, _indexes);
+	std::copy(indexes, indexes + len, std::back_inserter(_indexes));
 	return self;
-}
-
-- (void) dealloc
-{
-	delete[] _indexes;
 }
 
 - (void) getIndexes:(NSUInteger *)indexes
 {
-	std::copy(_indexes, _indexes + _length, indexes);
+	std::copy(_indexes.begin(), _indexes.end(), indexes);
 }
 
 - (NSUInteger) indexAtPosition:(NSUInteger)pos
 {
-	if (pos > _length)
+	if (pos > _indexes.size())
 		return NSNotFound;
 	return _indexes[pos];
 }
 
 - (NSIndexPath *) indexPathByAddingIndex:(NSUInteger)idx
 {
-	NSUInteger *newIndexes = new NSUInteger[_length + 1];
-	std::copy(_indexes, _indexes + _length, newIndexes);
-	newIndexes[_length] = idx;
+	std::vector<NSUInteger> newIndexes = _indexes;
+	newIndexes.push_back(idx);
 
-	NSIndexPath *newPath = [NSIndexPath indexPathWithIndexes:newIndexes
-		length:_length+1];
-	delete[] newIndexes;
+	NSIndexPath *newPath = [NSIndexPath indexPathWithIndexes:&newIndexes[0]
+		length:_indexes.size()+1];
 
 	return newPath;
 }
 
 - (NSIndexPath *) indexPathByRemovingLastIndex
 {
-	NSAssert(_length > 1, @"Cannot remove the only path index.");
-	return [NSIndexPath indexPathWithIndexes:_indexes length:_length - 1];
+	NSAssert(_indexes.size() > 1, @"Cannot remove the only path index.");
+	return [NSIndexPath indexPathWithIndexes:&_indexes[0] length:_indexes.size() - 1];
 }
 
 - (size_t) length
 {
-	return _length;
+	return _indexes.size();
 }
 
 - (NSComparisonResult) compare:(NSIndexPath *)other
 {
-	size_t end = (_length > other->_length) ? _length : other->_length;
+	size_t end = (_indexes.size() > other->_indexes.size()) ? _indexes.size() :
+		other->_indexes.size();
 	for (size_t i = 0; i < end; i++)
 	{
-		if (i >= _length)
+		if (i >= _indexes.size())
 			return NSOrderedAscending;
-		if (i >= other->_length)
+		if (i >= other->_indexes.size())
 			return NSOrderedDescending;
 		if (_indexes[i] != other->_indexes[i])
 		{
@@ -131,22 +128,23 @@
 {
 	if ([coder allowsKeyedCoding])
 	{
-		[coder encodeInt64:_length forKey:@"IndexPathLength"];
-		NSUInteger *buf = new NSUInteger[_length];
-		for (size_t i = 0; i < _length; i++)
+		[coder encodeInt64:_indexes.size() forKey:@"IndexPathLength"];
+		std::vector<NSUInteger> buf(_indexes.size());
+
+		for (size_t i = 0; i < _indexes.size(); i++)
 		{
 			buf[i] = NSSwapHostLongLongToBig(_indexes[i]);
 		}
-		NSData *d = [[NSData alloc] initWithBytes:buf length:_length *
+		NSData *d = [[NSData alloc] initWithBytes:&buf[0] length:buf.size() *
 			sizeof(NSUInteger)];
 		[coder encodeObject:d forKey:@"IndexPathData"];
-		delete[] buf;
 	}
 	else
 	{
-		[coder encodeValueOfObjCType:@encode(size_t) at:&_length];
-		[coder encodeArrayOfObjCType:@encode(NSUInteger) count:_length
-			at:_indexes];
+		size_t len = _indexes.size();
+		[coder encodeValueOfObjCType:@encode(size_t) at:&len];
+		[coder encodeArrayOfObjCType:@encode(NSUInteger) count:_indexes.size()
+			at:&_indexes[0]];
 	}
 }
 
@@ -154,22 +152,22 @@
 {
 	if ([coder allowsKeyedCoding])
 	{
-		_length = [coder decodeInt64ForKey:@"IndexPathLength"];
-		NSUInteger *buf = new NSUInteger[_length];
+		NSUInteger len = [coder decodeInt64ForKey:@"IndexPathLength"];
 		NSUInteger *src;
 		NSData *d = [coder decodeObjectForKey:@"IndexPathData"];
 		src = (NSUInteger *)[d bytes];
-		for (size_t i = 0; i < _length; i++)
+		for (size_t i = 0; i < len; i++)
 		{
-			buf[i] = NSSwapBigLongLongToHost(src[i]);
+			_indexes.push_back(NSSwapBigLongLongToHost(src[i]));
 		}
-		_indexes = buf;
 	}
 	else
 	{
-		[coder decodeValueOfObjCType:@encode(size_t) at:&_length];
-		[coder decodeArrayOfObjCType:@encode(NSUInteger) count:_length
-			at:_indexes];
+		NSUInteger len;
+		[coder decodeValueOfObjCType:@encode(size_t) at:&len];
+		_indexes.reserve(len);
+		[coder decodeArrayOfObjCType:@encode(NSUInteger) count:len
+			at:&_indexes[0]];
 	}
 	return self;
 }

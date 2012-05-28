@@ -229,7 +229,7 @@
 	char* buffer = malloc(aRange.length);
 
     [self getBytes:buffer range:aRange];
-    return [[NSData alloc] initWithBytesNoCopy:buffer length:aRange.length];
+	return [[NSData alloc] initWithBytesNoCopy:buffer length:aRange.length freeWhenDone:true];
 }
 
 - (NSHashCode)hash

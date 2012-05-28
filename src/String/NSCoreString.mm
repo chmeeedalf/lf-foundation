@@ -28,6 +28,11 @@
  *
  */
 
+#include <stdlib.h>
+#include <string.h>
+
+#include <vector>
+
 #import <Foundation/NSString.h>
 #import "NSCoreString.h"
 
@@ -37,8 +42,6 @@
 #import <Foundation/NSData.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSLocale.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "unicode/ucnv.h"
 
@@ -87,7 +90,7 @@
 @implementation NSCoreString
 {
 	NSHashCode hash;
-	UnicodeString *str;
+	UnicodeString str;
 	bool freeWhenDone;
 	NSStringEncoding encoding;
 }
@@ -117,15 +120,12 @@
 	encoding = NSUnicodeStringEncoding;
 	try
 	{
-		str = new UnicodeString((const char *)bytes, length, [[NSString
+		str = UnicodeString((const char *)bytes, length, [[NSString
 				localizedNameOfStringEncoding:enc] UTF8String]);
 	}
 	catch (...)
 	{
 		/* Trap all exceptions, and return nil if string can't be created. */
-	}
-	if (str == NULL)
-	{
 		self = nil;
 	}
 	if (flag)
@@ -181,17 +181,16 @@
 - (id) initWithString:(NSString*)aString
 {
 	size_t length = [aString length];
+	std::vector<unichar> chars(length);
 
-	NSUniChar *chars = new NSUniChar[length];
-	[aString getCharacters:chars range:NSRange(0, length)];
-	self = [self initWithCharacters:chars length:length];
-	delete[] chars;
+	[aString getCharacters:&chars[0] range:NSRange(0, length)];
+	self = [self initWithCharacters:&chars[0] length:length];
 	return self;
 }
 
 - (id) initWithUnicodeString:(UnicodeString *)src
 {
-	str = new UnicodeString(*src);
+	str = *src;
 	return self;
 }
 
@@ -207,20 +206,20 @@
 
 - (NSUniChar)characterAtIndex:(NSUInteger)index
 {
-	return str->charAt(index);
+	return str.charAt(index);
 }
 
 - (void)getCharacters:(NSUniChar*)buffer range:(NSRange)aRange
 {
-	str->extract(aRange.location, aRange.length, (UChar *)buffer);
+	str.extract(aRange.location, aRange.length, (UChar *)buffer);
 }
 
 - (NSUInteger) length
 {
-	return str->length();
+	return str.length();
 }
 
-- (UnicodeString *)_unicodeString
+- (UnicodeString &)_unicodeString
 {
 	return str;
 }
@@ -228,6 +227,12 @@
 @end // NSCoreString
 
 @implementation NSCoreMutableString
+{
+	NSHashCode hash;
+	UnicodeString str;
+	bool freeWhenDone;
+	NSStringEncoding encoding;
+}
 
 + (void) initialize
 {
@@ -239,22 +244,17 @@
 
 - (id) initWithCapacity:(unsigned int)capacity
 {
-	str = new UnicodeString(capacity, 0, 0);
+	str = UnicodeString(capacity, 0, 0);
 	return self;
 }
 
 -(void)replaceCharactersInRange:(NSRange)aRange withString:(NSString *)aString
 {
 	NSUInteger len = [aString length];
-	const UChar *others = new UChar[len];
-	[aString getCharacters:(NSUniChar *)others range:NSRange(0, len)];
-	str->replace(aRange.location, aRange.length, others, len);
-	delete others;
-}
 
-- (void) dealloc
-{
-	delete str;
+	std::vector<UChar> others(len);
+	[aString getCharacters:&others[0] range:NSRange(0, len)];
+	str.replace(aRange.location, aRange.length, &others[0], len);
 }
 
 @end // NSCoreMutableString

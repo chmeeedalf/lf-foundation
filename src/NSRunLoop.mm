@@ -116,7 +116,7 @@ namespace
 @implementation NSRunLoop
 {
 	@private
-		ARunLoop *rl;
+		Alepha::RunLoop rl;
 		volatile bool	isCanceled;
 		volatile bool	isTerminated;
 		int		kernelQueue;	/* kqueue ID. */
@@ -168,13 +168,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 
 - (id) init
 {
-	rl = new ARunLoop;
 	return self;
-}
-
-- (void) dealloc
-{
-	delete rl;
 }
 
 - (void) addInputSource:(NSObject<NSEventSource> *)obj forMode:(NSString *)mode
@@ -246,14 +240,14 @@ static uint32_t ModeIndexFromString(NSString *mode)
 		ti = [date timeIntervalSinceNow];
 
 		currentMode = str;
-		rl->run_once(ti, ModeIndexFromString(str));
+		rl.run_once(ti, ModeIndexFromString(str));
 	}
 }
 
 /* End the loop at the end of event processing. */
 - (void) exit
 {
-	rl->cancel();
+	rl.cancel();
 	isCanceled = true;
 }
 
@@ -265,7 +259,7 @@ static uint32_t ModeIndexFromString(NSString *mode)
 /* End the loop as soon as possible, generally when this event handler exits. */
 - (void) terminate
 {
-	rl->exit();
+	rl.exit();
 	isTerminated = true;
 }
 
@@ -305,7 +299,7 @@ static char rl_key;
 			selector:sel source:s];
 		objc_setAssociatedObject(tgt, &rl_key, d, OBJC_ASSOCIATION_RETAIN);
 	}
-	rl->add(d->d.getSource(), ModeIndexFromString(mode));
+	rl.add(d->d.getSource(), ModeIndexFromString(mode));
 }
 
 - (void) removeRunLoopTarget:(id)tgt mode:(NSString *)mode
@@ -316,13 +310,13 @@ static char rl_key;
 
 	if (d != nil)
 	{
-		rl->remove(d->d.getSource(), ModeIndexFromString(mode));
+		rl.remove(d->d.getSource(), ModeIndexFromString(mode));
 	}
 }
 
 - (Alepha::RunLoop *)coreRunLoop
 {
-	return rl;
+	return &rl;
 }
 
 - (void) acceptInputForMode:(NSString *)mode beforeDate:(NSDate *)limit

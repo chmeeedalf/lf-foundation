@@ -162,7 +162,7 @@
 	if (_private->input != NULL)
 		delete _private->input;
 	if ([str respondsToSelector:@selector(_unicodeString)])
-		_private->matcher->reset(*[(NSCoreString *)str _unicodeString]);
+		_private->matcher->reset([(NSCoreString *)str _unicodeString]);
 	else
 	{
 		size_t len = [str length];
@@ -250,10 +250,6 @@
 	}
 	NSArray *ret = [NSArray arrayWithObjects:strings count:max];
 
-	for (i = 0; i < max; i++)
-	{
-		strings[i];
-	}
 	return ret;
 }
 

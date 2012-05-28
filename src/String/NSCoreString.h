@@ -123,17 +123,13 @@ enum {
 - (id)initWithBytes:(const void *)bytes length:(unsigned long)length
 	encoding:(NSStringEncoding)enc copy:(bool)copy freeWhenDone:(bool)flag;
 - (id)initWithUnicodeString:(UnicodeString *)src;
-- (UnicodeString *)_unicodeString;
+#ifdef __cplusplus
+- (UnicodeString &)_unicodeString;
+#endif
 
 @end	// NSCoreString
 
 @interface NSCoreMutableString	:	NSMutableString
-{
-	NSHashCode hash;
-	UnicodeString *str;
-	bool freeWhenDone;
-	NSStringEncoding encoding;
-}
 -(void)replaceCharactersInRange:(NSRange)aRange withString:(NSString *)aString;
 @end
 

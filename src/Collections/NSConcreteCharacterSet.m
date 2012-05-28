@@ -243,6 +243,7 @@
 
 	[str getCharacters:chars range:NSMakeRange(0, [str length])];
 	uset_addString(set, chars, [str length]);
+	free(chars);
 }
 
 - (void) removeCharactersInString:(NSString *)str
@@ -251,6 +252,7 @@
 
 	[str getCharacters:chars range:NSMakeRange(0, [str length])];
 	uset_removeString(set, chars, [str length]);
+	free(chars);
 }
 
 - (void) formIntersectionWithCharacterSet:(NSCharacterSet *)other
