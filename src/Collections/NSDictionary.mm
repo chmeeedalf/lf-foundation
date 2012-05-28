@@ -393,6 +393,11 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 	return nil;
 }
 
+- (id) objectForKeyedSubscript:(id)subscript
+{
+	return [self objectForKey:subscript];
+}
+
 - (NSArray*)objectsForKeys:(NSArray*)keys notFoundMarker:notFoundObj
 {
 	id tmp;
@@ -746,6 +751,13 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 - (void)setObject:(id)anObject forKey:(id)aKey
 {
 	[self subclassResponsibility:_cmd];
+}
+
+- (void) setObject:(id)obj forKeyedSubscript:(id)subscript
+{
+	if (obj == nil)
+		[self removeObjectForKey:subscript];
+	[self setObject:obj forKey:subscript];
 }
 
 - (void)setValue:(id)anObject forKey:(id)key

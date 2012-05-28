@@ -233,6 +233,8 @@
  */
 -(id):(id)key;
 
+- (id) objectForKeyedSubscript:(id)subscript;
+
 @end
 
 @interface NSMutableDictionary	: NSDictionary
@@ -289,6 +291,7 @@
  */
 -(void)setDictionary:(NSDictionary *)otherDictionary;
 
+- (void) setObject:(id)obj forKeyedSubscript:(id)subscript;
 @end
 
 /*
