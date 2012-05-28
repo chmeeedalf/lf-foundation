@@ -70,16 +70,6 @@
 
 #import "NSCoreDictionary.h"
 
-@interface _DictionaryObjectEnumerator	:	NSEnumerator
-{
-	NSEnumerator *keys;
-	NSDictionary *dict;
-}
-- (id) initWithKeyEnumerator:(NSEnumerator *)keyEnum dictionary:(NSDictionary *)dict;
-
-@end
-
-
 @interface NSDictionary(DictionaryExtensions)
 - (id)initWithObjectsAndKeys:(id)firstObject arguments:(va_list)argList;
 @end
@@ -363,9 +353,13 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 
 - (NSEnumerator *)objectEnumerator
 {
-	return [[_DictionaryObjectEnumerator alloc]
-		initWithKeyEnumerator:[self keyEnumerator]
-		dictionary:self];
+	id keyEnum = [self keyEnumerator];
+	return [[NSBlockEnumerator alloc] initWithBlock:^id(){
+		id key = [keyEnum nextObject];
+		if (key != nil)
+			return [self objectForKey:key];
+		return nil;
+	}];
 }
 
 - (void) enumerateKeysAndObjectsUsingBlock:(void (^)(id key, id obj, bool *stop))block
@@ -815,25 +809,3 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 }
 
 @end;
-
-@implementation _DictionaryObjectEnumerator
-
-- (id) initWithKeyEnumerator:(NSEnumerator *)keyEnum dictionary:(NSDictionary *)d
-{
-	dict = d;
-	keys = keyEnum;
-	return self;
-}
-
-- (id) nextObject
-{
-	id obj = [keys nextObject];
-	
-	if (obj != nil)
-	{
-		return [dict objectForKey:obj];
-	}
-	return nil;
-}
-
-@end
