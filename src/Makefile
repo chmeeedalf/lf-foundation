@@ -140,5 +140,7 @@ OBJCXXFLAGS=$(CXXFLAGS) $(OBJCCXXFLAGS) -fvisibility=default -fobjc-call-cxx-cdt
 CFLAGS+=$(CCXXFLAGS) -B/usr/local/bin/
 OBJCFLAGS=$(CFLAGS) $(OBJCCXXFLAGS)
 .include <bsd.lib.mk>
-CFLAGS+= -Wno-system-headers
-CXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage
+CFLAGS+= -Wno-system-headers -Wno-unused-parameter
+CXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage -Wno-unused-parameter
+OBJCFLAGS+= -Wno-system-headers -Wno-unused-parameter
+OBJCXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage -Wno-unused-parameter
