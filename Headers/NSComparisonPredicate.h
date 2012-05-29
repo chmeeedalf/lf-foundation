@@ -56,7 +56,7 @@ typedef enum {
 } NSPredicateOperatorType;
 
 enum {
-    NSCaseInsensitivePredicateOptions     = 0x01,
+    NSCaseInsensitivePredicateOption      = 0x01,
     NSDiacriticInsensitivePredicateOption = 0x02,
     NSNormalizedPredicateOption = 0x04,
     NSLocaleSensitivePredicateOption = 0x08,

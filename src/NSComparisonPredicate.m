@@ -187,7 +187,7 @@
 	{
 		int i = 0;
 		opts[i++] = '[';
-		if (options & NSCaseInsensitivePredicateOptions)
+		if (options & NSCaseInsensitivePredicateOption)
 		{
 			opts[i++] = 'c';
 		}
@@ -214,7 +214,7 @@
 {
 	NSStringCompareOptions opts = 0;
 
-	if (options & NSCaseInsensitivePredicateOptions)
+	if (options & NSCaseInsensitivePredicateOption)
 	{
 		opts |= NSCaseInsensitiveSearch;
 	}
