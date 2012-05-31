@@ -30,7 +30,6 @@
 
 #ifndef _OBJC_RUNTIME_
 #define _OBJC_RUNTIME_
-#include <debug.h>
 #include <limits.h>
 #include <Foundation/primitives.h>
 #include <stddef.h>

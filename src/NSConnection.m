@@ -40,6 +40,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSThread.h>
+#import "internal.h"
 
 /* Private API. */
 @interface NSConnection()

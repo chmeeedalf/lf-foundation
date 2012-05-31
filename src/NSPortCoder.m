@@ -31,6 +31,7 @@
 #import <Foundation/NSPortCoder.h>
 #import <Foundation/NSConnection.h>
 #import <objc/encoding.h>
+#import "internal.h"
 
 @class NSPort,NSConnection,NSArray;
 

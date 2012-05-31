@@ -37,6 +37,7 @@
 #import <Foundation/NSSet.h>
 #import <Foundation/NSSettingsManager.h>
 #import <Foundation/NSString.h>
+#import "internal.h"
 
 static NSSettingsManager *defaultSettingsManager = nil;
 static NSMutableDictionary *mutableSettings = nil;

@@ -33,6 +33,7 @@
 #import <Foundation/NSString.h>
 #import <Alepha/RunLoop.h>
 #import "NSConcreteStream.h"
+#import "internal.h"
 
 @class RunLoop, NSError;
 

@@ -46,6 +46,7 @@
 #include <algorithm>
 #include <vector>
 #include <objc/encoding.h>
+#import "internal.h"
 
 #import "NSKVCMutableArray.h"
 #import "NSString+KVCAdditions.h"

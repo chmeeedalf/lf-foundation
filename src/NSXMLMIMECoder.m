@@ -38,6 +38,8 @@
 #import <Foundation/NSURL.h>
 #import <Foundation/NSXMLParser.h>
 
+#import "internal.h"
+
 @interface NSXMLMIMECoder : NSProxy <MIMEHandler,NSXMLParserDelegate>
 {
 	id outputObject;

@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#import "internal.h"
+
 @interface NSDecimalZeroNumber : NSDecimalNumber
 @end
 
@@ -620,7 +622,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 - (id)init
 {
-	self->decimal.exponent   = 0xFF;
+	self->decimal.exponent   = (signed char)0xFF;
 	self->decimal.isNegative = false;
 	return self;
 }

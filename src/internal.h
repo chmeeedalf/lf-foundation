@@ -201,10 +201,6 @@ struct sockaddr_storage;
 - (void) _sockaddrRepresentation:(struct sockaddr_storage *)saddr;
 @end
 
-@interface NSProcessInfo()
-- (void) _initArgc:(size_t)argc argv:(const char **)argv;
-@end
-
 @interface NSExpression()
 - (id)_expressionWithSubstitutionVariables:(NSDictionary *)substVars;
 @end
@@ -257,5 +253,6 @@ static inline void cleanup_pointer(void *ptr)
 #else
 #define NS_RETURNS_RETAINED
 #endif
+#define TODO NSLog(@"TODO: %s:%d: function: %s",__FILE__,__LINE__,__func__)
 
 __END_DECLS

@@ -39,6 +39,7 @@
 #include <unicode/ucal.h>
 #include <strings.h>
 #include <stdlib.h>
+#import "internal.h"
 
 @class NSDate, NSLocale, NSString, NSTimeZone;
 

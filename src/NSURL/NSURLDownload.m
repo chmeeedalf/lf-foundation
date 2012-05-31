@@ -27,6 +27,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSStream.h>
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSData.h>
+#import "internal.h"
 
 @implementation NSURLDownload
 

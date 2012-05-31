@@ -37,6 +37,7 @@
 #import <Foundation/NSString.h>
 
 #import "NSConcreteLocale.h"
+#import "internal.h"
 #include <unicode/uloc.h>
 #include <unicode/ucurr.h>
 #include <stdlib.h>

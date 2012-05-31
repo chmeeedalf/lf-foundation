@@ -25,12 +25,18 @@
    or in connection with the use or performance of this software.
  */
 
-#include <unistd.h>
+#include <sys/time.h>
 #include <sys/timex.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/utsname.h>
+
 #include <string.h>
+#include <unistd.h>
+
+#include <string>
+#include <memory>
+
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSDate.h>
@@ -38,8 +44,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #include <Alepha/System/SysCtl.h>
-#include <string>
-#include <memory>
+#import "internal.h"
 
 /*
  * Static global vars

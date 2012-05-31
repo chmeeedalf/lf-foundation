@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#import "internal.h"
 
 #define RESOURCES_PATH "/system/lib:/local/lib"
 

@@ -33,6 +33,7 @@
 #import <Foundation/Account.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSProcessInfo.h>
+#import "internal.h"
 
 /*
  * User Account Functions

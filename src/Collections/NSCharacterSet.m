@@ -39,6 +39,7 @@
 #import <Foundation/NSResourceManager.h>
 
 #import "NSConcreteCharacterSet.h"
+#import "internal.h"
 
 /*
    All these sets are ``masked'' sets--They use a mask on Unicode characters,

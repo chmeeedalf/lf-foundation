@@ -26,6 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSString.h>
+#import "internal.h"
 
 @implementation NSURLConnectionState
 

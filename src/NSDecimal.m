@@ -23,10 +23,12 @@
    or in connection with the use or performance of this software.
 */
 
-#include <Foundation/NSDecimal.h>
-#include <Foundation/NSString.h>
 #include <math.h>
 #include <string.h>
+
+#include <Foundation/NSDecimal.h>
+#include <Foundation/NSString.h>
+#import "internal.h"
 
 /* operations */
 

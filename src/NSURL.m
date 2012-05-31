@@ -30,12 +30,15 @@
 #include <unicode/uidna.h>
 #include <stdlib.h>
 #include <ctype.h>
+
 #import <Foundation/NSCharacterSet.h>
 #import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSPathUtilities.h>
+
+#import "internal.h"
 
 @interface NSURL()
 - (NSURL *) _URLWithNewPath:(NSString *)newPath;

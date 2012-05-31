@@ -21,6 +21,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSURLResponse.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSString.h>
+#import "internal.h"
 
 @implementation NSURLResponse
 

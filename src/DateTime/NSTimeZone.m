@@ -41,6 +41,7 @@
 #include <unicode/ucal.h>
 
 #import "NSConcreteTimeZone.h"
+#import "internal.h"
 
 NSString * const NSSystemTimeZoneDidChangeNotification = @"NSSystemTimeZoneDidChangeNotification";
 @interface NSAutoTimeZone	:	NSTimeZone

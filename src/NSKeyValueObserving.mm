@@ -27,6 +27,9 @@
  * SUCH DAMAGE.
  * 
  */
+
+#include <unordered_map>
+
 #import <Foundation/NSKeyValueObserving.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
@@ -39,7 +42,7 @@
 #import <Foundation/NSSet.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
-#import <unordered_map>
+#import "internal.h"
 
 NSString *const NSKeyValueChangeKindKey = @"NSKeyValueChangeKindKey";
 NSString *const NSKeyValueChangeNewKey = @"NSKeyValueChangeNewKey";

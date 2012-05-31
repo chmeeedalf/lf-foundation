@@ -59,6 +59,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSValue.h>
+#import "internal.h"
 
 @class NSLocale;
 @implementation NSException
