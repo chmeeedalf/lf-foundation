@@ -30,7 +30,7 @@
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSPathUtilities.h>
-#import <Foundation/Account.h>
+#import <Foundation/NSAccount.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSProcessInfo.h>
 #import "internal.h"
@@ -41,22 +41,22 @@
 
 NSString *NSUserName(void)
 {
-	return [[UserAccount currentAccount] accountName];
+	return [[NSUserAccount currentAccount] accountName];
 }
 
 NSString *NSHomeDirectory(void)
 {
-	return [[UserAccount currentAccount] homeDirectory];
+	return [[NSUserAccount currentAccount] homeDirectory];
 }
 
 NSString *NSHomeDirectoryForUser(NSString* userName)
 {
-	return [[UserAccount accountWithName:userName] homeDirectory];
+	return [[NSUserAccount accountWithName:userName] homeDirectory];
 }
 
 NSString *NSFullUserName()
 {
-	return [[UserAccount currentAccount] fullName];
+	return [[NSUserAccount currentAccount] fullName];
 }
 
 NSString *NSTemporaryDirectory()
