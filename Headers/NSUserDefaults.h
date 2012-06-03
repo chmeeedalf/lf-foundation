@@ -91,6 +91,9 @@
 
 - (NSDictionary *)dictionaryRepresentation;
 
+- (bool) objectIsForcedForKey:(NSString *)key;
+- (bool) objectIsForcedForKey:(NSString *)key inDomain:(NSString *)domain;
+
 - (void) addSuiteNamed:(NSString *)suiteName;
 - (void) removeSuiteNamed:(NSString *)suiteName;
 @end
