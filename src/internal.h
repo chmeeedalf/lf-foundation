@@ -45,6 +45,7 @@
 #import <Foundation/NSConnection.h>
 #import <Foundation/NSExpression.h>
 #import <Foundation/NSPointerFunctions.h>
+#import <Foundation/NSPortCoder.h>
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSSocket.h>
@@ -151,7 +152,6 @@ extern unsigned int numThreads __private;
 
 typedef int		 (*cmp_t)(const void *, const void *);
 void *runThread(void *thr) __private;
-void class_insert_class (Class class_ptr) __private;
 
 #ifdef __OBJC__
 @class NSProxy;
@@ -210,6 +210,10 @@ struct sockaddr_storage;
 
 @interface NSTask(PrivateBookkeeping)
 - (void) _handleTaskExitWithErrorCode:(int)err normalExit:(bool)normalExit;
+@end
+
+@interface NSPortCoder(PrivateExtensions)
+- (NSConnection *) connection;
 @end
 bool spawnProcessWithURL(NSURL *, id, NSDictionary *, pid_t *);
 

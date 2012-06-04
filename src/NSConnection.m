@@ -237,7 +237,7 @@ static NSMutableSet *allConnections;
 	return [localProxies objectForKey:local];
 }
 
-- (void) addProxy:(NSDistantObject *)proxy forLocal:(id)local
+- (void) setProxy:(NSDistantObject *)proxy forLocal:(id)local
 {
 	[localProxies setObject:proxy forKey:local];
 }

@@ -28,6 +28,17 @@
  * 
  */
 
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/socket.h>
+
+#include <netinet/in.h>
+
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #import "internal.h"
 #import <Foundation/NSSocket.h>
 #import <Foundation/NSData.h>
@@ -35,22 +46,20 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
-#import "NSSocketImp.h"
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-@implementation _NSSocketPrivate
-@end
 
 @implementation NSSocket
+{
+	@protected
+	__weak id<NSSocketDelegate>	_delegate;
+	bool isAsynchronous;
+	int sockfd;
+	int port;
+	NSHost *target;
+	NSNetworkAddress *addrInfo;
+	bool connected;
+	bool connectError;
+	bool binded;
+}
 @synthesize delegate = _delegate;
 @synthesize isAsynchronous;
 
@@ -60,61 +69,55 @@
 	struct sockaddr_storage saddr;
 
 	memset(&saddr, 0, sizeof(saddr));
-	_private = [_NSSocketPrivate new];
 	if (addr != NULL)
 	{
 		[addr _sockaddrRepresentation:&saddr];
 	}
-	_private->socket = socket(saddr.ss_family, type, protocol);
-	if (_private->socket < 0)
+	sockfd = socket(saddr.ss_family, type, protocol);
+	if (sockfd < 0)
 	{
-		_private->socket = 0;
+		sockfd = 0;
 		return nil;
 	}
-	fcntl(_private->socket, F_SETFL, O_ASYNC|O_NONBLOCK);
-	fcntl(_private->socket, F_SETOWN, getpid());
-	pid = fcntl(_private->socket, F_GETOWN, 0);
-	_private->addrInfo = addr;
+	fcntl(sockfd, F_SETFL, O_ASYNC|O_NONBLOCK);
+	fcntl(sockfd, F_SETOWN, getpid());
+	pid = fcntl(sockfd, F_GETOWN, 0);
+	addrInfo = addr;
 	return self;
 }
 
-- (id) initWithConnectedSocket:(int)sockfd
+- (id) initWithConnectedSocket:(int)connSocket
 {
-	_private = [_NSSocketPrivate new];
-	_private->socket = sockfd;
-	_private->connected = true;
+	sockfd = connSocket;
+	connected = true;
 	return self;
 }
 
 - (id) initRemoteWithHost:(NSHost *)host family:(NSAddressFamily)family type:(NSSocketType)type protocol:(int)protocol
 {
-	_private = [_NSSocketPrivate new];
-	_private->socket = socket(family, type, protocol);
-	_private->target = host;
+	sockfd = socket(family, type, protocol);
+	target = host;
 	return self;
 }
 
 - (void) dealloc
 {
-	if (_private)
-	{
-		close(_private->socket);
-		_AsyncUnwatchDescriptor(_private->socket, false);
-		_AsyncUnwatchDescriptor(_private->socket, true);
-	}
+	close(sockfd);
+	_AsyncUnwatchDescriptor(sockfd, false);
+	_AsyncUnwatchDescriptor(sockfd, true);
 	[self setDelegate:nil];
 }
 
 - (void) sendData:(NSData *)data
 {
-	if (!_private->connected)
+	if (!connected)
 	{
-		if (_private->connectError)
+		if (connectError)
 			return;
-		if (_private->addrInfo == nil)
+		if (addrInfo == nil)
 		{
-			_private->addrInfo = [NSInetAddress inetAddressWithString:[_private->target address]];
-			if (_private->addrInfo == nil)
+			addrInfo = [NSInetAddress inetAddressWithString:[target address]];
+			if (addrInfo == nil)
 				@throw [NSException exceptionWithName:@"BadSocketAddress"
 											 reason:@"Could not determine socket address."
 										   userInfo:nil];
@@ -122,7 +125,7 @@
 		[self connect];
 	}
 
-	int err = write(_private->socket, [data bytes], [data length]);
+	int err = write(sockfd, [data bytes], [data length]);
 	if (err < 0)
 	{
 		NSLog(@"NSError sending data: %d", err);
@@ -136,15 +139,15 @@
 	size_t sock_size;
 	if ([_delegate respondsToSelector:@selector(socket:shouldAcceptConnection:)])
 	{
-		int sockfd = accept(_private->socket, (struct sockaddr *)&addr, &sock_size);
+		int newsock = accept(sockfd, (struct sockaddr *)&addr, &sock_size);
 
-		sock = [[NSSocket alloc] initWithConnectedSocket:sockfd];
+		sock = [[NSSocket alloc] initWithConnectedSocket:newsock];
 		[sock setDelegate:_delegate];
 
 		if ([_delegate socket:self shouldAcceptConnection:sock])
 		{
 			if ([self isAsynchronous])
-				_AsyncWatchDescriptor(sockfd, sock, @selector(_socketHandleReceive), false);
+				_AsyncWatchDescriptor(newsock, sock, @selector(_socketHandleReceive), false);
 			else
 				[[NSRunLoop currentRunLoop] addInputSource:sock forMode:NSRunLoopCommonModes];
 		}
@@ -159,58 +162,58 @@
 	int		err;
 	int		one = 1;
 
-	if (_private->binded)
+	if (binded)
 		return;
 
 	memset(&addr, 0, sizeof(addr));
-	err = setsockopt(_private->socket, 0xffff, 0x04, &one, sizeof(one));
+	err = setsockopt(sockfd, 0xffff, 0x04, &one, sizeof(one));
 	if (err < 0)
 		NSLog(@"Warning: error setting socket reuse: %d", err);
 	[self _sockaddrRepresentation:&addr];
-	if ((err = bind(_private->socket, (struct sockaddr *)&addr, addr.ss_len)) < 0)
+	if ((err = bind(sockfd, (struct sockaddr *)&addr, addr.ss_len)) < 0)
 	{
 		NSLog(@"Unable to bind to socket: %@, error code %d", self, -err);
 		return;
 	}
-	_private->binded = true;
+	binded = true;
 	if ([self isAsynchronous])
-		_AsyncWatchDescriptor(_private->socket, self, @selector(_socketHandleAccept), false);
-	err = listen(_private->socket, -1);
+		_AsyncWatchDescriptor(sockfd, self, @selector(_socketHandleAccept), false);
+	err = listen(sockfd, -1);
 	if (err < 0)
 		NSLog(@"Warning: Listening failed due to error: %d", err);
 }
 
 - (NSHost *) remoteTarget
 {
-	return _private->target;
+	return target;
 }
 
 - (void) connect
 {
 	struct sockaddr_storage addr;
 
-	if (_private->binded)
+	if (binded)
 		@throw([NSInvalidArgumentException exceptionWithReason:@"Cannot connect a socket that is being listened on" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self,@"NSSocket",nil]]);
 	memset(&addr, 0, sizeof(addr));
 
-	if (_private->addrInfo == nil)
+	if (addrInfo == nil)
 		@throw([NSInvalidArgumentException exceptionWithReason:@"Cannot connect a socket to an empty address." userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self,@"NSSocket",nil]]);
 	[self _sockaddrRepresentation:&addr];
-	int err = connect(_private->socket, (struct sockaddr *)&addr, addr.ss_len);
+	int err = connect(sockfd, (struct sockaddr *)&addr, addr.ss_len);
 	if (err < 0 && err != -36)
 	{
-		NSLog(@"Can't connect: %d, socket: %d", err, _private->socket);
-		_private->connectError = true;
+		NSLog(@"Can't connect: %d, socket: %d", err, sockfd);
+		connectError = true;
 	}
 	if ([self isAsynchronous])
 	{
 		if (err == -36)
 		{
-			_AsyncWatchDescriptor(_private->socket, self, @selector(_socketHandleConnect), true);
+			_AsyncWatchDescriptor(sockfd, self, @selector(_socketHandleConnect), true);
 		}
 		else
 		{
-			_AsyncWatchDescriptor(_private->socket, self, @selector(_socketHandleReceive), false);
+			_AsyncWatchDescriptor(sockfd, self, @selector(_socketHandleReceive), false);
 		}
 	}
 	else
@@ -239,7 +242,7 @@
 
 - (uint32_t) descriptor
 {
-	return _private->socket;
+	return sockfd;
 }
 
 - (NSEventSourceType) sourceType
@@ -254,18 +257,18 @@
 
 - (void) close
 {
-	close(_private->socket);
-	_private->connected = false;
-	_private->binded = false;
+	close(sockfd);
+	connected = false;
+	binded = false;
 }
 
 - (void) _socketHandleConnect
 {
-	_private->connected = true;
+	connected = true;
 	if ([self isAsynchronous])
 	{
-		_AsyncUnwatchDescriptor(_private->socket, true);
-		_AsyncWatchDescriptor(_private->socket, self, @selector(_socketHandleReceive), false);
+		_AsyncUnwatchDescriptor(sockfd, true);
+		_AsyncWatchDescriptor(sockfd, self, @selector(_socketHandleReceive), false);
 	}
 	[_delegate socketDidConnect:self];
 }
@@ -279,7 +282,7 @@
 
 	do
 	{
-		len = read(_private->socket, mem, getpagesize());
+		len = read(sockfd, mem, getpagesize());
 		if (len <= 0)
 			break;
 		[data setLength:len];
@@ -304,7 +307,7 @@
 	void *bytes = malloc(size);
 	NSData *data;
 
-	read(_private->socket, bytes, size);
+	read(sockfd, bytes, size);
 
 	data = [[NSData alloc] initWithBytes:bytes length:size];
 	free(bytes);
@@ -314,7 +317,7 @@
 
 - (void) _sockaddrRepresentation:(struct sockaddr_storage *)saddr
 {
-	[_private->addrInfo _sockaddrRepresentation:saddr];
+	[addrInfo _sockaddrRepresentation:saddr];
 }
 
 - (void)handleEvent:(struct kevent *)event
@@ -322,7 +325,7 @@
 	switch (event->filter)
 	{
 		case EVFILT_READ:
-			if (_private->binded)
+			if (binded)
 				[self _socketHandleAccept];
 			else
 				[self _socketHandleReceive:event->data];
@@ -338,11 +341,11 @@
 @end
 
 @implementation NSTCPSocket
-- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)port
+- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)sockPort
 {
 	self = [self initWithAddress:addr socketType:NSStreamSocketType protocol:0];
 	if (self != nil)
-		_private->port = port;
+		port = sockPort;
 	return self;
 }
 
@@ -356,20 +359,20 @@
 	return self;
 }
 
-- (void) setPort:(int) port
+- (void) setPort:(int)newPort
 {
-	NSAssert(!_private->connected, @"Can't change port for a connected socket");
-	_private->port = port;
+	NSAssert(!connected, @"Can't change port for a connected socket");
+	port = newPort;
 }
 
 @end
 
 @implementation NSUDPSocket
-- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)port
+- (id) initWithAddress:(NSNetworkAddress *)addr port:(int)sockPort
 {
 	self = [self initWithAddress:addr socketType:NSStreamSocketType protocol:0];
 	if (self != nil)
-		_private->port = port;
+		port = sockPort;
 	return self;
 }
 
@@ -378,14 +381,15 @@
 	return [self initRemoteWithHost:host family:NSInternetAddressFamily type:NSDatagramSocketType protocol:NSInternetProtocolFamily];
 }
 
-- (id) initForListeningWithPort:(int)port
+- (id) initForListeningWithPort:(int)sockPort
 {
+	port = sockPort;
 	return self;
 }
 
-- (void) setPort:(int) port
+- (void) setPort:(int) sockPort
 {
-	NSAssert(!_private->connected, @"Can't change port for a connected socket");
-	_private->port = port;
+	NSAssert(!connected, @"Can't change port for a connected socket");
+	port = sockPort;
 }
 @end

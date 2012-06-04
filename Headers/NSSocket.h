@@ -253,11 +253,6 @@ typedef enum NSSocketType
  * low-level protocols.
  */
 @interface NSSocket	:	NSStream <NSEventSource>
-{
-	_NSSocketPrivate *_private;	/*!< \brief Private socket data. */
-	__weak id<NSSocketDelegate>	_delegate;
-	bool isAsynchronous;
-}
 
 @property(weak) id<NSSocketDelegate> delegate;
 @property bool isAsynchronous;
@@ -316,7 +311,7 @@ typedef enum NSSocketType
  */
 - (void) connect;
 
-- (NSNetworkAddress *) address;
+//- (NSNetworkAddress *) address;
 
 @end
 

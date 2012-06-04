@@ -33,7 +33,6 @@
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSResourceManager.h>
-#import <Foundation/NSSettingsManager.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSTimeZone.h>
 #import <Foundation/NSValue.h>

@@ -33,8 +33,8 @@
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSResourceManager.h>
-#import <Foundation/NSSettingsManager.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSUserDefaults.h>
 
 #import "NSConcreteLocale.h"
 #import "internal.h"
@@ -119,8 +119,8 @@ static NSLocale *currentLocale = nil;
 	{
 		if (systemLocale == nil)
 		{
-			systemLocale = [[self alloc] initWithLocaleIdentifier:[[NSSettingsManager
-				defaultSettingsManager] objectForKey:@"SystemLocale"]];
+			systemLocale = [[self alloc] initWithLocaleIdentifier:[[NSUserDefaults
+				standardUserDefaults] objectForKey:@"SystemLocale"]];
 			if (systemLocale == nil)
 				systemLocale = [NSConcreteLocale fallbackLocale];
 		}
