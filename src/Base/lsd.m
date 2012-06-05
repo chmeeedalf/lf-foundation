@@ -131,8 +131,8 @@ void eventHandler (Event_t *_eventPage)
 
 	@autoreleasepool {
 
-		if (App == nil)
-			App = [NSApplication new];
+		if (NSApp == nil)
+			NSApp = [NSApplication new];
 
 		// If the message selector is NULL, the message is a NUL-terminated string
 		// at the start of the payload.
@@ -146,7 +146,7 @@ void eventHandler (Event_t *_eventPage)
 					((strlen((char *)_eventPage->payload) +
 					  sizeof(unsigned long) - 1) & ~(sizeof(unsigned long) - 1)));
 		}
-		m = class_getInstanceMethod([App class], (SEL)_eventPage->message);
+		m = class_getInstanceMethod([NSApp class], (SEL)_eventPage->message);
 
 		if (m == NULL)
 			return;
@@ -185,7 +185,7 @@ void eventHandler (Event_t *_eventPage)
 
 			free(types_out);
 
-			[appInvocation setTarget:App];
+			[appInvocation setTarget:NSApp];
 			[appInvocation setSelector:messageSel];
 			for (unsigned long i = 2; i < numArgs; i++)
 			{

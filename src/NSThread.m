@@ -117,7 +117,7 @@ static void cleanupThread(void *thrId)
 		mainThread = self;
 	isRunning = true;
 	@autoreleasepool {
-		[App addThread:self];
+		[NSApp addThread:self];
 		[self main];
 	}
 }
@@ -232,7 +232,7 @@ static void cleanupThread(void *thrId)
 		postNotificationName:NSThreadWillExitNotification
 		object:self];
 
-	[App removeThread:self];
+	[NSApp removeThread:self];
 	__sync_fetch_and_add(&numThreads, -1);
 	pthread_exit(NULL);
 }

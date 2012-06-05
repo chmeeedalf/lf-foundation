@@ -34,7 +34,7 @@
 #import <Foundation/NSThread.h>
 #include <string.h>
 
-NSApplication *App = nil;
+NSApplication *NSApp = nil;
 
 @interface NSApplication(LSDExtensions)
 - (void) startThread:(NSThread *)threadID :(void *[1])data;
@@ -51,7 +51,7 @@ NSApplication *App = nil;
 
 + (NSApplication *)currentApplication
 {
-	return App;
+	return NSApp;
 }
 
 - (id) init

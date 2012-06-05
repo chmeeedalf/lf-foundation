@@ -86,7 +86,7 @@
  *  \var app
  *  \brief NSApplication object for the currently running application.
  */
-extern NSApplication *App;
+extern NSApplication *NSApp;
 @end
 
 /*
