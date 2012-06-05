@@ -30,22 +30,18 @@
 
 #include <dlfcn.h>
 #include <execinfo.h>
-#import "internal.h"
+#include <pthread.h>
+#include <pthread_np.h>
+
 #import <Foundation/NSApplication.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
-#import <Foundation/NSException.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSValue.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <pthread_np.h>
-#include <objc/objc-arc.h>
+#import "internal.h"
 
 /*
 	XXX: REWRITE This.
