@@ -183,9 +183,10 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	
 	if([[path path] isEqualToString:@"."] || [[path path] isEqualToString:@".."])
 		@throw [NSInvalidArgumentException exceptionWithReason:@"Invalid path"
-													userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self,@"NSObject",
-			NSStringFromSelector(_cmd),@"Method",
-			path,@"Path"]];
+													userInfo:@{
+												   @"Object": self,
+												   @"Method": NSStringFromSelector(_cmd),
+													 @"Path": path}];
 
 	[[self delegate] fileManager:self shouldRemoveItemAtURL:path];
 

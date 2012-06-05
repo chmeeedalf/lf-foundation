@@ -83,20 +83,23 @@ NSString * const NSUnionOfSetsKeyValueOperator = @"unionOfSets";
 - (id) valueForUndefinedKey:(NSString *)key
 {
 	@throw [NSUndefinedKeyException exceptionWithReason:@"Undefined key"
-		userInfo:[NSDictionary dictionaryWithObjectsAndKeys:key,NSUnknownUserInfoKey,self,NSTargetObjectUserInfoKey,nil]];
+		userInfo:@{NSUnknownUserInfoKey: key,
+				NSTargetObjectUserInfoKey: self}];
 	return nil;
 }
 
 - (void) setNilValueForKey:(NSString *)key
 {
 	@throw [NSInvalidArgumentException exceptionWithReason:@"Nil value for key"
-		userInfo:[NSDictionary dictionaryWithObjectsAndKeys:key,NSUnknownUserInfoKey,self,NSTargetObjectUserInfoKey,nil]];
+		userInfo:@{NSUnknownUserInfoKey: key,
+				NSTargetObjectUserInfoKey: self}];
 }
 
 - (void) setValue:(id)val forUndefinedKey:(NSString *)key
 {
 	@throw [NSUndefinedKeyException exceptionWithReason:@"Undefined key to set"
-		userInfo:[NSDictionary dictionaryWithObjectsAndKeys:key,NSUnknownUserInfoKey,self,NSTargetObjectUserInfoKey,nil]];
+		userInfo:@{NSUnknownUserInfoKey: key,
+				NSTargetObjectUserInfoKey: self}];
 }
 
 - (NSDictionary *) dictionaryWithValuesForKeys:(NSArray *)keys

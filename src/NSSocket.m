@@ -193,11 +193,11 @@
 	struct sockaddr_storage addr;
 
 	if (binded)
-		@throw([NSInvalidArgumentException exceptionWithReason:@"Cannot connect a socket that is being listened on" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self,@"NSSocket",nil]]);
+		@throw([NSInvalidArgumentException exceptionWithReason:@"Cannot connect a socket that is being listened on" userInfo:@{@"Socket": self}]);
 	memset(&addr, 0, sizeof(addr));
 
 	if (addrInfo == nil)
-		@throw([NSInvalidArgumentException exceptionWithReason:@"Cannot connect a socket to an empty address." userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self,@"NSSocket",nil]]);
+		@throw([NSInvalidArgumentException exceptionWithReason:@"Cannot connect a socket to an empty address." userInfo:@{@"Socket": self}]);
 	[self _sockaddrRepresentation:&addr];
 	int err = connect(sockfd, (struct sockaddr *)&addr, addr.ss_len);
 	if (err < 0 && err != -36)

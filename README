@@ -2,8 +2,6 @@ lf-foundation is a Legacy-free libFoundation.  Most of the deprecated methods
 and classes from Cocoa are completely absent from this, and we make extensive
 use of Objective-C++ and brand new (3.2+) features from clang.
 
-The primary target is FreeBSD/PowerPC.
-
 It requires:
 - a very recent clang (trunk)
 - libdispatch

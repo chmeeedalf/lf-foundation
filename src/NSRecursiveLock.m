@@ -70,7 +70,7 @@
 	{
 		NSDictionary *info;
 		if ([self name] != nil)
-			info = [NSDictionary dictionaryWithObjectsAndKeys:[self name],@"Name",nil];
+			info = @{@"Name": [self name]};
 		else
 			info = nil;
 		@throw [NSInvalidUseOfMethodException
@@ -104,7 +104,7 @@
 	{
 		NSDictionary *info;
 		if ([self name] != nil)
-			info = [NSDictionary dictionaryWithObjectsAndKeys:[self name],@"Name",nil];
+			info = @{@"Name": [self name]};
 		else
 			info = nil;
 		@throw [NSInvalidUseOfMethodException exceptionWithReason:

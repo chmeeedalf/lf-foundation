@@ -255,8 +255,7 @@ TODO: loader stuff
 		[[NSNotificationCenter defaultCenter] 
 			postNotificationName:NSBundleDidLoadNotification
 						  object:self
-						userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-						loadedClasses,@"LoadedClasses",nil]];
+						userInfo:@{ @"LoadedClasses": loadedClasses }];
 	}
 	return status;
 }

@@ -128,7 +128,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	NSOutputStream *outStream;
 
 	if(portNumber == nil)
-		portNumber = [NSNumber numberWithInt:80];
+		portNumber = @(80);
 
 	NSHost *host = [NSHost hostWithName:hostName];
 

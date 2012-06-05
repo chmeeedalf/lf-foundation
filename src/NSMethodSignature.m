@@ -122,10 +122,9 @@
 	if (_index > numberOfArguments)
 	{
 		@throw [NSInvalidArgumentException exceptionWithReason:@"Index out of range"
-			userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-				[NSNumber numberWithUnsignedInt:_index],@"index",
-				[NSNumber numberWithUnsignedInt:numberOfArguments],@"Number of arguments",
-				nil]];
+			userInfo:@{
+			@"index": @(_index),
+				@"Number of arguments": @(numberOfArguments)}];
 		return NULL;
 	}
 

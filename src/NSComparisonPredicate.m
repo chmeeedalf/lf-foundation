@@ -337,7 +337,7 @@
 		case NSLikePredicateOperatorType:
 		case NSBeginsWithPredicateOperatorType:
 		case NSEndsWithPredicateOperatorType:
-			@throw [NSInvalidArgumentException exceptionWithReason:@"Attempting to use a String predicate with non-string operands." userInfo:[NSDictionary dictionaryWithObjectsAndKeys:lhs,@"LeftExpression",rhs,@"RightExpression",nil]];
+			@throw [NSInvalidArgumentException exceptionWithReason:@"Attempting to use a String predicate with non-string operands." userInfo:@{@"LeftExpression": lhs, @"RightExpression": rhs}];
 			break;
 		case NSInPredicateOperatorType:
 			{

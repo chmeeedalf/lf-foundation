@@ -288,7 +288,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 
 - (NSNumber *) multiplier
 {
-	return [NSNumber numberWithDouble:_GetDoubleAttribute(self, UNUM_MULTIPLIER)];
+	return @(_GetDoubleAttribute(self, UNUM_MULTIPLIER));
 }
 
 - (NSString *) negativeInfinitySymbol
@@ -363,7 +363,7 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 
 - (NSNumber *) roundingIncrement
 {
-	return [NSNumber numberWithDouble:_GetDoubleAttribute(self, UNUM_ROUNDING_INCREMENT)];
+	return @(_GetDoubleAttribute(self, UNUM_ROUNDING_INCREMENT));
 }
 
 - (NSNumberFormatterRoundingMode) roundingMode
@@ -614,13 +614,13 @@ static inline void _SetDoubleAttribute(NSNumberFormatter *self,
 	{
 		double d = unum_parseDouble(_unf, buffer, BUFFER_SIZE-1, &parsePos, &ec);
 		if (U_SUCCESS(ec))
-			*obj = [NSNumber numberWithDouble:d];
+			*obj = @(d);
 	}
 	else
 	{
 		int64_t i64 = unum_parseInt64(_unf, buffer, BUFFER_SIZE-1, &parsePos, &ec);
 		if (U_SUCCESS(ec))
-			*obj = [NSNumber numberWithLongLong:i64];
+			*obj = @(i64);
 	}
 	if (U_FAILURE(ec))
 	{

@@ -41,7 +41,7 @@
 }
 + (NSPredicate *)notPredicateWithSubpredicate:(NSPredicate *)_subs
 {
-	return [[self alloc] initWithType:NSNotPredicateType subpredicates:[NSArray arrayWithObject:_subs]];
+	return [[self alloc] initWithType:NSNotPredicateType subpredicates:@[_subs]];
 }
 
 - (id)initWithType:(NSCompoundPredicateType)_type subpredicates:(NSArray *)_s

@@ -232,7 +232,7 @@ static id currentHandler = nil;
 	va_end(ap);
 	@throw([NSInternalInconsistencyException
 			exceptionWithReason:[[NSString alloc] initWithFormat:format arguments:ap]
-					   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:object,@"NSObject",nil,nil]]);
+					   userInfo:@{@"Object": object}]);
 }
 
 - (void)handleFailureInMethod:(SEL)selector

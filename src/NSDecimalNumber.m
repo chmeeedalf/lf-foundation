@@ -115,7 +115,8 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 + (NSDecimalNumber *)decimalNumberWithNumber:(NSNumber *)_number
 {
 	/* TO BE FIXED ! */
-	return (id)[self numberWithDouble:[_number doubleValue]];
+	TODO; // -[NSDecimalNumber decimalNumberWithNumber:]
+	return nil;
 }
 
 - (id)initWithDecimal:(NSDecimal)_num

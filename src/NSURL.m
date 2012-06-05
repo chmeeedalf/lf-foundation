@@ -212,7 +212,7 @@ static inline void _port(NSURL *self, NSUniChar **strp)
 			break;
 		}
 	}
-	self->port = [NSNumber numberWithUnsignedInt:port];
+	self->port = @(port);
 }
 
 static inline NSString *_domain_top_label(NSUniChar **strp)

@@ -117,7 +117,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	if (lstat([path fileSystemRepresentation], &statBuf) != 0) 
 		return nil;
 
-	[result setObject:[NSNumber numberWithUnsignedLongLong:statBuf.st_size]
+	[result setObject:@(statBuf.st_size)
 			   forKey:NSFileSize];
 	[result setObject:[NSDate dateWithTimeIntervalSince1970:statBuf.st_mtime]
 			   forKey:NSFileModificationDate];
@@ -134,13 +134,13 @@ static SchemeFileHandler *sharedHandler = nil;
 		[result setObject:[NSString stringWithCString:grp->gr_name encoding:[NSString defaultCStringEncoding]]
 				   forKey:NSFileGroupOwnerAccountName];
 
-	[result setObject:[NSNumber numberWithUnsignedLong:statBuf.st_nlink]
+	[result setObject:@(statBuf.st_nlink)
 			   forKey:NSFileReferenceCount];
-	[result setObject:[NSNumber numberWithUnsignedLong:statBuf.st_ino]
+	[result setObject:@(statBuf.st_ino)
 			   forKey:NSFileIdentifier];
-	[result setObject:[NSNumber numberWithUnsignedLong:statBuf.st_dev]
+	[result setObject:@(statBuf.st_dev)
 			   forKey:NSFileDeviceIdentifier];
-	[result setObject:[NSNumber numberWithUnsignedLong:statBuf.st_mode]
+	[result setObject:@(statBuf.st_mode)
 			   forKey:NSFilePosixPermissions];
 
 	if (S_ISREG(statBuf.st_mode))
@@ -187,7 +187,6 @@ static SchemeFileHandler *sharedHandler = nil;
 						  NSLocalizedFailureReasonErrorKey : @(buf),
 								 NSLocalizedDescriptionKey : @"Unable to set the file modification time"}];
 				}
-		//	[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithCString:strerror_r(errno) encoding:NSUTF8StringEncoding],NSLocalizedFailureReasonErrorKey,@"Unable to set the file modification time.",NSLocalizedDescriptionKey,nil]];
 			}
 		}
 		else if ([key isEqualToString:NSFileAccess])

@@ -213,8 +213,8 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 	}
 	if ([key isEqualToString:NSLocaleUsesMetricSystem])
 	{
-		output = [NSNumber numberWithBool:[[self objectForKey:NSLocaleMeasurementSystem]
-			isEqualToString:@"Metric"]];
+		output = @([[self objectForKey:NSLocaleMeasurementSystem]
+			isEqualToString:@"Metric"]);
 	}
 	if ([key isEqualToString:NSLocaleMeasurementSystem])
 	{

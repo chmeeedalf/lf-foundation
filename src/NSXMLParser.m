@@ -152,7 +152,7 @@ static void errorHandler(void *ctx, const char *msg, ...)
 	errstr = [[NSString alloc] initWithFormat:fmt arguments:args];
 	va_end(args);
 
-	parser->error = [[NSError alloc] initWithDomain:NSXMLParserErrorDomain code:lastErr->code userInfo:[NSDictionary dictionaryWithObjectsAndKeys:errstr,NSLocalizedDescriptionKey]];
+	parser->error = [[NSError alloc] initWithDomain:NSXMLParserErrorDomain code:lastErr->code userInfo:@{NSLocalizedDescriptionKey: errstr}];
 
 	[parser->delegate parser:parser parseErrorOccurred:parser->error];
 }
