@@ -36,21 +36,6 @@
  * \brief NSTimer object.
  */
 @interface NSTimer	: NSObject
-{
-	/* @{ Shouldn't be needed.*/
-	NSDate *fireDate;
-	NSInvocation *invocation;
-	NSThread *ownerThread;
-	id userInfo;
-	NSTimeInterval timeInterval;
-	bool repeats;
-	bool isValid;
-	bool running;
-	bool isExpired;
-	NSRunLoop *runLoop;
-	/*! @} */
-}
-@property bool isExpired;
 @property(readonly) NSTimeInterval timeInterval;
 
 // Creating a timer object
@@ -119,6 +104,8 @@
  */
 - (NSDate *) fireDate;
 
+- (void) setFireDate:(NSDate *)newFireDate;
+
 /*!
  * \brief Returns \c true if the receiver is currently valid, \c false otherwise.
  */
@@ -130,16 +117,7 @@
 - (bool) repeats;
 
 /*!
- * \brief Returns \c true if this timer is currently running, \c false otherwise.
- */
-- (bool) running;
-
-/*!
  * \brief Returns the addictional data that the object receiving the timer's message can use.
  */
 - (id) userInfo;
 @end
-
-/*
-   vim:syntax=objc:
- */

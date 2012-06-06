@@ -75,26 +75,15 @@
 
    Timers register with the thread's timer manager when they start, and
    deregister when stopped.
-   
-TODO:
-	Flesh out timer details.
-	- How many can we have?
-	- How do we register?
-	- Are they per-thread, or per-process?
-	- Setting callbacks (event details)
  */
 
-#import "internal.h"
-#import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSInvocation.h>
-#import <Foundation/NSLock.h>
-#import <Foundation/NSMethodSignature.h>
-#import <Foundation/NSObject.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSTimer.h>
+#import "internal.h"
 
 @interface NSTimer(TimerImplementation)
 - (id) initWith:(NSTimeInterval)seconds invocation:(NSInvocation*)anInvocation
@@ -102,7 +91,16 @@ TODO:
 @end
 
 @implementation NSTimer
-@synthesize isExpired;
+{
+	NSDate *fireDate;
+	NSInvocation *invocation;
+	id userInfo;
+	NSTimeInterval timeInterval;
+	bool repeats;
+	bool isValid;
+	bool running;
+	NSRunLoop *runLoop;
+}
 
 + (NSTimer*)scheduledTimerWithTimeInterval:(NSTimeInterval)seconds
     invocation:(NSInvocation*)anInvocation
@@ -202,6 +200,11 @@ TODO:
 	return fireDate;
 }
 
+- (void) setFireDate:(NSDate *)newFireDate
+{
+	TODO; // -[NSTimer setFireDate:]
+}
+
 - (NSTimeInterval) timeInterval
 {
 	return timeInterval;
@@ -220,7 +223,6 @@ TODO:
 - (id) userInfo		{ return userInfo; }
 - (bool)isValid		{ return isValid; }
 - (bool)repeats		{ return repeats; }
-- (bool)running	{ return running; }
 
 - (void)setRunning:(bool)run
 {
@@ -251,13 +253,7 @@ TODO:
 	repeats = _repeats;
 	isValid = true;
 	running = false;
-	ownerThread = [NSThread currentThread];
 	return self;
-}
-
-- (NSThread *)ownerThread
-{
-	return ownerThread;
 }
 
 @end
