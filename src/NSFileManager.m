@@ -561,6 +561,79 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 }
 @end
 
+@implementation NSDictionary(NSFileManager_fileAttributes)
+- (NSDate *) fileCreationDate
+{
+	return [self objectForKey:NSFileCreationDate];
+}
+
+- (bool) fileExtensionHidden
+{
+	return [[self objectForKey:NSFileExtensionHidden] boolValue];
+}
+
+- (NSNumber *) fileGroupOwnerAccountID
+{
+	return [self objectForKey:NSFileGroupOwnerAccountID];
+}
+
+-(NSString *)fileGroupOwnerAccountName
+{
+	return [self objectForKey:NSFileGroupOwnerAccountName];
+}
+
+- (bool) fileIsAppendOnly
+{
+	return [[self objectForKey:NSFileAppendOnly] boolValue];
+}
+
+- (bool) fileIsImmutable
+{
+	return [[self objectForKey:NSFileImmutable] boolValue];
+}
+
+-(NSDate *)fileModificationDate
+{
+	return [self objectForKey:NSFileModificationDate];
+}
+
+- (NSNumber *) fileOwnerAccountID
+{
+	return [self objectForKey:NSFileOwnerAccountID];
+}
+
+-(NSString *)fileOwnerAccountName
+{
+	return [self objectForKey:NSFileOwnerAccountName];
+}
+
+-(NSUInteger)filePosixPermissions
+{
+	return [[self objectForKey:NSFilePosixPermissions] unsignedIntegerValue];
+}
+
+-(off_t)fileSize
+{
+	return [[self objectForKey:NSFileSize] unsignedLongLongValue];
+}
+
+- (NSUInteger) fileSystemFileNumber
+{
+	return [[self objectForKey:NSFileSystemFileNumber] unsignedIntegerValue];
+}
+
+- (NSInteger) fileSystemNumber
+{
+	return [[self objectForKey:NSFileSystemNumber] unsignedIntegerValue];
+}
+
+-(NSString *)fileType
+{
+	return [self objectForKey:NSFileType];
+}
+
+@end
+
 NSString * const NSFileDisplayName = @"NSFileDisplayName";
 
 NSString * const NSFileType = @"NSFileType";
@@ -584,12 +657,13 @@ NSString * const NSFileGroupOwnerAccountName = @"NSFileGroupOwnerAccountName";
 NSString * const NSFilePosixPermissions = @"NSFilePosixPermissions";
 NSString * const NSFileSystemNumber = @"NSFileSystemNumber";
 NSString * const NSFileSystemFileNumber = @"NSFileSystemFileNumber";
-NSString * const NSFileTypeImmutable = @"NSFileTypeImmutable";
-NSString * const NSFileTypeAppendOnly = @"NSFileTypeAppendOnly";
-NSString * const NSFileTypeCreationDate = @"NSFileTypeCreationDate";
-NSString * const NSFileTypeOwnerAccountID = @"NSFileTypeOwnerAccountID";
-NSString * const NSFileTypeGroupOwnerAccountID = @"NSFileTypeGroupOwnerAccountID";
-NSString * const NSFileTypeBusy = @"NSFileTypeBusy";
+NSString * const NSFileExtensionHidden = @"NSFileExtensionHidden";
+NSString * const NSFileImmutable = @"NSFileImmutable";
+NSString * const NSFileAppendOnly = @"NSFileAppendOnly";
+NSString * const NSFileCreationDate = @"NSFileCreationDate";
+NSString * const NSFileOwnerAccountID = @"NSFileOwnerAccountID";
+NSString * const NSFileGroupOwnerAccountID = @"NSFileGroupOwnerAccountID";
+NSString * const NSFileBusy = @"NSFileBusy";
 NSString * const NSFileAccess = @"NSFileAccess";
 
 NSString * const NSFileIdentifier = @"NSFileIdentifier";
