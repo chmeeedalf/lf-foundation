@@ -75,7 +75,7 @@ struct _InvocationPrivate
 	void *ret;
 };
 
-@interface NSInvocation(PrivateExtensions)
+@interface NSInvocation()
 + (NSInvocation *)invocationWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig;
 - (id) initWithCallbackData:(struct _InvocationPrivate *)data arguments:(void **)args signature:(NSMethodSignature *)sig;
 - (void) _verifySignature;

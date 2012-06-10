@@ -66,7 +66,7 @@ static NSThread *mainThread;
 - (void) removeThread:(NSThread *)thrID;
 @end
 
-@interface NSThread(private)
+@interface NSThread()
 - (void) __startThread;
 @end
 

@@ -71,7 +71,7 @@
  * NSSet
  */
 
-@interface NSSet(extensions)
+@interface NSSet()
 
 - (id)initWithObject:(id)firstObject arglist:(va_list)argList;
 
