@@ -157,19 +157,6 @@ typedef enum NSURLType {
  * \brief RFC 2396-compliant NSURL class.
  */
 @interface NSURL	: NSObject<NSCoding, NSCopying>
-{
-	NSURLType type;	/*!< \brief Type of the NSURL. */
-	NSURL *baseURL;
-	NSString *srcString;
-	NSString *scheme;	/*!< \brief NSURL Scheme (http, ftp, telnet, etc). */
-	NSString *hostName;	/*!< \brief Hostname part of the NSURL. */
-	NSHost *host;		/*!< \brief Host named by the hostName. */
-	NSNumber * port;	/*!< \brief Port component. */
-	NSString *query;	/*!< \brief Query component ( ...?foo ) */
-	NSString *fragment;	/*!< \brief Fragment component (example: index.html#foo) */
-	NSString *path;	/*!< \brief Path component. */
-	NSString *userInfo;	/*!< \brief User info -- username and password. */
-}
 
 /*!
  * \brief Create a NSURL from a valid string.

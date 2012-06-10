@@ -31,7 +31,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSCharacterSet.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSError.h>
 #import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSURL.h>
@@ -45,6 +48,19 @@
 @end
 
 @implementation NSURL
+{
+	NSURLType type;	/*!< \brief Type of the NSURL. */
+	NSURL *baseURL;
+	NSString *srcString;
+	NSString *scheme;	/*!< \brief NSURL Scheme (http, ftp, telnet, etc). */
+	NSString *hostName;	/*!< \brief Hostname part of the NSURL. */
+	NSHost *host;		/*!< \brief Host named by the hostName. */
+	NSNumber * port;	/*!< \brief Port component. */
+	NSString *query;	/*!< \brief Query component ( ...?foo ) */
+	NSString *fragment;	/*!< \brief Fragment component (example: index.html#foo) */
+	NSString *path;	/*!< \brief Path component. */
+	NSString *userInfo;	/*!< \brief User info -- username and password. */
+}
 
 static inline bool _reserved(NSUniChar ch)
 {
@@ -156,7 +172,6 @@ static NSString *makeScheme(NSUniChar **str)
 	return nil;
 }
 
-// TODO: Handle escapes (right now just note that they exist)
 static inline bool _regName(NSURL *self, NSUniChar **strp)
 {
 	NSUniChar *str = *strp;
@@ -756,21 +771,26 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (id) initWithScheme:(NSString *)s host:(NSString *)h path:(NSString *)p
 {
-	scheme = [s copy];
-	hostName = [h copy];
-	path = [p copy];
-	return self;
+	NSString *urlStr = [NSString stringWithFormat:@"%s://%s/%s",
+			 s, h, [p stringByAddingPercentEscapesUsingEncoding:[NSString defaultCStringEncoding]]];
+	return [self initWithString:urlStr relativeToURL:nil];
 }
 
 - (id) initFileURLWithPath:(NSString *)fPath
 {
-	return [self initWithScheme:@"file" host:nil path:fPath];
+	return [self initWithString:[NSString stringWithFormat:@"file://%s%@",
+			   ([fPath hasPrefix:@"/"] ? "" : "/"), fPath]
+				   relativeToURL:nil];
 }
 
-- (id) initFileURLWithPath:(NSString *)path isDirectory:(bool)isDir
+- (id) initFileURLWithPath:(NSString *)fPath isDirectory:(bool)isDir
 {
-	TODO; // -[NSURL initFileURLWithPath:isDirectory:];
-	return nil;
+	NSParameterAssert(fPath != nil);
+
+	return [self initWithString:[NSString stringWithFormat:@"file://%s%@%s",
+			   ([fPath hasPrefix:@"/"] ? "" : "/"), fPath,
+			   ([fPath hasSuffix:@"/"] ? "" : "/")]
+				   relativeToURL:nil];
 }
 
 - (id) copyWithZone:(NSZone *)zone
@@ -780,8 +800,7 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (NSString *) absoluteString
 {
-	TODO; // -[NSURL absoluteString]
-	return nil;
+	return [[self absoluteURL] description];
 }
 
 - (NSURL *) absoluteURL
@@ -797,17 +816,18 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (NSString *) relativeString
 {
-	// If this URL was built by -[initWithScheme:host:path:] build the result
-	// manually.
 	if (srcString == nil)
-		srcString = [self description];
+		return [self absoluteString];
 	return srcString;
 }
 
 - (NSString *) relativePath
 {
-	TODO; // -[NSURL relativePath]
-	return nil;
+	if (srcString == nil)
+	{
+		return [self path];
+	}
+	return path;
 }
 
 - (NSURL *) standardizedURL
@@ -840,13 +860,19 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (NSString *) user
 {
-	TODO; // -[NSURL user]
-	return nil;
+	NSUInteger i = [userInfo indexOfString:@":"];
+
+	if (i != NSNotFound)
+		return [userInfo substringToIndex:i];
+	return userInfo;
 }
 
 - (NSString *) password
 {
-	TODO; // -[NSURL password]
+	NSUInteger i = [userInfo indexOfString:@":"];
+
+	if (i != NSNotFound)
+		return [userInfo substringFromIndex:i + 1];
 	return nil;
 }
 
@@ -953,8 +979,14 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (NSURL *) URLByAppendingPathComponent:(NSString *)component isDirectory:(bool)isDir
 {
-	TODO; // -[NSURL URLByAppendingPathComponent:isDirectory:]
-	return nil;
+	if (!isDir || [component hasSuffix:@"/"])
+	{
+		return [self URLByAppendingPathComponent:component];
+	}
+	else
+	{
+		return [self URLByAppendingPathComponent:[component stringByAppendingString:@"/"]];
+	}
 }
 
 - (NSArray *) pathComponents
@@ -986,8 +1018,27 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (NSDictionary *)resourceValuesForKeys:(NSArray *)keys error:(NSError **)error
 {
-	TODO; // resourceValuesForKeys:error:
-	return nil;
+	NSMutableDictionary *retval = [NSMutableDictionary new];
+
+	for (NSString *key in keys)
+	{
+		NSError *err = nil;
+		id val;
+		if (![self getResourceValue:&val forKey:key error:&err])
+		{
+			if (err != nil)
+			{
+				if (error != NULL)
+					*error = err;
+				return nil;
+			}
+		}
+		else
+		{
+			[retval setObject:val forKey:key];
+		}
+	}
+	return retval;
 }
 
 - (bool)setResourceValue:(id)value forKey:(NSString *)key error:(NSError **)error
@@ -998,8 +1049,26 @@ static inline bool _hierPart(NSURL *self, NSUniChar *str)
 
 - (bool)setResourceValues:(NSDictionary *)keyedValues error:(NSError **)error
 {
-	TODO; // setResourceValues:error:
-	return false;
+	__block NSMutableArray *errKeys = nil;
+	[keyedValues enumerateKeysAndObjectsUsingBlock:^(id key, id val, bool *stop){
+
+		if (![self setResourceValue:val forKey:key error:error])
+		{
+			if (errKeys == nil)
+				errKeys = [NSMutableArray new];
+			[errKeys addObject:key];
+		}
+	}];
+	if (errKeys)
+	{
+		if (error != NULL)
+		{
+			*error = [NSError errorWithDomain:NSCocoaErrorDomain code:[*error code]
+									 userInfo:@{NSURLKeysOfUnsetValuesKey : errKeys}];
+		}
+		return false;
+	}
+	return true;
 }
 
 - (bool) isEqual:(id)other
