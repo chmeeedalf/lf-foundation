@@ -52,7 +52,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSArray.h>
 #import <Foundation/NSString.h>
 
-@interface NSString(String_pathUtilities)
+@interface NSString(NSString_pathUtilities)
 
 +(NSString *)pathWithComponents:(NSArray *)components;
 -(NSArray *)pathComponents;
@@ -77,7 +77,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -(bool)isAbsolutePath;
 
 -(const char *)fileSystemRepresentation;
--(const uint16_t *)fileSystemRepresentationW;
 -(bool)getFileSystemRepresentation:(char *)bytes maxLength:(size_t)maxLength;
 
 -(unsigned long)completePathIntoString:(NSString **)string caseSensitive:(bool)caseSensitive matchesIntoArray:(NSArray **)array filterTypes:(NSArray *)types;

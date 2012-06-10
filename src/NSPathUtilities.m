@@ -77,7 +77,7 @@ static NSString *selfDirName = @".";
 
 static NSString *rootPath = @"/";
 
-@implementation NSString(FilePathMethods)
+@implementation NSString(NSString_pathUtilities)
 
 + (NSString *)pathWithComponents:(NSArray *)components
 {
