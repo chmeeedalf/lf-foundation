@@ -33,7 +33,7 @@
 
 @interface NSDelegate	:	NSProxy
 {
-	id			delegate;
+	__weak id			delegate;
 	Protocol	*protocol;
 }
 
