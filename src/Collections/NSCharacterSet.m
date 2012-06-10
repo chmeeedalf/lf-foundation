@@ -227,9 +227,19 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 - (bool) isSupersetOfSet:(NSCharacterSet *)other
 {
-	TODO; // isSupersetOfSet:
-	[self notImplemented:_cmd];
-	return false;
+	NSData *thisBitmapData = [self bitmapRepresentation];
+	NSData *otherBitmapData = [other bitmapRepresentation];
+
+	const char *thisBitmap = [thisBitmapData bytes];
+	const char *otherBitmap = [otherBitmapData bytes];
+
+	NSUInteger len = MAX(thisBitmapData, otherBitmapData);
+	for (NSUInteger i = 0; i < len; i++)
+	{
+		if ((thisBitmap[i] & otherBitmap[i]) != otherBitmap[i])
+			return false;
+	}
+	return true;
 }
 
 - (bool) hasMemberInPlane:(uint8_t)plane
