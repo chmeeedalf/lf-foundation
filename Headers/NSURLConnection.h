@@ -31,14 +31,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 @protocol NSURLConnectionDelegate;
 
 @interface NSURLConnection : NSObject
-{
-	NSURLRequest  *_request;
-	NSURLProtocol *_protocol;
-	id<NSURLConnectionDelegate>             _delegate;
-	NSMutableArray *_modes;
-	NSInputStream  *_inputStream;
-	NSOutputStream *_outputStream;
-}
 
 +(bool)canHandleRequest:(NSURLRequest *)request;
 

@@ -20,6 +20,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import <Foundation/NSURLCredentialStorage.h>
 #import <Foundation/NSString.h>
+#import "internal.h"
 
 NSString * const NSURLCredentialStorageChangedNotification=@"NSURLCredentialStorageChangedNotification";
 
@@ -27,46 +28,54 @@ NSString * const NSURLCredentialStorageChangedNotification=@"NSURLCredentialStor
 
 +(NSURLCredentialStorage *)sharedCredentialStorage
 {
+	TODO; // +[NSURLCredentialStorage sharedCredentialStorage]
 	[self notImplemented:_cmd];
 	return nil;
 }
 
 -(id)init
 {
+	TODO; // -[NSURLCredentialStorage sharedCredentialStorage]
 	[self notImplemented:_cmd];
 	return nil;
 }
 
 -(NSDictionary *)allCredentials
 {
+	TODO; // -[NSURLCredentialStorage allCredentials]
 	[self notImplemented:_cmd];
 	return nil;
 }
 
 -(NSDictionary *)credentialsForProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
+	TODO; // -[NSURLCredentialStorage credentialsForProtectionSpace:]
 	[self notImplemented:_cmd];
 	return nil;
 }
 
 -(NSURLCredential *)defaultCredentialForProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
+	TODO; // -[NSURLCredentialStorage defaultCredentialForProtectionSpace:]
 	[self notImplemented:_cmd];
 	return nil;
 }
 
 -(void)setCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
+	TODO; // -[NSURLCredentialStorage setCredential:forProtectionSpace:]
 	[self notImplemented:_cmd];
 }
 
 -(void)setDefaultCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
+	TODO; // -[NSURLCredentialStorage setDefaultCredential:forProtectionSpace:]
 	[self notImplemented:_cmd];
 }
 
 -(void)removeCredential:(NSURLCredential *)credential forProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
+	TODO; // -[NSURLCredentialStorage removeCredential:forProtectionSpace:]
 	[self notImplemented:_cmd];
 }
 

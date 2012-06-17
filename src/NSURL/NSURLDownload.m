@@ -1,23 +1,34 @@
-/* Copyright (c) 2006-2007 Christopher J. W. Lloyd
+/*
+ * Copyright (c) 2011-2012	Justin Hibbits
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
+#import <Foundation/NSDelegate.h>
 #import <Foundation/NSURLDownload.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSURLRequest.h>
@@ -30,147 +41,66 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import "internal.h"
 
 @implementation NSURLDownload
+{
+	NSURLRequest    *request;
+	id               delegate;
+	bool             deletesOnFailure;
+	NSURL	        *path;
+	bool             allowOverwrite;
+	NSURLConnection *connection;
+	NSOutputStream  *fileStream;
+}
+
 
 +(bool)canResumeDownloadDecodedWithEncodingMIMEType:(NSString *)mimeType
 {
-	return true;
+	TODO; // +[NSURLDownload canResumeDownloadDecodedWithEncodingMIMEType:]
+	return false;
 }
 
 -(id)initWithRequest:(NSURLRequest *)request delegate:(id<NSURLDownloadDelegate>)delegate
 {
-	_request=[request copy];
-	_delegate=delegate;
-	_connection=[[NSURLConnection alloc] initWithRequest:_request delegate:self startImmediately:true];
+	TODO; // -[NSURLDownload initWithRequest:delegate:]
 	return self;
 }
 
 -(id)initWithResumeData:(NSData *)data delegate:(id<NSURLDownloadDelegate>)delegate path:(NSString *)path
 {
-	[self notImplemented:_cmd];
-	return false;
+	TODO;	// -[NSURLDownload initWithResumeData:delegate:path:]
+	return self;
 }
 
 -(NSURLRequest *)request
 {
-	return _request;
+	TODO; // -[NSURLDownload request]
+	return nil;
 }
 
 -(NSData *)resumeData
 {
-	[self notImplemented:_cmd];
-	return false;
+	TODO; // -[NSURLDownload resumeData]
+	return nil;
 }
 
 -(bool)deletesFileUponFailure
 {
-	return _deletesOnFailure;
+	TODO; // -[NSURLDownload deletesFileUponFailure]
+	return false;
 }
 
 -(void)setDeletesFileUponFailure:(bool)flag
 {
-	_deletesOnFailure=flag;
+	TODO; // -[NSURLDownload setDeletesFileUponFailure:]
 }
 
 -(void)setDestination:(NSString *)path allowOverwrite:(bool)allowOverwrite
 {
-	_path=[NSURL fileURLWithPath:path];
-	_allowOverwrite=allowOverwrite;
+	TODO; // -[NSURLDownload setDestination:allowOverwrite:]
 }
 
 -(void)cancel
 {
-	[_connection cancel];
+	TODO; // -[NSURLDownload cancel]
 }
-
--(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-	if([_delegate respondsToSelector:@selector(download:didFailWithError:)])
-				 [_delegate download:self didFailWithError:error];
-}
-
--(void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-	if([_delegate respondsToSelector:@selector(download:didReceiveAuthenticationChallenge:)])
-				 [_delegate download:self didReceiveAuthenticationChallenge:challenge];
-}
-
--(void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-	if([_delegate respondsToSelector:@selector(download:didCancelAuthenticationChallenge:)])
-				 [_delegate download:self didCancelAuthenticationChallenge:challenge];
-}
-
--(void)_createFileStreamIfNeeded
-{
-	if(_fileStream!=nil)
-		return;
-
-	NSURL *check=_path;
-
-	if(!_allowOverwrite)
-	{
-		if([[NSFileManager defaultManager] fileExistsAtURL:check])
-		{
-			NSURL *tryThis;
-			long i;
-
-			for(i=0;;i++)
-			{
-				tryThis=[check URLByDeletingPathExtension];
-				NSString *tryPath = [check lastPathComponent];
-				tryThis = [tryThis URLByDeletingLastPathComponent];
-				tryThis=[tryThis URLByAppendingPathComponent:[tryPath stringByAppendingFormat:@"-%d",i]];
-				tryThis=[tryThis URLByAppendingPathExtension:[check pathExtension]];
-
-				if(![[NSFileManager defaultManager] fileExistsAtURL:tryThis])
-				{
-					check=tryThis;
-					break;
-				}
-			}
-		}
-	}
-
-	_fileStream=[[NSOutputStream alloc] initWithURL:check append:false];
-
-	if([_delegate respondsToSelector:@selector(download:didCreateDestination:)])
-				 [_delegate download:self didCreateDestination:check];
-}
-
--(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-	[self _createFileStreamIfNeeded];
-	[_fileStream write:[data bytes] maxLength:[data length]];
-
-	if([_delegate respondsToSelector:@selector(download:didReceiveDataOfLength:)])
-				 [_delegate download:self didReceiveDataOfLength:[data length]];
-}
-
--(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-	if([_delegate respondsToSelector:@selector(download:didReceiveResponse:)])
-				 [_delegate download:self didReceiveResponse:response];
-}
-
--(NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)response
-{
-	TODO; // -[NSURLDownload connection:willCacheResponse:]
-	return nil;
-}
-
--(NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
-{
-	if([_delegate respondsToSelector:@selector(download:willSendRequest:redirectResponse:)])
-		  return [_delegate download:self willSendRequest:request redirectResponse:response];
-
-	return request;
-}
-
--(void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-	if([_delegate respondsToSelector:@selector(downloadDidFinish:)])
-		[_delegate downloadDidFinish:self];
-}
-
 
 @end

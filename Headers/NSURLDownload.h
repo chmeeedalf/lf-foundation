@@ -24,17 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 @class NSURL,NSURLRequest,NSURLResponse,NSURLAuthenticationChallenge,NSData,NSError,NSURLConnection,NSOutputStream;
 @protocol NSURLDownloadDelegate;
 
-@interface NSURLDownload : NSObject<NSURLConnectionDelegate>
-{
-	NSURLRequest *_request;
-	id<NSURLDownloadDelegate>   _delegate;
-	bool _deletesOnFailure;
-	NSURL	 *_path;
-	bool      _allowOverwrite;
-	NSURLConnection *_connection;
-	NSOutputStream        *_fileStream;
-}
-
+@interface NSURLDownload : NSObject
 -(id)initWithRequest:(NSURLRequest *)requst delegate:(id<NSURLDownloadDelegate>)delegate;
 
 +(bool)canResumeDownloadDecodedWithEncodingMIMEType:(NSString *)mimeType;

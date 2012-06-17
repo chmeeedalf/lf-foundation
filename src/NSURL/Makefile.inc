@@ -6,7 +6,6 @@ SRCS+=	NSCachedURLResponse.m \
 		NSURLAuthenticationChallenge.m \
 		NSURLCache.m \
 		NSURLConnection.m \
-		NSURLConnectionState.m \
 		NSURLCredential.m \
 		NSURLCredentialStorage.m \
 		NSURLDownload.m \

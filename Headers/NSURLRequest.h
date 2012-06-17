@@ -43,16 +43,6 @@ typedef enum
 } NSURLRequestNetworkServiceType;
 
 @interface NSURLRequest : NSObject <NSCopying,NSMutableCopying>
-{
-	NSURL                  *_url;
-	NSURLRequestCachePolicy _cachePolicy;
-	NSTimeInterval          _timeoutInterval;
-	NSString               *_method;
-	id                      _bodyDataOrStream;
-	NSMutableDictionary    *_headerFields;
-	NSURL                  *_mainDocumentURL;
-	bool                    _handleCookies;
-}
 
 +(id)requestWithURL:(NSURL *)url;
 -(id)initWithURL:(NSURL *)url;

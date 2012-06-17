@@ -39,78 +39,74 @@ NSMakeSymbol(NSAuthenticationMethodServerTrust);
 
 -(id)initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
 {
-	_host=[host copy];
-	_port=port;
-	_protocol=[protocol copy];
-	_realm=[realm copy];
-	_authenticationMethod=[authenticationMethod copy];
-	_isProxy=false;
+	TODO; // -[NSURLProtectionSpace initWithHost:port:protocol:realm:authenticationMethod:]
 	return self;
 }
 
 -(id)initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)type realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
 {
-	_host=[host copy];
-	_port=port;
-	_protocol=[type copy];
-	_realm=[realm copy];
-	_authenticationMethod=[authenticationMethod copy];
-	_isProxy=true;
+	TODO; // -[NSURLProtectionSpace initWithProxyHost:port:protocol:realm:authenticationMethod:]
 	return self;
 }
 
 -(id)copyWithZone:(NSZone *)zone
 {
+	TODO; //-[NSURLProtectionSpace copyWithZone:]
 	return self;
 }
 
 -(NSString *)host
 {
-	return _host;
+	TODO; // -[NSURLProtectionSpace host]
+	return nil;
 }
 
 -(int)port
 {
-	return _port;
+	TODO; // -[NSURLProtectionSpace port]
+	return 0;
 }
 
 -(NSString *)protocol
 {
-	return _protocol;
+	TODO; // -[NSURLProtectionSpace protocol]
+	return nil;
 }
 
 -(NSString *)realm
 {
-	return _realm;
+	TODO; // -[NSURLProtectionSpace realm]
+	return nil;
 }
 
 -(NSString *)authenticationMethod
 {
-	return _authenticationMethod;
+	TODO; // -[NSURLProtectionSpace proxyType]
+	return nil;
 }
 
 -(NSString *)proxyType
 {
-	if ([self isProxy])
-		return _protocol;
+	TODO; // -[NSURLProtectionSpace proxyType]
 	return nil;
 }
 
 -(bool)receivesCredentialsSecurely
 {
-	[self notImplemented:_cmd];
+	TODO; // -[NSURLProtectionSpace receivesCredentialsSecurely]
 	return false;
 }
 
 -(bool)isProxy
 {
-	return _isProxy;
+	TODO; // -[NSURLProtectionSpace isProxy]
+	return false;
 }
 
 - (NSArray *) distinguishedNames
 {
-	TODO;
-	return [self notImplemented:_cmd];
+	TODO; // -[NSURLProtectionSpace distinguishedNames]
+	return nil;
 }
 
 @end

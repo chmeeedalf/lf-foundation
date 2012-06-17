@@ -58,7 +58,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSURL.h>
-#import "NSURLConnectionState.h"
 
 @interface NSURLProtocol(private)
 +(Class)_URLProtocolClassForRequest:(NSURLRequest *)request;
@@ -68,6 +67,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 @end
 
 @implementation NSURLConnection
+{
+	NSURLRequest  *_request;
+	NSURLProtocol *_protocol;
+	id<NSURLConnectionDelegate>             _delegate;
+	NSMutableArray *_modes;
+	NSInputStream  *_inputStream;
+	NSOutputStream *_outputStream;
+}
 
 +(bool)canHandleRequest:(NSURLRequest *)request
 {
@@ -76,25 +83,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 +(NSData *)sendSynchronousRequest:(NSURLRequest *)request returningResponse:(NSURLResponse **)responsep error:(NSError **)errorp
 {
-	NSURLConnectionState *state = [[NSURLConnectionState alloc] init];
-	NSURLConnection      *connection = [[self alloc] initWithRequest:request delegate:state];
-	NSString *mode = @"NSURLConnectionRequestMode";
-
-	[connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
-
-	[state receiveAllDataInMode:mode];
-	[connection unscheduleFromRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
-
-
-	[connection cancel];
-
-	if(errorp != NULL)
-		*errorp = [state error];
-	if(responsep != NULL)
-		*responsep = [state response];
-
-	NSData *d = [state data];
-	return d;
+	TODO; // +[NSURLConnection sendSynchronousRequest:returningResponse:error:]
+	return nil;
 }
 
 +(NSURLConnection *)connectionWithRequest:(NSURLRequest *)request delegate:(id<NSURLConnectionDelegate>)delegate

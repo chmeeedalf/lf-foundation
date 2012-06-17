@@ -1,3 +1,33 @@
+/*
+ * Copyright (c) 2012	Justin Hibbits
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
+
 /* Copyright (c) 2006-2007 Christopher J. W. Lloyd
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,39 +57,50 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import "internal.h"
 
 @implementation NSURLRequest
+{
+	@protected
+	NSURL                  *url;
+	NSURLRequestCachePolicy cachePolicy;
+	NSTimeInterval          timeoutInterval;
+	NSString               *method;
+	NSData                 *bodyData;
+	NSInputStream          *bodyStream;
+	NSMutableDictionary    *headerFields;
+	NSURL                  *mainDocumentURL;
+	bool                    handleCookies;
+}
 
 -(id)initWithURLRequest:(NSURLRequest *)other
 {
-   _url = [[other URL] copy];
-   _cachePolicy = [other cachePolicy];
-   _timeoutInterval = [other timeoutInterval];
-   
-   NSData *data = [other HTTPBody];
-   if(data != nil)
-    _bodyDataOrStream = [data copy];
-   else
-    _bodyDataOrStream = [other HTTPBodyStream];
-   
-   _headerFields = [[other allHTTPHeaderFields] mutableCopy];
-   _method = [other HTTPMethod];
-   _handleCookies = [other HTTPShouldHandleCookies];
-   return self;
+	url = [[other URL] copy];
+	cachePolicy = [other cachePolicy];
+	timeoutInterval = [other timeoutInterval];
+
+	bodyData = [other HTTPBody];
+	bodyStream = [other HTTPBodyStream];
+
+	headerFields = [[other allHTTPHeaderFields] mutableCopy];
+	method = [other HTTPMethod];
+	handleCookies = [other HTTPShouldHandleCookies];
+	return self;
 }
 
--(id)initWithURL:(NSURL *)url
+-(id)initWithURL:(NSURL *)newURL
 {
-   return [self initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60];
+   return [self initWithURL:newURL cachePolicy:NSURLRequestUseProtocolCachePolicy
+   			timeoutInterval:60];
 }
 
--(id)initWithURL:(NSURL *)url cachePolicy:(NSURLRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout
+-(id)initWithURL:(NSURL *)newURL
+	 cachePolicy:(NSURLRequestCachePolicy)cp
+ timeoutInterval:(NSTimeInterval)timeout
 {
-   _url = [url copy];
-   _cachePolicy = cachePolicy;
-   _timeoutInterval = timeout;
-   _bodyDataOrStream = nil;
-   _headerFields = [NSMutableDictionary new];
-   _method = @"GET";
-   _handleCookies = true;
+   url = [newURL copy];
+   cachePolicy = cp;
+   timeoutInterval = timeout;
+   headerFields = [NSMutableDictionary new];
+   method = @"GET";
+   handleCookies = true;
    return self;
 }
 
@@ -68,7 +109,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    return [[self alloc] initWithURL:url];
 }
 
-+(id)requestWithURL:(NSURL *)url cachePolicy:(NSURLRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeout
++(id)requestWithURL:(NSURL *)url
+		cachePolicy:(NSURLRequestCachePolicy)cachePolicy
+	timeoutInterval:(NSTimeInterval)timeout
 {
    return [[self alloc] initWithURL:url cachePolicy:cachePolicy timeoutInterval:timeout];
 }
@@ -85,60 +128,54 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(NSURL *)URL
 {
-   return _url;
+   return url;
 }
 
 -(NSURLRequestCachePolicy)cachePolicy
 {
-   return _cachePolicy;
+   return cachePolicy;
 }
 
 -(NSTimeInterval)timeoutInterval
 {
-   return _timeoutInterval;
+   return timeoutInterval;
 }
 
 -(NSString *)HTTPMethod
 {
-   return _method;
+   return method;
 }
 
 -(NSData *)HTTPBody
 {
-   if([_bodyDataOrStream isKindOfClass:[NSData class]])
-    return _bodyDataOrStream;
-    
-   return nil;
+	return bodyData;
 }
 
 -(NSInputStream *)HTTPBodyStream
 {
-   if([_bodyDataOrStream isKindOfClass:[NSInputStream class]])
-    return _bodyDataOrStream;
-    
-   return nil;
+	return bodyStream;
 }
 
 -(NSDictionary *)allHTTPHeaderFields
 {
-   return _headerFields;
+	return headerFields;
 }
 
 -(NSString *)valueForHTTPHeaderField:(NSString *)field
 {
-   field = [field uppercaseString];
-   
-   return [_headerFields objectForKey:field];
+	field = [field uppercaseString];
+
+	return [headerFields objectForKey:field];
 }
 
 -(NSURL *)mainDocumentURL
 {
-   return _mainDocumentURL;
+	return mainDocumentURL;
 }
 
 -(bool)HTTPShouldHandleCookies
 {
-   return _handleCookies;
+	return handleCookies;
 }
 
 -(bool) HTTPShouldUsePipelining
@@ -152,4 +189,92 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	TODO; // -[NSURLRequest networkServiceType]
 	return 0;
 }
+@end
+
+@implementation NSMutableURLRequest
+
+-(id)copyWithZone:(NSZone *)zone
+{
+	return [[NSURLRequest alloc] initWithURLRequest:self];
+}
+
+-(void)setURL:(NSURL *)value
+{
+	value = [value copy];
+	url = value;
+}
+
+-(void)setCachePolicy:(NSURLRequestCachePolicy)value
+{
+	cachePolicy = value;
+}
+
+-(void)setTimeoutInterval:(NSTimeInterval)value
+{
+	timeoutInterval = value;
+}
+
+-(void)setHTTPMethod:(NSString *)value
+{
+	value = [value copy];
+	method = value;
+}
+
+-(void)setHTTPBody:(NSData *)value
+{
+	bodyData = [value copy];
+	bodyStream = nil;
+}
+
+-(void)setHTTPBodyStream:(NSInputStream *)value
+{
+	bodyStream = value;
+	bodyData = nil;
+}
+
+-(void)setAllHTTPHeaderFields:(NSDictionary *)allValues
+{
+	NSString     *key;
+
+	[headerFields removeAllObjects];
+	for (key in allValues)
+	{
+		NSString *value = [allValues objectForKey:key];
+
+		if([key isKindOfClass:[NSString class]] && [value isKindOfClass:[NSString class]])
+		{
+			[headerFields setObject:value forKey:[key uppercaseString]];
+		}
+	}
+}
+
+-(void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field
+{
+	field = [field uppercaseString];
+
+	[headerFields setObject:value forKey:field];
+}
+
+-(void)addValue:(NSString *)value forHTTPHeaderField:(NSString *)field
+{
+	NSString *existing;
+
+	field = [field uppercaseString];
+	existing = [headerFields objectForKey:field];
+	if(existing != nil)
+		value = [[existing stringByAppendingString:@","] stringByAppendingString:value];
+
+	[headerFields setObject:value forKey:field];
+}
+
+-(void)setHTTPShouldHandleCookies:(bool)value
+{
+	handleCookies = value;
+}
+
+-(void)setMainDocumentURL:(NSURL *)value
+{
+	mainDocumentURL = [value copy];
+}
+
 @end
