@@ -48,6 +48,10 @@ enum
 };
 typedef NSUInteger NSXMLNodeKind;
 
+@class NSArray, NSDictionary;
+@class NSError;
+@class NSXMLDocument, NSXMLElement;
+
 @interface NSXMLNode	:	NSObject<NSCopying>
 - (id) initWithKind:(NSXMLNodeKind)kind;
 - (id) initWithKind:(NSXMLNodeKind)kind options:(NSUInteger)options;
@@ -61,7 +65,7 @@ typedef NSUInteger NSXMLNodeKind;
 + (id) attributeWithName:(NSString *)name URI:(NSString *)URI stringValue:(NSString *)value;
 + (id) textWithStringValue:(NSString *)string;
 + (id) commentWithStringValue:(NSString *)string;
-+ (id) namespaceWIthName:(NSString *)name stringValue:(NSString *)string;
++ (id) namespaceWithName:(NSString *)name stringValue:(NSString *)string;
 + (id) DTDNodeWithXMLString:(NSString *)string;
 + (id) predefinedNamespaceForPrefix:(NSString *)prefix;
 + (id) processingInstructionWithName:(NSString *)name stringValue:(NSString *)string;

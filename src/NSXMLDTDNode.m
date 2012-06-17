@@ -28,32 +28,68 @@
  * 
  */
 
-#import <Foundation/NSXMLNode.h>
+#import <Foundation/NSXMLDTDNode.h>
+#import "internal.h"
 
-@class NSURL;
-@class NSXMLDTDNode;
+@implementation NSXMLDTDNode
 
-@interface NSXMLDTD	:	NSXMLNode
+- (id) initWithXMLString:(NSString *)string
+{
+	TODO; // -[NSXMLDTDNode initWithXMLString:]
+	return nil;
+}
 
-- (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)options error:(NSError **)errp;
-- (id) initWithData:(NSData *)data options:(NSUInteger)options error:(NSError **)errp;
 
-- (void) setPublicID:(NSString *)publicID;
-- (NSString *) publicID;
-- (void) setSystemID:(NSString *)systemID;
-- (NSString *) systemID;
+- (NSXMLDTDNodeKind) DTDKind
+{
+	TODO;	// -[NSXMLDTDNode DTDKind]
+	return 0;
+}
 
-- (void) addChild:(NSXMLNode *)child;
-- (void) insertChild:(NSXMLNode *)child atIndex:(NSUInteger)index;
-- (void) insertChildren:(NSArray *)children atIndex:(NSUInteger)index;
-- (void) removeChildAtIndex:(NSUInteger)index;
-- (void) replaceChildAtIndex:(NSUInteger)index withNode:(NSXMLNode *)newChild;
-- (void) setChildren:(NSArray *)newChildren;
+- (void) setDTDKind:(NSXMLDTDNodeKind)kind
+{
+	TODO;	// -[NSXMLDTDNode setDTDKind:]
+}
 
-+ (NSXMLDTDNode *) predefinedEntityDeclarationForName:(NSString *)name;
-- (NSXMLDTDNode *) elementDeclarationForName:(NSString *)name;
-- (NSXMLDTDNode *) attributeDeclarationForName:(NSString *)name elementName:(NSString *)elName;
-- (NSXMLDTDNode *) entityDeclarationForName:(NSString *)name;
-- (NSXMLDTDNode *) notationDeclarationForName:(NSString *)name;
+
+- (bool) isExternal
+{
+	TODO;	// -[NSXMLDTDNode isExternal]
+	return false;
+}
+
+- (void) setNotationName:(NSString *)notationName
+{
+	TODO;	// -[NSXMLDTDNode setNotationName:]
+}
+
+- (NSString *) notationName
+{
+	TODO; // -[NSXMLDTDNode notationName]
+	return nil;
+}
+
+- (void) setPublicID:(NSString *)publicID
+{
+	TODO;	// -[NSXMLDTDNode setPublicID:]
+}
+
+- (NSString *) publicID
+{
+	TODO;	// -[NSXMLDTDNode publicID]
+	return nil;
+}
+
+- (void) setSystemID:(NSString *)systemID
+{
+	TODO;	// -[NSXMLDTDNode setSystemID:]
+}
+
+- (NSString *) systemID
+{
+	TODO;	// -[NSXMLDTDNode systemID]
+	return nil;
+}
+
 
 @end

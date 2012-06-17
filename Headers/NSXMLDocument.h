@@ -38,6 +38,10 @@ enum {
 	NSXMLDocumentTextKind,
 };
 
+@class NSError;
+@class NSURL;
+@class NSXMLDTD;
+
 @interface NSXMLDocument	:	NSXMLNode
 - (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)mask error:(NSError **)errp;
 - (id) initWithData:(NSData *)data options:(NSUInteger)mask error:(NSError **)errp;

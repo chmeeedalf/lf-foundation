@@ -30,12 +30,12 @@
 
 #import <Foundation/NSXMLNode.h>
 
-@interface NSXMLDocument	:	NSXMLNode
+@interface NSXMLElement	:	NSXMLNode
 
 - (id) initWithName:(NSString *)name;
 - (id) initWithName:(NSString *)name stringValue:(NSString *)string;
 - (id) initWithXMLString:(NSString *)string error:(NSString **)errp;
-- (id) initwithName:(NSString *)name URI:(NSString *)URI;
+- (id) initWithName:(NSString *)name URI:(NSString *)URI;
 
 - (NSArray *) elementsForName:(NSString *)name;
 - (NSArray *) elementsForLocalName:(NSString *)name URI:(NSString *)URI;

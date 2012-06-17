@@ -32,6 +32,8 @@
 #include <sys/param.h>
 #include <stdlib.h>
 
+#include <libxml/tree.h>
+
 #ifdef __cplusplus
 #include <functional>
 #endif
@@ -54,7 +56,12 @@
 #import <Foundation/NSThread.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSURLProtocol.h>
+#import <Foundation/NSXMLNode.h>
 #include <unicode/ucal.h>
+#endif
+
+#ifndef NANOSECONDS
+#define NANOSECONDS	1000000000UL
 #endif
 
 #ifdef __cplusplus
@@ -214,6 +221,12 @@ struct sockaddr_storage;
 
 @interface NSPortCoder(PrivateExtensions)
 - (NSConnection *) connection;
+@end
+
+@interface NSXMLNode()
+{
+	xmlNodePtr nodePtr;
+}
 @end
 bool spawnProcessWithURL(NSURL *, id, NSDictionary *, pid_t *);
 
