@@ -30,11 +30,16 @@
 
 #import <Foundation/NSObject.h>
 
+#import <Foundation/NSDate.h>
+
 @class NSData;
 @class NSDictionary;
 @class NSInputStream;
 @class NSOutputStream;
 @class NSString;
+@class NSNetService;
+@class NSNetServiceBrowser;
+@class NSRunLoop;
 
 extern NSString * const NSNetServicesErrorCode;
 extern NSString * const NSNetServicesErrorDomain;
@@ -79,12 +84,12 @@ typedef NSUInteger NSNetServiceOptions;
 
 - (NSArray *) addresses;
 - (NSString *) domain;
-- (bool) getInputStream:(NSStream **)inputStream outputStream:(NSOutputStream **)outputStream;
+- (bool) getInputStream:(NSInputStream **)inputStream outputStream:(NSOutputStream **)outputStream;
 - (NSString *) hostName;
 - (NSString *) name;
 - (NSString *) type;
 - (NSData *) TXTRecordData;
-- (void) setTXTRecordData;
+- (bool) setTXTRecordData:(NSData *)data;
 - (id<NSNetServiceDelegate>) delegate;
 - (void) setDelegate:(id <NSNetServiceDelegate>)del;
 
@@ -94,7 +99,7 @@ typedef NSUInteger NSNetServiceOptions;
 - (void) publish;
 - (void) publishWithOptions:(NSNetServiceOptions)opts;
 - (void) resolveWithTimeout:(NSTimeInterval)timeout;
-- (int) port;
+- (NSInteger) port;
 - (void) startMonitoring;
 - (void) stop;
 - (void) stopMonitoring;
