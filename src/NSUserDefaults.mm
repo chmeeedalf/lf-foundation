@@ -404,8 +404,26 @@ static bool isPlistObject(id obj)
 
 - (NSDictionary *)dictionaryRepresentation
 {
-	TODO; // -[NSUserDefaults dictionaryRepresentation]
-	return nil;
+	NSMutableDictionary *dict = [NSMutableDictionary new];
+	@synchronized(self)
+	{
+		for (NSString *domain in searchList)
+		{
+			NSDictionary *domainDict = [persistentDomains objectForKey:domain];
+			if (domainDict == nil)
+			{
+				domainDict = [volatileDomains objectForKey:domain];
+			}
+			[domainDict enumerateKeysAndObjectsUsingBlock:^(id key, id val,
+					bool *stop){
+				if ([dict objectForKey:key] == nil)
+				{
+					[dict setObject:val forKey:key];
+				}
+			}];
+		}
+	}
+	return [dict copy];
 }
 
 - (bool) objectIsForcedForKey:(NSString *)key
