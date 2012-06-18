@@ -28,23 +28,57 @@
  * 
  */
 
-#import <Foundation/NSObject.h>
+#import <Foundation/NSOrthography.h>
+#import "internal.h"
 
-@class NSArray;
-@class NSDictionary;
-@class NSString;
+@implementation NSOrthography
+@synthesize allLanguages;
+@synthesize allScripts;
+@synthesize dominantLanguage;
+@synthesize dominantScript;
+@synthesize languageMap;
 
-@interface NSOrthography	:	NSObject<NSCoding,NSCopying>
-@property(readonly) NSArray *allLanguages;
-@property(readonly) NSArray *allScripts;
-@property(readonly) NSString *dominantLanguage;
-@property(readonly) NSString *dominantScript;
-@property(readonly) NSDictionary *languageMap;
++ (id) orthographyWithDominantScript:(NSString *)domScript languageMap:(NSDictionary *)langMap
+{
+	return [[NSOrthography alloc] initWithDominantScript:domScript languageMap:langMap];
+}
 
-+ (id) orthographyWithDominantScript:(NSString *)domScript languageMap:(NSDictionary *)langMap;
-- (id) initWithDominantScript:(NSString *)domScript languageMap:(NSDictionary *)langMap;
+- (id) initWithDominantScript:(NSString *)domScript languageMap:(NSDictionary *)langMap
+{
+	TODO;	// -[NSOrthography initWithDominantScript:languageMap:]
+	return self;
+}
 
-- (NSArray *) languagesForScript:(NSString *)script;
-- (NSString *) dominantLanguageForScript:(NSString *)script;
+
+- (NSArray *) languagesForScript:(NSString *)script
+{
+	TODO;	// -[NSOrthography languagesForScript:]
+	return nil;
+}
+
+- (NSString *) dominantLanguageForScript:(NSString *)script
+{
+	TODO;	// -[NSOrthography dominantLanguageForScript:]
+	return nil;
+}
+
+// NSCoding protocol
+
+- (id) initWithCoder:(NSCoder *)coder
+{
+	TODO;	// -[NSOrthography initWithCoder:]
+	return nil;
+}
+
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+	TODO;	// -[NSOrthography encodeWithCoder:]
+}
+
+- (id) copyWithZone:(NSZone *)zone
+{
+	TODO;	// -[NSOrthography copyWithZone:]
+	return nil;
+}
 
 @end
