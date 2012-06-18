@@ -40,6 +40,11 @@
 NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 
 @implementation NSPort
+{
+	bool				_isValid;
+	id<NSPortDelegate>	delegate;
+}
+
 + (id) allocWithZone:(NSZone *)zone
 {
 	return [super allocWithZone:zone];
@@ -67,14 +72,14 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 }
 
 
-- (void) setDelegate:(id<NSPortDelegate>) delegate
+- (void) setDelegate:(id<NSPortDelegate>)newDel
 {
-	_delegate = delegate;
+	delegate = newDel;
 }
 
 - (id<NSPortDelegate>) delegate
 {
-	return _delegate;
+	return delegate;
 }
 
 - (bool) sendBeforeDate:(NSDate *)date components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved

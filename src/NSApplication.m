@@ -39,7 +39,6 @@ NSApplication *NSApp = nil;
 @interface NSApplication(LSDExtensions)
 - (void) startThread:(NSThread *)threadID :(void *[1])data;
 - (void) startProcess:(void *[1])data;
-- (void) startClone:(void *[1])data;
 @end
 
 @implementation NSApplication

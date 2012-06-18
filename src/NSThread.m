@@ -52,8 +52,6 @@
 	than launch time, to ease the ownership rights confusion.
  */
 
-#define NANOSECONDS	1000000000UL
-
 /* NSThread notifications */
 NSString* NSThreadWillExitNotification = @"NSThreadWillExitNotification";
 
@@ -381,6 +379,30 @@ static void cleanupThread(void *thrId)
 - (void) main
 {
 	[target performSelector:selector withObject:arg];
+}
+
+@end
+
+@implementation NSObject (Threading)
+- (void)performSelectorInBackground:(SEL)aSelector withObject:(id)arg
+{
+	[NSThread detachNewThreadSelector:aSelector toTarget:self withObject:arg];
+}
+
+- (void)performSelectorOnMainThread:(SEL)aSelector withObject:(id)arg waitUntilDone:(bool)wait
+{
+}
+
+- (void)performSelectorOnMainThread:(SEL)aSelector withObject:(id)arg waitUntilDone:(bool)wait modes:(NSArray *)array
+{
+}
+
+- (void)performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(id)arg waitUntilDone:(bool)wait
+{
+}
+
+- (void)performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(id)arg waitUntilDone:(bool)wait modes:(NSArray *)array
+{
 }
 
 @end

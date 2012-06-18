@@ -62,6 +62,7 @@ static std::unordered_map<void *, void *> observationInfos;
 
 +(NSSet*)keyPathsForValuesAffectingValueForKey:(NSString*)key
 {
+	TODO; // +[NSObject(NSKeyValueObserving) keyPathsForValuesAffectingValueForKey:]
 	return [NSSet set];
 }
 
@@ -95,9 +96,10 @@ static std::unordered_map<void *, void *> observationInfos;
 
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath
 {
-	TODO; // -[NSObject(NSKeyValueObserving) removeObserver:forKeyPath:]
+	[self removeObserver:observer forKeyPath:keyPath context:NULL];
 }
 
+/* A NULL context removes them all -- my extension */
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context
 {
 	TODO; // -[NSObject(NSKeyValueObserving) removeObserver:forKeyPath:context:]

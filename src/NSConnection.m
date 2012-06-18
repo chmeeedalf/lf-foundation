@@ -47,6 +47,9 @@
 - (void) _runConnThread;
 @end
 
+@implementation NSFailedAuthenticationException
+@end
+
 /*
  * This is how connections work:
  *
@@ -133,6 +136,7 @@ static NSMutableSet *allConnections;
 							   host:(NSString *)hostName
 					usingNameServer:(NSPortNameServer *)server
 {
+	NSPort *port = [server portForName:name onHost:hostName];
 	TODO; // +[NSConnection connectionWithRegisteredName:host:usingNameServer:]
 	return nil;
 }

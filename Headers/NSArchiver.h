@@ -68,7 +68,7 @@
 @interface NSInconsistentArchiveException	:	NSStandardException
 @end
 
-@interface NSArchiver : NSCoder //< ObjCTypeSerializationCallBack >
+@interface NSArchiver : NSCoder
 
 - (id)initForWritingWithMutableData:(NSMutableData*)mdata;
 
@@ -96,7 +96,7 @@
 #define __UNARCHIVER_CLS void *
 #endif
 
-@interface NSUnarchiver : NSCoder //< ObjCTypeSerializationCallBack >
+@interface NSUnarchiver : NSCoder
 
 - (id)initForReadingWithData:(NSData*)data;
 

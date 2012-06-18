@@ -47,10 +47,6 @@ typedef NSUInteger NSSocketNativeHandle;
 @end
 
 @interface NSPort	:	NSObject<NSCoding,NSCopying,NSEventSource>
-{
-	bool				_isValid;
-	id<NSPortDelegate>	_delegate;
-}
 
 + (id) port;
 + (Class) portCoderClass;
