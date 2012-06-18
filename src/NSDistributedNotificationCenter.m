@@ -1,124 +1,101 @@
-/* 
-   NSDistributedNotification.m
+/*
+ * Copyright (c) 2011-2012	Justin Hibbits
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * 
+ */
 
-   Copyright (C) 1999 MDlink online service center, Helge Hess
-   All rights reserved.
-   
-   Author: Helge Hess <helge.hess@mdlink.de>
+#import <Foundation/NSDistributedNotificationCenter.h>
 
-   This file is part of libFoundation.
+#import <Foundation/NSNotification.h>
+#import <Foundation/NSString.h>
+#import "internal.h"
 
-   Permission to use, copy, modify, and distribute this software and its
-   documentation for any purpose and without fee is hereby granted, provided
-   that the above copyright notice appear in all copies and that both that
-   copyright notice and this permission notice appear in supporting
-   documentation.
-
-   We disclaim all warranties with regard to this software, including all
-   implied warranties of merchantability and fitness, in no event shall
-   we be liable for any special, indirect or consequential damages or any
-   damages whatsoever resulting from loss of use, data or profits, whether in
-   an action of contract, negligence or other tortious action, arising out of
-   or in connection with the use or performance of this software.
-*/
-
-#include <Foundation/NSDistributedNotificationCenter.h>
-#include <Foundation/NSString.h>
-
-NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenter";
-
-// MT
-static NSDistributedNotificationCenter *defaultCenter = nil;
+NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 
 @implementation NSDistributedNotificationCenter
 
++ (id) defaultCenter
+{
+	TODO; // +[NSDistributedNotificationCenter defaultCenter]
+	return nil;
+}
+
 + (NSDistributedNotificationCenter *)notificationCenterForType:(NSString *)_type
 {
-    if ([_type isEqualToString:NSLocalNotificationCenterType]) {
-        if (defaultCenter == nil)
-            defaultCenter = [[self alloc] init];
-        return defaultCenter;
-    }
-    else
-        return nil;
+	TODO;	// +[NSDistributedNotificationCenter notificationCenterForType:]
+	return nil;
 }
 
-+ (NSNotificationCenter *)defaultCenter
+
+- (void)addObserver:(id)observer selector:(SEL)selector
+			   name:(NSString *)notificationName object:(NSString *)object
+ suspensionBehavior:(NSNotificationSuspensionBehavior)suspensionBehaviour
 {
-    return [self notificationCenterForType:NSLocalNotificationCenterType];
+	TODO;	// -[NSDistributedNotificationCenter addObserver:selector:name:object:suspensionBehavior:]
 }
 
-/* observers */
-
-- (void)addObserver:(id)_observer selector:(SEL)_selector
-  name:(NSString *)_notificationName object:(NSString *)_object
-  suspensionBehavior:(NSNotificationSuspensionBehavior)_suspbehave
+-(void)addObserver:(id)anObserver selector:(SEL)aSelector
+	name:(NSString *)aName object:(id)anObject
 {
-    [self notImplemented:_cmd];
+	TODO;	// -[NSDistributedNotificationCenter addObserver:selector:name:object:]
 }
 
-- (void)addObserver:(id)_observer selector:(SEL)_selector
-  name:(NSString *)_notificationName object:(id)_object
+-(void)removeObserver:(id)anObserver name:(NSString *)aName object:(id)anObject
 {
-    [self addObserver:_object selector:_selector
-          name:_notificationName object:_object
-          suspensionBehavior:NSNotificationSuspensionBehaviorCoalesce];
+	TODO; // -[NSDistributedNotificationCenter removeObserver:name:object:]
 }
 
-- (void)removeObserver:(id)observer 
-  name:(NSString*)notificationName object:(id)object
+
+- (void)postNotificationName:(NSString *)name object:(id)object
+					userInfo:(NSDictionary *)userInfo deliverImmediatly:(bool)flag
 {
-    [self notImplemented:_cmd];
+	TODO;	// -[NSDistributedNotificationCenter ]
 }
 
-/* posting */
-
-- (void)postNotificationName:(NSString *)_name object:(id)_object
-  userInfo:(NSDictionary *)_ui deliverImmediatly:(bool)_flag
+-(void)postNotificationName:(NSString *)aName object:(id)anObject
 {
-    [self notImplemented:_cmd];
+	TODO; // -[NSDistributedNotificationCenter postNotificationName:object:]
 }
 
-- (void)postNotificationName:(NSString *)_name object:(id)_object
+-(void)postNotificationName:(NSString *)aName object:(id)anObject
+	userInfo:(NSDictionary *)userInfo
 {
-    [self postNotificationName:_name
-          object:_object
-          userInfo:nil
-          deliverImmediatly:NO];
+	TODO; // -[NSDistributedNotificationCenter postNotificationName:object:userInfo:]
 }
 
-- (void)postNotificationName:(NSString *)_name object:(id)_object
-  userInfo:(NSDictionary *)_userInfo
+- (void)setSuspended:(bool)flag
 {
-    [self postNotificationName:_name
-          object:_object
-          userInfo:_userInfo
-          deliverImmediatly:NO];
+	TODO;	// -[NSDistributedNotificationCenter setSuspended:]
 }
 
-- (void)postNotification:(NSNotification *)_notification
-{
-    [self postNotificationName:[_notification name]
-          object:[_notification object]
-          userInfo:[_notification userInfo]
-          deliverImmediatly:NO];
-}
-
-/* suspension */
-
-- (void)setSuspended:(bool)_flag
-{
-}
 - (bool)suspended
 {
-    return NO;
+	TODO;	// -[NSDistributedNotificationCenter suspended]
+	return false;
 }
 
-@end /* NSDistributedNotificationCenter */
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  tab-width: 8
-  End:
-*/
+@end
