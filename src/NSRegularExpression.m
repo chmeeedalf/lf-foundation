@@ -513,3 +513,20 @@ static uint32_t prepareResult(NSRegularExpression *regex,
 	return newregex;
 }
 @end
+
+@implementation NSDataDetector
+{
+}
+@synthesize checkingTypes;
++ (id) dataDetectorWithTypes:(NSTextCheckingTypes)types error:(NSError **)errorp
+{
+	TODO;	// +[NSDataDetector dataDetectorWithTypes:error:]
+	return self;
+}
+
+- (id) initWithTypes:(NSTextCheckingTypes)types error:(NSError **)errorp
+{
+	TODO;	// -[NSDataDetector initWithTypes:error:]
+	return self;
+}
+@end
