@@ -73,19 +73,6 @@ SYSTEM_EXPORT NSString * const NSUndoManagerGroupIsDiscardableKey;
 
 
 @interface NSUndoManager	:	NSObject
-{
-    NSMutableArray *_undoStack;
-    NSMutableArray *_redoStack;
-    bool _groupsByEvent;
-    NSArray *_modes;
-    int _disableCount;
-    long _levelsOfNSUndo;
-    id _currentGroup;
-    int _state;
-    NSString *_actionName;
-    id _preparedTarget;
-    bool _performRegistered;
-}
 
 -(void)registerUndoWithTarget:(id)target selector:(SEL)selector object:(id)object;
 -(id)prepareWithInvocationTarget:(id)target;
