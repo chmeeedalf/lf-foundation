@@ -29,6 +29,7 @@
  */
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSString.h>
 
 @class NSArray;
 @class NSOrthography;
@@ -108,6 +109,6 @@ extern NSString * const NSLinguisticTagOrganizationName;
 @end
 
 @interface NSString (NSLinguisticTagging)
-- (void) enumerateLinguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *);
+- (void) enumerateLinguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block;
 - (NSArray *) linguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth tokenRanges:(NSArray **)tokenRanges;
 @end
