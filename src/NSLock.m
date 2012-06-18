@@ -29,6 +29,8 @@
  */
 
 #include <math.h>
+#include <pthread.h>
+
 #import <Foundation/NSLock.h>
 
 #import <Foundation/NSDate.h>

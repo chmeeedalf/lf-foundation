@@ -28,7 +28,6 @@
  * 
  */
 
-#include <pthread.h>
 #import <Foundation/NSObject.h>
 
 @class NSDate;
@@ -49,37 +48,37 @@
 @end
 
 /*!
- * \class ConditionLock
+ * \class NSConditionLock
  * \brief NSLock used for waiting on a condition.
  * NSCondition locks are not implemented yet.
  */
-@interface ConditionLock	: NSObject <NSLocking>
+@interface NSConditionLock	: NSObject <NSLocking>
 @property(copy) NSString *name;
 
-// Initializing an ConditionLock
+// Initializing an NSConditionLock
 /*!
  * \brief Initializes a newly created ConditionLock and sets its condition.
  * \param condition NSCondition to initialize with.
  * \returns Returns the initialized ConditionLock object.
  */
--(id)initWithCondition:(int)condition;
+-(id)initWithCondition:(NSInteger)condition;
 
 // Returning the condition
 /*!
  * \brief Returns the receiver's condition.  The state must be achieved before a conditional locak can be acquired or released.
  */
--(int)condition;
+-(NSInteger)condition;
 
 // Acquiring and releasing a lock
 /*!
  * \brief Attempts to acquire a lock when the condition is met.  Blocks until the condition is met.
  */
--(void)lockWhenCondition:(int)condition;
+-(void)lockWhenCondition:(NSInteger)condition;
 
 /*!
  * \brief Releases the lock and set the lock state to the given condition.
  */
--(void)unlockWithCondition:(int)condition;
+-(void)unlockWithCondition:(NSInteger)condition;
 
 - (bool) lockBeforeDate:(NSDate *)lockDate;
 
@@ -93,7 +92,7 @@
  * \brief Attempts to acquire a lock when the given condition is met.
  * \returns Returns true if successful and false if not.
  */
--(bool)tryLockWhenCondition:(int)condition;
+-(bool)tryLockWhenCondition:(NSInteger)condition;
 @end
 
 /*!
@@ -149,11 +148,6 @@
  * the POSIX-style conditions.
  */
 @interface NSCondition	:	NSObject<NSLocking>
-{
-	pthread_cond_t condition;
-	pthread_mutex_t mutex;
-	NSString *name;
-}
 @property(copy) NSString *name;
 
 - (void) wait;

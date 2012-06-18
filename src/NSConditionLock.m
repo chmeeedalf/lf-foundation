@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009	Justin Hibbits
+ * Copyright (c) 2012	Justin Hibbits
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,68 +28,69 @@
  * 
  */
 
-#include <math.h>
 #include <pthread.h>
-#import <Foundation/NSDate.h>
 #import <Foundation/NSLock.h>
-#import <Foundation/NSObject.h>
+#import "internal.h"
 
-@implementation NSCondition
+@implementation NSConditionLock
 {
-	pthread_cond_t condition;
-	pthread_mutex_t mutex;
-	NSString *name;
 }
 @synthesize name;
 
-- (id) init
+// Initializing an NSConditionLock
+-(id)initWithCondition:(NSInteger)condition
 {
-	pthread_cond_init(&condition, NULL);
-	pthread_mutex_init(&mutex, NULL);
+	TODO;	// -[NSConditionLock initWithCondition:]
 	return self;
 }
 
-- (void) dealloc
+
+// Returning the condition
+-(NSInteger)condition
 {
-	self.name = nil;
-	pthread_cond_destroy(&condition);
-	pthread_mutex_destroy(&mutex);
+	TODO;	// -[NSConditionLock condition]
+	return 0;
 }
 
-- (void) wait
+
+// Acquiring and releasing a lock
+-(void)lockWhenCondition:(NSInteger)condition
 {
-	pthread_cond_wait(&condition, &mutex);
+	TODO;	// -[NSConditionLock lockWhenCondition:]
 }
 
-- (bool) waitUntilDate:(NSDate *)date
+-(void)unlockWithCondition:(NSInteger)condition
 {
-	struct timespec spec;
-	NSTimeInterval ti = [date timeIntervalSinceNow];
-	spec.tv_sec = trunc(ti);
-	spec.tv_nsec = trunc(fmod(ti, 1) * 1000000000);
-	return (pthread_cond_timedwait(&condition, &mutex, &spec) == 0);
+	TODO;	// -[NSConditionLock unlockWithCondition:]
 }
 
-- (void) signal
+
+- (bool) lockBeforeDate:(NSDate *)lockDate
 {
-	pthread_cond_signal(&condition);
+	TODO;	// -[NSConditionLock lockBeforeDate:]
+	return false;
 }
-- (void) broadcast
+
+-(bool)tryLock
 {
-	pthread_cond_broadcast(&condition);
+	TODO;	// -[NSConditionLock tryLock]
+	return false;
+}
+
+-(bool)tryLockWhenCondition:(NSInteger)condition
+{
+	TODO;	// -[NSConditionLock tryLockWhenCondition:]
+	return false;
 }
 
 - (void) lock
 {
-	pthread_mutex_lock(&mutex);
+	TODO;	// -[NSConditionLock<NSLocking> lock]
 }
 
 - (void) unlock
 {
-	pthread_mutex_unlock(&mutex);
+	TODO;	// -[NSConditionLock<NSLocking> unlock]
 }
-@end
 
-/*
-   vim:syntax=objc:
- */
+@end
