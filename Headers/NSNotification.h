@@ -47,7 +47,7 @@
 /*!
  * \brief Returns a notification object associating the given name with the given object.
  * \param aName Name of the notification.
- * \param anObject NSObject to associate with the name, as the "sender" of the
+ * \param anObject Object to associate with the name, as the "sender" of the
  * notification.
  */
 +(NSNotification *)notificationWithName:(NSString *)aName
@@ -56,9 +56,9 @@
 /*!
  * \brief Returns a notification object that associates the given name with the given object and dictionary of arbitrary data.
  * \param aName Name of the notification.
- * \param anObject NSObject associated with the name, as the "sender" of the
+ * \param anObject Object associated with the name, as the "sender" of the
  * notification.
- * \param userInfo NSDictionary of arbitrary data, may be nil.
+ * \param userInfo Dictionary of arbitrary data, may be nil.
  */
 +(NSNotification *)notificationWithName:(NSString *)aName
 	object:(id)anObject userInfo:(NSDictionary *)userInfo;
@@ -66,9 +66,9 @@
 /*!
  * \brief Initializes a newly notification object, associating the given name with the given object and dictionary of arbitrary data.
  * \param aName Name of the notification.
- * \param anObject NSObject associated with the name, as the "sender" of the
+ * \param anObject Object associated with the name, as the "sender" of the
  * notification.
- * \param userInfo NSDictionary of arbitrary data, may be nil.
+ * \param userInfo Dictionary of arbitrary data, may be nil.
  */
 - (id)initWithName:(NSString*)aName object:(id)anObject 
 	userInfo:(NSDictionary*)userInfo;
@@ -103,7 +103,7 @@
  Receivers can be added to one of four lists, specifying one, both, or neither
  of NSNotification and Sender, as follows:
 
- <TABLE><TR><TD>NSNotification</TD><TD>NSObject</TD></TR>
+ <TABLE><TR><TD>Notification</TD><TD>Object</TD></TR>
  <TR><TD>Specified</TD><TD>Specified</TD></TR>
  <TR><TD>Specified</TD><TD>Unspecified</TD></TR>
  <TR><TD>Unspecified</TD><TD>Specified</TD></TR>
@@ -125,7 +125,7 @@
  * \param anObserver Observer object to register.
  * \param aSelector Selector to send to the observer when the notification is posted.
  * \param aName Name to register.  When this name is posted, a message is sent to the observer.
- * \param anObject NSObject to register.  When the name is posted by this object, a message is sent to the observer.
+ * \param anObject Object to register.  When the name is posted by this object, a message is sent to the observer.
  */
 -(void)addObserver:(id)anObserver selector:(SEL)aSelector
 	name:(NSString *)aName object:(id)anObject;
@@ -144,28 +144,28 @@
  * \brief Removes the passed observer as the observer of the given name and object poster.
  * \param anObserver Observer to remove.
  * \param aName Name of message that observer watches.
- * \param anObject NSObject the observer watches.
+ * \param anObject Object the observer watches.
  */
 -(void)removeObserver:(id)anObserver name:(NSString *)aName object:(id)anObject;
 
 // Posting notifications
 /*!
  * \brief Posts a notification to the receiver.
- * \param aNSNotification NSNotification to post.
+ * \param aNotification Notification to post.
  */
--(void)postNotification:(NSNotification *)aNSNotification;
+-(void)postNotification:(NSNotification *)aNotification;
 
 /*!
  * \brief Creates a notification object of the given name and object, and posts it to the notification center.
  * \param aName Name of notification to post.
- * \param anObject NSObject on the behalf of which to post the notification.
+ * \param anObject Object on the behalf of which to post the notification.
  */
 -(void)postNotificationName:(NSString *)aName object:(id)anObject;
 
 /*!
  * \brief Creates a notification object of the given name and object, and posts it to the notification center.
  * \param aName Name of notification to post.
- * \param anObject NSObject on the behalf of which to post the notification.
+ * \param anObject Object on the behalf of which to post the notification.
  * \param userInfo NSDictionary of arbitrary data for notification.
  */
 -(void)postNotificationName:(NSString *)aName object:(id)anObject
