@@ -1,7 +1,6 @@
-/* $Gold$	*/
 /*
  * All rights reserved.
- * Copyright (c) 2009	Justin Hibbits
+ * Copyright (c) 2012	Justin Hibbits
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,43 +28,48 @@
  * 
  */
 
+#import <Foundation/NSPropertyList.h>
+
 #import <Foundation/NSObject.h>
+#import "internal.h"
 
-@class NSData;
-@class NSError;
-@protocol InputStream;
-@protocol OutputStream;
-
-typedef NSUInteger NSPropertyListReadOptions;
-typedef NSUInteger NSPropertyListWriteOptions;
-
-typedef enum
-{
-	NSPropertyListOpenStepFormat,
-	NSPropertyListXMLFormat,
-	NSPropertyListBinaryFormat,
-} NSPropertyListFormat;
-
-typedef enum
-{
-	NSPropertyListImmutable,
-	NSPropertyListMutableContainers,
-	NSPropertyListMutableContainersAndLeaves,
-} NSPropertyListMutabilityOptions;
-
-@interface NSPropertyListSerialization	:	NSObject
+@implementation NSPropertyListSerialization
 {
 }
 + (NSData *)dataWithPropertyList:(id)plist format:(NSPropertyListFormat)format
-	options:(NSPropertyListWriteOptions)opts error:(NSError **)err;
+	options:(NSPropertyListWriteOptions)opts error:(NSError **)err
+{
+	TODO;	// -[NSPropertyListSerialization dataWithPropertyList:format:options:error:]
+	return nil;
+}
+
 + (void) writePropertyList:(id)plist toStream:(id<OutputStream>)stream
 	format:(NSPropertyListFormat)format options:(NSPropertyListWriteOptions)opts
-	error:(NSError **)err;
+	error:(NSError **)err
+{
+	TODO;	// -[NSPropertyListSerialization writePropertyList:toStream:format:options:error:]
+}
+
 
 + (id)propertyListWithData:(NSData *)data options:(NSPropertyListReadOptions)opts
-	format:(NSPropertyListFormat *)format error:(NSError **)err;
-+ (id) propertyListWithStream:(id<InputStream>)stream options:(NSPropertyListReadOptions)opt
-	format:(NSPropertyListFormat *)format error:(NSError **)err;
+	format:(NSPropertyListFormat *)format error:(NSError **)err
+{
+	TODO;	// -[NSPropertyListSerialization propertyListWithData:options:format:error:]
+	return nil;
+}
 
-+ (bool) propertyList:(id)plist isValidForFormat:(NSPropertyListFormat)format;
++ (id) propertyListWithStream:(id<InputStream>)stream options:(NSPropertyListReadOptions)opt
+	format:(NSPropertyListFormat *)format error:(NSError **)err
+{
+	TODO;	// -[NSPropertyListSerialization propertyListWithStream:options:format:error:]
+	return nil;
+}
+
+
++ (bool) propertyList:(id)plist isValidForFormat:(NSPropertyListFormat)format
+{
+	TODO;	// -[NSPropertyListSerialization propertyList:isValidForFormat:]
+	return false;
+}
+
 @end
