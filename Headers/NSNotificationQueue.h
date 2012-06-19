@@ -1,6 +1,7 @@
 /* 
    NSNotificationQueue.h
 
+   Copyright (C) 2012 Justin Hibbits
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.
 
@@ -21,9 +22,6 @@
    an action of contract, negligence or other tortious action, arising out of
    or in connection with the use or performance of this software.
 */
-
-#ifndef __NSNotificationQueue_h__
-#define __NSNotificationQueue_h__
 
 #import <Foundation/NSNotification.h>
 
@@ -50,17 +48,10 @@ typedef enum {
  */
 
 @interface NSNotificationQueue : NSObject
-{
-    NSNotificationCenter            *center;
-    struct _NSNotificationQueueList *asapQueue;
-    struct _NSNotificationQueueList *idleQueue;
-    NSZone *zone;
-}
 
 /* Creating Notification Queues */
 
 + (NSNotificationQueue *)defaultQueue;
-- (id)init;
 - (id)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter;
 
 /* Inserting and Removing Notifications From a Queue */
@@ -76,23 +67,4 @@ typedef enum {
   coalesceMask:(unsigned int)coalesceMask
   forModes:(NSArray*)modes;
 
-/* Implementation used by the the NSRunLoop */
-
-+ (void)runLoopIdle;
-+ (void)runLoopASAP;
-- (void)notifyIdle;
-- (void)notifyASAP;
-
-/* Private methods */
-+ (void)taskNowMultiThreaded:notification;
-
 @end
-
-#endif /* __NSNotificationQueue_h__ */
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  tab-width: 8
-  End:
-*/
