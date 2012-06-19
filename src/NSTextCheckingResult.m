@@ -72,7 +72,7 @@
 @interface NSLinkCheckingResult : NSBasicRangeCheckingResult
 {
 	@public
-		NSURL *uri;
+		NSURL *url;
 }
 @end
 
@@ -148,11 +148,11 @@
 	return result;
 }
 
-+ (NSTextCheckingResult *) linkCheckingResultWithRange:(NSRange)range URL:(NSURL *)uri
++ (NSTextCheckingResult *) linkCheckingResultWithRange:(NSRange)range URL:(NSURL *)url
 {
 	NSLinkCheckingResult *result = [NSLinkCheckingResult new];
 	result->range = range;
-	result->uri = [uri copy];
+	result->url = [url copy];
 
 	return result;
 }
@@ -392,5 +392,112 @@
 - (NSRange) range
 {
 	return range;
+}
+@end
+
+@implementation NSReplacementCheckingResult
+- (NSString *) replacement
+{
+	return replacement;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeReplacement;
+}
+@end
+
+@implementation NSLinkCheckingResult
+- (NSURL *) URL
+{
+	return url;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeLink;
+}
+
+@end
+
+@implementation NSAddressCheckingResult
+- (NSDictionary *) components
+{
+	return components;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeAddress;
+}
+@end
+
+@implementation NSComponentCheckingResult
+- (NSDictionary *) components
+{
+	return components;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeTransitInformation;
+}
+@end
+
+@implementation NSDateCheckingResult
+- (NSDate *) date
+{
+	return date;
+}
+
+- (NSTimeZone *) timeZone
+{
+	return timeZone;
+}
+
+- (NSTimeInterval) duration
+{
+	return duration;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeDate;
+}
+@end
+
+@implementation NSGrammarCheckingResult
+- (NSArray *) grammarDetails
+{
+	return details;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeGrammar;
+}
+@end
+
+@implementation NSOrthographyCheckingResult
+- (NSOrthography *) orthography
+{
+	return orthography;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypeOrthography;
+}
+@end
+
+@implementation NSPhoneNumberCheckingResult
+- (NSString *) phoneNumber
+{
+	return phoneNumber;
+}
+
+- (NSTextCheckingType) resultType
+{
+	return NSTextCheckingTypePhoneNumber;
 }
 @end
