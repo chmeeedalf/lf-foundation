@@ -29,6 +29,7 @@
  */
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSTextCheckingResult.h>
 
 @class NSDictionary;
 @class NSOrthography;
