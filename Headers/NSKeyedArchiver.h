@@ -35,6 +35,7 @@
 @class NSMapTable;
 
 @protocol NSKeyedArchiverDelegate<NSObject>
+@optional
 - (void)archiver:(NSKeyedArchiver *)archiver didEncodeObject:(id)object;
 - (id)archiver:(NSKeyedArchiver *)archiver willEncodeObject:(id)object;
 - (void)archiver:(NSKeyedArchiver *)archiver willReplaceObject:(id)object withObject:(id)newObject;
@@ -43,6 +44,7 @@
 @end
 
 @protocol NSKeyedUnarchiverDelegate<NSObject>
+@optional
 - (Class)unarchiver:(NSKeyedUnarchiver *)unarchiver cannotDecodeObjectOfClassName:(NSString *)name originalClasses:(NSArray *)classNames;
 - (id)unarchiver:(NSKeyedUnarchiver *)unarchiver didDecodeObject:(id)object;
 - (void)unarchiver:(NSKeyedUnarchiver *)unarchiver willReplaceObject:(id)object withObject:(id)newObject;
@@ -55,16 +57,6 @@
   \class NSKeyedArchiver
  */
 @interface NSKeyedArchiver	:	NSCoder
-{
-	NSMutableDictionary	*_enc;
-	NSMutableDictionary	*_cmap;
-	NSMutableDictionary	*_umap;
-	NSMutableArray		*_encStack;
-	unsigned long		 _keyIndex;
-	id delegate;
-	NSMapTable			*classNameMap;
-	NSMutableData			*_outData;
-}
 
 + (NSData *)archivedDataWithRootObject:(id)rootObject;
 + (bool)archiveRootObject:(id)rootObject toURL:(NSURL *)path;
@@ -101,11 +93,6 @@
 @end
 
 @interface NSKeyedUnarchiver	:	NSCoder
-{
-	unsigned long		_keyIndex;
-	id delegate;
-	NSMapTable			*classNameMap;
-}
 
 + (id)unarchivedObjectWithData:(NSData *)rootObject;
 + (id)unarchivedRootObjectWithURL:(NSURL *)path;
