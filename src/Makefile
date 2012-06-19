@@ -1,9 +1,10 @@
-DBUSFLAGS!=pkg-config --cflags dbus-1
+#DBUSFLAGS!=pkg-config --cflags dbus-1
 LIBXMLFLAGS!=pkg-config --cflags libxml-2.0
 CPPFLAGS=	-I$(PWD) -I$(PWD)/../Headers -I/usr/local/include
-CPPFLAGS+= ${DBUSFLAGS}
+#CPPFLAGS+= ${DBUSFLAGS}
 CPPFLAGS+= ${LIBXMLFLAGS}
-LDADD=-L/usr/local/lib -lAlepha -lexecinfo -ldbus-1 -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2 #-lboost_serialization
+LDADD=-L/usr/local/lib -lexecinfo -licuio -licuuc -licui18n -licudata -lffi -ldispatch -lxml2
+#-lboost_serialization -ldbus-1
 LIB=	Foundation
 SHLIB_MAJOR= 1
 SHLIB_MINOR= 0
@@ -32,6 +33,9 @@ SRCS=	NSRange.m \
 		NSUtilities.m \
 		NSThread.m \
 		NSLock.m \
+		NSRecursiveLock.m \
+		NSConditionLock.m \
+		NSCondition.m \
 		common.m \
 		NSGeometry.m \
 		NSNumber.m NSConcreteNumber.m \
@@ -41,13 +45,13 @@ SRCS=	NSRange.m \
 		NSApplication.m \
 		NSCoder.m \
 		NSKeyedArchiver.m \
-		NSKeyedUnarchiver.m \
 		NSArchiver.mm \
 		NSMethodSignature.m \
 		NSNull.m \
 		NSURL.m \
 		NSNotificationCenter.mm \
 		NSNotification.m \
+		NSNotificationQueue.m \
 		NSDistributedNotificationCenter.m \
 		NSLocale.m NSConcreteLocale.mm \
 		NSTimer.m \
@@ -56,13 +60,16 @@ SRCS=	NSRange.m \
 		NSProtocolChecker.m \
 		NSPortCoder.m \
 		NSPort.m \
+		NSSocketPort.m \
+		NSPortNameServer.m \
+		NSSocketPortNameServer.m \
+		NSNetServices.m \
 		NSTask.mm \
 		NSKeyValueCoding.mm \
 		NSKeyValueObserving.mm \
 		NSKVCMutableArray.m \
 		NSSocket.m \
 		NSNetworkAddress.m \
-		NSXMLParser.m \
 		NSConnection.m \
 		NSSortDescriptor.m \
 		NSFileManager.m \
@@ -80,12 +87,10 @@ SRCS=	NSRange.m \
 		NSUserDefaults.mm \
 		NSDelegate.m \
 		NSPredicate.m \
-		NSPredicateParser.mm \
 		NSCompoundPredicate.m \
 		NSComparisonPredicate.m \
 		NSHost.m \
 		NSPortMessage.m \
-		NSXMLMIMECoder.m \
 		NSIndexPath.mm \
 		NSCache.mm \
 		NSFormatter.m \
@@ -94,13 +99,26 @@ SRCS=	NSRange.m \
 		NSOperation.m \
 		NSURL+ObjectManager.m \
 		NSObjectManagerFile.m \
-		PropertyList.m \
-		PropertyListSerialization.m \
+		NSPropertyList.m \
 		NSRegularExpression.m \
 		NSJSONSerialization.mm \
 		NSTextCheckingResult.m \
+		NSSpellServer.m \
+		NSLinguisticTagger.m \
+		NSOrthography.m \
+		NSUndoManager.m \
 		GSICUString.m \
+		NSXMLParser.m \
+		NSXMLMIMECoder.m \
+		NSXMLDTD.m \
+		NSXMLDTDNode.m \
+		NSXMLDocument.m \
+		NSXMLElement.m \
+		NSXMLMIMECoder.m \
+		NSXMLNode.m \
+		NSXMLParser.m \
 
+#		NSPredicateParser.mm \
 #		DBusPort.mm \
 #		DBusCoder.m \
 #		DBusProxy.m \
@@ -110,8 +128,6 @@ SRCS=	NSRange.m \
 .include "DateTime/Makefile.inc"
 .include "Stream/Makefile.inc"
 .include "String/Makefile.inc"
-#.include "UndoManager/Makefile.inc"
-#.include "unicode/Makefile.inc"
 .include "NSURL/Makefile.inc"
 
 NSConcreteNumber.m: NSConcreteNumber.m.sh
