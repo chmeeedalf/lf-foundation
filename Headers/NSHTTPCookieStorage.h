@@ -40,10 +40,14 @@ typedef enum
 extern NSString * const NSHTTPCookieManagerCookiesChangedNotification;
 extern NSString * const NSHTTPCookieManagerAcceptPolicyChangedNotification;
 
+@class NSArray;
+@class NSHTTPCookie;
+@class NSURL;
+
 @interface NSHTTPCookieStorage	:	NSObject
 + (id) sharedHTTPCookieStorage;
 
-- (NSHTTPCookieAcceptPolicy) cookeAcceptPolicy;
+- (NSHTTPCookieAcceptPolicy) cookieAcceptPolicy;
 - (void) setCookieAcceptPolicy:(NSHTTPCookieAcceptPolicy)policy;
 
 - (void) deleteCookie:(NSHTTPCookie *)cookie;
@@ -51,6 +55,6 @@ extern NSString * const NSHTTPCookieManagerAcceptPolicyChangedNotification;
 - (void) setCookies:(NSArray *)cookies forURL:(NSURL *)url mainDocumentURL:(NSURL *)mainDocURL;
 
 - (NSArray *) cookies;
-- (NSArray *) cookiesForURL;
+- (NSArray *) cookiesForURL:(NSURL *)url;
 - (NSArray *) sortedCookiesUsingDescriptors:(NSArray *)sortDescs;
 @end

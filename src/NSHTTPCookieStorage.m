@@ -28,46 +28,64 @@
  * 
  */
 
-#import <Foundation/NSObject.h>
+#import <Foundation/NSHTTPCookieStorage.h>
+#import "internal.h"
 
-@class NSArray;
-@class NSDate;
-@class NSDictionary;
-@class NSString;
-@class NSURL;
+NSString * const NSHTTPCookieManagerCookiesChangedNotification = @"NSHTTPCookieManagerCookiesChangedNotification";
+NSString * const NSHTTPCookieManagerAcceptPolicyChangedNotification = @"NSHTTPCookieManagerAcceptPolicyChangedNotification";
 
-@interface NSHTTPCookie	:	NSObject<NSCopying>
-+ (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *)fields forURL:(NSURL *)url;
-+ (id) cookieWithProperties:(NSDictionary *)properties;
-- (id) initWithProperties:(NSDictionary *)properties;
+@implementation NSHTTPCookieStorage
++ (id) sharedHTTPCookieStorage
+{
+	TODO;	// +[NSHTTPCookieStorage sharedHTTPCookieStorage]
+	return nil;
+}
 
-+ (NSDictionary *) requestHeaderFieldsWithCookies:(NSArray *)cookies;
 
-- (NSString *) comment;
-- (NSURL *) commentURL;
-- (NSString *) domain;
-- (NSDate *) expiresDate;
-- (bool) isHTTPOnly;
-- (bool) isSecure;
-- (bool) isSessionOnly;
-- (NSString *) name;
-- (NSString *) path;
-- (NSArray *) portList;
-- (NSDictionary *) properties;
-- (NSString *) value;
-- (NSUInteger) version;
+- (NSHTTPCookieAcceptPolicy) cookieAcceptPolicy
+{
+	TODO;	// -[NSHTTPCookieStorage cookieAcceptPolicy]
+	return NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain;
+}
+
+- (void) setCookieAcceptPolicy:(NSHTTPCookieAcceptPolicy)policy
+{
+	TODO;	// -[NSHTTPCookieStorage setCookieAcceptPolicy:]
+}
+
+
+- (void) deleteCookie:(NSHTTPCookie *)cookie
+{
+	TODO;	// -[NSHTTPCookieStorage deleteCookie:]
+}
+
+- (void) setCookie:(NSHTTPCookie *)cookie
+{
+	TODO;	// -[NSHTTPCookieStorage setCookie:]
+}
+
+- (void) setCookies:(NSArray *)cookies forURL:(NSURL *)url mainDocumentURL:(NSURL *)mainDocURL
+{
+	TODO;	// -[NSHTTPCookieStorage setCookies:forURL:mainDocumentURL:]
+}
+
+
+- (NSArray *) cookies
+{
+	TODO;	// -[NSHTTPCookieStorage cookies]
+	return nil;
+}
+
+- (NSArray *) cookiesForURL:(NSURL *)url
+{
+	TODO;	// -[NSHTTPCookieStorage cookiesForURL:]
+	return nil;
+}
+
+- (NSArray *) sortedCookiesUsingDescriptors:(NSArray *)sortDescs
+{
+	TODO;	// -[NSHTTPCookieStorage sortedCookiesUsingDescriptors:]
+	return nil;
+}
+
 @end
-
-extern NSString * const NSHTTPCookieComment;
-extern NSString * const NSHTTPCookieCommentURL;
-extern NSString * const NSHTTPCookieDomain;
-extern NSString * const NSHTTPCookieExpiresDate;
-extern NSString * const NSHTTPCookieIsHTTPOnly;
-extern NSString * const NSHTTPCookieIsSecure;
-extern NSString * const NSHTTPCookieIsSessionOnly;
-extern NSString * const NSHTTPCookieName;
-extern NSString * const NSHTTPCookiePath;
-extern NSString * const NSHTTPCookiePortList;
-extern NSString * const NSHTTPCookieProperties;
-extern NSString * const NSHTTPCookieValue;
-extern NSString * const NSHTTPCookieVersion;
