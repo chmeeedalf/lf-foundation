@@ -361,17 +361,29 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 -(bool)isReadableFileAtURL:(NSURL *)path
 {
-	return access([[path path] fileSystemRepresentation], R_OK) ? false : true;
+	NSDictionary *attribs = [self attributesOfItemAtURL:path error:NULL];
+	if (attribs == nil)
+		return false;
+
+	return ([attribs filePosixPermissions] & 0444) && ([[attribs fileType] isEqual:NSFileTypeRegular]);
 }
 
 -(bool)isWritableFileAtURL:(NSURL *)path
 {
-	return access([[path path] fileSystemRepresentation], W_OK) ? false : true;
+	NSDictionary *attribs = [self attributesOfItemAtURL:path error:NULL];
+	if (attribs == nil)
+		return false;
+
+	return ([attribs filePosixPermissions] & 0222) && ([[attribs fileType] isEqual:NSFileTypeRegular]);
 }
 
 -(bool)isExecutableFileAtURL:(NSURL *)path
 {
-	return access([[path path] fileSystemRepresentation], X_OK) ? false : true;
+	NSDictionary *attribs = [self attributesOfItemAtURL:path error:NULL];
+	if (attribs == nil)
+		return false;
+
+	return ([attribs filePosixPermissions] & 0111) && ([[attribs fileType] isEqual:NSFileTypeRegular]);
 }
 
 -(bool)isDeletableFileAtURL:(NSURL *)path
@@ -431,8 +443,10 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 - (bool) changeCurrentDirectoryURL:(NSURL *)path
 {
-	TODO;	// changeCurrentDirectoryURL:
-	return false;
+	if (![path isFileURL])
+		return false;
+
+	return (chdir([[path path] fileSystemRepresentation]) == 0);
 }
 
 - (NSString *)stringWithFileSystemRepresentation:(const char *)fsRep length:(NSUInteger)len
