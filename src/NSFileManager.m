@@ -634,6 +634,32 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 @end
 
+@implementation NSDirectoryEnumerator
+- (NSDictionary *) directoryAttributes
+{
+	[self subclassResponsibility:_cmd];
+	return nil;
+}
+
+- (NSDictionary *) fileAttributes
+{
+	[self subclassResponsibility:_cmd];
+	return nil;
+}
+
+- (NSUInteger) level
+{
+	[self subclassResponsibility:_cmd];
+	return 0;
+}
+
+- (void) skipDescendants
+{
+	[self subclassResponsibility:_cmd];
+}
+
+@end
+
 NSString * const NSFileDisplayName = @"NSFileDisplayName";
 
 NSString * const NSFileType = @"NSFileType";
