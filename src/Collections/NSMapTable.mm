@@ -64,6 +64,8 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 	Gold::Hash hasher;
 	Gold::Equal equaler;
 	intern_map table;
+	NSUInteger keyOptions;
+	NSUInteger valueOptions;
 }
 
 + (id) mapTableWithKeyOptions:(NSPointerFunctionsOptions)keyOpts valueOptions:(NSPointerFunctionsOptions)valOpts
@@ -104,6 +106,8 @@ typedef std::unordered_map<const void *, void *, Gold::Hash, Gold::Equal> intern
 		pointerFunctionsWithOptions:keyOpts];
 	NSPointerFunctions *valFns = [NSPointerFunctions
 		pointerFunctionsWithOptions:valOpts];
+	keyOptions = keyOpts;
+	valueOptions = valOpts;
 	return [self initWithKeyPointerFunctions:keyFns
 		valuePointerFunctions:valFns
 		capacity:cap];
@@ -268,13 +272,51 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSMapTable encodeWithCoder:]
+	NSAssert(keyOptions & NSPointerFunctionsObjectPersonality, @"NSMapTable encoding can only be used with object types");
+	NSAssert(valueOptions & NSPointerFunctionsObjectPersonality, @"NSMapTable encoding can only be used with object types");
+	if ([coder allowsKeyedCoding])
+	{
+		[coder encodeInteger:keyOptions forKey:@"NSMapTable.keyOpts"];
+		[coder encodeInteger:valueOptions forKey:@"NSMapTable.valueOpts"];
+		[coder encodeObject:[self dictionaryRepresentation]
+			forKey:@"NSMapTable.Dictionary"];
+	}
+	else
+	{
+		[coder encodeValueOfObjCType:@encode(NSUInteger) at:&keyOptions];
+		[coder encodeValueOfObjCType:@encode(NSUInteger) at:&valueOptions];
+		[coder encodeObject:[self dictionaryRepresentation]];
+	}
 }
 
 - (id) initWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSMapTable encodeWithCoder:]
-	return nil;
+	NSDictionary *dictRep;
+	NSUInteger keyOpts;
+	NSUInteger valOpts;
+
+	if ([coder allowsKeyedCoding])
+	{
+		keyOpts = [coder decodeIntegerForKey:@"NSMapTable.keyOpts"];
+		valOpts = [coder decodeIntegerForKey:@"NSMapTable.valueOpts"];
+		dictRep = [coder decodeObjectForKey:@"NSMapTable.Dictionary"];
+	}
+	else
+	{
+		[coder decodeValueOfObjCType:@encode(NSUInteger) at:&keyOpts];
+		[coder decodeValueOfObjCType:@encode(NSUInteger) at:&valOpts];
+		dictRep = [coder decodeObject];
+	}
+	self = [self initWithKeyOptions:keyOpts
+		valueOptions:valOpts
+		capacity:[dictRep count]];
+	if (self == nil)
+		return nil;
+
+	[dictRep enumerateKeysAndObjectsUsingBlock:^(id key, id val, bool *stop){
+		[self setObject:val forKey:key];
+	}];
+	return self;
 }
 @end
 
