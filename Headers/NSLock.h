@@ -75,6 +75,8 @@
  */
 -(void)lockWhenCondition:(NSInteger)condition;
 
+- (bool) lockWhenCondition:(NSInteger)condition beforeDate:(NSDate *)when;
+
 /*!
  * \brief Releases the lock and set the lock state to the given condition.
  */

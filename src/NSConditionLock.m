@@ -29,11 +29,17 @@
  */
 
 #include <pthread.h>
+
 #import <Foundation/NSLock.h>
+#import <Foundation/NSDictionary.h>
 #import "internal.h"
 
 @implementation NSConditionLock
 {
+	NSString *name;
+	pthread_mutex_t mutex;
+	bool isLocked;
+	volatile NSInteger currentCond;
 }
 @synthesize name;
 
@@ -41,56 +47,98 @@
 -(id)initWithCondition:(NSInteger)condition
 {
 	TODO;	// -[NSConditionLock initWithCondition:]
+	pthread_mutex_init(&mutex, NULL);
+	currentCond = condition;
 	return self;
+}
+
+- (void)dealloc
+{
+	pthread_mutex_destroy(&mutex);
 }
 
 
 // Returning the condition
 -(NSInteger)condition
 {
-	TODO;	// -[NSConditionLock condition]
-	return 0;
+	return currentCond;
 }
 
 
 // Acquiring and releasing a lock
 -(void)lockWhenCondition:(NSInteger)condition
 {
-	TODO;	// -[NSConditionLock lockWhenCondition:]
+	do {
+		[self lock];
+		if (currentCond == condition)
+			break;
+		[self unlock];
+	} while (1);
 }
 
 -(void)unlockWithCondition:(NSInteger)condition
 {
-	TODO;	// -[NSConditionLock unlockWithCondition:]
+	NSInteger oldCond = currentCond;
+	currentCond = condition;
+	if (pthread_mutex_unlock(&mutex) < 0)
+	{
+		NSDictionary *info;
+		currentCond = oldCond;
+		if ([self name] != nil)
+			info = @{@"Name": [self name]};
+		else
+			info = nil;
+		@throw [NSInvalidUseOfMethodException exceptionWithReason:
+			@"attempt to unlock a lock not owned by the current thread"
+			userInfo:info];
+	}
+	isLocked = false;
 }
 
 
 - (bool) lockBeforeDate:(NSDate *)lockDate
 {
-	TODO;	// -[NSConditionLock lockBeforeDate:]
+	struct timespec spec;
+	NSTimeInterval ti = [lockDate timeIntervalSinceNow];
+	spec.tv_sec = trunc(ti);
+	spec.tv_nsec = trunc(fmod(ti, 1) * 1000000000);
+	return (pthread_mutex_timedlock(&mutex, &spec) == 0);
+}
+
+- (bool) lockWhenCondition:(NSInteger)condition beforeDate:(NSDate *)lockDate
+{
+	do {
+		[self lockBeforeDate:lockDate];
+		if (currentCond == condition)
+			return true;
+		[self unlock];
+	} while (1);
 	return false;
 }
 
 -(bool)tryLock
 {
-	TODO;	// -[NSConditionLock tryLock]
+	if (pthread_mutex_trylock(&mutex) == 0)
+	{
+		isLocked = true;
+		return true;
+	}
 	return false;
 }
 
 -(bool)tryLockWhenCondition:(NSInteger)condition
 {
-	TODO;	// -[NSConditionLock tryLockWhenCondition:]
-	return false;
+	return [self lockWhenCondition:condition beforeDate:[NSDate date]];
 }
 
 - (void) lock
 {
-	TODO;	// -[NSConditionLock<NSLocking> lock]
+	pthread_mutex_lock(&mutex);
 }
 
 - (void) unlock
 {
-	TODO;	// -[NSConditionLock<NSLocking> unlock]
+	pthread_mutex_unlock(&mutex);
 }
 
 @end
