@@ -28,11 +28,18 @@
  * 
  */
 
+#include <string.h>
+
 #import <Foundation/NSXMLDocument.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
+#import <Foundation/NSXMLElement.h>
+#import <Foundation/NSXMLNode.h>
+#import <Foundation/NSXMLNodeOptions.h>
 #import "internal.h"
 
+#define thisNode ((xmlDoc *)nodePtr)
 @implementation NSXMLDocument
 - (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)mask error:(NSError **)errp
 {
@@ -66,13 +73,18 @@
 
 - (NSString *) characterEncoding
 {
-	TODO;	// -[NSXMLDocument characterEncoding]
-	return nil;
+	if (thisNode->encoding == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:thisNode->encoding];
 }
 
 - (void) setCharacterEncoding:(NSString *)encoding
 {
-	TODO;	// -[NSXMLDocument setCharacterEncoding:]
+	if (thisNode->encoding != NULL)
+	{
+		xmlFree((void *)thisNode->encoding);
+	}
+	thisNode->encoding = strdup([encoding UTF8String]);
 }
 
 - (NSXMLDocumentContentKind) documentContentKind
@@ -99,13 +111,12 @@
 
 - (bool) isStandalone
 {
-	TODO;	// -[NSXMLDocument isStandalone]
-	return false;
+	return thisNode->standalone;
 }
 
 - (void) setStandalone:(bool)standalone
 {
-	TODO;	// -[NSXMLDocument setStandalone:]
+	thisNode->standalone = standalone;
 }
 
 - (NSString *)MIMEType
@@ -121,67 +132,109 @@
 
 - (NSString *) URI
 {
-	TODO; 	// -[NSXMLDocument URI]
-	return nil;
+	if (thisNode->URL == NULL)
+		return nil;
+
+	return [NSString stringWithUTF8String:thisNode->URL];
 }
 
 - (void) setURI:(NSString *)newURI
 {
-	TODO; 	// -[NSXMLDocument setURI:]
+	if (thisNode->URL != NULL)
+	{
+		xmlFree((void *)thisNode->URL);
+	}
+	thisNode->URL = strdup([newURI UTF8String]);
 }
 
 - (NSString *) version
 {
-	TODO; 	// -[NSXMLDocument version]
-	return nil;
+	if (thisNode->version == NULL)
+		return nil;
+
+	return [NSString stringWithUTF8String:thisNode->version];
 }
 
 - (void) setVersion:(NSString *)newVers
 {
-	TODO; 	// -[NSXMLDocument setVersion:]
+	if (thisNode->version != NULL)
+	{
+		xmlFree((void *)thisNode->version);
+	}
+	thisNode->version = strdup([newVers UTF8String]);
 }
 
 
 - (NSXMLElement *) rootElement
 {
-	TODO; 	// -[NSXMLDocument rootElement]
+	xmlNodePtr root = xmlDocGetRootElement(thisNode);
+	if (root != NULL)
+		return (__bridge id)root->_private;
 	return nil;
 }
 
 - (void) setRootElement:(NSXMLElement *)newRoot
 {
-	TODO; 	// -[NSXMLDocument setRootElement:]
+	xmlDocSetRootElement(thisNode, newRoot->nodePtr);
 }
 
 
 - (void) addChild:(NSXMLNode *)child
 {
-	TODO; 	// -[NSXMLDocument addChild:]
+	[self insertChild:child atIndex:[self childCount]];
 }
 
 - (void) insertChild:(NSXMLNode *)child atIndex:(NSUInteger)index
 {
-	TODO; 	// -[NSXMLDocument insertChild:atIndex:]
+	NSParameterAssert(index < [self childCount]);
+	[child detach];
+	xmlAddNextSibling([self childAtIndex:index]->nodePtr, child->nodePtr);
 }
 
 - (void) insertChildren:(NSArray *)children atIndex:(NSUInteger)index
 {
-	TODO; 	// -[NSXMLDocument insertChildren:atIndex:]
+	__block NSUInteger idx = index;
+
+	[children enumerateObjectsUsingBlock:^(id child, NSUInteger indx, bool *stop){
+		[self insertChild:child atIndex:idx++];
+	}];
 }
 
 - (void) removeChildAtIndex:(NSUInteger)index
 {
-	TODO; 	// -[NSXMLDocument removeChildAtIndex:]
+	NSParameterAssert(index < [self childCount]);
+
+	NSXMLNode *child = [self childAtIndex:index];
+	[child detach];
 }
 
 - (void) replaceChildAtIndex:(NSUInteger)index withNode:(NSXMLNode *)newChild
 {
-	TODO; 	// -[NSXMLDocument replaceChildAtIndex:withNode:]
+	NSParameterAssert(index < [self childCount]);
+	xmlReplaceNode([self childAtIndex:index]->nodePtr, newChild->nodePtr);
 }
 
 - (void) setChildren:(NSArray *)newChildren
 {
-	TODO; 	// -[NSXMLDocument setChildren:]
+	NSUInteger newCount = [newChildren count];
+	if ([newChildren count] > [self childCount])
+	{
+		for (NSUInteger i = [self childCount]; i < newCount; i++)
+		{
+			[self addChild:[newChildren objectAtIndex:i]];
+		}
+	}
+	else
+	{
+		for (NSUInteger i = [self childCount] - newCount; i > 0; --i)
+		{
+			[self removeChildAtIndex:newCount];
+		}
+	}
+	for (NSUInteger i = 0; i < newCount; i++)
+	{
+		[self replaceChildAtIndex:i withNode:[newChildren objectAtIndex:i]];
+	}
 }
 
 
@@ -206,8 +259,7 @@
 
 - (NSData *) XMLData
 {
-	TODO; 	// -[NSXMLDocument XMLData]
-	return nil;
+	return [self XMLDataWithOptions:NSXMLNodeOptionsNone];
 }
 
 - (NSData *) XMLDataWithOptions:(NSUInteger)options

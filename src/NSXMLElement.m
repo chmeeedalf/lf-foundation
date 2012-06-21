@@ -29,19 +29,24 @@
  */
 
 #import <Foundation/NSXMLElement.h>
+
+#import <Foundation/NSArray.h>
 #import "internal.h"
 
 @implementation NSXMLElement
 
 - (id) initWithName:(NSString *)name
 {
-	TODO;	// -[NSXMLElement initWithName:]
-	return self;
+	return [self initWithName:name URI:nil];
 }
 
 - (id) initWithName:(NSString *)name stringValue:(NSString *)string
 {
-	TODO;	// -[NSXMLElement initWithName:stringValue:]
+	self = [self initWithName:name URI:nil];
+	if (self != nil)
+	{
+		[self setStringValue:string];
+	}
 	return self;
 }
 
@@ -73,55 +78,102 @@
 
 - (void) addChild:(NSXMLNode *)child
 {
-	TODO;	// -[NSXMLElement addChild:]
+	xmlAddChild(nodePtr, child->nodePtr);
 }
 
 - (void) insertChild:(NSXMLNode *)child atIndex:(NSUInteger)index
 {
-	TODO;	// -[NSXMLElement insertChild:atIndex:]
+	NSParameterAssert(child != nil);
+	NSParameterAssert(index <= [self childCount]);
+	xmlAddNextSibling([self childAtIndex:index]->nodePtr, child->nodePtr);
 }
 
 - (void) insertChildren:(NSArray *)children atIndex:(NSUInteger)index
 {
-	TODO;	// -[NSXMLElement insertChildren:atIndex:]
+	for (id child in children)
+	{
+		[self insertChild:child atIndex:index++];
+	}
 }
 
 - (void) removeChildAtIndex:(NSUInteger)index
 {
-	TODO;	// -[NSXMLElement removeChildAtIndex:]
+	NSParameterAssert(index < [self childCount]);
+	[[self childAtIndex:index] detach];
 }
 
 - (void) replaceChildAtIndex:(NSUInteger)index withNode:(NSXMLNode *)newChild
 {
-	TODO;	// -[NSXMLElement replaceChildAtIndex:withNode:]
+	NSParameterAssert(newChild != nil);
+	NSParameterAssert(index < [self childCount]);
+	xmlReplaceNode([self childAtIndex:index]->nodePtr, newChild->nodePtr);
 }
 
 - (void) setChildren:(NSArray *)newChildren
 {
-	TODO;	// -[NSXMLElement setChildren:]
+	NSUInteger newCount = [newChildren count];
+	if ([newChildren count] > [self childCount])
+	{
+		for (NSUInteger i = [self childCount]; i < newCount; i++)
+		{
+			[self addChild:[newChildren objectAtIndex:i]];
+		}
+	}
+	else
+	{
+		for (NSUInteger i = [self childCount] - newCount; i > 0; --i)
+		{
+			[self removeChildAtIndex:newCount];
+		}
+	}
+	for (NSUInteger i = 0; i < newCount; i++)
+	{
+		[self replaceChildAtIndex:i withNode:[newChildren objectAtIndex:i]];
+	}
 }
 
 
 - (void) addAttribute:(NSXMLNode *)attribute
 {
-	TODO;	// -[NSXMLElement addAttribute:]
+	NSParameterAssert([attribute kind] == NSXMLAttributeKind);
+
+	if ([self attributeForName:[attribute name]] != nil)
+		return;
+	[self addChild:attribute];
 }
 
 - (NSXMLNode *) attributeForName:(NSString *)name
 {
-	TODO;	// -[NSXMLElement attributeForName:]
-	return nil;
+	xmlAttrPtr attr = xmlHasProp(nodePtr, [name UTF8String]);
+
+	if (attr == NULL)
+		return nil;
+
+	return (__bridge id)attr->_private;
 }
 
 - (NSXMLNode *) attributeForLocalName:(NSString *)name URI:(NSString *)URI
 {
-	TODO;	// -[NSXMLElement attributeForLocalName:URI:]
-	return nil;
+	xmlAttrPtr attr = xmlHasNsProp(nodePtr, [name UTF8String], [URI UTF8String]);
+
+	if (attr == NULL)
+		return nil;
+
+	return (__bridge id)attr->_private;
 }
 
 - (NSArray *) attributes
 {
-	TODO;	// -[NSXMLElement attributes]
+	if (nodePtr->properties != NULL)
+	{
+		NSMutableArray *attribs = [NSMutableArray new];
+		xmlAttrPtr attr = nodePtr->properties;
+		while (attr != NULL)
+		{
+			[attribs addObject:(__bridge id)attr->_private];
+		}
+		return [attribs copy];
+	}
 	return nil;
 }
 

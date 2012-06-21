@@ -326,16 +326,7 @@
 
 - (NSUInteger) childCount
 {
-	NSUInteger childCount = 0;
-	xmlNodePtr child = nodePtr->children;
-
-	while (child != NULL)
-	{
-		childCount++;
-		child = child->next;
-	}
-
-	return childCount;
+	return xmlChildElementCount(nodePtr);
 }
 
 - (NSArray *) children
