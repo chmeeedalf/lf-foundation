@@ -46,7 +46,6 @@
 // Initializing an NSConditionLock
 -(id)initWithCondition:(NSInteger)condition
 {
-	TODO;	// -[NSConditionLock initWithCondition:]
 	pthread_mutex_init(&mutex, NULL);
 	currentCond = condition;
 	return self;
