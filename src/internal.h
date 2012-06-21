@@ -225,6 +225,9 @@ struct sockaddr_storage;
 
 @interface NSXMLNode()
 {
+	// NSXMLNode subclasses mess with the node pointer, so let's leave it open
+	// for us
+	@package
 	xmlNodePtr nodePtr;
 }
 @end
