@@ -83,22 +83,6 @@ void yield(void)
 	sched_yield();
 }
 
-int64_t SystemTime(void)
-{
-	NSTimeInterval	theTime = UNIX_OFFSET;
-
-	struct timeval tp;
-
-	// XXX: Get this out of the way when we have LSD timekeeping
-	gettimeofday(&tp, NULL);
-
-	/* the constant of '10' is because we use 100ns counting, which is 1/10 us*/
-	theTime += tp.tv_sec + tp.tv_usec / 1000000;
-
-	return theTime;
-}
-
-
 /*
  * args can be any object, with some considerations:
  *
