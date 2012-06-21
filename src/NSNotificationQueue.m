@@ -29,6 +29,8 @@
  */
 
 #import <Foundation/NSNotificationQueue.h>
+
+#import <Foundation/NSDictionary.h>
 #import "internal.h"
 
 /*
@@ -43,12 +45,20 @@
     NSZone *zone;
 }
 
+static __thread __unsafe_unretained NSNotificationQueue *defaultQueue;
+
 /* Creating Notification Queues */
 
 + (NSNotificationQueue *)defaultQueue
 {
-	TODO;	// +[NSNotificationQueue defaultQueue]
-	return nil;
+	if (defaultQueue == nil)
+	{
+		NSNotificationQueue *def;
+		def = [[self alloc] initWithNotificationCenter:[NSNotificationCenter defaultCenter]];
+		[[[NSThread currentThread] threadDictionary] setObject:defaultQueue forKey:@"NSNotificationQueue.default"];
+		defaultQueue = def;
+	}
+	return defaultQueue;
 }
 
 - (id)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter
@@ -70,7 +80,9 @@
 - (void)enqueueNotification:(NSNotification*)notification
   postingStyle:(NSPostingStyle)postingStyle
 {
-	TODO;	// -[NSNotificationQueue enqueueNotification:postingStyle:]
+	[self enqueueNotification:notification postingStyle:postingStyle 
+				 coalesceMask:(NSNotificationCoalescingOnSender|NSNotificationCoalescingOnName)
+					 forModes:nil];
 }
 
 
