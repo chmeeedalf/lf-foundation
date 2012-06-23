@@ -23,16 +23,18 @@
    or in connection with the use or performance of this software.
  */
 
+#import <Foundation/NSPathUtilities.h>
+
 #include <limits.h>			/* for PATH_MAX */
 #include <stdlib.h>
 
+#import <Foundation/NSAccount.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSPathUtilities.h>
-#import <Foundation/NSAccount.h>
-#import <Foundation/NSSet.h>
+#import <Foundation/NSFileManager.h>
 #import <Foundation/NSProcessInfo.h>
+#import <Foundation/NSSet.h>
+#import <Foundation/NSString.h>
 #import "internal.h"
 
 /*
@@ -131,9 +133,42 @@ static NSString *rootPath = @"/";
 						  caseSensitive:(bool)flag matchesIntoArray:(NSArray **)outputArray
 							filterTypes:(NSArray *)filterTypes
 {
-	// TODO
-	[self notImplemented:_cmd];
-	return 0;
+	NSString *root = [self stringByDeletingLastPathComponent];
+	NSString *lastPart = [self lastPathComponent];
+	NSDirectoryEnumerator *en = [[NSFileManager defaultManager]
+		enumeratorAtURL:[NSURL fileURLWithPath:root]
+		includingPropertiesForKeys:nil
+						   options:NSDirectoryEnumerationSkipsSubdirectoryDescendants
+					  errorHandler:^bool(NSURL *ignore, NSError *errp){ return true;}];
+	NSMutableSet *paths = [NSMutableSet new];
+	NSString *longest = nil;
+
+	if (flag)
+		lastPart = [lastPart uppercaseString];
+	for (NSString *item in en)
+	{
+		NSString *testItem = item;
+
+		if (flag)
+		{
+			testItem = [item uppercaseString];
+		}
+		if (![testItem hasPrefix:lastPart])
+			continue;
+
+		if (filterTypes == nil || [filterTypes containsObject:[item pathExtension]])
+		{
+			NSString *thisPath = [root stringByAppendingPathComponent:item];
+			[paths addObject:thisPath];
+			if ([thisPath length] > [longest length])
+				longest = thisPath;
+		}
+	}
+	if (outputName != NULL)
+		*outputName = longest;
+	if (outputArray != NULL)
+		*outputArray = [paths allObjects];
+	return [paths count];
 }
 
 - (const char *)fileSystemRepresentation
