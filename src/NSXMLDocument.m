@@ -43,31 +43,35 @@
 @implementation NSXMLDocument
 - (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)mask error:(NSError **)errp
 {
-	return [self initWithData:[NSData dataWithContentsOfURL:url] options:mask error:errp];
+	self = [self initWithData:[NSData dataWithContentsOfURL:url] options:mask error:errp];
+	[self setURI:[url absoluteString]];
+	return self;
 }
 
 - (id) initWithData:(NSData *)data options:(NSUInteger)mask error:(NSError **)errp
 {
 	TODO;	// -[NSXMLDocument initWithData:options:error:]
+	NSParameterAssert(data != nil);
 	return self;
 }
 
 - (id) initWithRootElement:(NSXMLElement *)root
 {
-	TODO;	// -[NSXMLDocument initWithRootElement:]
+	self = [self initWithKind:NSXMLDocumentKind options:0];
+	[self setRootElement:root];
 	return self;
 }
 
 - (id) initWithXMLString:(NSString *)string options:(NSUInteger)mask error:(NSError **)errp
 {
-	TODO;	// -[NSXMLDocument initWithXMLString:options:error:]
-	return self;
+	return [self initWithData:[string dataUsingEncoding:NSUTF8StringEncoding]
+					  options:mask
+						error:errp];
 }
 
 + (Class) replacementClassForClass:(Class)cls
 {
-	TODO;	// -[NSXMLDocument replacementClassForClass:]
-	return Nil;
+	return cls;
 }
 
 
@@ -84,7 +88,7 @@
 	{
 		xmlFree((void *)thisNode->encoding);
 	}
-	thisNode->encoding = strdup([encoding UTF8String]);
+	thisNode->encoding = xmlStrdup([encoding UTF8String]);
 }
 
 - (NSXMLDocumentContentKind) documentContentKind
@@ -144,7 +148,7 @@
 	{
 		xmlFree((void *)thisNode->URL);
 	}
-	thisNode->URL = strdup([newURI UTF8String]);
+	thisNode->URL = xmlStrdup([newURI UTF8String]);
 }
 
 - (NSString *) version
@@ -161,7 +165,7 @@
 	{
 		xmlFree((void *)thisNode->version);
 	}
-	thisNode->version = strdup([newVers UTF8String]);
+	thisNode->version = xmlStrdup([newVers UTF8String]);
 }
 
 
@@ -264,8 +268,8 @@
 
 - (NSData *) XMLDataWithOptions:(NSUInteger)options
 {
-	TODO; 	// -[NSXMLDocument XMLDataWithOptions:]
-	return nil;
+	return [[self XMLStringWithOptions:options] dataUsingEncoding:NSUTF8StringEncoding
+				  allowLossyConversion:false];
 }
 
 

@@ -28,6 +28,10 @@
  * 
  */
 
+#include <string.h>
+
+#include <libxml/xmlsave.h>
+
 #import <Foundation/NSXMLNode.h>
 
 #import <Foundation/NSArray.h>
@@ -55,35 +59,51 @@
 
 - (id) initWithKind:(NSXMLNodeKind)kind options:(NSUInteger)options
 {
-	TODO; // -[NSXMLNode initWithKind:options:]
 	switch (kind)
 	{
 		case NSXMLInvalidKind:
+			nodePtr = xmlNewNode(NULL, NULL);
 			break;
 		case NSXMLDocumentKind:
+			nodePtr = (xmlNodePtr)xmlNewDoc((xmlChar *)"1.0");
 			break;
 		case NSXMLElementKind:
+			nodePtr = xmlNewNode(NULL, NULL);
 			break;
 		case NSXMLAttributeKind:
-			nodePtr = (xmlNodePtr)xmlNewProp(NULL, "", "");
+			nodePtr = (xmlNodePtr)xmlNewProp(NULL, NULL, NULL);
 			break;
 		case NSXMLNamespaceKind:
+			nodePtr = (xmlNodePtr)xmlNewNs(NULL, NULL, NULL);
 			break;
 		case NSXMLProcessingInstructionKind:
+			nodePtr = (xmlNodePtr)xmlNewPI(NULL, NULL);
 			break;
 		case NSXMLCommentKind:
+			nodePtr = (xmlNodePtr)xmlNewComment(NULL);
 			break;
 		case NSXMLTextKind:
+			nodePtr = xmlNewText("");
 			break;
 		case NSXMLDTDKind:
+			nodePtr = (xmlNodePtr)xmlNewDtd(NULL, NULL, NULL, NULL);
 			break;
 		case NSXMLEntityDeclarationKind:
+			nodePtr = (xmlNodePtr)xmlNewEntity(NULL, NULL, 0, NULL, NULL, NULL);
 			break;
 		case NSXMLAttributeDeclarationKind:
+			nodePtr = xmlMalloc(sizeof(xmlAttribute));
+			memset(nodePtr, 0, sizeof(xmlAttribute));
+			nodePtr->type = XML_ATTRIBUTE_DECL;
 			break;
 		case NSXMLElementDeclarationKind:
+			nodePtr = xmlMalloc(sizeof(xmlElement));
+			memset(nodePtr, 0, sizeof(xmlElement));
+			nodePtr->type = XML_ELEMENT_DECL;
 			break;
 		case NSXMLNotationDeclarationKind:
+			nodePtr = xmlNewNode(NULL, NULL);
+			nodePtr->type = XML_NOTATION_NODE;
 			break;
 	};
 	
@@ -190,8 +210,10 @@
 
 + (id) processingInstructionWithName:(NSString *)name stringValue:(NSString *)string
 {
-	TODO; // +[NSXMLNode processingInstructionWithName:stringValue:]
-	return nil;
+	id ret = [[self alloc] initWithKind:NSXMLProcessingInstructionKind];
+	[ret setName:name];
+	[ret setStringValue:string];
+	return ret;
 }
 
 
@@ -262,8 +284,15 @@
 
 - (NSString *) stringValue
 {
-	TODO; // -[NSXMLNode stringValue]
-	return nil;
+	xmlChar *content = xmlNodeGetContent(nodePtr);
+	NSString *ret;
+
+	if (content == NULL)
+		return nil;
+
+	ret = [NSString stringWithUTF8String:content];
+	xmlFree(content);
+	return ret;
 }
 
 - (void) setURI:(NSString *)URI
@@ -406,8 +435,29 @@
 
 - (NSString *) XMLStringWithOptions:(NSUInteger)options
 {
-	TODO; // -[NSXMLNode XMLStringWithOptions:]
-	return nil;
+	int saveOpts = XML_SAVE_AS_XML;
+	xmlBufferPtr buf = xmlBufferCreate();
+	xmlSaveCtxtPtr saveCtx;
+	NSString *ret = nil;
+
+	if (options & NSXMLNodePrettyPrint)
+		saveOpts |= XML_SAVE_FORMAT;
+	if (options & NSXMLNodeCompactEmptyElement)
+		saveOpts |= XML_SAVE_NO_EMPTY;
+	if (options & NSXMLNodePreserveWhitespace)
+		saveOpts |= XML_SAVE_WSNONSIG;
+	saveCtx = xmlSaveToBuffer(buf, "utf-8", saveOpts);
+
+	if (saveCtx != NULL)
+	{
+		long len = xmlSaveTree(saveCtx, nodePtr);
+		if (len >= 0)
+		{
+			ret = [NSString stringWithUTF8String:xmlBufferContent(buf)];
+		}
+	}
+	xmlBufferFree(buf);
+	return ret;
 }
 
 - (NSString *) canonicalXMLStringPreservingComments:(bool)comments
@@ -456,26 +506,40 @@
 
 - (NSString *) localName
 {
-	TODO; // -[NSXMLNode localName]
-	return nil;
+	if (nodePtr->name == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:nodePtr->name];
 }
 
 + (NSString *) localNameForName:(NSString *)name
 {
-	TODO; // +[NSXMLNode localNameForName]
-	return nil;
+	const xmlChar *locName = [name UTF8String];
+	int len;
+
+	locName = xmlSplitQName3(locName, &len);
+	return [NSString stringWithUTF8String:locName];
 }
 
 - (NSString *) prefix
 {
-	TODO; // -[NSXMLNode prefix]
-	return nil;
+	if (nodePtr == NULL || nodePtr->ns == NULL || nodePtr->ns->prefix == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:nodePtr->ns->prefix];
 }
 
 + (NSString *) prefixForName:(NSString *)name
 {
-	TODO; // -[NSXMLNode prefixForName:]
-	return nil;
+	const xmlChar *locName = [name UTF8String];
+	xmlChar *splitName;
+	xmlChar *prefix;
+	NSString *ret;
+
+	splitName = xmlSplitQName2(locName, &prefix);
+	ret = [NSString stringWithUTF8String:prefix];
+
+	xmlFree(splitName);
+	xmlFree(prefix);
+	return ret;
 }
 
 - (id) copyWithZone:(NSZone *)zone

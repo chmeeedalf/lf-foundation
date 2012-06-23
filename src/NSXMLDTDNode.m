@@ -31,6 +31,7 @@
 #import <Foundation/NSXMLDTDNode.h>
 #import "internal.h"
 
+#define thisNode ((xmlEntity *)nodePtr)
 @implementation NSXMLDTDNode
 
 - (id) initWithXMLString:(NSString *)string
@@ -71,24 +72,34 @@
 
 - (void) setPublicID:(NSString *)publicID
 {
-	TODO;	// -[NSXMLDTDNode setPublicID:]
+	if (thisNode->ExternalID != NULL)
+	{
+		xmlFree((void *)thisNode->ExternalID);
+	}
+	thisNode->ExternalID = xmlStrdup([publicID UTF8String]);
 }
 
 - (NSString *) publicID
 {
-	TODO;	// -[NSXMLDTDNode publicID]
-	return nil;
+	if (thisNode->ExternalID == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:thisNode->ExternalID];
 }
 
 - (void) setSystemID:(NSString *)systemID
 {
-	TODO;	// -[NSXMLDTDNode setSystemID:]
+	if (thisNode->SystemID != NULL)
+	{
+		xmlFree((void *)thisNode->SystemID);
+	}
+	thisNode->SystemID = xmlStrdup([systemID UTF8String]);
 }
 
 - (NSString *) systemID
 {
-	TODO;	// -[NSXMLDTDNode systemID]
-	return nil;
+	if (thisNode->SystemID == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:thisNode->SystemID];
 }
 
 

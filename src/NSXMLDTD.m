@@ -30,9 +30,11 @@
 
 #import <Foundation/NSXMLDTD.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
 #import "internal.h"
 
+#define thisNode ((xmlDtd *)nodePtr)
 @implementation NSXMLDTD
 
 - (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)options error:(NSError **)errp
@@ -50,55 +52,93 @@
 
 - (void) setPublicID:(NSString *)publicID
 {
-	TODO; // -[NSXMLDTD setPublicID:]
+	if (thisNode->ExternalID != NULL)
+	{
+		xmlFree((void *)thisNode->ExternalID);
+	}
+	thisNode->ExternalID = xmlStrdup([publicID UTF8String]);
 }
 
 - (NSString *) publicID
 {
-	TODO; // -[NSXMLDD publicID]
-	return nil;
+	if (thisNode->ExternalID == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:thisNode->ExternalID];
 }
 
 - (void) setSystemID:(NSString *)systemID
 {
-	TODO; // -[NSXMLDTD setSystemID:]
+	if (thisNode->SystemID != NULL)
+	{
+		xmlFree((void *)thisNode->SystemID);
+	}
+	thisNode->SystemID = xmlStrdup([systemID UTF8String]);
 }
 
 - (NSString *) systemID
 {
-	TODO; // -[NSXMLDD systemID]
-	return nil;
+	if (thisNode->SystemID == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:thisNode->SystemID];
 }
 
 
 - (void) addChild:(NSXMLNode *)child
 {
-	TODO; // -[NSXMLDTD addChild:]
+	[self insertChild:child atIndex:[self childCount]];
 }
 
 - (void) insertChild:(NSXMLNode *)child atIndex:(NSUInteger)index
 {
-	TODO; // -[NSXMLDTD insertChild:atIndex:]
+	NSParameterAssert(index < [self childCount]);
+	[child detach];
+	xmlAddNextSibling([self childAtIndex:index]->nodePtr, child->nodePtr);
 }
 
 - (void) insertChildren:(NSArray *)children atIndex:(NSUInteger)index
 {
-	TODO; // -[NSXMLDTD insertChildren:atIndex:]
+	__block NSUInteger idx = index;
+
+	[children enumerateObjectsUsingBlock:^(id child, NSUInteger indx, bool *stop){
+		[self insertChild:child atIndex:idx++];
+	}];
 }
 
 - (void) removeChildAtIndex:(NSUInteger)index
 {
-	TODO; // -[NSXMLDTD removeChildAtIndex:]
+	NSParameterAssert(index < [self childCount]);
+
+	NSXMLNode *child = [self childAtIndex:index];
+	[child detach];
 }
 
 - (void) replaceChildAtIndex:(NSUInteger)index withNode:(NSXMLNode *)newChild
 {
-	TODO; // -[NSXMLDTD replaceChildAtIndex:withNode:]
+	NSParameterAssert(index < [self childCount]);
+	xmlReplaceNode([self childAtIndex:index]->nodePtr, newChild->nodePtr);
 }
 
 - (void) setChildren:(NSArray *)newChildren
 {
-	TODO; // -[NSXMLDTD setChildren:]
+	NSUInteger newCount = [newChildren count];
+	if ([newChildren count] > [self childCount])
+	{
+		for (NSUInteger i = [self childCount]; i < newCount; i++)
+		{
+			[self addChild:[newChildren objectAtIndex:i]];
+		}
+	}
+	else
+	{
+		for (NSUInteger i = [self childCount] - newCount; i > 0; --i)
+		{
+			[self removeChildAtIndex:newCount];
+		}
+	}
+	for (NSUInteger i = 0; i < newCount; i++)
+	{
+		[self replaceChildAtIndex:i withNode:[newChildren objectAtIndex:i]];
+	}
 }
 
 

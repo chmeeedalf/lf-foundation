@@ -179,7 +179,7 @@
 
 - (void) removeAttributeForName:(NSString *)name
 {
-	TODO;	// -[NSXMLElement removeAttributeForName:]
+	[[self attributeForName:name] detach];
 }
 
 - (void) setAttributes:(NSArray *)attributes
