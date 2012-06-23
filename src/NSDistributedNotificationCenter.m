@@ -40,8 +40,7 @@ NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 
 + (id) defaultCenter
 {
-	TODO; // +[NSDistributedNotificationCenter defaultCenter]
-	return nil;
+	return [self notificationCenterForType:NSLocalNotificationCenterType];
 }
 
 + (NSDistributedNotificationCenter *)notificationCenterForType:(NSString *)_type
@@ -61,7 +60,7 @@ NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 -(void)addObserver:(id)anObserver selector:(SEL)aSelector
 	name:(NSString *)aName object:(id)anObject
 {
-	[self addObserver:anObserver selector:aSelector name:aName object:anObject suspensionBehavior NSNotificationSuspensionBehaviorCoalesce];
+	[self addObserver:anObserver selector:aSelector name:aName object:anObject suspensionBehavior:NSNotificationSuspensionBehaviorCoalesce];
 }
 
 -(void)removeObserver:(id)anObserver name:(NSString *)aName object:(id)anObject
@@ -78,13 +77,13 @@ NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 
 -(void)postNotificationName:(NSString *)aName object:(id)anObject
 {
-	[self postNotificationName:name object:object userInfo:nil deliverImmediatly:false];
+	[self postNotificationName:aName object:anObject userInfo:nil deliverImmediatly:false];
 }
 
 -(void)postNotificationName:(NSString *)aName object:(id)anObject
 	userInfo:(NSDictionary *)userInfo
 {
-	[self postNotificationName:name object:object userInfo:userInfo deliverImmediatly:false];
+	[self postNotificationName:aName object:anObject userInfo:userInfo deliverImmediatly:false];
 }
 
 - (void)setSuspended:(bool)flag
