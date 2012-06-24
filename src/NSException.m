@@ -54,6 +54,8 @@
 
 #import <Foundation/NSException.h>
 
+#include <execinfo.h>
+
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
@@ -63,6 +65,9 @@
 
 @class NSLocale;
 @implementation NSException
+{
+	NSMutableArray *callStackSymbols;
+}
 @synthesize name;
 @synthesize reason;
 @synthesize userInfo;
@@ -142,8 +147,24 @@ userInfo:(NSDictionary*)_userInfo
 
 - (NSArray *)callStackSymbols
 {
-	TODO;	// callStackSymbols
-	return nil;
+	if (callStackSymbols != nil)
+		return callStackSymbols;
+
+	NSUInteger count = [returnAddresses count];
+	callStackSymbols = [NSMutableArray new];
+	void **addrs = malloc([returnAddresses count] * sizeof(void *));
+	for (NSUInteger i = count; i > 0; --i)
+	{
+		addrs[i - 1] = [[returnAddresses objectAtIndex:i-1] unsignedIntegerValue];
+	}
+	char **syms = backtrace_symbols(addrs, count);
+	for (NSUInteger i = 0; i < count; i++)
+	{
+		[callStackSymbols addObject:@(syms[i])];
+	}
+	free(syms);
+	free(addrs);
+	return callStackSymbols;
 }
 
 @end /* NSException (Extensions) */
