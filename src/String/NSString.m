@@ -71,6 +71,7 @@
 #include <unicode/ustdio.h>
 #include <unicode/ucnv.h>
 #include <unicode/ucol.h>
+#include <unicode/ucsdet.h>
 #include <unicode/unorm.h>
 #include <unicode/usearch.h>
 
@@ -1215,6 +1216,30 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	return NSUTF8StringEncoding;
 }
 
++ (NSStringEncoding) stringEncodingFromName:(NSString *)name
+{
+	name = [name uppercaseString];
+	if ([name isEqualToString:@"US-ASCII"])
+		return NSASCIIStringEncoding;
+	if ([name isEqualToString:@"UTF-8"])
+		return NSUTF8StringEncoding;
+	if ([name isEqualToString:@"ISO8859-1"])
+		return NSISOLatin1StringEncoding;
+	if ([name isEqualToString:@"ISO88590"])
+		return NSISOLatin2StringEncoding;
+	if ([name isEqualToString:@"UTF-16"])
+		return NSUTF16StringEncoding;
+	if ([name isEqualToString:@"UTF16BE"])
+		return NSUTF16BigEndianStringEncoding;
+	if ([name isEqualToString:@"UTF16LE"])
+		return NSUTF16LittleEndianStringEncoding;
+	if ([name isEqualToString:@"EUC"])
+		return NSJapaneseEUCStringEncoding;
+	if ([name isEqualToString:@"SHIFT-JIS"])
+		return NSShiftJISStringEncoding;
+	return NSProprietaryStringEncoding;
+}
+
 + (NSString*)localizedNameOfStringEncoding:(NSStringEncoding)encoding
 {
 	switch(encoding)
@@ -1541,8 +1566,32 @@ static inline int hexval(char digit)
 
 - (id) initWithContentsOfURL:(NSURL *)url usedEncoding:(NSStringEncoding*)enc error:(NSError **)err
 {
-	TODO;	// -[NSString initWithContentsOfURL:usedEncoding:error:]
-	return nil;
+	UErrorCode ec = U_ZERO_ERROR;
+	NSData *data = [NSData dataWithContentsOfURL:url options:0 error:err];
+	UCharsetDetector *det = ucsdet_open(&ec);
+	NSStringEncoding inEnc;
+
+	if (data == nil)
+		return nil;
+
+	if (U_FAILURE(ec))
+		return nil;
+
+	ucsdet_setText(det, [data bytes], [data length], &ec);
+
+	const UCharsetMatch *match = ucsdet_detect(det, &ec);
+
+	if (U_FAILURE(ec))
+	{
+		ucsdet_close(det);
+	}
+	const char *name = ucsdet_getName(match, &ec);
+
+	inEnc = [NSString stringEncodingFromName:@(name)];
+	if (enc != NULL)
+		*enc = inEnc;
+
+	return [self initWithData:data encoding:inEnc];
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder

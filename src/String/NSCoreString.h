@@ -133,6 +133,9 @@ enum {
 -(void)replaceCharactersInRange:(NSRange)aRange withString:(NSString *)aString;
 @end
 
+@interface NSString(Private)
++ (NSStringEncoding) stringEncodingFromName:(NSString *)name;
+@end
 /*
    vim:syntax=objc:
  */
