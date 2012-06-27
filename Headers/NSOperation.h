@@ -83,13 +83,6 @@ enum
 };
 
 @interface NSOperationQueue	:	NSObject
-{
-@private
-	void *_private;
-	bool _suspended;
-	NSInteger _maxConcurrentOperationCount;
-	NSMutableArray *_operations;
-}
 @property NSInteger maxConcurrentOperationCount;
 @property(copy) NSString *name;
 

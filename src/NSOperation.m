@@ -336,6 +336,13 @@
 @end
 
 @implementation NSOperationQueue
+{
+@private
+	void *_private;
+	bool _suspended;
+	NSInteger maxConcurrentOperationCount;
+	NSMutableArray *_operations;
+}
 /*
  * Implementation of NSOperationQueue:
  *
@@ -352,7 +359,7 @@
  * Things left TODO:
  * - Enforce the maxConcurrentOperationCount.
  */
-@synthesize maxConcurrentOperationCount = _maxConcurrentOperationCount;
+@synthesize maxConcurrentOperationCount = maxConcurrentOperationCount;
 @synthesize name;
 
 static NSOperationQueue *mainQueue = nil;
