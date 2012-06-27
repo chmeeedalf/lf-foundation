@@ -43,7 +43,7 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 	NSString *srvType;
 	NSString *srvName;
 	id delegate;
-	int port;
+	NSInteger port;
 }
 
 - (id) initWithDomain:(NSString *)domain type:(NSString *)type name:(NSString *)name
@@ -138,7 +138,7 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 
 - (void) publish
 {
-	TODO; // -[NSNetService publish]
+	[self publishWithOptions:0];
 }
 
 - (void) publishWithOptions:(NSNetServiceOptions)opts
@@ -153,8 +153,7 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 
 - (NSInteger) port
 {
-	TODO; // -[NSNetService port]
-	return 0;
+	return port;
 }
 
 - (void) startMonitoring
@@ -176,24 +175,25 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 
 @implementation NSNetServiceBrowser
 {
+	NSDelegate *delegate;
 }
 
 - (id) init
 {
 	TODO;	// -[NSNetServiceBrowser init]
+	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceBrowserDelegate)];
 	return self;
 }
 
 
 - (id<NSNetServiceBrowserDelegate>) delegate
 {
-	TODO;	// -[NSNetServiceBrowser delegate]
-	return nil;
+	return [delegate delegate];
 }
 
 - (void) setDelegate:(id<NSNetServiceBrowserDelegate>)newDel
 {
-	TODO;	// -[NSNetServiceBrowser setDelegate:]
+	[delegate setDelegate:newDel];
 }
 
 
