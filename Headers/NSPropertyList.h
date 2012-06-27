@@ -33,8 +33,8 @@
 
 @class NSData;
 @class NSError;
-@protocol InputStream;
-@protocol OutputStream;
+@class NSInputStream;
+@class NSOutputStream;
 
 typedef NSUInteger NSPropertyListReadOptions;
 typedef NSUInteger NSPropertyListWriteOptions;
@@ -58,13 +58,13 @@ typedef enum
 }
 + (NSData *)dataWithPropertyList:(id)plist format:(NSPropertyListFormat)format
 	options:(NSPropertyListWriteOptions)opts error:(NSError **)err;
-+ (void) writePropertyList:(id)plist toStream:(id<OutputStream>)stream
++ (void) writePropertyList:(id)plist toStream:(NSOutputStream *)stream
 	format:(NSPropertyListFormat)format options:(NSPropertyListWriteOptions)opts
 	error:(NSError **)err;
 
 + (id)propertyListWithData:(NSData *)data options:(NSPropertyListReadOptions)opts
 	format:(NSPropertyListFormat *)format error:(NSError **)err;
-+ (id) propertyListWithStream:(id<InputStream>)stream options:(NSPropertyListReadOptions)opt
++ (id) propertyListWithStream:(NSInputStream *)stream options:(NSPropertyListReadOptions)opt
 	format:(NSPropertyListFormat *)format error:(NSError **)err;
 
 + (bool) propertyList:(id)plist isValidForFormat:(NSPropertyListFormat)format;

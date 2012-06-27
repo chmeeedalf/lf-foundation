@@ -84,8 +84,7 @@ NSString * const NSHTTPCookieManagerAcceptPolicyChangedNotification = @"NSHTTPCo
 
 - (NSArray *) sortedCookiesUsingDescriptors:(NSArray *)sortDescs
 {
-	TODO;	// -[NSHTTPCookieStorage sortedCookiesUsingDescriptors:]
-	return nil;
+	return [[self cookies] sortedArrayUsingDescriptors:sortDescs];
 }
 
 @end

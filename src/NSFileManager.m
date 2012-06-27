@@ -125,7 +125,7 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	return [fsHandler enumeratorAtURL:url
 		   includingPropertiesForKeys:nil
 							  options:0
-						 errorHandler:nil];
+						 errorHandler:handler];
 }
 
 -(NSArray *)contentsOfDirectoryAtURL:(NSURL *)path error:(NSError **)err

@@ -39,11 +39,12 @@
 + (NSData *)dataWithPropertyList:(id)plist format:(NSPropertyListFormat)format
 	options:(NSPropertyListWriteOptions)opts error:(NSError **)err
 {
-	TODO;	// -[NSPropertyListSerialization dataWithPropertyList:format:options:error:]
-	return nil;
+	NSOutputStream *output = [NSOutputStream outputStreamToMemory];
+	[self writePropertyList:plist toStream:output format:format options:opts error:err];
+	return [output propertyForKey:NSStreamDataWrittenToMemmoryStreamKey];
 }
 
-+ (void) writePropertyList:(id)plist toStream:(id<OutputStream>)stream
++ (void) writePropertyList:(id)plist toStream:(NSOutputStream *)stream
 	format:(NSPropertyListFormat)format options:(NSPropertyListWriteOptions)opts
 	error:(NSError **)err
 {
@@ -54,11 +55,11 @@
 + (id)propertyListWithData:(NSData *)data options:(NSPropertyListReadOptions)opts
 	format:(NSPropertyListFormat *)format error:(NSError **)err
 {
-	TODO;	// -[NSPropertyListSerialization propertyListWithData:options:format:error:]
-	return nil;
+	NSInputStream *input = [NSInputStream inputStreamWithData:data];
+	return [self propertyListWithStream:input options:opts format:format error:err];
 }
 
-+ (id) propertyListWithStream:(id<InputStream>)stream options:(NSPropertyListReadOptions)opt
++ (id) propertyListWithStream:(NSInputStream *)stream options:(NSPropertyListReadOptions)opt
 	format:(NSPropertyListFormat *)format error:(NSError **)err
 {
 	TODO;	// -[NSPropertyListSerialization propertyListWithStream:options:format:error:]

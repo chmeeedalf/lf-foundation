@@ -136,7 +136,6 @@ static NSMutableSet *allConnections;
 							   host:(NSString *)hostName
 					usingNameServer:(NSPortNameServer *)server
 {
-	NSPort *port = [server portForName:name onHost:hostName];
 	TODO; // +[NSConnection connectionWithRegisteredName:host:usingNameServer:]
 	return nil;
 }
@@ -196,7 +195,7 @@ static NSMutableSet *allConnections;
 {
 	bool result;
 
-	result = [server registerPort:sendPort name:name];
+	result = [server registerPort:recvPort name:name];
 
 	if (result)
 	{

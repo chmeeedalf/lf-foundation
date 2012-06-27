@@ -84,13 +84,12 @@
 
 -(bool)deletesFileUponFailure
 {
-	TODO; // -[NSURLDownload deletesFileUponFailure]
-	return false;
+	return deletesOnFailure;
 }
 
 -(void)setDeletesFileUponFailure:(bool)flag
 {
-	TODO; // -[NSURLDownload setDeletesFileUponFailure:]
+	deletesOnFailure = flag;
 }
 
 -(void)setDestination:(NSString *)path allowOverwrite:(bool)allowOverwrite

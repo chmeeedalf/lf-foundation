@@ -40,8 +40,7 @@
 
 + (id) cookieWithProperties:(NSDictionary *)properties
 {
-	TODO;	// -[NSHTTPCookie cookieWithProperties:]
-	return nil;
+	return [[self alloc] initWithProperties:properties];
 }
 
 - (id) initWithProperties:(NSDictionary *)properties
