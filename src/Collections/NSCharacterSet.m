@@ -49,6 +49,7 @@ static _NSICUCharacterSet *alphanumericCharacterSet = nil;
 static _NSICUCharacterSet *capitalizedLetterCharacterSet = nil;
 static _NSICUCharacterSet *controlCharacterSet = nil;
 static _NSICUCharacterSet *decimalDigitCharacterSet = nil;
+static _NSICUCharacterSet *decomposableCharacterSet = nil;
 static _NSICUCharacterSet *emptyCharacterSet = nil;
 static _NSICUCharacterSet *illegalCharacterSet = nil;
 static _NSICUCharacterSet *letterCharacterSet = nil;
@@ -116,8 +117,8 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 
 + (id) decomposableCharacterSet
 {
-	TODO; // +[NSCharacterSet decomposableCharacterSet]
-	return nil;
+	MASKED_CHAR_SET(~(U_GC_L_MASK | U_GC_N_MASK | U_GC_MC_MASK | U_GC_ME_MASK),
+			decomposableCharacterSet);
 }
 
 + (NSCharacterSet *)illegalCharacterSet
