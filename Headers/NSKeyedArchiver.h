@@ -94,8 +94,8 @@
 
 @interface NSKeyedUnarchiver	:	NSCoder
 
-+ (id)unarchivedObjectWithData:(NSData *)rootObject;
-+ (id)unarchivedRootObjectWithURL:(NSURL *)path;
++ (id)unarchiveObjectWithData:(NSData *)rootObject;
++ (id)unarchiveRootObjectWithURL:(NSURL *)path;
 
 - (id) initForReadingWithData:(NSData *)d;
 

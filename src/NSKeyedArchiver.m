@@ -29,6 +29,11 @@
  */
 
 #import <Foundation/NSKeyedArchiver.h>
+
+#import <Foundation/NSData.h>
+#import <Foundation/NSDelegate.h>
+#import <Foundation/NSMapTable.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 /*!
@@ -41,27 +46,37 @@
 	NSMutableDictionary	*_umap;
 	NSMutableArray		*_encStack;
 	unsigned long		 _keyIndex;
-	id delegate;
+	NSDelegate *delegate;
 	NSMapTable			*classNameMap;
 	NSMutableData			*_outData;
 }
 
+static NSMapTable *keyedArchiverClassMap;
+
++ (void) initialize
+{
+	keyedArchiverClassMap = [NSMapTable mapTableWithStrongToStrongObjects];
+}
+
 + (NSData *)archivedDataWithRootObject:(id)rootObject
 {
-	TODO;	// -[NSKeyedArchiver archivedDataWithRootObject:]
-	return nil;
+	NSMutableData *d = [NSMutableData new];
+	NSKeyedArchiver *archiver = [[self alloc] initForWritingWithMutableData:d];
+
+	[archiver encodeRootObject:rootObject];
+	return [d copy];
 }
 
 + (bool)archiveRootObject:(id)rootObject toURL:(NSURL *)path
 {
-	TODO;	// -[NSKeyedArchiver archiveRootObject:toURL:]
-	return false;
+	return [[self archivedDataWithRootObject:rootObject] writeToURL:path options:0 error:NULL];
 }
 
 
 - (id) initForWritingWithMutableData:(NSMutableData *)d
 {
 	TODO;	// -[NSKeyedArchiver initForWritingWithMutableData:]
+	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedArchiverDelegate)];
 	return self;
 }
 
@@ -82,12 +97,12 @@
 
 - (void) encodeBool:(bool)boolv forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeBool:forKey:]
+	[self encodeObject:@(boolv) forKey:key];
 }
 
 - (void) encodeBytes:(const uint8_t *)bytes length:(size_t)len forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeBytes:length:forKey:]
+	[self encodeObject:[NSData dataWithBytes:bytes length:len] forKey:key];
 }
 
 - (void) encodeConditionalObject:(id)object forKey:(NSString *)key
@@ -97,27 +112,27 @@
 
 - (void) encodeDouble:(double)doublev forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeDouble:forKey:]
+	[self encodeObject:@(doublev) forKey:key];
 }
 
 - (void) encodeFloat:(float)floatv forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeFloat:forKey:]
+	[self encodeObject:@(floatv) forKey:key];
 }
 
 - (void) encodeInt:(int)intv forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeInt:forKey:]
+	[self encodeObject:@(intv) forKey:key];
 }
 
 - (void) encodeInt32:(int32_t)int32v forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeInt32:forKey:]
+	[self encodeObject:@(int32v) forKey:key];
 }
 
 - (void) encodeInt64:(int64_t)int64v forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeInt64:forKey:]
+	[self encodeObject:@(int64v) forKey:key];
 }
 
 - (void) encodeObject:(id)object forKey:(NSString *)key
@@ -127,17 +142,17 @@
 
 - (void) encodePoint:(NSPoint)pointv forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodePoint:forKey:]
+	[self encodeObject:[NSValue valueWithPoint:pointv] forKey:key];
 }
 
 - (void) encodeRect:(NSRect)rectv forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeRect:forKey:]
+	[self encodeObject:[NSValue valueWithRect:rectv] forKey:key];
 }
 
 - (void) encodeSize:(NSSize)sizev forKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedArchiver encodeSize:forKey:]
+	[self encodeObject:[NSValue valueWithSize:sizev] forKey:key];
 }
 
 - (void) finishEncoding
@@ -148,36 +163,39 @@
 
 + (NSString *) classNameForClass:(Class)cls
 {
-	TODO;	// -[NSKeyedArchiver classNameForClass:]
-	return nil;
+	@synchronized(self)
+	{
+		return [keyedArchiverClassMap objectForKey:cls];
+	}
 }
 
 + (void) setClassName:(NSString *)name forClass:(Class)cls
 {
-	TODO;	// -[NSKeyedArchiver setClassName:forClass:]
+	@synchronized(self)
+	{
+		[keyedArchiverClassMap setObject:name forKey:cls];
+	}
 }
 
 - (NSString *) classNameForClass:(Class)cls
 {
-	TODO;	// -[NSKeyedArchiver classNameForClass:]
-	return nil;
+	return [classNameMap objectForKey:cls];
 }
 
 - (void) setClassName:(NSString *)name forClass:(Class)cls
 {
-	TODO;	// -[NSKeyedArchiver setClassName:forClass:]
+	[classNameMap setObject:name forKey:cls];
 }
 
 
 - (id<NSKeyedArchiverDelegate>) delegate
 {
-	TODO;	// -[NSKeyedArchiver delegate]
-	return nil;
+	return [delegate delegate];
 }
 
-- (void)setDelegate:(id<NSKeyedArchiverDelegate>)delegate
+- (void)setDelegate:(id<NSKeyedArchiverDelegate>)newDel
 {
-	TODO;	// -[NSKeyedArchiver setDelegate:]
+	[delegate setDelegate:newDel];
 }
 
 
@@ -186,70 +204,102 @@
 @implementation NSKeyedUnarchiver
 {
 	unsigned long		_keyIndex;
-	id delegate;
+	NSDelegate *delegate;
 	NSMapTable			*classNameMap;
 }
 
-+ (id)unarchivedObjectWithData:(NSData *)rootObject
+static NSMapTable *keyedUnarchiverClassMap;
+
++ (void) initialize
 {
-	TODO;	// -[NSKeyedUnarchiver unarchivedObjectWithData:]
-	return nil;
+	keyedUnarchiverClassMap = [NSMapTable mapTableWithStrongToStrongObjects];
 }
 
-+ (id)unarchivedRootObjectWithURL:(NSURL *)path
++ (id)unarchiveObjectWithData:(NSData *)rootObject
 {
-	TODO;	// -[NSKeyedUnarchiver unarchivedRootObjectWithURL:]
-	return nil;
+	NSKeyedUnarchiver *unarchiver = [[self alloc] initForReadingWithData:rootObject];
+	id root = [unarchiver decodeObjectForKey:@"root"];
+	[unarchiver finishDecoding];
+	return root;
+}
+
++ (id)unarchiveRootObjectWithURL:(NSURL *)path
+{
+	return [self unarchiveObjectWithData:[NSData dataWithContentsOfURL:path]];
 }
 
 
 - (id) initForReadingWithData:(NSData *)d
 {
 	TODO;	// -[NSKeyedUnarchiver initForReadingWithData:]
+	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedUnarchiverDelegate)];
 	return self;
 }
 
 
 - (bool) decodeBoolForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeBoolForKey:]
-	return false;
+	id boolv = [self decodeObjectForKey:key];
+
+	if (![boolv isKindOfClass:[NSNumber class]])
+		return false;
+	return [boolv boolValue];
 }
 
 - (const uint8_t *) decodeBytesForKey:(NSString *)key returnedLength:(size_t *)len
 {
-	TODO;	// -[NSKeyedUnarchiver decodeBytesForKey:returnedLength:]
-	return NULL;
+	NSData *d = [self decodeObjectForKey:key];
+	if (![d isKindOfClass:[NSData class]])
+		return NULL;
+
+	if (len != NULL)
+		*len = [d length];
+	return [d bytes];
 }
 
 - (double) decodeDoubleForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeDoubleForKey:]
-	return 0.0;
+	id doublev = [self decodeObjectForKey:key];
+
+	if (![doublev isKindOfClass:[NSNumber class]])
+		return 0.0;
+	return [doublev doubleValue];
 }
 
 - (float) decodeFloatForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeFloatForKey:]
-	return 0.0;
+	id floatv = [self decodeObjectForKey:key];
+
+	if (![floatv isKindOfClass:[NSNumber class]])
+		return 0.0f;
+	return [floatv floatValue];
 }
 
 - (int) decodeIntForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeIntForKey:]
-	return 0;
+	id intv = [self decodeObjectForKey:key];
+
+	if (![intv isKindOfClass:[NSNumber class]])
+		return 0;
+	return [intv intValue];
 }
 
 - (int32_t) decodeInt32ForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeInt32ForKey:]
-	return 0;
+	id integerv = [self decodeObjectForKey:key];
+
+	if (![integerv isKindOfClass:[NSNumber class]])
+		return 0;
+	return [integerv integerValue];
 }
 
 - (int64_t) decodeInt64ForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeInt64ForKey:]
-	return 0;
+	id longLongv = [self decodeObjectForKey:key];
+
+	if (![longLongv isKindOfClass:[NSNumber class]])
+		return 0;
+	return [longLongv longLongValue];
 }
 
 - (id) decodeObjectForKey:(NSString *)key
@@ -260,20 +310,29 @@
 
 - (NSPoint) decodePointForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodePointForKey:]
-	return NSZeroPoint;
+	id pointv = [self decodeObjectForKey:key];
+
+	if (![pointv isKindOfClass:[NSValue class]])
+		return NSZeroPoint;
+	return [pointv pointValue];
 }
 
 - (NSRect) decodeRectForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeRectForKey:]
-	return NSZeroRect;
+	id rectv = [self decodeObjectForKey:key];
+
+	if (![rectv isKindOfClass:[NSValue class]])
+		return NSZeroRect;
+	return [rectv rectValue];
 }
 
 - (NSSize) decodeSizeForKey:(NSString *)key
 {
-	TODO;	// -[NSKeyedUnarchiver decodeSizeForKey:]
-	return NSZeroSize;
+	id sizev = [self decodeObjectForKey:key];
+
+	if (![sizev isKindOfClass:[NSValue class]])
+		return NSZeroSize;
+	return [sizev sizeValue];
 }
 
 - (void) finishDecoding
@@ -284,36 +343,39 @@
 
 + (NSString *) classNameForClass:(Class)cls
 {
-	TODO;	// -[NSKeyedUnarchiver classNameForClass:]
-	return nil;
+	@synchronized(self)
+	{
+		return [keyedUnarchiverClassMap objectForKey:cls];
+	}
 }
 
 + (void) setClassName:(NSString *)name forClass:(Class)cls
 {
-	TODO;	// -[NSKeyedUnarchiver setClassName:forClass:]
+	@synchronized(self)
+	{
+		[keyedUnarchiverClassMap setObject:name forKey:cls];
+	}
 }
 
 - (NSString *) classNameForClass:(Class)cls
 {
-	TODO;	// -[NSKeyedUnarchiver classNameForClass:]
-	return nil;
+	return [classNameMap objectForKey:cls];
 }
 
 - (void) setClassName:(NSString *)name forClass:(Class)cls
 {
-	TODO;	// -[NSKeyedUnarchiver setClassName:forClass:]
+	[classNameMap setObject:name forKey:cls];
 }
 
 
 - (id<NSKeyedUnarchiverDelegate>) delegate
 {
-	TODO;	// -[NSKeyedUnarchiver delegate]
-	return nil;
+	return [delegate delegate];
 }
 
-- (void)setDelegate:(id<NSKeyedUnarchiverDelegate>)delegate
+- (void)setDelegate:(id<NSKeyedUnarchiverDelegate>)newDel
 {
-	TODO;	// -[NSKeyedUnarchiver setDelegate:]
+	[delegate setDelegate:newDel];
 }
 
 
