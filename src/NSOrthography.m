@@ -29,12 +29,16 @@
  */
 
 #import <Foundation/NSOrthography.h>
+
+#import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
 #import "internal.h"
 
+@interface NSOrthography()
+@property(readwrite) NSString *dominantScript;
+@property(readwrite) NSDictionary *languageMap;
+@end
 @implementation NSOrthography
-@synthesize allLanguages;
-@synthesize allScripts;
-@synthesize dominantLanguage;
 @synthesize dominantScript;
 @synthesize languageMap;
 
@@ -45,40 +49,93 @@
 
 - (id) initWithDominantScript:(NSString *)domScript languageMap:(NSDictionary *)langMap
 {
-	TODO;	// -[NSOrthography initWithDominantScript:languageMap:]
+	self.dominantScript = domScript;
+	self.languageMap = langMap;
 	return self;
 }
 
 
 - (NSArray *) languagesForScript:(NSString *)script
 {
-	TODO;	// -[NSOrthography languagesForScript:]
-	return nil;
+	static NSArray *safeLangs;
+	NSArray *langs = [[self languageMap] objectForKey:script];
+
+	if (langs == nil)
+	{
+		if (safeLangs == nil)
+		{
+			@synchronized([NSOrthography class])
+			{
+				if (safeLangs == nil)
+					safeLangs = @[@"und"];
+			}
+		}
+		langs = safeLangs;
+	}
+	return langs;
 }
 
 - (NSString *) dominantLanguageForScript:(NSString *)script
 {
-	TODO;	// -[NSOrthography dominantLanguageForScript:]
-	return nil;
+	return [self languagesForScript:script][0];
 }
 
 // NSCoding protocol
 
 - (id) initWithCoder:(NSCoder *)coder
 {
-	TODO;	// -[NSOrthography initWithCoder:]
-	return nil;
+	NSString *domScript;
+	NSDictionary *langMap;
+	if ([coder allowsKeyedCoding])
+	{
+		domScript = [coder decodeObjectForKey:@"NSOrthography.domScript"];
+		langMap = [coder decodeObjectForKey:@"NSOrthography.langMap"];
+	}
+	else
+	{
+		domScript = [coder decodeObject];
+		langMap = [coder decodeObject];
+	}
+	return [self initWithDominantScript:domScript languageMap:langMap];
 }
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
-	TODO;	// -[NSOrthography encodeWithCoder:]
+	if ([coder allowsKeyedCoding])
+	{
+		[coder encodeObject:[self dominantScript] forKey:@"NSOrthography.domScript"];
+		[coder encodeObject:[self languageMap] forKey:@"NSOrthography.langMap"];
+	}
+	else
+	{
+		[coder encodeObject:[self dominantScript]];
+		[coder encodeObject:[self languageMap]];
+	}
 }
 
 - (id) copyWithZone:(NSZone *)zone
 {
-	TODO;	// -[NSOrthography copyWithZone:]
-	return nil;
+	return [[[self class] alloc]
+		initWithDominantScript:[self dominantScript]
+				   languageMap:[self languageMap]];
+}
+
+- (NSArray *) allScripts
+{
+	return [[self languageMap] allKeys];
+}
+
+- (NSArray *) allLanguages
+{
+	return [[self languageMap] allValues];
+}
+
+- (NSString *) dominantLanguage
+{
+	NSArray *domLang = [self languagesForScript:[self dominantScript]];
+	if (domLang == nil)
+		return @"und";
+	return domLang[0];
 }
 
 @end
