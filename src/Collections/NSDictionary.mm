@@ -686,7 +686,7 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 - (bool) writeToURL:(NSURL *)url atomically:(bool)atomic
 {
 	NSData *d = [NSPropertyListSerialization dataWithPropertyList:self
-		format:NSPropertyListXMLFormat options:0 error:NULL];
+		format:NSPropertyListXMLFormat_v1_0 options:0 error:NULL];
 	return [d writeToURL:url atomically:atomic];
 }
 @end

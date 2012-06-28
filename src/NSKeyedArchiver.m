@@ -30,9 +30,11 @@
 
 #import <Foundation/NSKeyedArchiver.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDelegate.h>
 #import <Foundation/NSMapTable.h>
+#import <Foundation/NSPropertyList.h>
 #import <Foundation/NSValue.h>
 #import "internal.h"
 
@@ -41,14 +43,15 @@
  */
 @implementation NSKeyedArchiver
 {
-	NSMutableDictionary	*_enc;
-	NSMutableDictionary	*_cmap;
-	NSMutableDictionary	*_umap;
-	NSMutableArray		*_encStack;
-	unsigned long		 _keyIndex;
-	NSDelegate *delegate;
-	NSMapTable			*classNameMap;
-	NSMutableData			*_outData;
+	NSMutableDictionary *enc;
+	NSMutableDictionary *cmap;
+	NSMutableDictionary *umap;
+	NSMutableArray      *encStack;
+	unsigned long        keyIndex;
+	NSDelegate          *delegate;
+	NSMapTable          *classNameMap;
+	NSMutableData       *outData;
+	NSPropertyListFormat format;
 }
 
 static NSMapTable *keyedArchiverClassMap;
@@ -64,6 +67,7 @@ static NSMapTable *keyedArchiverClassMap;
 	NSKeyedArchiver *archiver = [[self alloc] initForWritingWithMutableData:d];
 
 	[archiver encodeRootObject:rootObject];
+	[archiver finishEncoding];
 	return [d copy];
 }
 
@@ -75,8 +79,10 @@ static NSMapTable *keyedArchiverClassMap;
 
 - (id) initForWritingWithMutableData:(NSMutableData *)d
 {
-	TODO;	// -[NSKeyedArchiver initForWritingWithMutableData:]
 	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedArchiverDelegate)];
+	outData = d;
+	format = NSPropertyListXMLFormat_v1_0;
+	
 	return self;
 }
 
@@ -157,7 +163,13 @@ static NSMapTable *keyedArchiverClassMap;
 
 - (void) finishEncoding
 {
-	TODO;	// -[NSKeyedArchiver finishEncoding]
+	[(id<NSKeyedArchiverDelegate>)delegate archiverWillFinish:self];
+	[outData appendData:[NSPropertyListSerialization
+       dataWithPropertyList:[encStack lastObject]
+		     format:[self outputFormat]
+		    options:0
+		      error:NULL]];
+	[(id<NSKeyedArchiverDelegate>)delegate archiverDidFinish:self];
 }
 
 
@@ -198,14 +210,24 @@ static NSMapTable *keyedArchiverClassMap;
 	[delegate setDelegate:newDel];
 }
 
+- (void) setOutputFormat:(NSPropertyListFormat)fmt
+{
+    format = fmt;
+}
+
+- (NSPropertyListFormat) outputFormat
+{
+    return format;
+}
 
 @end
 
 @implementation NSKeyedUnarchiver
 {
-	unsigned long		_keyIndex;
-	NSDelegate *delegate;
-	NSMapTable			*classNameMap;
+	unsigned long  keyIndex;
+	NSDelegate    *delegate;
+	NSMapTable    *classNameMap;
+	NSData        *inData;
 }
 
 static NSMapTable *keyedUnarchiverClassMap;
@@ -231,8 +253,8 @@ static NSMapTable *keyedUnarchiverClassMap;
 
 - (id) initForReadingWithData:(NSData *)d
 {
-	TODO;	// -[NSKeyedUnarchiver initForReadingWithData:]
 	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedUnarchiverDelegate)];
+	inData = d;
 	return self;
 }
 
@@ -380,7 +402,3 @@ static NSMapTable *keyedUnarchiverClassMap;
 
 
 @end
-
-/*
-   vim:syntax=objc:
- */

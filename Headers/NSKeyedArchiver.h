@@ -30,6 +30,8 @@
 
 #import <Foundation/NSCoder.h>
 
+#import <Foundation/NSPropertyList.h>
+
 @class NSKeyedArchiver, NSKeyedUnarchiver;
 @class NSURL, NSMutableData, NSError;
 @class NSMapTable;
@@ -89,6 +91,9 @@
 
 - (id<NSKeyedArchiverDelegate>) delegate;
 - (void)setDelegate:(id<NSKeyedArchiverDelegate>)delegate;
+
+- (void) setOutputFormat:(NSPropertyListFormat)format;
+- (NSPropertyListFormat) outputFormat;
 
 @end
 
