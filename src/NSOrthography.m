@@ -138,4 +138,18 @@
 	return domLang[0];
 }
 
+- (NSUInteger) hash
+{
+	return [[self dominantScript] hash];
+}
+
+- (bool) isEqual:(id)other
+{
+	if (![other isKindOfClass:[NSOrthography class]])
+		return false;
+
+	return [[self dominantScript] isEqual:[other dominantScript]] &&
+			  [[self languageMap] isEqual:[other languageMap]];
+}
+
 @end
