@@ -30,7 +30,12 @@
 
 #import <Foundation/NSUndoManager.h>
 
+#import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSInvocation.h>
+#import <Foundation/NSNotification.h>
 #import <Foundation/NSObject.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 @class NSArray, NSMutableArray;
@@ -48,214 +53,486 @@ NSString * const  NSUndoManagerDidRedoChangeNotification = @"NSUndoManagerDidRed
 
 NSString * const  NSUndoManagerGroupIsDiscardableKey = @"NSUndoManagerGroupIsDiscardableKey";
 
+@interface NSPrivateUndoGroup	:	NSObject
+{
+@package
+	bool                isDiscardable;
+	NSPrivateUndoGroup *parent;
+	NSString           *title;
+	NSMutableArray     *actions;
+}
+
+- (id) initWithParent:(NSPrivateUndoGroup *)parent;
+- (void) setActionIsDiscardable:(bool)discard;
+- (bool) discardable;
+- (void) setActionName:(NSString *)name;
+- (NSString *) name;
+- (NSPrivateUndoGroup *) parent;
+- (void) addInvocation:(NSInvocation *)inv;
+- (void) perform;
+- (void) setParent:(NSPrivateUndoGroup *)newParent;
+- (NSUInteger) actionCount;
+- (NSArray *) actions;
+@end
+
+@implementation NSPrivateUndoGroup
+- (id) initWithParent:(NSPrivateUndoGroup *)parentGroup
+{
+	if ((self = [super init]) == nil)
+		return nil;
+	actions = [NSMutableArray new];
+	parent = parentGroup;
+	return self;
+}
+
+- (void) setActionIsDiscardable:(bool)discardable
+{
+	isDiscardable = discardable;
+}
+
+- (bool) discardable
+{
+	return isDiscardable;
+}
+
+- (void) setActionName:(NSString *)name
+{
+	title = [name copy];
+}
+
+- (NSString *) name
+{
+	return title;
+}
+
+- (NSPrivateUndoGroup *) parent
+{
+	return parent;
+}
+
+- (void) setParent:(NSPrivateUndoGroup *)newParent
+{
+	parent = newParent;
+}
+
+- (void) removeAllActionsWithTarget:(id)target
+{
+	for (NSUInteger i = [actions count]; i > 0; --i)
+	{
+		if ([[actions objectAtIndex:i - 1] target] == target)
+		{
+			NSInvocation *inv = [actions objectAtIndex:i - 1];
+			[actions removeObjectAtIndex:i - 1];
+			id obj;
+
+			[inv getArgument:&obj atIndex:2];
+		}
+	}
+}
+
+- (void) addInvocation:(NSInvocation *)inv
+{
+	[actions addObject:inv];
+}
+
+- (NSUInteger) actionCount
+{
+	return [actions count];
+}
+
+- (void) perform
+{
+	for (NSInvocation *inv in [actions reverseObjectEnumerator])
+		[inv invoke];
+}
+
+- (NSArray *) actions
+{
+	return actions;
+}
+@end
 
 @implementation NSUndoManager
 {
-    NSMutableArray *_undoStack;
-    NSMutableArray *_redoStack;
-    bool _groupsByEvent;
-    NSArray *_modes;
-    int _disableCount;
-    long _levelsOfNSUndo;
-    id _currentGroup;
-    int _state;
-    NSString *_actionName;
-    id _preparedTarget;
-    bool _performRegistered;
+	NSMutableArray *redoActions;
+	NSMutableArray *undoActions;
+	NSArray *modes;
+	NSUInteger disableCount;
+	id undoTarget;
+	id currentGroup;
+	NSUInteger groupingLevel;
+	NSUInteger levelsOfUndo;
+	bool groupsByEvent;
+	bool undoing;
+	bool redoing;
+}
+
+- (void) _loop:(id)ignore
+{
+	if ([self groupsByEvent])
+	{
+		[self endUndoGrouping];
+		[self beginUndoGrouping];
+		[[NSRunLoop currentRunLoop] performSelector:@selector(_loop:)
+											 target:self
+										   argument:nil
+											  order:NSUndoCloseGroupingRunLoopOrdering
+											  modes:modes];
+	}
+}
+
+- (id) init
+{
+	[self setRunLoopModes:@[NSDefaultRunLoopMode]];
+	return self;
 }
 
 -(void)registerUndoWithTarget:(id)target selector:(SEL)selector object:(id)object
 {
-	TODO;	// -[NSUndoManager registerUndoWithTarget:selector:object:]
+	if (disableCount > 0)
+		return;
+
+	NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
+	[inv setTarget:target];
+	[inv setSelector:selector];
+	[inv setArgument:(__bridge_retained void *)object atIndex:2];
+	
+	[currentGroup addInvocation:inv];
+	if (![self isUndoing] && ![self isRedoing])
+		[redoActions removeAllObjects];
 }
 
 -(id)prepareWithInvocationTarget:(id)target
 {
-	TODO;	// -[NSUndoManager prepareWithInvocationTarget:]
-	return nil;
+	undoTarget = target;
+	return self;
 }
 
 
 -(bool)canUndo
 {
-	TODO;	// -[NSUndoManager canUndo]
-	return false;
+	return ([undoActions count] > 0);
 }
 
 -(bool)canRedo
 {
-	TODO;	// -[NSUndoManager canRedo]
-	return false;
+	[[NSNotificationCenter defaultCenter] 
+		postNotificationName:NSUndoManagerCheckpointNotification object:self];
+	return ([redoActions count] > 0);
 }
 
 
 -(void)undo
 {
-	TODO;	// -[NSUndoManager undo]
+	NSAssert([self groupingLevel] <= 1, @"Cannot undo while inside a nested group");
+	if ([self groupingLevel] == 1)
+	{
+		[self endUndoGrouping];
+	}
+	[self undoNestedGroup];
 }
 
 -(void)undoNestedGroup
 {
-	TODO;	// -[NSUndoManager undoNestedGroup]
+	NSAssert(!undoing && !redoing, @"Cannot undo while already undoing or redoing");
+    if (currentGroup != nil)
+		@throw [NSInternalInconsistencyException
+			exceptionWithReason:@"undoNestedGroup called with open nested group"
+					   userInfo:nil];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerCheckpointNotification object:self];
+	undoing = true;
+	if ([undoActions count] > 0)
+	{
+		NSString *name;
+		NSPrivateUndoGroup *undoGroup;
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerWillUndoChangeNotification object:self];
+		
+		undoGroup = [undoActions lastObject];
+		[undoActions removeLastObject];
+		name = [undoGroup name];
+		[self beginUndoGrouping];
+		[undoGroup perform];
+		[self endUndoGrouping];
+		[[undoActions lastObject] setActionName:name];
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerDidUndoChangeNotification object:self];
+	}
 }
 
 -(void)redo
 {
-	TODO;	// -[NSUndoManager redo]
+	NSAssert(!undoing && !redoing, @"Cannot redo while already undoing or redoing");
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerCheckpointNotification object:self];
+	redoing = true;
+	if ([redoActions count] > 0)
+	{
+		NSString *name;
+		NSPrivateUndoGroup *redoGroup;
+		NSPrivateUndoGroup *savedGroup;
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerWillRedoChangeNotification object:self];
+		
+		redoGroup = [redoActions lastObject];
+		[redoActions removeLastObject];
+		name = [redoGroup name];
+		savedGroup = currentGroup;
+		currentGroup = [[NSPrivateUndoGroup alloc] initWithParent:nil];
+		[redoGroup perform];
+		[self endUndoGrouping];
+		[[undoActions lastObject] setActionName:name];
+		currentGroup = savedGroup;
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerDidRedoChangeNotification object:self];
+	}
 }
 
 
 -(void)setLevelsOfUndo:(NSUInteger)levels
 {
-	TODO;	// -[NSUndoManager setLevelsOfUndo:]
+	levelsOfUndo = levels;
+	if (levelsOfUndo > 0)
+	{
+		if ([undoActions count] > levels)
+		{
+			[undoActions removeObjectsInRange:NSMakeRange(0, [undoActions count] - levels)];
+		}
+		if ([redoActions count] > levels)
+		{
+			[redoActions removeObjectsInRange:NSMakeRange(0, [redoActions count] - levels)];
+		}
+	}
 }
 
 -(NSUInteger)levelsOfUndo
 {
-	TODO;	// -[NSUndoManager levelsOfUndo]
-	return 0;
+	return levelsOfUndo;
 }
 
 
 -(void)beginUndoGrouping
 {
-	TODO;	// -[NSUndoManager beginUndoGrouping]
+	if (![self isUndoing])
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerCheckpointNotification object:self];
+	groupingLevel++;
+	currentGroup = [[NSPrivateUndoGroup alloc] initWithParent:currentGroup];
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerDidOpenUndoGroupNotification object:self];
 }
 
 -(void)endUndoGrouping
 {
-	TODO;	// -[NSUndoManager endUndoGrouping]
+	NSAssert(currentGroup != nil, @"endUndoGrouping called without a paired beginUndoGrouping");
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerCheckpointNotification object:self];
+	id parent = [currentGroup parent];
+	if ([[currentGroup actions] count] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerWillUndoChangeNotification object:self userInfo:@{ NSUndoManagerWillCloseUndoGroupNotificationKey : @(true)}];
+	}
+
+	if (parent != nil)
+	{
+		for (id inv in [currentGroup actions])
+			[parent addInvocation:inv];
+		if ([parent discardable])
+			[parent setActionIsDiscardable:[currentGroup discardable]];
+	}
+	else
+	{
+		NSMutableArray *stack;
+		if (!undoing)
+		{
+			stack = undoActions;
+		}
+		else
+		{
+			stack = redoActions;
+		}
+		[stack addObject:currentGroup];
+		if ([stack count] > levelsOfUndo)
+			[stack removeObjectAtIndex:0];
+	}
+	currentGroup = parent;
+	groupingLevel--;
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSUndoManagerDidCloseUndoGroupNotification object:self];
 }
 
 -(bool)groupsByEvent
 {
-	TODO;	// -[NSUndoManager groupsByEvent]
-	return false;
+	return groupsByEvent;
 }
 
 -(void)setGroupsByEvent:(bool)flag
 {
-	TODO;	// -[NSUndoManager setGroupsByEvent:]
+	groupsByEvent = flag;
+	if (groupsByEvent)
+	{
+		[[NSRunLoop currentRunLoop] performSelector:@selector(_loop:)
+											 target:self
+										   argument:nil
+											  order:NSUndoCloseGroupingRunLoopOrdering
+											  modes:modes];
+	}
+	else
+	{
+		[[NSRunLoop currentRunLoop] cancelPerformSelectorsWithTarget:self];
+	}
 }
 
 -(NSInteger)groupingLevel
 {
-	TODO;	// -[NSUndoManager groupingLevel]
-	return 0;
+	return groupingLevel;
 }
 
 
 -(void)disableUndoRegistration
 {
-	TODO;	// -[NSUndoManager disableUndoRegistration]
+	disableCount++;
 }
 
 -(void)enableUndoRegistration
 {
-	TODO;	// -[NSUndoManager enableUndoRegistration]
+	NSAssert(disableCount > 0, @"Undo registration not previously disabled");
+	disableCount--;
 }
 
 -(bool)isUndoRegistrationEnabled
 {
-	TODO;	// -[NSUndoManager isUndoRegistrationEnabled]
-	return false;
+	return (disableCount == 0);
 }
 
 
 -(bool)isUndoing
 {
-	TODO;	// -[NSUndoManager isUndoing]
-	return false;
+	return undoing;
 }
 
 -(bool)isRedoing
 {
-	TODO;	// -[NSUndoManager isRedoing]
-	return false;
+	return redoing;
 }
 
 
 -(void)removeAllActions
 {
-	TODO;	// -[NSUndoManager removeAllActions]
+	while (currentGroup != nil)
+		[self endUndoGrouping];
+	[undoActions removeAllObjects];
+	[redoActions removeAllObjects];
+
+	disableCount = 0;
 }
 
 -(void)removeAllActionsWithTarget:(id)target
 {
-	TODO;	// -[NSUndoManager removeAllActionsWithTarget:]
+	for (NSUInteger i = [undoActions count]; i > 0; --i)
+	{
+		NSPrivateUndoGroup *action = [undoActions objectAtIndex:i-1];
+		[action removeAllActionsWithTarget:target];
+		if ([action actionCount] == 0)
+		{
+			[undoActions removeObjectAtIndex:i-1];
+		}
+	}
+	for (NSUInteger i = [redoActions count]; i > 0; --i)
+	{
+		NSPrivateUndoGroup *action = [redoActions objectAtIndex:i-1];
+		[action removeAllActionsWithTarget:target];
+		if ([action actionCount] == 0)
+		{
+			[redoActions removeObjectAtIndex:i-1];
+		}
+	}
 }
 
 
 -(void)setActionName:(NSString *)name
 {
-	TODO;	// -[NSUndoManager setActionName:]
+	[currentGroup setActionName:name];
 }
 
 -(NSString *)redoActionName
 {
-	TODO;	// -[NSUndoManager redoActionName]
+	if ([self canRedo])
+	{
+		return [[redoActions lastObject] name];
+	}
 	return nil;
 }
 
 -(NSString *)undoActionName
 {
-	TODO;	// -[NSUndoManager undoActionName]
+	if ([self canUndo])
+	{
+		return [[undoActions lastObject] name];
+	}
 	return nil;
 }
 
 
 -(NSString *)redoMenuItemTitle
 {
-	TODO;	// -[NSUndoManager redoMenuItemTitle]
-	return nil;
+	return [self redoMenuTitleForUndoActionName:[self redoActionName]];
 }
 
 -(NSString *)undoMenuItemTitle
 {
-	TODO;	// -[NSUndoManager undoMenuItemTitle]
-	return nil;
+	return [self undoMenuTitleForUndoActionName:[self undoActionName]];
 }
 
 -(NSString *)undoMenuTitleForUndoActionName:(NSString *)name
 {
-	TODO;	// -[NSUndoManager undoMenuTitleForUndoActionName:]
-	return nil;
+	if ([name length] > 0)
+	{
+		return [NSString stringWithFormat:@"Undo %@",name];
+	}
+	else
+	{
+		return @"Undo";
+	}
 }
 
 -(NSString *)redoMenuTitleForUndoActionName:(NSString *)name
 {
-	TODO;	// -[NSUndoManager redoMenuTitleForUndoActionName:]
-	return nil;
+	if ([name length] > 0)
+	{
+		return [NSString stringWithFormat:@"Redo %@",name];
+	}
+	else
+	{
+		return @"Redo";
+	}
 }
 
 
 -(NSArray *)runLoopModes
 {
-	TODO;	// -[NSUndoManager runLoopModes]
-	return nil;
+	return modes;
 }
 
--(void)setRunLoopModes:(NSArray *)modes
+-(void)setRunLoopModes:(NSArray *)newModes
 {
-	TODO;	// -[NSUndoManager setRunLoopModes:]
+	if (modes != newModes)
+	{
+		[[NSRunLoop currentRunLoop] cancelPerformSelectorsWithTarget:self];
+	}
+	modes = newModes;
 }
 
 
 - (void) setActionIsDiscardable:(bool)discard
 {
-	TODO;	// -[NSUndoManager setActionIsDiscardable:]
+	[currentGroup setActionIsDiscardable:discard];
 }
 
 - (bool) redoActionIsDiscardable
 {
-	TODO;	// -[NSUndoManager redoActionIsDiscardable]
-	return false;
+	return [currentGroup discardable];
 }
 
 - (bool) undoActionIsDiscardable
 {
-	TODO;	// -[NSUndoManager undoActionIsDiscardable]
-	return false;
+	return [currentGroup discardable];
 }
 
 @end

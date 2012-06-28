@@ -70,6 +70,7 @@ SYSTEM_EXPORT NSString * const NSUndoManagerWillRedoChangeNotification;
 SYSTEM_EXPORT NSString * const NSUndoManagerDidRedoChangeNotification;
 
 SYSTEM_EXPORT NSString * const NSUndoManagerGroupIsDiscardableKey;
+SYSTEM_EXPORT NSString * const NSUndoManagerWillCloseUndoGroupNotificationKey;
 
 
 @interface NSUndoManager	:	NSObject
