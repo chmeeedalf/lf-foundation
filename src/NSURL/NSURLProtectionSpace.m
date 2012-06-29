@@ -23,29 +23,70 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import "internal.h"
 
 @implementation NSURLProtectionSpace
+{
+	NSString *hostName;
+	NSString *proxyType;
+	NSString *protocol;
+	NSString *realm;
+	NSString *authMethod;
+	NSInteger port;
+}
 
 NSMakeSymbol(NSURLProtectionSpaceHTTPProxy);
 NSMakeSymbol(NSURLProtectionSpaceHTTPSProxy);
 NSMakeSymbol(NSURLProtectionSpaceFTPProxy);
 NSMakeSymbol(NSURLProtectionSpaceSOCKSProxy);
 
-NSMakeSymbol(NSAuthenticationMethodDefault);
-NSMakeSymbol(NSAuthenticationMethodHTTPBasic);
-NSMakeSymbol(NSAuthenticationMethodHTTPDigest);
-NSMakeSymbol(NSAuthenticationMethodHTMLForm);
-NSMakeSymbol(NSAuthenticationMethodNegotiate);
-NSMakeSymbol(NSAuthenticationMethodClientCertificate);
-NSMakeSymbol(NSAuthenticationMethodServerTrust);
+NSMakeSymbol(NSURLAuthenticationMethodDefault);
+NSMakeSymbol(NSURLAuthenticationMethodHTTPBasic);
+NSMakeSymbol(NSURLAuthenticationMethodHTTPDigest);
+NSMakeSymbol(NSURLAuthenticationMethodHTMLForm);
+NSMakeSymbol(NSURLAuthenticationMethodNegotiate);
+NSMakeSymbol(NSURLAuthenticationMethodClientCertificate);
+NSMakeSymbol(NSURLAuthenticationMethodServerTrust);
 
--(id)initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
+-(id)initWithHost:(NSString *)host port:(NSInteger)p protocol:(NSString *)proto realm:(NSString *)inRealm authenticationMethod:(NSString *)authenticationMethod
 {
-	TODO; // -[NSURLProtectionSpace initWithHost:port:protocol:realm:authenticationMethod:]
+	hostName = [host copy];
+	port = p;
+	protocol = [proto copy];
+	realm = [inRealm copy];
+	
+	if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodDefault])
+		authMethod = NSURLAuthenticationMethodDefault;
+	else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic])
+		authMethod = NSURLAuthenticationMethodHTTPBasic;
+	else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPDigest])
+		authMethod = NSURLAuthenticationMethodHTTPDigest;
+	else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTMLForm])
+		authMethod = NSURLAuthenticationMethodHTMLForm;
+	else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodNegotiate])
+		authMethod = NSURLAuthenticationMethodNegotiate;
+	else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate])
+		authMethod = NSURLAuthenticationMethodClientCertificate;
+	else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust])
+		authMethod = NSURLAuthenticationMethodServerTrust;
+
 	return self;
 }
 
--(id)initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)type realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
+-(id)initWithProxyHost:(NSString *)host port:(NSInteger)p type:(NSString *)type realm:(NSString *)inRealm authenticationMethod:(NSString *)authenticationMethod
 {
-	TODO; // -[NSURLProtectionSpace initWithProxyHost:port:protocol:realm:authenticationMethod:]
+	self = [self initWithHost:host port:p protocol:nil realm:inRealm authenticationMethod:authenticationMethod];
+
+	if (self != nil)
+	{
+		if ([type isEqualToString:NSURLProtectionSpaceHTTPProxy])
+			proxyType = NSURLProtectionSpaceHTTPProxy;
+		else if ([type isEqualToString:NSURLProtectionSpaceHTTPSProxy])
+			proxyType = NSURLProtectionSpaceHTTPSProxy;
+		else if ([type isEqualToString:NSURLProtectionSpaceFTPProxy])
+			proxyType = NSURLProtectionSpaceFTPProxy;
+		else if ([type isEqualToString:NSURLProtectionSpaceSOCKSProxy])
+			proxyType = NSURLProtectionSpaceSOCKSProxy;
+		else
+			self = nil;
+	}
 	return self;
 }
 
@@ -57,50 +98,50 @@ NSMakeSymbol(NSAuthenticationMethodServerTrust);
 
 -(NSString *)host
 {
-	TODO; // -[NSURLProtectionSpace host]
-	return nil;
+	return hostName;
 }
 
--(int)port
+-(NSInteger)port
 {
-	TODO; // -[NSURLProtectionSpace port]
-	return 0;
+	return port;
 }
 
 -(NSString *)protocol
 {
-	TODO; // -[NSURLProtectionSpace protocol]
-	return nil;
+	return protocol;
 }
 
 -(NSString *)realm
 {
-	TODO; // -[NSURLProtectionSpace realm]
-	return nil;
+	return realm;
 }
 
 -(NSString *)authenticationMethod
 {
-	TODO; // -[NSURLProtectionSpace proxyType]
-	return nil;
+	return authMethod;
 }
 
 -(NSString *)proxyType
 {
-	TODO; // -[NSURLProtectionSpace proxyType]
-	return nil;
+	return proxyType;
 }
 
 -(bool)receivesCredentialsSecurely
 {
-	TODO; // -[NSURLProtectionSpace receivesCredentialsSecurely]
+	if ([protocol isEqualToString:@"https"])
+		return true;
+	if (proxyType == NSURLProtectionSpaceHTTPProxy)
+		return true;
+	if (authMethod == NSURLAuthenticationMethodHTTPDigest)
+		return true;
+	if (authMethod == NSURLAuthenticationMethodClientCertificate)
+		return true;
 	return false;
 }
 
 -(bool)isProxy
 {
-	TODO; // -[NSURLProtectionSpace isProxy]
-	return false;
+	return (proxyType != nil);
 }
 
 - (NSArray *) distinguishedNames
