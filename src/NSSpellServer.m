@@ -29,6 +29,8 @@
  */
 
 #import <Foundation/NSSpellServer.h>
+
+#import <Foundation/NSDelegate.h>
 #import <Foundation/NSObject.h>
 #import "internal.h"
 
@@ -37,15 +39,25 @@ NSString * const NSGrammarUserDescription = @"NSGrammarUserDescription";
 NSString * const NSGrammarCorrections = @"NSGrammarCorrections";
 
 @implementation NSSpellServer
+{
+	id delegate;
+}
+
+- (id) init
+{
+	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSSpellServerDelegate)];
+
+	return self;
+}
+
 - (void) setDelegate:(id<NSSpellServerDelegate>)newDel
 {
-	TODO;	// -[NSSpellServer setDelegate:]
+	[delegate setDelegate:newDel];
 }
 
 - (id<NSSpellServerDelegate>) delegate
 {
-	TODO;	// -[NSSpellServer delegate]
-	return nil;
+	return [delegate delegate];
 }
 
 
