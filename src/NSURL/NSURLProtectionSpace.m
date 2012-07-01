@@ -92,8 +92,9 @@ NSMakeSymbol(NSURLAuthenticationMethodServerTrust);
 
 -(id)copyWithZone:(NSZone *)zone
 {
-	TODO; //-[NSURLProtectionSpace copyWithZone:]
-	return self;
+	NSURLProtectionSpace *other = [[NSURLProtectionSpace alloc] initWithHost:hostName port:port protocol:protocol realm:realm authenticationMethod:authMethod];
+	other->proxyType = proxyType;
+	return other;
 }
 
 -(NSString *)host
