@@ -1,6 +1,4 @@
-#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSArray.h>
- * All rights reserved.
 #import <Foundation/NSString.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>

@@ -1,10 +1,9 @@
-CPPFLAGS=-I${PWD}/../Headers -I${PWD} -D_FreeBSD_ -I${PWD}/../../../../include
+CPPFLAGS=-I${PWD}/../Headers -I${PWD}
 CPPFLAGS+= -I${PWD}/../src
 CPPFLAGS+= -I/usr/local/include
 CFLAGS=$(CPPFLAGS) -std=gnu99 -g -O0 -fexceptions
-OBJCFLAGS=${CFLAGS} -fobjc-abi-version=2 -fobjc-exceptions -fconstant-string-class=NSConstantString #-fno-objc-sjlj-exceptions -fobjc-zerocost-exceptions -fnext-runtime -fconstant-string-class=NXConstantString
 LDFLAGS=-L../src -L${PWD} -L/GoldRoot/obj -L/usr/local/lib
-LDADD=-lTest -lSystem -lobjcxx -lobjc #-licuuc -licudata -licuio -ldispatch -lffi -lxml2 -ldbus-1 -lexecinfo -lAlepha
+LDADD=-lTest -lFoundation -lobjcxx -lobjc #-licuuc -licudata -licuio -ldispatch -lffi -lxml2 -ldbus-1 -lexecinfo -lAlepha
 OBJCLIBS=
 PROG=test
 SRCS= Array_test.m \
@@ -44,10 +43,26 @@ SRCS= Array_test.m \
 
 #CC=/system/cmds/gcc
 #CXX=/system/cmds/g++
-CXX=powerpc-unknown-freebsd9.0-g++
-CC=powerpc-unknown-freebsd9.0-gcc
+CXX=clang++
+CC=clang
 OBJC=${CC}
-OBJCXXFLAGS=${OBJCFLAGS}
-OBJCXX=/system/cmds/g++
+OBJCXX=${CXX}
 
+CXXFLAGS+=-std=c++11 -stdlib=libc++
+CSTD=gnu99
+
+CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fblocks  -fexceptions #-Wall -fno-unit-at-a-time
+OBJCCXXFLAGS=-fobjc-exceptions -fobjc-abi-version=3
+OBJCCXXFLAGS+=-fgnu-runtime -fconstant-string-class=NSConstantString
+OBJCCXXFLAGS+=-fobjc-arc -fobjc-arc-exceptions -Wno-arc-performSelector-leaks
+#OBJCCXXFLAGS+=-fcolor-diagnostics
+WARNS=3
+OBJCXXFLAGS=$(CXXFLAGS) $(OBJCCXXFLAGS) -fvisibility=default -fobjc-call-cxx-cdtors
+CFLAGS+=$(CCXXFLAGS) -B/usr/local/bin/
+OBJCFLAGS=$(CFLAGS) $(OBJCCXXFLAGS)
+.include <bsd.lib.mk>
+CFLAGS+= -Wno-system-headers -Wno-unused-parameter
+CXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage -Wno-unused-parameter
+OBJCFLAGS+= -Wno-system-headers -Wno-unused-parameter
+OBJCXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage -Wno-unused-parameter
 .include <bsd.prog.mk>
