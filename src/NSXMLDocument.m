@@ -104,8 +104,9 @@
 
 - (NSXMLDTD *) DTD
 {
-	TODO;	// -[NSXMLDocument DTD]
-	return nil;
+	if (thisNode->intSubset == NULL)
+		return nil;
+	return (__bridge id)thisNode->intSubset->_private;
 }
 
 - (void) setDTD:(NSXMLDTD *)dtd
@@ -250,14 +251,12 @@
 
 - (id) objectByApplyingXSLTString:(NSString *)xslt arguments:(NSDictionary *)args error:(NSError **)errp
 {
-	TODO; 	// -[NSXMLDocument objectByApplyingXSLTString:arguments:error:]
-	return nil;
+	return [self objectByApplyingXSLT:[xslt dataUsingEncoding:NSUTF8StringEncoding] arguments:args error:errp];
 }
 
 - (id) objectByApplyingXSLTAtURL:(NSURL *)xsltURL arguments:(NSDictionary *)args error:(NSError **)errp
 {
-	TODO; 	// -[NSXMLDocument objectByApplyingXSLTAtURL:arguments:error:]
-	return nil;
+	return [self objectByApplyingXSLT:[NSData dataWithContentsOfURL:xsltURL] arguments:args error:errp];
 }
 
 

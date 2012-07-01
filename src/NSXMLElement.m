@@ -65,8 +65,17 @@
 
 - (NSArray *) elementsForName:(NSString *)name
 {
-	TODO;	// -[NSXMLElement elementsForName]
-	return nil;
+	const xmlChar *locName = [name UTF8String];
+	xmlChar *splitName;
+	xmlChar *prefix;
+	NSArray *ret;
+
+	splitName = xmlSplitQName2(locName, &prefix);
+	ret = [self elementsForLocalName:[NSString stringWithUTF8String:splitName] URI:[NSString stringWithUTF8String:prefix]];
+
+	xmlFree(splitName);
+	xmlFree(prefix);
+	return ret;
 }
 
 - (NSArray *) elementsForLocalName:(NSString *)name URI:(NSString *)URI
