@@ -219,7 +219,7 @@ static NSUserDefaults *standardDefaults;
 
 	if ([dflt isKindOfClass:[NSData class]])
 	{
-		return [NSKeyedUnarchiver unarchivedObjectWithData:dflt];
+		return [NSKeyedUnarchiver unarchiveObjectWithData:dflt];
 	}
 	else if ([dflt isKindOfClass:[NSString class]])
 	{
@@ -351,7 +351,19 @@ static bool isPlistObject(id obj)
 
 - (NSDictionary *)persistentDomainForName:(NSString *)domainName
 {
-	return [persistentDomains objectForKey:domainName];
+	NSDictionary *domain = [persistentDomains objectForKey:domainName];
+
+	if (domain == nil)
+	{
+		@synchronized(self)
+		{
+			domain = [persistentDomains objectForKey:domainName];
+			if (domain == nil)
+			{
+			}
+		}
+	}
+	return domain;
 }
 
 - (NSArray *)persistentDomainNames
@@ -361,14 +373,38 @@ static bool isPlistObject(id obj)
 
 - (void)removePersistentDomainForName:(NSString *)domainName
 {
-	[persistentDomains removeObjectForKey:domainName];
+	@synchronized(self)
+	{
+		if ([persistentDomains objectForKey:domainName] == nil)
+			return;
+		if (![domainName isEqualToString:appDomain])
+		{
+			[searchList removeObject:domainName];
+		}
+		// If the domain isn't found in the persistent domain list, it's ignored
+		// anyway
+		[persistentDomains removeObjectForKey:domainName];
+	}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSUserDefaultsDidChangeNotification object:self];
 }
 
 - (void)setPersistentDomain:(NSDictionary *)domain
   forName:(NSString *)domainName
 {
-	TODO; // -[NSUserDefaults setPersistentDomain:forName:]
+	[persistentDomains setObject:domain forKey:domainName];
+
+	if (![searchList containsObject:domainName])
+	{
+		// appDomain should always be in searchList
+		[searchList insertObject:[domainName copy] atIndex:[searchList
+			indexOfObjectIdenticalTo:appDomain] + 1];
+	}
+
+	if ([domainName isEqualToString:appDomain])
+	{
+		[dirtyDomains addObject:[domainName copy]];
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSUserDefaultsDidChangeNotification object:self];
 }
 
 
@@ -440,12 +476,36 @@ static bool isPlistObject(id obj)
 
 - (void) addSuiteNamed:(NSString *)suiteName
 {
-	TODO; // -[NSUserDefaults addSuiteNamed:]
+	if (suiteName == nil)
+	{
+		@throw [NSInvalidArgumentException
+			exceptionWithReason:@"Attempt to remove a suite with a nil name"
+			userInfo:nil];
+	}
+	@synchronized(self)
+	{
+		suiteName = [suiteName copy];
+		[searchList removeObject:suiteName];
+		[searchList insertObject:suiteName atIndex:[searchList
+			indexOfObject:appDomain]];
+		// Load the domain
+		[self persistentDomainForName:suiteName];
+	}
 }
 
 - (void) removeSuiteNamed:(NSString *)suiteName
 {
-	TODO; // -[NSUserDefaults removeSuiteNamed:]
+	if (suiteName == nil)
+	{
+		@throw [NSInvalidArgumentException
+			exceptionWithReason:@"Attempt to remove a suite with a nil name"
+			userInfo:nil];
+	}
+	@synchronized(self)
+	{
+		[searchList removeObject:suiteName];
+		[persistentDomains removeObjectForKey:suiteName];
+	}
 }
 
 @end
