@@ -59,6 +59,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSError.h>
+#import <Foundation/NSFileHandle.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSURL.h>
@@ -90,14 +91,30 @@ static SchemeFileHandler *sharedHandler = nil;
 
 - (NSFileHandle *) fileHandleForWritingAtURL:(NSURL *)path error:(NSError **)errp
 {
-	TODO;	// -fileHandleForWritingAtURL:
-	return nil;
+	int fd = open([[path path] fileSystemRepresentation], O_RDWR);
+
+	if (fd < 0)
+	{
+		if (errp != NULL)
+			*errp = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{ NSFileURLErrorKey : path}];
+		return nil;
+	}
+
+	return [[NSFileHandle alloc] initWithFileDescriptor:fd];
 }
 
 - (NSFileHandle *) fileHandleForReadingAtURL:(NSURL *)path error:(NSError **)errp
 {
-	TODO;	// -fileHandleForReadingAtURL:
-	return nil;
+	int fd = open([[path path] fileSystemRepresentation], O_RDONLY);
+
+	if (fd < 0)
+	{
+		if (errp != NULL)
+			*errp = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{ NSFileURLErrorKey : path}];
+		return nil;
+	}
+
+	return [[NSFileHandle alloc] initWithFileDescriptor:fd];
 }
 
 - (NSDictionary *)attributesOfFileSystemForURL:(NSURL *)path error:(NSError **)errOut
