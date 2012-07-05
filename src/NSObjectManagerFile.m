@@ -38,7 +38,9 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#include <sys/param.h>
 #include <sys/mman.h>
+#include <sys/mount.h>
 #include <sys/stat.h>
 #import "internal.h"
 #include <math.h>
@@ -46,6 +48,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <errno.h>
 #include <fcntl.h>
 #include <fts.h>
+#include <ftw.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,11 +74,100 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 @interface SchemeFileHandler : NSObject <NSFilesystem>
 @end
 
-@interface _BSDDirectoryEnumerator : NSEnumerator
-{
-	DIR *dir;
-}
+@interface _BSDDirectoryEnumerator : NSDirectoryEnumerator
+- (id) initWithURL:(NSURL *)uri
+		 includingPropertiesForKeys:(NSArray *)keys
+							options:(NSDirectoryEnumerationOptions)opts
+					   errorHandler:(bool (^)(NSURL *, NSError *))handler;
 @end
+
+static NSError *make_error(NSString *descr, NSDictionary *inDict)
+{
+	char buf[NL_TEXTMAX];
+	strerror_r(errno, buf, sizeof(buf));
+	return [NSError errorWithDomain:NSPOSIXErrorDomain
+							   code:errno
+						   userInfo:@{
+  NSLocalizedFailureReasonErrorKey : @(buf),
+		 NSLocalizedDescriptionKey : @"Unable to set the file modification time"}];
+}
+
+static NSDictionary *_NSDictionaryFromStatBuffer(struct stat *sb, NSArray *keys)
+{
+	NSMutableDictionary *result = [NSMutableDictionary dictionary];
+
+	if ((keys == nil) || [keys containsObject:NSFileSize])
+	{
+		[result setObject:@(sb->st_size)
+				   forKey:NSFileSize];
+	}
+	if ((keys == nil) || [keys containsObject:NSFileModificationDate])
+	{
+		[result setObject:[NSDate dateWithTimeIntervalSince1970:sb->st_mtime]
+				   forKey:NSFileModificationDate];
+	}
+
+	// User/group names don't always exist for the IDs in the filesystem.
+	// If we don't check for NULLs, we'll segfault.
+	if ((keys == nil) || [keys containsObject:NSFileOwnerAccountName])
+	{
+		struct passwd *pwd;
+		pwd = getpwuid(sb->st_uid);
+		if (pwd != NULL)
+			[result setObject:@(pwd->pw_name)
+					   forKey:NSFileOwnerAccountName];
+	}
+
+	if ((keys == nil) || [keys containsObject:NSFileGroupOwnerAccountName])
+	{
+		struct group *grp;
+		grp = getgrgid(sb->st_gid);
+		if (grp != NULL)
+			[result setObject:@(grp->gr_name)
+					   forKey:NSFileGroupOwnerAccountName];
+	}
+
+	if ((keys == nil) || [keys containsObject:NSFileReferenceCount])
+	{
+		[result setObject:@(sb->st_nlink)
+				   forKey:NSFileReferenceCount];
+	}
+	if ((keys == nil) || [keys containsObject:NSFileIdentifier])
+	{
+		[result setObject:@(sb->st_ino)
+				   forKey:NSFileIdentifier];
+	}
+	if ((keys == nil) || [keys containsObject:NSFileDeviceIdentifier])
+	{
+		[result setObject:@(sb->st_dev)
+				   forKey:NSFileDeviceIdentifier];
+	}
+	if ((keys == nil) || [keys containsObject:NSFilePosixPermissions])
+	{
+		[result setObject:@(sb->st_mode)
+				   forKey:NSFilePosixPermissions];
+	}
+
+	if ((keys == nil) || [keys containsObject:NSFileType])
+	{
+		if (S_ISREG(sb->st_mode))
+			[result setObject:NSFileTypeRegular forKey:NSFileType];
+		if (S_ISDIR(sb->st_mode))
+			[result setObject:NSFileTypeDirectory forKey:NSFileType];
+		else if (S_ISCHR(sb->st_mode))
+			[result setObject:NSFileTypeCharacterSpecial forKey:NSFileType];
+		else if (S_ISBLK(sb->st_mode))
+			[result setObject:NSFileTypeBlockSpecial forKey:NSFileType];
+		else if (S_ISFIFO(sb->st_mode))
+			[result setObject:NSFileTypeFIFO forKey:NSFileType];
+		else if (S_ISLNK(sb->st_mode))
+			[result setObject:NSFileTypeSymbolicLink forKey:NSFileType];
+		else if (S_ISSOCK(sb->st_mode))
+			[result setObject:NSFileTypeSocket forKey:NSFileType];
+	}
+
+	return result;
+}
 
 @implementation SchemeFileHandler
 static SchemeFileHandler *sharedHandler = nil;
@@ -96,7 +188,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	if (fd < 0)
 	{
 		if (errp != NULL)
-			*errp = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{ NSFileURLErrorKey : path}];
+			*errp = make_error(@"Unable to open file.", @{ NSFileURLErrorKey : path });
 		return nil;
 	}
 
@@ -110,7 +202,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	if (fd < 0)
 	{
 		if (errp != NULL)
-			*errp = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{ NSFileURLErrorKey : path}];
+			*errp = make_error(@"Unable to open file.", @{ NSFileURLErrorKey : path });
 		return nil;
 	}
 
@@ -119,63 +211,34 @@ static SchemeFileHandler *sharedHandler = nil;
 
 - (NSDictionary *)attributesOfFileSystemForURL:(NSURL *)path error:(NSError **)errOut
 {
-	TODO; // -[SchemeFileHandler attributesOfFileSystemForURL:error:]
-	return nil;
+	struct statfs sfsb;
+
+	if (statfs([[path path] fileSystemRepresentation], &sfsb) < 0)
+	{
+		if (errOut != NULL)
+		{
+			*errOut = make_error(@"Unable to open file.", @{ NSFileURLErrorKey : path });
+		}
+		return nil;
+	}
+
+	return @{
+		NSFileSystemSize : @(sfsb.f_blocks * sfsb.f_bsize),
+		NSFileSystemFreeSize : @(sfsb.f_bfree * sfsb.f_bsize),
+		   NSFileSystemNodes : @(sfsb.f_files),
+	   NSFileSystemFreeNodes : @(sfsb.f_ffree)
+	};
 }
 
 - (NSDictionary *)attributesOfItemAtURL:(NSURL *)uri error:(NSError **)errOut
 {
-	NSMutableDictionary *result=[NSMutableDictionary dictionary];
 	struct stat statBuf;
-	struct passwd *pwd;
-	struct group *grp;
 	NSString *path = [uri path];
 
 	if (lstat([path fileSystemRepresentation], &statBuf) != 0) 
 		return nil;
 
-	[result setObject:@(statBuf.st_size)
-			   forKey:NSFileSize];
-	[result setObject:[NSDate dateWithTimeIntervalSince1970:statBuf.st_mtime]
-			   forKey:NSFileModificationDate];
-
-	// User/group names don't always exist for the IDs in the filesystem.
-	// If we don't check for NULLs, we'll segfault.
-	pwd = getpwuid(statBuf.st_uid);
-	if (pwd != NULL)
-		[result setObject:[NSString stringWithCString:pwd->pw_name encoding:[NSString defaultCStringEncoding]]
-				   forKey:NSFileOwnerAccountName];
-
-	grp = getgrgid(statBuf.st_gid);
-	if (grp != NULL)
-		[result setObject:[NSString stringWithCString:grp->gr_name encoding:[NSString defaultCStringEncoding]]
-				   forKey:NSFileGroupOwnerAccountName];
-
-	[result setObject:@(statBuf.st_nlink)
-			   forKey:NSFileReferenceCount];
-	[result setObject:@(statBuf.st_ino)
-			   forKey:NSFileIdentifier];
-	[result setObject:@(statBuf.st_dev)
-			   forKey:NSFileDeviceIdentifier];
-	[result setObject:@(statBuf.st_mode)
-			   forKey:NSFilePosixPermissions];
-
-	if (S_ISREG(statBuf.st_mode))
-		[result setObject:NSFileTypeRegular forKey:NSFileType];
-	if (S_ISDIR(statBuf.st_mode))
-		[result setObject:NSFileTypeDirectory forKey:NSFileType];
-	else if (S_ISCHR(statBuf.st_mode))
-		[result setObject:NSFileTypeCharacterSpecial forKey:NSFileType];
-	else if (S_ISBLK(statBuf.st_mode))
-		[result setObject:NSFileTypeBlockSpecial forKey:NSFileType];
-	else if (S_ISFIFO(statBuf.st_mode))
-		[result setObject:NSFileTypeFIFO forKey:NSFileType];
-	else if (S_ISLNK(statBuf.st_mode))
-		[result setObject:NSFileTypeSymbolicLink forKey:NSFileType];
-	else if (S_ISSOCK(statBuf.st_mode))
-		[result setObject:NSFileTypeSocket forKey:NSFileType];
-
-	return result;
+	return _NSDictionaryFromStatBuffer(&statBuf, nil);
 }
 
 - (bool)setAttributes:(NSDictionary *)dict ofItemAtURL:(NSURL *)path error:(NSError **)errOut
@@ -196,13 +259,7 @@ static SchemeFileHandler *sharedHandler = nil;
 			{
 				if (errOut)
 				{
-					char buf[NL_TEXTMAX];
-					strerror_r(errno, buf, sizeof(buf));
-					*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-												  code:errno
-											  userInfo:@{
-						  NSLocalizedFailureReasonErrorKey : @(buf),
-								 NSLocalizedDescriptionKey : @"Unable to set the file modification time"}];
+					*errOut = make_error(@"Unable to set the file modification time", nil);
 				}
 			}
 		}
@@ -213,16 +270,15 @@ static SchemeFileHandler *sharedHandler = nil;
 	return true;
 }
 
+static int delete_item(const char *path, const struct stat *sb, int flag, struct FTW *ftwb)
+{
+	return remove(path);
+}
+
 - (bool)deleteItemAtURL:(NSURL *)uri error:(NSError **)errOut
 {
-	FTS *fts;
-	FTSENT *ftsent;
-	int fts_flags = FTS_PHYSICAL;
-	char *path[2] = {(char *)[[uri path] fileSystemRepresentation], 0};
+	const char *path = [[uri path] fileSystemRepresentation];
 
-	if ((fts = fts_open(path, fts_flags, NULL)) == NULL)
-		return false;
-	
 	struct stat sb;
 	
 	if (stat(path[0], &sb) < 0)
@@ -233,24 +289,11 @@ static SchemeFileHandler *sharedHandler = nil;
 	/* If it's a directory, remove its contents. */
 	if (S_ISDIR(sb.st_mode))
 	{
-		while ((ftsent = fts_read(fts)) != NULL)
+		if (nftw(path, delete_item, 1, FTW_PHYS | FTW_DEPTH) != 0)
 		{
-			switch (ftsent->fts_info)
+			if (errOut != NULL)
 			{
-				case FTS_D:
-				   // TODO: delegate for this.
-					continue;
-				case FTS_DNR:
-			   case FTS_NSOK:
-				case FTS_ERR:
-				 case FTS_NS:
-					 // TODO: delegate for this.
-					continue;
-				 case FTS_DP:
-					rmdir(ftsent->fts_name);
-					continue;
-				 default:
-					unlink(ftsent->fts_name);
+				*errOut = make_error(@"Unable to delete file", nil);
 			}
 		}
 	}
@@ -271,13 +314,7 @@ static SchemeFileHandler *sharedHandler = nil;
 	{
 		if (errOut)
 		{
-			char buf[NL_TEXTMAX];
-			strerror_r(errno, buf, sizeof(buf));
-			*errOut = [NSError errorWithDomain:NSPOSIXErrorDomain
-										  code:errno
-									  userInfo:@{
-			 NSLocalizedFailureReasonErrorKey : @(buf),
-					NSLocalizedDescriptionKey : @"Unable to read the link target"}];
+			*errOut = make_error(@"Unable to read the link target", nil);
 		}
 		return nil;
 	}
@@ -475,45 +512,105 @@ err_out:
 			   					  options:(NSDirectoryEnumerationOptions)mask
 			   				 errorHandler:(bool (^)(NSURL *, NSError *))handler
 {
-	TODO; // -[SchemeFileHandler enumeratorAtURL:includingPropertiesForKeys:options:errorHandler:]
-	return nil;
+	return [[_BSDDirectoryEnumerator alloc] initWithURL:url
+							 includingPropertiesForKeys:keys
+												options:mask
+										   errorHandler:handler];
 }
 
 @end
 
 @implementation _BSDDirectoryEnumerator
+{
+	NSArray *keys;
+	FTS *fts;
+	FTSENT *ftsent;
+	NSString *path;
+	bool (^errorHandler)(NSURL *, NSError *);
+	bool skipSubdirs;
+	bool skipHidden;
+}
 
 - (id) initWithURL:(NSURL *)uri
+			   includingPropertiesForKeys:(NSArray *)keys
+								  options:(NSDirectoryEnumerationOptions)opts
+							 errorHandler:(bool (^)(NSURL *, NSError *))handler
 {
 	NSString *internalName;
 	const char *pathName;
+	char *args[2] = {0, 0};
 
 	internalName = [uri path];
+	path = internalName;
 	pathName = [internalName UTF8String];
-	dir = opendir(pathName);
-	if (dir == NULL)
-	{
-		self = nil;
-	}
+	args[0] = strdup(pathName);
+	fts = fts_open(args, FTS_PHYSICAL | FTS_NOCHDIR, NULL);
+
+	if (fts == NULL)
+		return nil;
 	return self;
 }
 
 - (void) dealloc
 {
-	if (dir != NULL)
-	{
-		closedir(dir);
-	}
+	char *p = fts->fts_path;
+	fts_close(fts);
+	free(p);
 }
 
 - (id) nextObject
 {
-	struct dirent *dent = readdir(dir);
+	ftsent = fts_read(fts);
 
-	if (dent == NULL)
+	while ((skipHidden && ftsent->fts_name[0] == '.') ||
+			(ftsent->fts_info == FTS_DOT) ||
+			(ftsent->fts_info == FTS_DP))
 	{
-		return nil;
+		ftsent = fts_read(fts);
 	}
-	return [NSString stringWithCString:dent->d_name encoding:[NSString defaultCStringEncoding]];
+
+	if (ftsent->fts_info == FTS_ERR && errorHandler != NULL)
+	{
+		errno = ftsent->fts_errno;
+		NSError *err = make_error(@"Failure accessing file", nil);
+		if (errorHandler([NSURL fileURLWithPath:@(ftsent->fts_path)], err))
+			return [self nextObject];
+		else
+			return nil;
+	}
+	else if (ftsent->fts_info == FTS_D)
+	{
+		if (skipSubdirs)
+		{
+			fts_set(fts, ftsent, FTS_SKIP);
+		}
+	}
+	return @(ftsent->fts_path);
+}
+
+- (void) skipDescendants
+{
+	skipSubdirs = true;
+}
+
+- (NSUInteger) level
+{
+	return ftsent->fts_level;
+}
+
+- (NSDictionary *) fileAttributes
+{
+	if (ftsent->fts_info == FTS_D)
+		return nil;
+
+	return _NSDictionaryFromStatBuffer(ftsent->fts_statp, keys);
+}
+
+- (NSDictionary *) directoryAttributes
+{
+	struct stat sb;
+
+	stat([path fileSystemRepresentation], &sb);
+	return _NSDictionaryFromStatBuffer(&sb, keys);
 }
 @end
