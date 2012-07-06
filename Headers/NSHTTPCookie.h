@@ -36,7 +36,7 @@
 @class NSString;
 @class NSURL;
 
-@interface NSHTTPCookie	:	NSObject<NSCopying>
+@interface NSHTTPCookie	:	NSObject
 + (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *)fields forURL:(NSURL *)url;
 + (id) cookieWithProperties:(NSDictionary *)properties;
 - (id) initWithProperties:(NSDictionary *)properties;
