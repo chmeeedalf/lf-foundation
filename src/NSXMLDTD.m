@@ -150,25 +150,25 @@
 
 - (NSXMLDTDNode *) elementDeclarationForName:(NSString *)name
 {
-	TODO; // +[NSXMLDTD elementDeclarationForName:]
+	TODO; // -[NSXMLDTD elementDeclarationForName:]
 	return nil;
 }
 
 - (NSXMLDTDNode *) attributeDeclarationForName:(NSString *)name elementName:(NSString *)elName
 {
-	TODO; // +[NSXMLDTD attributeDeclarationForName:elementName:]
+	TODO; // -[NSXMLDTD attributeDeclarationForName:elementName:]
 	return nil;
 }
 
 - (NSXMLDTDNode *) entityDeclarationForName:(NSString *)name
 {
-	TODO; // +[NSXMLDTD entityDeclarationForName:]
+	TODO; // -[NSXMLDTD entityDeclarationForName:]
 	return nil;
 }
 
 - (NSXMLDTDNode *) notationDeclarationForName:(NSString *)name
 {
-	TODO; // +[NSXMLDTD notationDeclarationForName:]
+	TODO; // -[NSXMLDTD notationDeclarationForName:]
 	return nil;
 }
 

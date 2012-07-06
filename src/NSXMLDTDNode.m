@@ -29,34 +29,45 @@
  */
 
 #import <Foundation/NSXMLDTDNode.h>
+
+#import <Foundation/NSXMLDocument.h>
 #import "internal.h"
 
 #define thisNode ((xmlEntity *)nodePtr)
 @implementation NSXMLDTDNode
+{
+	NSXMLDTDNodeKind kind;
+}
 
 - (id) initWithXMLString:(NSString *)string
 {
-	TODO; // -[NSXMLDTDNode initWithXMLString:]
+	NSXMLDocument *doc = [[NSXMLDocument alloc] initWithXMLString:string
+														  options:0
+															error:NULL];
+	if (doc != nil)
+	{
+		id result = [doc childAtIndex:0];
+		[result detach];
+		return result;
+	}
 	return nil;
 }
 
 
 - (NSXMLDTDNodeKind) DTDKind
 {
-	TODO;	// -[NSXMLDTDNode DTDKind]
-	return 0;
+	return kind;
 }
 
-- (void) setDTDKind:(NSXMLDTDNodeKind)kind
+- (void) setDTDKind:(NSXMLDTDNodeKind)newKind
 {
-	TODO;	// -[NSXMLDTDNode setDTDKind:]
+	kind = newKind;
 }
 
 
 - (bool) isExternal
 {
-	TODO;	// -[NSXMLDTDNode isExternal]
-	return false;
+	return (thisNode->ExternalID != NULL);
 }
 
 - (void) setNotationName:(NSString *)notationName
