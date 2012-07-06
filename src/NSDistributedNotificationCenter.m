@@ -30,13 +30,48 @@
 
 #import <Foundation/NSDistributedNotificationCenter.h>
 
+#import <Foundation/NSConnection.h>
+#import <Foundation/NSDistantObject.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSString.h>
 #import "internal.h"
 
-NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
+NSString *NSLocalNotificationCenterType = @"org.Gold.distnote.Local";
 
+/*
+ * Use Distributed Objects for communication with the registered notification
+ * center.
+ */
+@protocol NSDNCServer
+- (void) addObserver:(id)observer
+			selector:(SEL)sel
+				name:(NSString *)name
+			  object:(NSString *)obj
+  suspensionBehavior:(NSNotificationSuspensionBehavior)behavior
+			  client:(id)client;
+- (void) removeObserver:(id)observer name:(NSString *)name object:(id)obj client:(id)client;
+- (void) setSuspended:(bool)suspend;
+@end
+
+@interface NSDistributedNotificationCenter()
+- (id<NSDNCServer>) dncProxy;
+@end
 @implementation NSDistributedNotificationCenter
+{
+	NSString *type;
+	id<NSDNCServer> proxy;
+	bool suspended;
+}
+
+- (id<NSDNCServer>) dncProxy
+{
+	@synchronized(self)
+	{
+		if (![[(NSDistantObject *)proxy connectionForProxy] isValid])
+			proxy = (id<NSDNCServer>)[NSConnection rootProxyForConnectionWithRegisteredName:type host:nil];
+		return proxy;
+	}
+}
 
 + (id) defaultCenter
 {
@@ -52,20 +87,29 @@ NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 
 - (void)addObserver:(id)observer selector:(SEL)selector
 			   name:(NSString *)notificationName object:(NSString *)object
- suspensionBehavior:(NSNotificationSuspensionBehavior)suspensionBehaviour
+ suspensionBehavior:(NSNotificationSuspensionBehavior)suspensionBehavior
 {
-	TODO;	// -[NSDistributedNotificationCenter addObserver:selector:name:object:suspensionBehavior:]
+	[[self dncProxy] addObserver:self
+					 selector:selector
+					 	 name:notificationName
+					   object:object
+		   suspensionBehavior:suspensionBehavior
+					   client:self];
 }
 
 -(void)addObserver:(id)anObserver selector:(SEL)aSelector
 	name:(NSString *)aName object:(id)anObject
 {
-	[self addObserver:anObserver selector:aSelector name:aName object:anObject suspensionBehavior:NSNotificationSuspensionBehaviorCoalesce];
+	[self addObserver:anObserver
+			 selector:aSelector
+				 name:aName
+			   object:anObject
+   suspensionBehavior:NSNotificationSuspensionBehaviorCoalesce];
 }
 
 -(void)removeObserver:(id)anObserver name:(NSString *)aName object:(id)anObject
 {
-	TODO; // -[NSDistributedNotificationCenter removeObserver:name:object:]
+	[[self dncProxy] removeObserver:anObserver name:aName object:anObject client:self];
 }
 
 
@@ -88,13 +132,13 @@ NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 
 - (void)setSuspended:(bool)flag
 {
-	TODO;	// -[NSDistributedNotificationCenter setSuspended:]
+	[[self dncProxy] setSuspended:flag];
+	suspended = flag;
 }
 
 - (bool)suspended
 {
-	TODO;	// -[NSDistributedNotificationCenter suspended]
-	return false;
+	return suspended;
 }
 
 @end
