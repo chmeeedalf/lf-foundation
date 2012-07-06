@@ -29,6 +29,9 @@
  */
 
 #import <Foundation/NSHTTPCookie.h>
+
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 @implementation NSHTTPCookie
@@ -59,62 +62,52 @@
 
 - (NSString *) comment
 {
-	TODO;	// -[NSHTTPCookie comment]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookieComment];
 }
 
 - (NSURL *) commentURL
 {
-	TODO;	// -[NSHTTPCookie commentURL]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookieCommentURL];
 }
 
 - (NSString *) domain
 {
-	TODO;	// -[NSHTTPCookie domain]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookieDomain];
 }
 
 - (NSDate *) expiresDate
 {
-	TODO;	// -[NSHTTPCookie expiresDate]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookieExpiresDate];
 }
 
 - (bool) isHTTPOnly
 {
-	TODO;	// -[NSHTTPCookie isHTTPOnly]
-	return false;
+	return [[[self properties] objectForKey:NSHTTPCookieIsHTTPOnly] boolValue];
 }
 
 - (bool) isSecure
 {
-	TODO;	// -[NSHTTPCookie isSecure]
-	return false;
+	return [[[self properties] objectForKey:NSHTTPCookieIsSecure] boolValue];
 }
 
 - (bool) isSessionOnly
 {
-	TODO;	// -[NSHTTPCookie isSessionOnly]
-	return false;
+	return [[[self properties] objectForKey:NSHTTPCookieIsSessionOnly] boolValue];
 }
 
 - (NSString *) name
 {
-	TODO;	// -[NSHTTPCookie name]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookieName];
 }
 
 - (NSString *) path
 {
-	TODO;	// -[NSHTTPCookie path]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookiePath];
 }
 
 - (NSArray *) portList
 {
-	TODO;	// -[NSHTTPCookie portList]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookiePortList];
 }
 
 - (NSDictionary *) properties
@@ -125,21 +118,14 @@
 
 - (NSString *) value
 {
-	TODO;	// -[NSHTTPCookie value]
-	return nil;
+	return [[self properties] objectForKey:NSHTTPCookieValue];
 }
 
 - (NSUInteger) version
 {
-	TODO;	// -[NSHTTPCookie version]
-	return 0;
+	return [[[self properties] objectForKey:NSHTTPCookieVersion] unsignedIntegerValue];
 }
 
-- (id) copyWithZone:(NSZone *)zone
-{
-	TODO;	// -[NSHTTPCookie<NSCopying> copyWithZone:]
-	return nil;
-}
 @end
 
 NSString * const NSHTTPCookieComment = @"NSHTTPCookieComment";

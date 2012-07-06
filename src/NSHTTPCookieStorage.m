@@ -33,24 +33,37 @@
 
 NSString * const NSHTTPCookieManagerCookiesChangedNotification = @"NSHTTPCookieManagerCookiesChangedNotification";
 NSString * const NSHTTPCookieManagerAcceptPolicyChangedNotification = @"NSHTTPCookieManagerAcceptPolicyChangedNotification";
+static NSString * const _NSGlobalHTTPCookieStorage = @"org.Gold.HTTPCookieStorage";
 
 @implementation NSHTTPCookieStorage
+{
+	NSHTTPCookieAcceptPolicy policy;
+}
+
 + (id) sharedHTTPCookieStorage
 {
 	TODO;	// +[NSHTTPCookieStorage sharedHTTPCookieStorage]
 	return nil;
 }
 
+- (id) init
+{
+	policy = NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain;
+	return self;
+}
+
 
 - (NSHTTPCookieAcceptPolicy) cookieAcceptPolicy
 {
-	TODO;	// -[NSHTTPCookieStorage cookieAcceptPolicy]
-	return NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain;
+	return policy;
 }
 
-- (void) setCookieAcceptPolicy:(NSHTTPCookieAcceptPolicy)policy
+- (void) setCookieAcceptPolicy:(NSHTTPCookieAcceptPolicy)newPol
 {
-	TODO;	// -[NSHTTPCookieStorage setCookieAcceptPolicy:]
+	policy = newPol;
+	[[NSDistributedNotificationCenter defaultCenter]
+		postNotification:NSHTTPCookieManagerAcceptPolicyChangedNotification
+				  object:_NSGlobalHTTPCookieStorage];
 }
 
 
