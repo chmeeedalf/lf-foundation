@@ -1,6 +1,5 @@
 #include <check.h>
 #import <Foundation/NSTimer.h>
- * All rights reserved.
 START_TEST(c_scheduledTimerWithTimeInterval_invocation_repeats_) {
 	fail_unless(0,
 		"+[NSTimer scheduledTimerWithTimeInterval:invocation:repeats:] failed.");

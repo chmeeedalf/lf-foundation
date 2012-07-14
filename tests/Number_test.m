@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSValue.h>
- * All rights reserved.
 #import <Foundation/NSLocale.h>
 #import <limits.h>
 

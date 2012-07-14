@@ -1,8 +1,7 @@
 #include <unistd.h>
 #import <Foundation/NSArray.h>
- * All rights reserved.
 #import <Foundation/NSTask.h>
-#import <Foundation/NSURI.h>
+#import <Foundation/NSURL.h>
 #import <Foundation/NSSet.h>
 #import <Test/NSTest.h>
 
@@ -13,10 +12,10 @@
 
 - (void) test_launch
 {
-	//NSURI *prog = [NSURI URIWithString:@"file:///usr/local/bin/python"];
-	NSURI *prog = [NSURI URIWithString:@"file:///bin/cat"];
+	//NSURL *prog = [NSURL URLWithString:@"file:///usr/local/bin/python"];
+	NSURL *prog = [NSURL URLWithString:@"file:///bin/cat"];
 
-	NSTask *t = [[NSTask alloc] initWithURI:prog object:nil environment:nil];
+	NSTask *t = [[NSTask alloc] initWithURL:prog object:nil environment:nil];
 	//[t setObject:[NSDictionary dictionaryWithObjectsAndKeys:@"",@"version",nil]];
 	[t launch];
 	fail_unless([t isRunning], @"NSTask is not running");

@@ -1,11 +1,7 @@
 #import <Foundation/NSSocket.h>
 #import <Foundation/NSData.h>
- * All rights reserved.
 #import <Foundation/NSDate.h>
 #import <Test/NSTest.h>
-#ifdef __FreeBSD__
-#include <bsd.h>
-#endif
 
 @interface TestSocketClass : NSTest
 @end
@@ -30,7 +26,7 @@
 	NSLog(@"client sane");
 }
 
-- (bool) socket:(NSSocket *)sock shouldAcceptConnection:(NSSocket *)newSock;
+- (bool) socket:(NSSocket *)sock shouldAcceptConnection:(NSSocket *)newSock
 {
 	const char sendChars[] = "Hello, World!";
 	NSLog(@"socket accepting");
@@ -42,11 +38,6 @@
 	return true;
 }
 
-- (void) dealloc
-{
-	[sentData release];
-	[super dealloc];
-}
 @end
 
 @implementation TestSocketClass
@@ -61,7 +52,6 @@
 	na = [NSInetAddress inetAddressWithString:@"127.0.0.1"];
 	sock = [[NSSocket alloc] initWithAddress:na socketType:NSStreamSocketType protocol:0];
 	fail_if(sock == nil, @"NSSocket couldn't be created!");
-	[sock release];
 }
 
 #if 0

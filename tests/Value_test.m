@@ -1,6 +1,5 @@
 #include <string.h>
 #import <Test/NSTest.h>
- * All rights reserved.
 #import <Foundation/NSValue.h>
 
 @interface TestValueClass : NSTest
@@ -21,19 +20,18 @@
 
 -(void) test_valueWithNonretainedObject_
 {
-	NSObject *o = [NSObject new];
 #if 0
+	NSObject *o = [NSObject new];
 	unsigned long rc = [o retainCount];
 	NSValue *v = [NSValue valueWithNonretainedObject:o];
 	fail_unless(v != nil && [o retainCount] == rc,
 		@"");
 #endif
-	[o release];
 }
 
 -(void) test_valueWithPointer_
 {
-	void *pointerTest = [self class];
+	void *pointerTest = (__bridge void *)[self class];
 	fail_unless([NSValue valueWithPointer:pointerTest] != nil,
 		@"");
 }
@@ -47,7 +45,7 @@
 
 -(void) test_valueWithRect_
 {
-	NSRect r = {0.0,0.0,1.0,1.0};
+	NSRect r = NSMakeRect(0.0,0.0,1.0,1.0);
 	NSValue *v = [NSValue valueWithRect:r];
 	fail_unless(v != nil,
 		@"");
@@ -83,7 +81,7 @@
 
 -(void) test_objCType
 {
-	void *pointerTest = [self class];
+	void *pointerTest = (__bridge void *)[self class];
 	NSValue *v = [NSValue valueWithPointer:pointerTest];
 	fail_unless(strcmp([v objCType],"^v") == 0,
 		@"");
@@ -91,7 +89,7 @@
 
 -(void) test_pointerValue
 {
-	void *pointerTest = [self class];
+	void *pointerTest = (__bridge void *)[self class];
 	NSValue *v = [NSValue valueWithPointer:pointerTest];
 	fail_unless([v pointerValue] == pointerTest,
 		@"");
@@ -107,7 +105,7 @@
 
 -(void) test_rectValue
 {
-	NSRect r = {0.0,0.0,1.0,1.0};
+	NSRect r = NSMakeRect(0.0,0.0,1.0,1.0);
 	NSRect n;
 	NSValue *v = [NSValue valueWithRect:r];
 	n = [v rectValue];
@@ -128,7 +126,7 @@
 {
 	fail_unless([[NSValue valueWithPointer:NULL] isEqualToValue:[NSValue valueWithPointer:NULL]],
 		@"Equality failed");
-	fail_if([[NSValue valueWithPointer:NULL] isEqualToValue:[NSValue valueWithPointer:[NSValue class]]],
+	fail_if([[NSValue valueWithPointer:NULL] isEqualToValue:[NSValue valueWithPointer:(__bridge void *)[NSValue class]]],
 		@"Inequality failed");
 }
 

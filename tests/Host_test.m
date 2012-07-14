@@ -1,6 +1,5 @@
 #import <Foundation/NSHost.h>
 #import <Test/NSTest.h>
- * All rights reserved.
 
 @interface TestHostClass	:	NSTest
 @end

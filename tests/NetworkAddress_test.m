@@ -1,6 +1,5 @@
 #import <Foundation/NSSocket.h>
 #import <Test/NSTest.h>
- * All rights reserved.
 
 @interface TestNetworkAddressClass	: NSTest
 @end

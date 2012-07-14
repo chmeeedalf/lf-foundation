@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSData.h>
- * All rights reserved.
 #include <string.h>
 
 @interface TestDataClass : NSTest
@@ -16,7 +15,6 @@
 	NSData *d = [NSData allocWithZone:NULL];
 	fail_if(d == NULL,
 		@"");
-	[d dealloc];
 }
 
 - (void) test_data
@@ -60,29 +58,12 @@
 
 @implementation TestData
 
-- (void) test_initWithCapacity_
-{
-	NSData *d = [[NSData alloc] initWithCapacity:10000];
-	fail_if(d == NULL,
-		@"");
-	[d release];
-}
-
-- (void) test_initWithLength_
-{
-	NSData *d = [[NSData alloc] initWithLength:10000];
-	fail_unless([d length] == 10000,
-		@"");
-	[d release];
-}
-
 - (void) test_initWithBytes_length_
 {
 	char b[] = {0, 1,2, 3, 4, 5, 6, 7,8, 9, 'a', 'b'};
 	NSData *d = [[NSData alloc] initWithBytes:b length:sizeof(b)];
 	fail_unless(d != NULL && [d length] == sizeof(b),
 		@"");
-	[d release];
 }
 
 - (void) test_initWithBytesNoCopy_length_freeWhenDone_
@@ -177,7 +158,7 @@
 	char b[] = {0, 5, 3, 24, 6, 'a', 'c', 'q', '.', 2, 5, 0};
 	NSMutableData *d = [NSMutableData dataWithBytes:b length:sizeof(b)];
 	[d appendBytes:b length:sizeof(b)];
-	fail_unless(memcmp([d bytes] + sizeof(b), b, sizeof(b)) == 0,
+	fail_unless(memcmp((const char *)[d bytes] + sizeof(b), b, sizeof(b)) == 0,
 		@"");
 }
 
@@ -188,7 +169,7 @@
 	fail_unless([d length] == sizeof(b), ([NSString stringWithFormat:@"Bad data length! Length: %u, should be: %u",[d length], sizeof(b)]));
 	[d appendData:d];
 	// since d == b[]+ b[]...
-	fail_unless(memcmp([d bytes] + sizeof(b), b, sizeof(b)) == 0,
+	fail_unless(memcmp((const char *)[d bytes] + sizeof(b), b, sizeof(b)) == 0,
 		@"");
 }
 

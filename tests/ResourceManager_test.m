@@ -1,6 +1,5 @@
 #include <check.h>
 #import <Foundation/ResourceManager.h>
- * All rights reserved.
 START_TEST(c_allocWithZone_) {
 	fail_unless(0,
 		"+[ResourceManager allocWithZone:] failed.");

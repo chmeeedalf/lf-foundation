@@ -1,6 +1,5 @@
 #include <string.h>
 #import <Test/NSTest.h>
- * All rights reserved.
 #import <Foundation/NSData.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSXMLParser.h>
@@ -26,7 +25,6 @@ static const char * const xmlComplexData = "<?xml version=\"1.0\" encoding=\"UTF
 	NSData *d = [NSData dataWithBytes:xmlData length:strlen(xmlData)];
 	NSXMLParser *parser = [[NSXMLParser alloc] initWithData:d];
 	fail_if(parser == nil, @"");
-	[parser release];
 }
 
 - (void) test_setDelegate_
@@ -36,7 +34,6 @@ static const char * const xmlComplexData = "<?xml version=\"1.0\" encoding=\"UTF
 
 	[parser setDelegate:self];
 	fail_unless([parser delegate] == self, @"");
-	[parser release];
 }
 
 - (void) test_parse
@@ -46,7 +43,6 @@ static const char * const xmlComplexData = "<?xml version=\"1.0\" encoding=\"UTF
 
 	[parser setDelegate:self];
 	[parser parse];
-	[parser release];
 	fail_unless(found_begin && found_end, @"");
 
 	d = [NSData dataWithBytes:xmlComplexData length:strlen(xmlComplexData)];
@@ -55,7 +51,6 @@ static const char * const xmlComplexData = "<?xml version=\"1.0\" encoding=\"UTF
 	complex_test = true;
 	[parser setDelegate:self];
 	[parser parse];
-	[parser release];
 	fail_unless(found_begin && found_end && found_begin2 && found_end2, @"");
 }
 

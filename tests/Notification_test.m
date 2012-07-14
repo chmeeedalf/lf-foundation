@@ -1,6 +1,5 @@
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSDictionary.h>
- * All rights reserved.
 #import <Test/NSTest.h>
 
 @interface TestNotificationClass : NSTest
@@ -28,7 +27,7 @@
 
 @implementation TestNotification
 
-- init
+- (id) init
 {
 	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:@"abc",@"def",@"ghi",@"jkl",nil];
 	testNot = [NSNotification notificationWithName:@"TestNotification" object:self userInfo:d];

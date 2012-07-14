@@ -1,6 +1,5 @@
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSDictionary.h>
- * All rights reserved.
 #import <Test/NSTest.h>
 
 @interface TestNotificationCenterClass : NSTest
@@ -25,17 +24,11 @@
 static NSString *TestNotification = @"TestNotification";
 
 @implementation TestNotificationCenter
-- init
+- (id) init
 {
 	noteCounter = 0;
 	noteCenter = [NSNotificationCenter new];
 	return self;
-}
-
-- (void) dealloc
-{
-	[noteCenter release];
-	[super dealloc];
 }
 
 - (void) test_addObserver_selector_name_object_
@@ -77,7 +70,6 @@ static NSString *TestNotification = @"TestNotification";
 
 - (void) test_postNotificationName_object_
 {
-	NSNotification *n = [NSNotification notificationWithName:TestNotification object:self];
 	[noteCenter addObserver:self selector:@selector(handleNotification:) name:TestNotification object:nil];
 	[noteCenter postNotificationName:TestNotification object:self];
 	fail_unless(noteCounter == 1,
@@ -86,10 +78,9 @@ static NSString *TestNotification = @"TestNotification";
 
 - (void) test_postNotificationName_object_userInfo_
 {
-	NSNotification *n = [NSNotification notificationWithName:TestNotification object:self];
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"abcd",@"defg",@"hijk",@"foo",nil];
 	[noteCenter addObserver:self selector:@selector(handleNotification:) name:TestNotification object:nil];
-	[noteCenter postNotificationName:TestNotification object:self userInfo:nil];
+	[noteCenter postNotificationName:TestNotification object:self userInfo:userInfo];
 	fail_unless(noteCounter == 1,
 		@"");
 }

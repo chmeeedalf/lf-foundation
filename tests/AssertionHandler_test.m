@@ -1,6 +1,5 @@
 #include <check.h>
 #import <Foundation/NSException.h>
- * All rights reserved.
 
 START_TEST(i_handleFailureInFunction_file_lineNumber_description_) {
 	fail_unless(0,

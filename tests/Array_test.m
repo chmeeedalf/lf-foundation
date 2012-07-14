@@ -38,7 +38,6 @@
 	NSArray *a = [NSArray arrayWithObject:o];
 	fail_unless([a count] == 1 && [a objectAtIndex:0] == o,
 		@"");
-	[o release];
 }
 
 -(void) test_arrayWithObjects_
@@ -48,8 +47,6 @@
 	NSArray *a = [NSArray arrayWithObjects:o,p,NULL];
 	fail_unless([a count] == 2,
 		@"");
-	[o release];
-	[p release];
 }
 
 -(void) test_arrayWithObjects_count_
@@ -60,8 +57,6 @@
 	NSArray *a = [NSArray arrayWithObjects:ia count:2];
 	fail_unless([a count] == 2,
 		@"");
-	[o release];
-	[p release];
 }
 
 @end
@@ -92,7 +87,6 @@
 	NSArray *a = [[NSMutableArray alloc] initWithCapacity:(1 << 20)];
 	fail_if(a == NULL,
 		@"");
-	[a release];
 }
 
 -(void) test_initWithObjects_
@@ -102,8 +96,6 @@
 	NSArray *a = [NSArray arrayWithObjects:o,p,NULL];
 	fail_unless([a count] == 2,
 		@"");
-	[o release];
-	[p release];
 }
 
 -(void) test_initWithObjects_count_
@@ -114,8 +106,6 @@
 	NSArray *a = [NSArray arrayWithObjects:ia count:2];
 	fail_unless([a count] == 2,
 		@"");
-	[o release];
-	[p release];
 }
 
 -(void) test_containsObject_
@@ -198,8 +188,6 @@
 	NSArray *a = [NSArray arrayWithObjects:o,p,NULL];
 	fail_unless([a objectAtIndex:0] == o && [a objectAtIndex:1] == p,
 		@"");
-	[o release];
-	[p release];
 }
 
 -(void) test_objectEnumerator
@@ -209,8 +197,6 @@
 	NSArray *a = [NSArray arrayWithObjects:o,p,NULL];
 	fail_unless([[a objectEnumerator] isKindOfClass:[NSEnumerator class]],
 		@"");
-	[o release];
-	[p release];
 }
 
 -(void) test_reverseObjectEnumerator
@@ -222,10 +208,9 @@
 	fail_unless([e isKindOfClass:[NSEnumerator class]] &&
 			[e nextObject] == p,
 		@"");
-	[o release];
-	[p release];
 }
 
+#if 0
 -(void) test_makeObjectsPerformSelector_
 {
 	NSObject *o = [NSObject new];
@@ -238,8 +223,6 @@
 	fail_unless([o retainCount] == i && [p retainCount] == j,
 		@"");
 #endif
-	[o release];
-	[p release];
 }
 
 -(void) test_map
@@ -255,9 +238,8 @@
 			description]],
 		@"operation not performed");
 #endif
-	[o release];
-	[p release];
 }
+#endif
 
 /*
 -(void) test_makeObjectsPerformSelector_withObject_
@@ -278,8 +260,6 @@
 	b = [NSArray arrayWithObjects:p,NULL];
 	fail_unless([a firstObjectCommonWithArray:b] == p,
 		@"");
-	[o release];
-	[p release];
 }
 
 -(void) test_isEqualToArray_
@@ -290,8 +270,6 @@
 	NSArray *b = [NSArray arrayWithObjects:o,p,NULL];
 	fail_unless([a isEqualToArray:a] && [a isEqualToArray:b],
 		@"");
-	[o release];
-	[p release];
 }
 /*
 -(void) test_sortUsingFunction_context_
@@ -372,7 +350,7 @@
 -(void) test_insertObject_atIndex_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
 	[a addObject:@"bar"];
@@ -380,13 +358,12 @@
 	[a insertObject:o atIndex:2];
 	fail_unless([a indexOfObject:o] == 2,
 		@"");
-	[o release];
 }
 
 -(void) test_removeAllObjects
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
 	[a addObject:@"bar"];
@@ -395,13 +372,12 @@
 	[a removeAllObjects];
 	fail_unless([a count] == 0,
 		@"");
-	[o release];
 }
 
 -(void) test_removeLastObject
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
 	[a addObject:@"bar"];
@@ -410,13 +386,12 @@
 	[a removeLastObject];
 	fail_unless([[a lastObject] isEqual:@"bar"],
 		@"");
-	[o release];
 }
 
 -(void) test_removeObject_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	unsigned int i;
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
@@ -427,13 +402,12 @@
 	[a removeObject:o];
 	fail_unless([a count] == (i - 1),
 		@"");
-	[o release];
 }
 
 -(void) test_removeObjectAtIndex_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	unsigned int i;
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
@@ -449,7 +423,7 @@
 -(void) test_removeObjectIdenticalTo_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	unsigned int i;
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
@@ -462,10 +436,11 @@
 		@"");
 }
 
+#if 0
 -(void) test_removeObjectsFromIndices_numIndices_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	unsigned int i;
 	unsigned int is[] = {0, 1, 3, 4};
 	NSObject *o = [NSObject new];
@@ -479,11 +454,12 @@
 			[a containsObject:@"blahhhhh"],
 		@"");
 }
+#endif
 
 -(void) test_removeObjectsInArray_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	unsigned int i;
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
@@ -499,8 +475,7 @@
 -(void) test_replaceObjectAtIndex_withObject_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
-	unsigned int i;
+		 [NSObject new],nil];
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];
 	[a addObject:@"bar"];
@@ -514,7 +489,7 @@
 -(void) test_replaceObjectsInRange_withObjectsFromArray_
 {
 	NSMutableArray *a = [[NSMutableArray alloc] initWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	NSMutableArray *b = [[NSMutableArray alloc] 
 		initWithObjects:@"blah",@"bbbbb",@"bbbbbbbb",nil];
 	unsigned int i;
@@ -528,15 +503,12 @@
 		withObjectsFromArray:b];
 	fail_unless([a count] == (i + 1),
 		@"");
-	[a release];
-	[o release];
-	[b release];
 }
 
 -(void) test_replaceObjectsInRange_withObjectsFromArray_range_
 {
 	NSMutableArray *a = [NSMutableArray arrayWithObjects:@"blah",
-		 [[NSObject new] autorelease],nil];
+		 [NSObject new],nil];
 	unsigned int i;
 	NSObject *o = [NSObject new];
 	[a addObject:@"foo"];

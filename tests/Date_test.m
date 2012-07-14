@@ -1,6 +1,5 @@
 #import <Foundation/NSDate.h>
 #import <Foundation/NSLocale.h>
- * All rights reserved.
 #import <Test/NSTest.h>
 
 @interface TestDateClass : NSTest
@@ -58,7 +57,6 @@
 @implementation TestDate
 - (void) test_initWithString_
 {
-	TODO;
 	/*
 	NSDate *d = [NSDate distantFuture];
 	NSDate *newDate = [[NSDate alloc] initWithString:[d description]];
@@ -74,7 +72,6 @@
 	NSDate *d = [[NSDate alloc] initWithTimeInterval:10000 sinceDate:[NSDate distantPast]];
 	NSTimeInterval t = [d timeIntervalSince1970];
 	NSTimeInterval past = [[NSDate distantPast] timeIntervalSince1970];
-	[d release];
 	fail_unless((t - past) >= 10000,
 		@"");
 }
@@ -83,7 +80,6 @@
 {
 	NSDate *now = [[NSDate alloc] initWithTimeIntervalSinceNow:1000];
 	NSTimeInterval t = [now timeIntervalSinceReferenceDate];
-	[now release];
 	fail_unless(t > 0 && t < [[NSDate distantFuture] timeIntervalSinceReferenceDate],
 		@"");
 }
@@ -92,7 +88,6 @@
 {
 	NSDate *now = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:1000];
 	NSTimeInterval t = [now timeIntervalSinceReferenceDate];
-	[now release];
 	fail_unless(t == 1000,
 		@"");
 }
@@ -104,7 +99,6 @@
 	fail_unless(diff == 0,
 		@"");
 
-	[d release];
 	d = [[NSDate alloc] initWithTimeIntervalSince1970:1234567890];
 	diff = [d timeIntervalSince1970];
 	fail_unless(diff == 1234567890,
@@ -120,14 +114,12 @@
 
 - (void) test_descriptionWithCalendarFormat_timeZone_locale_
 {
-	TODO;
 	fail_unless([[NSDate distantFuture] descriptionWithCalendarFormat:nil timeZone:nil locale:nil] != nil,
 		@"");
 }
 
 - (void) test_descriptionWithLocale_
 {
-	TODO;
 	fail_unless([[NSDate distantFuture] descriptionWithLocale:[NSLocale currentLocale]] != nil,
 		@"");
 }

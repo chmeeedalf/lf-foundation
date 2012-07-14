@@ -1,6 +1,5 @@
 #include <unistd.h>
 #import <Test/NSTest.h>
- * All rights reserved.
 #import <Foundation/NSDate.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSThread.h>
@@ -42,7 +41,7 @@
 
 - (void) test_exit
 {
-	TODO;
+	//TODO;
 	fail_unless(1,
 		@"");
 }
@@ -54,7 +53,6 @@
 	sleep(1);
 	fail_unless([[NSProcessInfo processInfo] threadCount] == 2, ([NSString stringWithFormat:@"Bad thread count: %d", [[NSProcessInfo processInfo] threadCount]]));
 	sleep(2);
-	[t release];
 }
 
 - (void) test_callStackReturnAddresses

@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSObject.h>
- * All rights reserved.
 #import <Foundation/NSException.h>
 #import <Foundation/NSString.h>
 
@@ -30,7 +29,7 @@
 @end
 
 @interface NSObject(Failures)
-- doesSomethingUnknown;
+- (id) doesSomethingUnknown;
 @end
 
 @interface TestObjectClass : NSTest
@@ -45,7 +44,6 @@
 	NSObject *o = [NSObject alloc];
 	fail_if(o == NULL,
 		@"+[NSObject alloc] failed.");
-	[o dealloc];
 }
 
 - (void) test_allocWithZone_
@@ -54,7 +52,6 @@
 
 	fail_if(o == NULL,
 		@"+[NSObject allocWithZone:] failed.");
-	[o dealloc];
 }
 
 - (void) test_new
@@ -62,7 +59,6 @@
 	NSObject *o = [NSObject new];
 	fail_if(o == NULL,
 		@"+[NSObject new] failed.");
-	[o release];
 }
 
 - (void) test_copyWithZone_
@@ -86,8 +82,6 @@
 	fail_unless([tst conformsToProtocol:@protocol(TestProtocol)],
 		@"+[NSObject conformsToProtocol:TestProtocol] failed to conform to a protocol.");
 
-	[obj release];
-	[tst release];
 }
 
 @end
@@ -100,36 +94,6 @@
 
 	fail_if(o == nil,
 		@"-[NSObject init] failed.");
-}
-
-- (void) test_retain
-{
-	NSObject *o = [NSObject new];
-#if 0
-	unsigned int rc = [o retainCount];
-	rc++;
-	[o retain];
-	fail_unless(rc == [o retainCount], @"-[NSObject retain] failed.");
-	[o release];
-#endif
-	[o release];
-}
-
-- (void) test_release
-{
-	NSObject *o = [NSObject new];
-#if 0
-	unsigned int i, refcnt;
-
-	refcnt = [o retainCount];
-
-	for (i = 0; i < 10; i++)
-		[o retain];
-	for (i; i > 0; i--)
-		[o release];
-	fail_unless([o retainCount] == refcnt, @"");
-#endif
-	[o release];
 }
 
 - (void) test_class
@@ -173,8 +137,6 @@
 	fail_unless([tst respondsToSelector:@selector(testSelector)],
 		@"");
 
-	[obj release];
-	[tst release];
 }
 
 - (void) test_conformsTo_
@@ -200,7 +162,6 @@
 	fail_unless([o methodForSelector:@selector(init)] ==
 			method_getImplementation(class_getInstanceMethod([NSObject class], @selector(init))),
 		@"");
-	[o release];
 }
 
 #if 0

@@ -1,6 +1,5 @@
 #import <Foundation/NSProcessInfo.h>
 #import <Test/NSTest.h>
- * All rights reserved.
 
 @interface TestProcessInfo	:	NSTest
 @end
@@ -14,6 +13,6 @@
 - (void) test_physicalMemory
 {
 	unsigned long long x = [[NSProcessInfo processInfo] physicalMemory];
-	NSLog(@"Physical memory available: %llu", [[NSProcessInfo processInfo] physicalMemory]);
+	NSLog(@"Physical memory available: %llu", x);
 }
 @end

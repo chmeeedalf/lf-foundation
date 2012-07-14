@@ -1,6 +1,5 @@
 #include <check.h>
 #import <Foundation/NSCoder.h>
- * All rights reserved.
 START_TEST(i_encodeArrayOfObjCType_count_at_) {
 	fail_unless(0,
 		"-[NSCoder encodeArrayOfObjCType:count:at:] failed.");

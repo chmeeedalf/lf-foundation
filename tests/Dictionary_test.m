@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSDictionary.h>
- * All rights reserved.
 #import <Foundation/NSString.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSEnumerator.h>
@@ -17,7 +16,6 @@
 	NSDictionary *dic = [NSDictionary allocWithZone:NSDefaultAllocZone()];
 	fail_if(dic == NULL,
 		@"+[NSDictionary allocWithZone:] failed.");
-	[dic dealloc];
 }
 
 - (void) test_dictionary
@@ -55,8 +53,6 @@
 	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:o,s,r,t,o,q,nil];
 	fail_unless([d count] == 3,
 		@"+[NSDictionary dictionaryWithObjectsAndKeys:] failed.");
-	[o release];
-	[r release];
 }
 
 @end
@@ -82,9 +78,6 @@
 	NSDictionary *d = [[NSDictionary alloc] initWithObjectsAndKeys:o,s,r,t,o,q,nil];
 	fail_unless([d count] == 3,
 		@"-[NSDictionary initWithObjectsAndKeys:] failed.");
-	[d release];
-	[o release];
-	[r release];
 }
 
 - (void) test_initWithObjects_forKeys_
@@ -94,7 +87,6 @@
 	NSDictionary *d = [[NSDictionary alloc] initWithObjects:obj forKeys:key];
 	fail_unless([d count] == 3,
 		@"-[NSDictionary initWithObjects:forKeys:] failed.");
-	[d release];
 }
 
 - (void) test_initWithObjects_forKeys_count_
@@ -113,14 +105,12 @@
 		@"+[NSDictionary dictionaryWithObjects:forKeys:count:] failed on small dictionary.");
 	fail_unless(d2 != NULL && [d2 count] == 10,
 		@"+[NSDictionary dictionaryWithObjects:forKeys:count:] failed on larger dictionary.");
-	[d autorelease];
-	[d2 autorelease];
 }
 
 - (void) test_allKeys
 {
 	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
-		@"foo",@"bar",[[NSObject new] autorelease],@"blah",nil];
+		@"foo",@"bar",[NSObject new],@"blah",nil];
 	fail_unless([[d allKeys] count] == 2,
 		@"-[NSDictionary allKeys] failed.");
 }
@@ -136,8 +126,6 @@
 	NSArray *a = [d allValues];
 	fail_unless([a count] == 3 && [a containsObject:o] && [a containsObject:r],
 		@"-[NSDictionary allValues] failed.");
-	[o release];
-	[r release];
 }
 
 - (void) test_enumerator
@@ -148,7 +136,7 @@
 	NSString *q = @"blah";
 	NSObject *r = [NSObject new];
 	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:o,s,r,t,o,q,nil];
-	NSEnumerator *e = [d enumerator];
+	NSEnumerator *e = [d keyEnumerator];
 	fail_unless([e isKindOfClass:[NSEnumerator class]],
 		@"-[NSDictionary enumerator] failed.");
 }
@@ -163,8 +151,6 @@
 	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:o,s,r,t,o,q,nil];
 	fail_unless([d objectForKey:s] == o && [d objectForKey:t] == r,
 		@"-[NSDictionary objectForKey:] failed.");
-	[o release];
-	[r release];
 }
 
 - (void) test_count
@@ -177,8 +163,6 @@
 	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:o,s,r,t,o,q,nil];
 	fail_unless([d count] == 3,
 		@"-[NSDictionary count] failed.");
-	[o release];
-	[r release];
 }
 
 - (void) test_isEqualToDictionary_

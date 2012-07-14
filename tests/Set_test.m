@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSArray.h>
- * All rights reserved.
 #import <Foundation/NSSet.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSString.h>
@@ -17,7 +16,6 @@
 	NSSet *s = [NSSet allocWithZone:NULL];
 	fail_if(s == NULL,
 		@"+[NSSet allocWithZone:] failed.");
-	[s dealloc];
 }
 
 - (void) test_set
@@ -66,7 +64,6 @@
 	NSSet *s = [[NSSet alloc] initWithArray:a];
 	fail_unless([s count] == [a count],
 		@"-[NSSet initWithArray:] failed.");
-	[s release];
 }
 
 - (void) test_initWithCapacity_
@@ -74,7 +71,6 @@
 	NSMutableSet *s = [[NSMutableSet alloc] initWithCapacity:100000];
 	fail_if(s == NULL,
 		@"-[NSSet initWithCapacity:] failed.");
-	[s release];
 }
 
 - (void) test_initWithObjects_
@@ -82,7 +78,6 @@
 	NSSet *s = [[NSSet alloc] initWithObjects:@"foo",@"bar",@"baz",nil];
 	fail_unless([s count] == 3,
 		@"-[NSSet initWithObjects:] failed.");
-	[s release];
 }
 
 - (void) test_initWithObjects_count_
@@ -92,9 +87,6 @@
 	NSSet *s = [[NSSet alloc] initWithObjects:o,p,NULL];
 	fail_unless([s count] == 2,
 		@"-[NSSet initWithObjects:count:] failed.");
-	[o release];
-	[p release];
-	[s release];
 }
 
 - (void) test_initWithSet_
@@ -103,7 +95,6 @@
 	NSSet *t = [[NSSet alloc] initWithSet:s];
 	fail_unless([t isEqualToSet:s],
 		@"-[NSSet initWithSet:] failed.");
-	[t release];
 }
 
 - (void) test_initWithSet_copyItems_
@@ -148,8 +139,7 @@
 - (void) test_member_
 {
 	NSSet *s = [NSSet setWithObjects:@"foo",@"bar",@"baz",nil];
-	fail_unless([s member:@"foo"] != NULL && [s member:[[NSObject new]
-			autorelease]] == NULL,
+	fail_unless([s member:@"foo"] != NULL && [s member:[NSObject new]] == NULL,
 		@"-[NSSet member:] failed.");
 }
 
@@ -164,18 +154,16 @@
 
 - (void) test_makeObjectsPerform_
 {
+#if 0
 	NSObject *o = [NSObject new];
 	NSObject *p = [NSObject new];
 	NSSet *a = [NSSet setWithObjects:o,p,NULL];
-#if 0
 	unsigned int i = [o retainCount], j = [p retainCount];
 	i++, j++;
 	[a makeObjectsPerformSelector:@selector(retain)];
 	fail_unless([o retainCount] == i && [p retainCount] == j,
 		@"-[NSSet makeObjectsPerform:] failed.");
 #endif
-	[o release];
-	[p release];
 }
 
 - (void) test_intersectsSet_

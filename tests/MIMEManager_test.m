@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSArray.h>
- * All rights reserved.
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 #import <Foundation/MIMEHandler.h>

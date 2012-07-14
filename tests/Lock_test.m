@@ -1,6 +1,5 @@
 #import <Foundation/NSLock.h>
 #import <Foundation/NSDate.h>
- * All rights reserved.
 #import <Test/NSTest.h>
 
 static NSLock *lockTestLock;
@@ -37,14 +36,12 @@ static NSLock *lockTestLock2;
 	[testThread start];
 
 	while (![lockTestLock isLocked])
-		yield();
+		sched_yield();
 
 	fail_unless([lockTestLock tryLock] == false,
 		@"-[NSLock tryLock] failed.");
 	while ([lockTestLock isLocked])
-		yield();
-
-	[testThread release];
+		sched_yield();
 }
 
 @end

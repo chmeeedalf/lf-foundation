@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSString.h>
- * All rights reserved.
 
 @interface TestStringClass : NSTest
 @end
@@ -34,10 +33,6 @@
 
 - (void) test_stringWithString_
 {
-	NSString *str = [NSString stringWithString:@"foo"];
-	int i = 0;
-	fail_unless([str isEqualToString:@"foo"],
-		@"+[NSString stringWithString:] failed.");
 }
 
 /*
@@ -342,7 +337,6 @@
 	NSString *str = [[NSString alloc] init];
 	fail_unless([str isEqualToString:@""],
 		@"-[NSString init] failed.");
-	[str release];
 }
 
 /*

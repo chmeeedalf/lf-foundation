@@ -1,11 +1,12 @@
 CPPFLAGS=-I${PWD}/../Headers -I${PWD}
 CPPFLAGS+= -I${PWD}/../src
 CPPFLAGS+= -I/usr/local/include
+CPPFLAGS+= -I${HOME}/include
 CFLAGS=$(CPPFLAGS) -std=gnu99 -g -O0 -fexceptions
-LDFLAGS=-L../src -L${PWD} -L/GoldRoot/obj -L/usr/local/lib
-LDADD=-lTest -lFoundation -lobjcxx -lobjc #-licuuc -licudata -licuio -ldispatch -lffi -lxml2 -ldbus-1 -lexecinfo -lAlepha
+LDFLAGS=-L../src -L${PWD} -L/GoldRoot/obj -L/usr/local/lib -L${HOME}/gold_build
+LDADD=-lTest -lFoundation -licuuc -licudata -licuio -ldispatch -lffi -lxml2 -ldbus-1 -lexecinfo -lBlocksRuntime #-lobjc -lAlepha
 OBJCLIBS=
-PROG=test
+PROG_CXX=test
 SRCS= Array_test.m \
 	  Object_test.m \
 	  Data_test.m \
@@ -25,11 +26,7 @@ SRCS= Array_test.m \
 	  NetworkAddress_test.m \
 	  Socket_test.m \
 	  FileManager_test.m \
-	  Regex_test.m \
 	  ProcessInfo_test.m \
-	  URI_test.m \
-	  Misc_test.m \
-	  NSPredicate_test.m \
 #	AssertionHandler_test.m \
 #	CharacterSet_test.m \
 #	Host_test.m \
@@ -48,7 +45,7 @@ CC=clang
 OBJC=${CC}
 OBJCXX=${CXX}
 
-CXXFLAGS+=-std=c++11 -stdlib=libc++
+CXXFLAGS+=-std=c++11 #-stdlib=libc++
 CSTD=gnu99
 
 CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fblocks  -fexceptions #-Wall -fno-unit-at-a-time

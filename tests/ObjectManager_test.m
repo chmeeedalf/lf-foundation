@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSObject.h>
- * All rights reserved.
 #import <Foundation/NSString.h>
 #import <Foundation/ObjectManager.h>
 #import <Foundation/NSException.h>

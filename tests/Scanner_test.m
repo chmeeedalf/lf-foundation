@@ -1,6 +1,5 @@
 #import <Test/NSTest.h>
 #import <Foundation/NSCharacterSet.h>
- * All rights reserved.
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSScanner.h>
 
@@ -29,7 +28,6 @@
 	NSString *str = @"abcde";
 	NSScanner *scan = [[NSScanner alloc] initWithString:str];
 	bool eq = ([scan string] == str);
-	[scan release];
 	fail_unless(eq,@"");
 }
 
@@ -38,7 +36,6 @@
 	NSString *str = @"abcde";
 	NSScanner *scan = [[NSScanner alloc] initWithString:str];
 	bool eq = ([scan string] == str);
-	[scan release];
 	fail_unless(eq,@"");
 }
 
