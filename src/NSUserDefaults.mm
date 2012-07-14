@@ -511,9 +511,10 @@ static bool isPlistObject(id obj)
 @end
 
 /* Defaults domains */
-SYSTEM_EXPORT NSString * const NSArgumentDomain;
-SYSTEM_EXPORT NSString * const NSGlobalDomain;
-SYSTEM_EXPORT NSString * const NSRegistrationDomain;
+NSString * const NSArgumentDomain = @"NSArgumentDomain";
+NSString * const NSGlobalDomain = @"NSGlobalDomain";
+NSString * const NSRegistrationDomain = @"NSRegistrationDomain";
 
 /* Notification name */
-SYSTEM_EXPORT NSString * const NSUserDefaultsDidChangeNotification;
+NSString * const NSUserDefaultsDidChangeNotification =
+	@"NSUserDefaultsDidChangeNotification";

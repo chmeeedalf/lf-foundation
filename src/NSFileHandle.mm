@@ -57,13 +57,13 @@
 @class NSString;
 @class NSURL;
 
-extern NSString * const NSFileHandleConnectionAcceptedNotification;
-extern NSString * const NSFileHandleDataAvailableNotification;
-extern NSString * const NSFileHandleReadCompletionNotification;
-extern NSString * const NSFileHandleReadToEndOfFileCompletionNotification;
+NSString * const NSFileHandleConnectionAcceptedNotification = @"NSFileHandleConnectionAcceptedNotification";
+NSString * const NSFileHandleDataAvailableNotification = @"NSFileHandleDataAvailableNotification";
+NSString * const NSFileHandleReadCompletionNotification = @"NSFileHandleReadCompletionNotification";
+NSString * const NSFileHandleReadToEndOfFileCompletionNotification = @"NSFileHandleReadToEndOfFileCompletionNotification";
 
-extern NSString * const NSFileHandleNotificationFileHandleItem;
-extern NSString * const NSFileHandleNotificationDataItem;
+NSString * const NSFileHandleNotificationFileHandleItem = @"NSFileHandleNotificationFileHandleItem";
+NSString * const NSFileHandleNotificationDataItem = @"NSFileHandleNotificationDataItem";
 
 @implementation NSFileHandleOperationException
 @end

@@ -43,6 +43,8 @@
 
 #import "internal.h"
 
+NSString * const NSURLKeysOfUnsetValuesKey = @"NSURLKeysOfUnsetValuesKey";
+
 @interface NSURL()
 - (NSURL *) _URLWithNewPath:(NSString *)newPath;
 @end
@@ -1161,3 +1163,34 @@ static NSString * _convertIDNA(NSString *source, int32_t (*converter)(const UCha
 
 @end
 
+NSString * const NSURLVolumeLocalizedFormatDescriptionKey = @"NSURLVolumeLocalizedFormatDescriptionKey";
+NSString * const NSURLVolumeTotalCapacityKey = @"NSURLVolumeTotalCapacityKey";
+NSString * const NSURLVolumeAvailableCapacityKey = @"NSURLVolumeAvailableCapacityKey";
+NSString * const NSURLVolumeResourceCountKey = @"NSURLVolumeResourceCountKey";
+NSString * const NSURLVolumeSupportsPersistentIDsKey = @"NSURLVolumeSupportsPersistentIDsKey";
+NSString * const NSURLVolumeSupportsSymbolicLinksKey = @"NSURLVolumeSupportsSymbolicLinksKey";
+NSString * const NSURLVolumeSupportsHardLinksKey = @"NSURLVolumeSupportsHardLinksKey";
+NSString * const NSURLVolumeSupportsJournalingKey = @"NSURLVolumeSupportsJournalingKey";
+NSString * const NSURLVolumeIsJournalingKey = @"NSURLVolumeIsJournalingKey";
+NSString * const NSURLVolumeSupportsSparseFilesKey = @"NSURLVolumeSupportsSparseFilesKey";
+NSString * const NSURLVolumeSupportsZeroRunsKey = @"NSURLVolumeSupportsZeroRunsKey";
+NSString * const NSURLVolumeSupportsCaseSensitiveNamesKey = @"NSURLVolumeSupportsCaseSensitiveNamesKey";
+NSString * const NSURLVolumeSupportsCasePreservedNamesKey = @"NSURLVolumeSupportsCasePreservedNamesKey";
+NSString * const NSURLVolumeSupportsRootDirectoryDatesKey = @"NSURLVolumeSupportsRootDirectoryDatesKey";
+NSString * const NSURLVolumeSupportsVolumeSizesKey = @"NSURLVolumeSupportsVolumeSizesKey";
+NSString * const NSURLVolumeSupportsRenamingKey = @"NSURLVolumeSupportsRenamingKey";
+NSString * const NSURLVolumeSupportsAdvisoryFileLockingKey = @"NSURLVolumeSupportsAdvisoryFileLockingKey";
+NSString * const NSURLVolumeSupportsExtendedSecurityKey = @"NSURLVolumeSupportsExtendedSecurityKey";
+NSString * const NSURLVolumeIsBrowsableKey = @"NSURLVolumeIsBrowsableKey";
+NSString * const NSURLVolumeMaximumFileSizeKey = @"NSURLVolumeMaximumFileSizeKey";
+NSString * const NSURLVolumeIsEjectableKey = @"NSURLVolumeIsEjectableKey";
+NSString * const NSURLVolumeIsRemovableKey = @"NSURLVolumeIsRemovableKey";
+NSString * const NSURLVolumeIsInternalKey = @"NSURLVolumeIsInternalKey";
+NSString * const NSURLVolumeIsAutomountedKey = @"NSURLVolumeIsAutomountedKey";
+NSString * const NSURLVolumeIsLocalKey = @"NSURLVolumeIsLocalKey";
+NSString * const NSURLVolumeIsReadOnlyKey = @"NSURLVolumeIsReadOnlyKey";
+NSString * const NSURLVolumeCreationDateKey = @"NSURLVolumeCreationDateKey";
+NSString * const NSURLVolumeURLForRemountingKey = @"NSURLVolumeURLForRemountingKey";
+NSString * const NSURLVolumeUUIDStringKey = @"NSURLVolumeUUIDStringKey";
+NSString * const NSURLVolumeNameKey = @"NSURLVolumeNameKey";
+NSString * const NSURLVolumeLocalizedNameKey = @"NSURLVolumeLocalizedNameKey";
