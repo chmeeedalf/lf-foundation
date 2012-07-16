@@ -110,7 +110,7 @@
 
 - (void) encodePropertyList:(id)plist
 {
-	NSData *serializedPlist = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListBinaryFormat options:0 error:NULL];
+	NSData *serializedPlist = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 options:0 error:NULL];
 
 	if (serializedPlist != nil)
 	{
