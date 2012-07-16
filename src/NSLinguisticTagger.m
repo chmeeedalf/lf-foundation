@@ -30,6 +30,7 @@
 
 #import <Foundation/NSLinguisticTagger.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 #import "internal.h"
@@ -81,6 +82,9 @@ NSString * const  NSLinguisticTagPlaceName = @"NSLinguisticTagPlaceName";
 NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizationName";
 
 @implementation NSLinguisticTagger
+{
+	NSString *string;
+}
 
 - (id) initWithTagSchemes:(NSArray *)schemes options:(NSUInteger)opts
 {
@@ -104,13 +108,13 @@ NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizatio
 
 - (NSString *) string
 {
-	TODO;	// -[NSLinguisticTagger string]
-	return nil;
+	return string;
 }
 
-- (void) setString:(NSString *)string
+- (void) setString:(NSString *)newString
 {
-	TODO;	// -[NSLinguisticTagger setString:]
+	string = newString;
+	TODO;	// -[NSLinguisticTagger setString:] -- clear status data
 }
 
 - (NSString *) stringEditedInRange:(NSRange)range changeInLength:(NSInteger)deltaLen
@@ -163,12 +167,17 @@ NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizatio
 - (void) enumerateLinguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block
 {
 	TODO;	// -[NSLinguisticTagger enumerateLinguisticTagsInRange:scheme:options:orthography:usingBlock:]
+	NSLinguisticTagger *tagger = [[NSLinguisticTagger alloc] initWithTagSchemes:@[tagScheme] options:opts];
+	[tagger setString:self];
+	[tagger setOrthography:orth range:NSMakeRange(0, [self length])];
 }
 
 - (NSArray *) linguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth tokenRanges:(NSArray **)tokenRanges
 {
-	TODO;	// -[NSLinguisticTagger linguisticTagsInRange:scheme:options:orthography:tokenRanges:]
-	return nil;
+	NSLinguisticTagger *tagger = [[NSLinguisticTagger alloc] initWithTagSchemes:nil options:opts];
+	[tagger setString:self];
+	[tagger setOrthography:orth range:NSMakeRange(0, [self length])];
+	return [tagger tagsInRange:range scheme:tagScheme options:opts tokenRanges:tokenRanges];
 }
 
 @end
