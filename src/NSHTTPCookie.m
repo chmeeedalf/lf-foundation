@@ -35,6 +35,10 @@
 #import "internal.h"
 
 @implementation NSHTTPCookie
+{
+	NSDictionary *properties;
+}
+
 + (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *)fields forURL:(NSURL *)url
 {
 	TODO;	// -[NSHTTPCookie cookiesWithResponseHeaderFields:forURL:]
@@ -46,10 +50,10 @@
 	return [[self alloc] initWithProperties:properties];
 }
 
-- (id) initWithProperties:(NSDictionary *)properties
+- (id) initWithProperties:(NSDictionary *)props
 {
-	TODO;	// -[NSHTTPCookie initWithProperties:]
-	return nil;
+	properties = props;
+	return self;
 }
 
 
