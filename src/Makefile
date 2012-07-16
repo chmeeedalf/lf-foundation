@@ -73,6 +73,7 @@ SRCS=	NSRange.m \
 		NSConnection.m \
 		NSSortDescriptor.m \
 		NSFileManager.m \
+		NSFileHandle.mm \
 		NSRunLoop.mm \
 		NSPointerFunctions.m \
 		NSError.m \
