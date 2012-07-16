@@ -62,7 +62,12 @@ static std::unordered_map<void *, void *> observationInfos;
 
 +(NSSet*)keyPathsForValuesAffectingValueForKey:(NSString*)key
 {
-	TODO; // +[NSObject(NSKeyValueObserving) keyPathsForValuesAffectingValueForKey:]
+	SEL sel = NSSelectorFromString([NSString
+			stringWithFormat:@"keyPathsForValuesAffecting%@:",[key capitalizedString]]);
+	if ([self respondsToSelector:sel])
+	{
+		return [self performSelector:sel];
+	}
 	return [NSSet set];
 }
 
@@ -92,6 +97,7 @@ static std::unordered_map<void *, void *> observationInfos;
 	setSel = NSSelectorFromString([NSString
 			stringWithFormat:@"set%@:",[keyPath capitalizedString]]);
 	blkImp = SETTER_BLOCK(id);
+	TODO; // -[NSObject(NSKeyValueObserving) addObserver:forKeyPath:options:context:]
 }
 
 -(void)removeObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath
@@ -117,7 +123,7 @@ static std::unordered_map<void *, void *> observationInfos;
 
 -(void)didChangeValueForKey:(NSString*)key
 {
-	TODO; // -[NSObject(NSKeyValueObserving) willChangeValueForKey:]
+	TODO; // -[NSObject(NSKeyValueObserving) didChangeValueForKey:]
 }
 
 -(void)didChangeValueForKey:(NSString *)key withSetMutation:(NSKeyValueSetMutationKind)mutationKind usingObjects:(NSSet *)objects
