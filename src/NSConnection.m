@@ -195,7 +195,7 @@ static NSMutableSet *allConnections;
 {
 	bool result;
 
-	result = [server registerPort:recvPort name:name];
+	result = [server registerPort:receivePort name:name];
 
 	if (result)
 	{
