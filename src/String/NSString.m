@@ -92,8 +92,7 @@
 static int _StringFileWrite(void *cookie, const char *chars, int len)
 {
 	NSMutableString *outStr = (__bridge id)cookie;
-	// TODO: _StringFileWrite() - This should get the encoding from the input
-	// cookie, not assume UTF8
+
 	NSString *tempStr = [[NSString alloc] initWithBytesNoCopy:chars length:len encoding:NSUTF8StringEncoding freeWhenDone:false];
 	[outStr appendString:tempStr];
 	return len;
