@@ -275,6 +275,6 @@ unsigned int numThreads __private = 0;
 
 - (void) disableSuddenTermination
 {
-	TODO; // -[NSProcessInfo disnableSuddenTermination];
+	TODO; // -[NSProcessInfo disableSuddenTermination];
 }
 @end
