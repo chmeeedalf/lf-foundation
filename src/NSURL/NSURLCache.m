@@ -31,6 +31,8 @@
 #import <Foundation/NSURLCache.h>
 #import "internal.h"
 
+static NSURLCache *sharedCache;
+
 @implementation NSURLCache
 {
 	NSUInteger memoryCapacity;
@@ -39,14 +41,32 @@
 
 +(NSURLCache *)sharedURLCache
 {
-	TODO; // -[NSURLCache sharedURLCache]
-	return nil;
+	NSURLCache *cache = sharedCache;
+	if (cache == nil)
+	{
+		@synchronized(self)
+		{
+			cache = sharedCache;
+			if (cache == nil)
+			{
+				NSURL *sharedURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomains:NSUserDomainMask appropriateForURL:nil create:true error:nil];
+				NSString sharedPath = [[sharedURL absolutePath] stringByAppendingPathComponent:[NSProcessInfo processName]];
+				sharedCache = [[self alloc] initWithMemoryCapacity:(4 * 1024 * 1024)
+													  diskCapacity:(20 * 1024 * 1024)
+														  diskPath:sharedPath];
+				cache = sharedCache;
+			}
+		}
+	}
+	return cache;
 }
 
 +(void)setSharedURLCache:(NSURLCache *)cache
 {
-	TODO; // -[NSURLCache setSharedURLCache:]
-	[self notImplemented:_cmd];
+	@synchronized(self)
+	{
+		sharedCache = cache;
+	}
 }
 
 -(id)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(NSString *)diskPath
