@@ -33,6 +33,7 @@
 #import <Foundation/NSArray.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 @class NSArray;
@@ -139,6 +140,51 @@ NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizatio
 - (void) enumerateTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block
 {
 	TODO;	// -[NSLinguisticTagger enumerateTagsInRange:scheme:options:usingBlock:]
+	NSRange tokenRange = NSMakeRange(0, 0);
+	NSRange sentenceRange;
+	for (NSUInteger i = range.location; i < NSMaxRange(range); i += NSMaxRange(tokenRange) )
+	{
+		NSString *tag;
+
+		if (opts != 0)
+		{
+			tag = [self tagAtIndex:i scheme:NSLinguisticTagSchemeTokenType
+						tokenRange:&tokenRange sentenceRange:&sentenceRange];
+
+			if (opts & NSLinguisticTaggerOmitWords)
+			{
+				if ([tag isEqualToString:NSLinguisticTagWord])
+					continue;
+			}
+			if (opts & NSLinguisticTaggerOmitPunctuation)
+			{
+				if ([tag isEqualToString:NSLinguisticTagPunctuation])
+					continue;
+			}
+			if (opts & NSLinguisticTaggerOmitWhitespace)
+			{
+				if ([tag isEqualToString:NSLinguisticTagWhitespace])
+					continue;
+			}
+			if (opts & NSLinguisticTaggerOmitOther)
+			{
+				if ([tag isEqualToString:NSLinguisticTagOther])
+					continue;
+			}
+			if (opts & NSLinguisticTaggerJoinNames)
+			{
+			}
+		}
+		tag = [self tagAtIndex:i scheme:tagScheme
+					tokenRange:&tokenRange sentenceRange:&sentenceRange];
+
+		bool stop = false;
+		block(tag, tokenRange, sentenceRange, &stop);
+		if (stop)
+		{
+			break;
+		}
+	}
 }
 
 - (NSArray *) possibleTagsAtIndex:(NSUInteger)charIndex scheme:(NSString *)tagScheme tokenRange:(NSRangePointer)tokenRange sentenceRange:(NSRangePointer)sentenceRange scores:(NSArray **)scores
@@ -155,8 +201,23 @@ NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizatio
 
 - (NSArray *) tagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts tokenRanges:(NSArray **)tokenRanges
 {
-	TODO;	// -[NSLinguisticTagger tagsInRange:scheme:options:tokenRanges:]
-	return nil;
+	NSMutableArray *ret = [NSMutableArray array];
+	NSMutableArray *outRanges = nil;
+
+	if (tokenRanges != NULL)
+		outRanges = [NSMutableArray array];
+
+	[self enumerateTagsInRange:range scheme:tagScheme options:opts usingBlock:^(NSString *tag, NSRange tokenRange, NSRange sentenceRange, bool *stop)
+	{
+		[ret addObject:tag];
+		[outRanges addObject:[NSValue valueWithRange:tokenRange]];
+	}];
+
+	if (tokenRanges != NULL)
+	{
+		*tokenRanges = outRanges;
+	}
+	return ret;
 }
 
 
@@ -166,10 +227,10 @@ NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizatio
 
 - (void) enumerateLinguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block
 {
-	TODO;	// -[NSLinguisticTagger enumerateLinguisticTagsInRange:scheme:options:orthography:usingBlock:]
 	NSLinguisticTagger *tagger = [[NSLinguisticTagger alloc] initWithTagSchemes:@[tagScheme] options:opts];
 	[tagger setString:self];
 	[tagger setOrthography:orth range:NSMakeRange(0, [self length])];
+	[tagger enumerateTagsInRange:range scheme:tagScheme options:opts usingBlock:block];
 }
 
 - (NSArray *) linguisticTagsInRange:(NSRange)range scheme:(NSString *)tagScheme options:(NSLinguisticTaggerOptions)opts orthography:(NSOrthography *)orth tokenRanges:(NSArray **)tokenRanges
