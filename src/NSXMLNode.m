@@ -35,6 +35,7 @@
 #import <Foundation/NSXMLNode.h>
 
 #import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSXMLDocument.h>
 #import <Foundation/NSXMLDTDNode.h>
@@ -204,8 +205,91 @@
 
 + (id) predefinedNamespaceForPrefix:(NSString *)prefix
 {
-	TODO; // +[NSXMLNode predefinedNamespaceForPrefix:]
-	return nil;
+	dispatch_once_t predefNSonce;
+	static NSDictionary *predefNamespaces;
+
+	dispatch_once(&predefNSonce,^{
+			// Namespace prefixes taken from
+			// http://services.data.gov/sparql?nsdecl
+			predefNamespaces = @{
+			@"bif": [NSXMLNode namespaceWithName:@"bif"
+				stringValue:@"bif:"],
+			@"dawgt": [NSXMLNode namespaceWithName:@"dawgt"
+				stringValue:@"http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#"],
+			@"dbpedia": [NSXMLNode namespaceWithName:@"dbpedia"
+				stringValue:@"http://dbpedia.org/resource/"],
+			@"dbpprop": [NSXMLNode namespaceWithName:@"dbpprop"
+				stringValue:@"http://dbpedia.org/property/"],
+			@"dc": [NSXMLNode namespaceWithName:@"dc"
+				stringValue:@"http://purl.org/dc/elements/1.1/"],
+			@"fn": [NSXMLNode namespaceWithName:@"fn"
+				stringValue:@"http://www.w3.org/2005/xpath-functions/#"],
+			@"foaf": [NSXMLNode namespaceWithName:@"foaf"
+				stringValue:@"http://xmlns.com/foaf/0.1/"],
+			@"geo": [NSXMLNode namespaceWithName:@"geo"
+				stringValue:@"http://www.w3.org/2003/01/geo/wgs84_pos#"],
+			@"math": [NSXMLNode namespaceWithName:@"math"
+				stringValue:@"http://www.w3.org/2000/10/swap/math#"],
+			@"mesh": [NSXMLNode namespaceWithName:@"mesh"
+				stringValue:@"http://purl.org/commons/record/mesh/"],
+			@"mf": [NSXMLNode namespaceWithName:@"mf"
+				stringValue:@"http://www.w3.org/2001/sw/dataAccess/tests/test-manifest#"],
+			@"nci": [NSXMLNode namespaceWithName:@"nci"
+				stringValue:@"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"],
+			@"obo": [NSXMLNode namespaceWithName:@"obo"
+				stringValue:@"http://www.geneontology.org/formats/oboInOwl#"],
+			@"owl": [NSXMLNode namespaceWithName:@"owl"
+				stringValue:@"http://www.w3.org/2002/07/owl#"],
+			@"product": [NSXMLNode namespaceWithName:@"product"
+				stringValue:@"http://www.buy.com/rss/module/productV2/"],
+			@"protseq": [NSXMLNode namespaceWithName:@"protseq"
+				stringValue:@"http://purl.org/science/protein/bysequence/"],
+			@"rdf": [NSXMLNode namespaceWithName:@"rdf"
+				stringValue:@"http://www.w3.org/1999/02/22-rdf-syntax-ns#"],
+			@"rdfa": [NSXMLNode namespaceWithName:@"rdfa"
+				stringValue:@"http://www.w3.org/ns/rdfa#"],
+			@"rdfdf": [NSXMLNode namespaceWithName:@"rdfdf"
+				stringValue:@"http://www.openlinksw.com/virtrdf-data-formats#"],
+			@"rdfs": [NSXMLNode namespaceWithName:@"rdfs"
+				stringValue:@"http://www.w3.org/2000/01/rdf-schema#"],
+			@"sc": [NSXMLNode namespaceWithName:@"sc"
+				stringValue:@"http://purl.org/science/owl/sciencecommons/"],
+			@"scovo": [NSXMLNode namespaceWithName:@"scovo"
+				stringValue:@"http://purl.org/NET/scovo#"],
+			@"sioc": [NSXMLNode namespaceWithName:@"sioc"
+				stringValue:@"http://rdfs.org/sioc/ns#"],
+			@"skos": [NSXMLNode namespaceWithName:@"skos"
+				stringValue:@"http://www.w3.org/2004/02/skos/core#"],
+			@"sql": [NSXMLNode namespaceWithName:@"sql"
+				stringValue:@"sql:"],
+			@"vcard": [NSXMLNode namespaceWithName:@"vcard"
+				stringValue:@"http://www.w3.org/2001/vcard-rdf/3.0#"],
+			@"vcard2006": [NSXMLNode namespaceWithName:@"vcard2006"
+				stringValue:@"http://www.w3.org/2006/vcard/ns#"],
+			@"virtcxml": [NSXMLNode namespaceWithName:@"virtcxml"
+				stringValue:@"http://www.openlinksw.com/schemas/virtcxml#"],
+			@"virtrdf": [NSXMLNode namespaceWithName:@"virtrdf"
+				stringValue:@"http://www.openlinksw.com/schemas/virtrdf#"],
+			@"void": [NSXMLNode namespaceWithName:@"void"
+				stringValue:@"http://rdfs.org/ns/void#"],
+			@"xf": [NSXMLNode namespaceWithName:@"xf"
+				stringValue:@"http://www.w3.org/2004/07/xpath-functions"],
+			@"xml": [NSXMLNode namespaceWithName:@"xml"
+				stringValue:@"http://www.w3.org/XML/1998/namespace"],
+			@"xsd": [NSXMLNode namespaceWithName:@"xsd"
+				stringValue:@"http://www.w3.org/2001/XMLSchema#"],
+			@"xsl10": [NSXMLNode namespaceWithName:@"xsl10"
+				stringValue:@"http://www.w3.org/XSL/Transform/1.0"],
+			@"xsl1999": [NSXMLNode namespaceWithName:@"xsl1999"
+				stringValue:@"http://www.w3.org/1999/XSL/Transform"],
+			@"xslwd": [NSXMLNode namespaceWithName:@"xslwd"
+				stringValue:@"http://www.w3.org/TR/WD-xsl"],
+			@"yago": [NSXMLNode namespaceWithName:@"yago"
+				stringValue:@"http://dbpedia.org/class/yago/"],
+			};
+	});
+
+	return [predefNamespaces[prefix] copy];
 }
 
 + (id) processingInstructionWithName:(NSString *)name stringValue:(NSString *)string
@@ -481,8 +565,7 @@
 
 - (NSArray *) objectsForXQuery:(NSString *)xpath error:(NSError **)errp
 {
-	TODO; // -[NSXMLNode objectsForXQuery:error:]
-	return nil;
+	return [self objectsForXQuery:xpath constants:nil error:errp];
 }
 
 - (NSArray *) objectsForXQuery:(NSString *)xpath constants:(NSDictionary *)constants error:(NSError **)errp
