@@ -118,13 +118,6 @@ static NSMutableSet *allConnections;
 }
 
 // Establishing a connection...
-+(NSConnection *)connectionWithRegisteredName:(NSString *)name
-	target:(id<NSConnectable>)target
-{
-	[self subclassResponsibility:_cmd];
-	return nil;
-}
-
 + (NSConnection *) connectionWithRegisteredName:(NSString *)name host:(NSString *)hostName
 {
 	return [self connectionWithRegisteredName:name

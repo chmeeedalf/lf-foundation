@@ -61,24 +61,8 @@ typedef enum NSConnectionMessageId NSConnectionMessageId;
 
 extern NSString * const NSConnectionDidDieNotification;
 extern NSString * const NSConnectionDidInitializeNotification;
+
 extern NSString * const NSConnectionReplyMode;
-
-/*!
-  @protocol NSConnectable
-  */
-@protocol NSConnectable
-
-/*!
-  @brief Create and return a NSConnection object, allowing communication with the receiver.
-  */
-- (id) openConnection;
-
-/*!
-  @brief Terminates the connection on the remote end, and destroys the connection object.
-  */
-- (void) closeConnection;
-
-@end
 
 @protocol NSConnectionDelegate<NSObject>
 @optional
