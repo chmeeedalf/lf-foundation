@@ -494,10 +494,9 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 /* comparison */
 
-- (NSComparisonResult)compareWithDecimalNumber:(NSDecimalNumber *)_num
+- (NSComparisonResult)compareWithDecimalNumber:(NSDecimalNumber *)other
 {
-	TODO; // -[NSDecimalNumber compareWithDecimalNumber:]
-	return NSOrderedSame;
+	return NSDecimalCompare(&decimal, &(other->decimal));
 }
 
 - (NSComparisonResult)compare:(NSNumber *)_num
