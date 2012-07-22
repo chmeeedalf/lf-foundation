@@ -33,8 +33,10 @@
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSLocale.h>
+#import <Foundation/NSNotification.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSTimeZone.h>
+#import <Foundation/NSUserDefaults.h>
 #import "DateTime/NSConcreteDate.h"
 #include <unicode/ucal.h>
 #include <strings.h>
@@ -47,7 +49,6 @@
 @synthesize era;
 @synthesize year;
 @synthesize month;
-@dynamic date; // TODO -- use calendar
 @synthesize day;
 @synthesize hour;
 @synthesize minute;
@@ -77,6 +78,11 @@
 		[coder encodeInteger:[self weekday] forKey:@"GD.DC.weekday"];
 		[coder encodeInteger:[self weekdayOrdinal] forKey:@"GD.DC.weekdayOrdinal"];
 		[coder encodeInteger:[self quarter] forKey:@"GD.DC.quarter"];
+		[coder encodeInteger:[self weekOfMonth] forKey:@"GD.DC.weekOfMonth"];
+		[coder encodeInteger:[self weekOfYear] forKey:@"GD.DC.weekOfYear"];
+		[coder encodeInteger:[self yearForWeekOfYear] forKey:@"GD.DC.yearForWeekOfYear"];
+		[coder encodeObject:[self timeZone] forKey:@"GD.DC.timeZone"];
+		[coder encodeObject:[self calendar] forKey:@"GD.DC.calendar"];
 	}
 	else
 	{
@@ -104,6 +110,14 @@
 		[coder encodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
 		dateComp = [self quarter];
 		[coder encodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		dateComp = [self weekOfMonth];
+		[coder encodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		dateComp = [self weekOfYear];
+		[coder encodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		dateComp = [self yearForWeekOfYear];
+		[coder encodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		[coder encodeObject:[self timeZone]];
+		[coder encodeObject:[self calendar]];
 	}
 }
 
@@ -122,6 +136,11 @@
 		[self setWeekday:[coder decodeIntegerForKey:@"GD.DC.weekday"]];
 		[self setWeekdayOrdinal:[coder decodeIntegerForKey:@"GD.DC.weekdayOrdinal"]];
 		[self setQuarter:[coder decodeIntegerForKey:@"GD.DC.quarter"]];
+		[self setWeekOfMonth:[coder decodeIntegerForKey:@"GD.DC.weekOfMonth"]];
+		[self setWeekOfYear:[coder decodeIntegerForKey:@"GD.DC.weekOfYear"]];
+		[self setYearForWeekOfYear:[coder decodeIntegerForKey:@"GD.DC.yearForWeekOfYear"]];
+		[self setCalendar:[coder decodeObjectForKey:@"GD.DC.calendar"]];
+		[self setTimeZone:[coder decodeObjectForKey:@"GD.DC.timeZone"]];
 	}
 	else
 	{
@@ -149,6 +168,14 @@
 		[self setWeekdayOrdinal:dateComp];
 		[coder decodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
 		[self setQuarter:dateComp];
+		[coder decodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		[self setWeekOfMonth:dateComp];
+		[coder decodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		[self setWeekOfYear:dateComp];
+		[coder decodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
+		[self setYearForWeekOfYear:dateComp];
+		[self setTimeZone:[coder decodeObject]];
+		[self setCalendar:[coder decodeObject]];
 	}
 	return self;
 }
@@ -172,6 +199,15 @@
 	return other;
 }
 
+- (NSDate *) date
+{
+	NSCalendar *cal = [self calendar];
+
+	if (cal == nil)
+		cal = [NSCalendar currentCalendar];
+	return [cal dateFromComponents:self];
+}
+
 @end
 
 @implementation NSCalendar
@@ -183,6 +219,15 @@
 }
 
 static NSCalendar *autoCalendar;
+
+static void zapCalendar(NSCalendar *self)
+{
+	if (self->cal != NULL)
+	{
+		ucal_close(self->cal);
+		self->cal = NULL;
+	}
+}
 
 - (id) copyWithZone:(NSZone *)zone
 {
@@ -202,7 +247,19 @@ static NSCalendar *autoCalendar;
 	return [[NSLocale currentLocale] objectForKey:NSLocaleCalendar];
 }
 
-/* TODO: Handle NSUserDefaults changing, to update the calendar. */
++ (void) defaultsChanged:(NSNotification *)notification
+{
+	@synchronized(autoCalendar)
+	{
+		NSCalendar *newCal = [NSCalendar currentCalendar];
+		zapCalendar(autoCalendar);
+		autoCalendar->tz = [newCal timeZone];
+		autoCalendar->locale = [newCal locale];
+		autoCalendar->calIdent = [newCal->calIdent copy];
+		autoCalendar->cal = ucal_clone(newCal->cal, &(UErrorCode){U_ZERO_ERROR});
+	}
+}
+
 + (id) autoupdatingCurrentCalendar
 {
 	if (autoCalendar == nil)
@@ -214,6 +271,10 @@ static NSCalendar *autoCalendar;
 				autoCalendar = [[NSCalendar currentCalendar] copy];
 			}
 		}
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(defaultsChanged:)
+													 name:NSUserDefaultsDidChangeNotification
+												   object:nil];
 	}
 	return autoCalendar;
 }
@@ -236,15 +297,6 @@ static NSCalendar *autoCalendar;
 	locale = [NSLocale currentLocale];
 	self->calIdent = calIdentIn;
 	return self;
-}
-
-static void zapCalendar(NSCalendar *self)
-{
-	if (self->cal != NULL)
-	{
-		ucal_close(self->cal);
-		self->cal = NULL;
-	}
 }
 
 - (void) setLocale:(NSLocale *)loc
