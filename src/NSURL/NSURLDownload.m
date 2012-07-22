@@ -47,6 +47,7 @@
 	bool             deletesOnFailure;
 	NSURL	        *path;
 	bool             allowOverwrite;
+	NSData          *resumeData;
 	NSURLConnection *connection;
 	NSOutputStream  *fileStream;
 }
@@ -58,9 +59,10 @@
 	return false;
 }
 
--(id)initWithRequest:(NSURLRequest *)request delegate:(id<NSURLDownloadDelegate>)delegate
+-(id)initWithRequest:(NSURLRequest *)req delegate:(id<NSURLDownloadDelegate>)del
 {
-	TODO; // -[NSURLDownload initWithRequest:delegate:]
+	request = [req copy];
+	delegate = del;
 	return self;
 }
 
@@ -72,8 +74,7 @@
 
 -(NSURLRequest *)request
 {
-	TODO; // -[NSURLDownload request]
-	return nil;
+	return request;
 }
 
 -(NSData *)resumeData
@@ -92,9 +93,13 @@
 	deletesOnFailure = flag;
 }
 
--(void)setDestination:(NSString *)path allowOverwrite:(bool)allowOverwrite
+-(void)setDestination:(NSString *)dst allowOverwrite:(bool)flag
 {
-	TODO; // -[NSURLDownload setDestination:allowOverwrite:]
+	if (path == nil)
+	{
+		path = [NSURL fileURLWithPath:dst];
+		allowOverwrite = flag;
+	}
 }
 
 -(void)cancel
