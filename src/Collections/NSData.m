@@ -28,6 +28,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSFileHandle.h>
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSRange.h>
 #include <netinet/in.h>
@@ -132,12 +133,11 @@
 	return [self initWithContentsOfURL:uri options:0 error:NULL];
 }
 
-- (id) initWithContentsOfURL:(NSURL *)uri options:(NSUInteger)options error:(NSError **)errp
+- (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)options error:(NSError **)errp
 {
-	TODO;	// initWithContentsOfURL:options:error:
+	NSFileHandle *fh = [[NSFileManager defaultManager] fileHandleForReadingAtURL:url error:errp];
 
-	[self notImplemented:_cmd];
-	return nil;
+	return [fh readDataToEndOfFile];
 }
 
 - (id)initWithData:(NSData *)source
