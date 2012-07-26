@@ -46,18 +46,20 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#import "internal.h"
 #import <Foundation/NSURLConnection.h>
-#import <Foundation/NSURLRequest.h>
-#import <Foundation/NSURLProtocol.h>
+
 #import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
+#import <Foundation/NSHost.h>
+#import <Foundation/NSOperation.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSStream.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSURL.h>
+#import <Foundation/NSURLRequest.h>
+#import <Foundation/NSURLProtocol.h>
+#import <Foundation/NSValue.h>
+#import "internal.h"
 
 @interface NSURLProtocol(private)
 +(Class)_URLProtocolClassForRequest:(NSURLRequest *)request;
@@ -217,6 +219,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 + (void) sendAsynchronousRequest:(NSURLRequest *)request queue:(NSOperationQueue *)queue completionHandler:(void (^)(NSURLResponse *, NSData *, NSError *))handler
 {
-	TODO; // +[NSURLConnection sendAsynchronousRequest:queue:completionHandler:]
+	[queue addOperationWithBlock:^()
+	{
+		NSURLResponse *resp;
+		NSError *err;
+		NSData *d;
+
+		d = [self sendSynchronousRequest:request returningResponse:&resp error:&err];
+		handler(resp, d, err);
+	}];
 }
 @end
