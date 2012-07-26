@@ -1,6 +1,5 @@
 /*
    NSArray.m
- * All rights reserved.
 
    Copyright (C) 2005-2012	Justin Hibbits
    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
@@ -826,19 +825,28 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSData *) sortedArrayHint
 {
-	TODO; // -[NSArray sortedArrayHint]
-	return nil;
+	NSUInteger hash;
+	NSMutableData *ret = [NSMutableData data];
+
+	for (id obj in self)
+	{
+		hash = [obj hash];
+		[ret appendBytes:&hash length:sizeof(hash)];
+	}
+	return ret;
 }
 
 - (NSArray *) sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator
 	context:(void *)ctx hint:(NSData *)hint
 {
+	// TODO: -[NSArray sortedArrayUsingFunction:context:hint:] use hint
 	NSMutableArray *ret;
 	(void)hint;
 
 	ret = [NSMutableArray arrayWithArray:self];
 
 	[ret sortUsingFunction:comparator context:ctx];
+
 	return ret;
 }
 
