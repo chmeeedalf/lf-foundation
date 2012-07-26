@@ -31,6 +31,7 @@
 #import <Foundation/NSXMLElement.h>
 
 #import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
 #import "internal.h"
 
 @implementation NSXMLElement
@@ -58,7 +59,14 @@
 
 - (id) initWithName:(NSString *)name URI:(NSString *)URI
 {
-	TODO;	// -[NSXMLElement initWithName:URI:]
+	if ((self = [self initWithKind:NSXMLElementKind]) != nil)
+	{
+		[self setName:name];
+		if (URI != nil)
+		{
+			[self setURI:URI];
+		}
+	}
 	return self;
 }
 
@@ -193,12 +201,39 @@
 
 - (void) setAttributes:(NSArray *)attributes
 {
-	TODO;	// -[NSXMLElement setAttributes:]
+	for (id attrib in [self attributes])
+	{
+		bool found = false;
+		for (id a in attributes)
+		{
+			if ([[attrib name] isEqualToString:[a name]])
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			[self removeAttributeForName:[attrib name]];
+		}
+	}
+	for (id attrib in attributes)
+	{
+		[self addAttribute:attrib];
+	}
 }
 
 - (void) setAttributesWithDictionary:(NSDictionary *)attributes
 {
-	TODO;	// -[NSXMLElement setAttributesWithDictionary:]
+	NSMutableArray *tmp = [NSMutableArray array];
+	[attributes enumerateKeysAndObjectsUsingBlock:^(id key, id obj, bool *stop)
+	{
+		NSXMLNode *node = [[NSXMLNode alloc] initWithKind:NSXMLAttributeKind];
+		[node setName:key];
+		[node setObjectValue:obj];
+		[tmp addObject:node];
+	}];
+	[self setAttributes:tmp];
 }
 
 
@@ -216,7 +251,14 @@
 - (NSXMLNode *) namespaceForPrefix:(NSString *)prefix
 {
 	TODO;	// -[NSXMLElement namespaceForPrefix:]
-	return nil;
+	xmlNsPtr ns = xmlSearchNs(nodePtr->doc, nodePtr, [prefix UTF8String]);
+
+	if (ns == NULL)
+	{
+		return nil;
+	}
+
+	return (__bridge id)ns->_private;
 }
 
 - (void) removeNamespaceForPrefix:(NSString *)prefix
@@ -226,13 +268,19 @@
 
 - (NSXMLNode *) resolveNamespaceForName:(NSString *)name
 {
-	TODO;	// -[NSXMLElement resolveNamespaceForName:]
-	return nil;
+	return [self namespaceForPrefix:[[self class] prefixForName:name]];
 }
 
 - (NSString *) resolvePrefixForNamespaceURI:(NSString *)namespaceURI
 {
-	TODO;	// -[NSXMLElement resolvePrefixForNamespaceURI:]
+	const xmlChar *xmlNs = [namespaceURI UTF8String];
+
+	xmlNsPtr ns = xmlSearchNsByHref(nodePtr->doc, nodePtr, xmlNs);
+
+	if (ns)
+	{
+		return [NSString stringWithUTF8String:ns->prefix];
+	}
 	return nil;
 }
 
