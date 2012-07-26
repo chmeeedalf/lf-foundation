@@ -111,12 +111,12 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 
 - (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
-	[loop removeInputSource:self forMode:mode];
+	[self subclassResponsibility:_cmd];
 }
 
 - (void) scheduleInRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
-	[loop addInputSource:self forMode:mode];
+	[self subclassResponsibility:_cmd];
 }
 
 - (void) removeConnection:(NSConnection *)conn fromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
