@@ -85,19 +85,21 @@ NSString * const  NSLinguisticTagOrganizationName = @"NSLinguisticTagOrganizatio
 @implementation NSLinguisticTagger
 {
 	NSString *string;
+	NSArray  *tagSchemes;
+	NSUInteger options;
 }
 
 - (id) initWithTagSchemes:(NSArray *)schemes options:(NSUInteger)opts
 {
-	TODO;	// -[NSLinguisticTagger initWithTagSchemes:options:]
+	options = opts;
+	tagSchemes = schemes;
 	return self;
 }
 
 
 - (NSArray *) tagSchemes
 {
-	TODO;	// -[NSLinguisticTagger tagSchemes]
-	return nil;
+	return tagSchemes;
 }
 
 + (NSArray *) availableTagSchemesForLanguage:(NSString *)lang
