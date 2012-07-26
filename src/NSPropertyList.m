@@ -30,7 +30,14 @@
 
 #import <Foundation/NSPropertyList.h>
 
+#import <Foundation/NSArray.h>
+#import <Foundation/NSData.h>
+#import <Foundation/NSDate.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSObject.h>
+#import <Foundation/NSSet.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSValue.h>
 #import "internal.h"
 
 @implementation NSPropertyListSerialization
@@ -67,10 +74,69 @@
 }
 
 
+static bool _NSPropertyListCheckTypes(id plist, NSArray *validTypes)
+{
+	if (![validTypes containsObject:[plist class]])
+	{
+		return false;
+	}
+	if ([plist isKindOfClass:[NSDictionary class]])
+	{
+		for (id obj in plist)
+		{
+			if (!_NSPropertyListCheckTypes(obj, validTypes))
+			{
+				return false;
+			}
+			if (!_NSPropertyListCheckTypes([plist objectForKey:obj], validTypes))
+			{
+				return false;
+			}
+		}
+	}
+	else if ([plist isKindOfClass:[NSArray class]])
+	{
+		for (id obj in plist)
+		{
+			if (!_NSPropertyListCheckTypes(obj, validTypes))
+			{
+				return false;
+			}
+		}
+	}
+	else if ([plist isKindOfClass:[NSSet class]])
+	{
+		for (id obj in plist)
+		{
+			if (!_NSPropertyListCheckTypes(obj, validTypes))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 + (bool) propertyList:(id)plist isValidForFormat:(NSPropertyListFormat)format
 {
-	TODO;	// -[NSPropertyListSerialization propertyList:isValidForFormat:]
-	return false;
+	NSArray *validTypes = nil;
+
+	switch (format)
+	{
+		case NSPropertyListXMLFormat_v1_0:
+			validTypes = @[[NSArray class], [NSDictionary class], [NSSet class],
+					   [NSNumber class], [NSDate class], [NSData class], [NSString class]];
+			break;
+		case NSPropertyListBinaryFormat_v1_0:
+			validTypes = @[[NSArray class], [NSDictionary class], [NSSet class],
+					   [NSNumber class], [NSDate class], [NSData class], [NSString class]];
+	 		break;
+		case NSPropertyListOpenStepFormat:
+			validTypes = @[[NSArray class], [NSDictionary class],
+					   [NSData class], [NSString class]];
+			break;
+	}
+	return _NSPropertyListCheckTypes(plist, validTypes);
 }
 
 @end
