@@ -140,15 +140,31 @@ static NSTimeZone *autoTimeZone = nil;
 /* TODO: Think about the next two methods.  They're not required right now, so
  * they're ignored.
  */
+
+static NSDictionary *abbreviationDictionary;
 +(NSDictionary *)abbreviationDictionary
 {
 	TODO; // +[NSTimeZone abbreviationDictionary]
-	return nil;
+	NSDictionary *abbrevs = abbreviationDictionary;
+
+	if (abbrevs == nil)
+	{
+		@synchronized(self)
+		{
+			if (abbrevs == nil)
+			{
+			}
+		}
+	}
+	return abbreviationDictionary;
 }
 
 + (void) setAbbreviationDictionary:(NSDictionary *)newAbbrevs
 {
-	TODO; // +[NSTimeZone setAbbreviationDictionary:]
+	@synchronized(self)
+	{
+		abbreviationDictionary = newAbbrevs;
+	}
 }
 
 // Getting time zone information
