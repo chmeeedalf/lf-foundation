@@ -147,8 +147,7 @@ static NSLocale *currentLocale = nil;
 
 + (NSArray *) preferredLanguages
 {
-	TODO; // +[NSLocale preferredLanguages]
-	return nil;
+	return [[NSUserDefaults standardUserDefaults] objectForKey:@"LFLanguages"];
 }
 
 + (NSLocaleLanguageDirection) characterDirectionForLanguage:(NSString *)lang
