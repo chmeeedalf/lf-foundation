@@ -62,6 +62,7 @@
 @synthesize yearForWeekOfYear;
 @synthesize timeZone;
 @synthesize calendar;
+@synthesize isLeapMonth;
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
@@ -83,6 +84,7 @@
 		[coder encodeInteger:[self yearForWeekOfYear] forKey:@"GD.DC.yearForWeekOfYear"];
 		[coder encodeObject:[self timeZone] forKey:@"GD.DC.timeZone"];
 		[coder encodeObject:[self calendar] forKey:@"GD.DC.calendar"];
+		[coder encodeBool:[self isLeapMonth] forKey:@"GD.DC.isLeapMonth"];
 	}
 	else
 	{
@@ -118,6 +120,8 @@
 		[coder encodeValueOfObjCType:@encode(NSInteger) at:&dateComp];
 		[coder encodeObject:[self timeZone]];
 		[coder encodeObject:[self calendar]];
+		bool leapMonth = [self isLeapMonth];
+		[coder encodeValueOfObjCType:@encode(bool) at:&leapMonth];
 	}
 }
 
@@ -141,6 +145,7 @@
 		[self setYearForWeekOfYear:[coder decodeIntegerForKey:@"GD.DC.yearForWeekOfYear"]];
 		[self setCalendar:[coder decodeObjectForKey:@"GD.DC.calendar"]];
 		[self setTimeZone:[coder decodeObjectForKey:@"GD.DC.timeZone"]];
+		[self setLeapMonth:[coder decodeBoolForKey:@"GD.DC.isLeapMonth"]];
 	}
 	else
 	{
@@ -176,6 +181,9 @@
 		[self setYearForWeekOfYear:dateComp];
 		[self setTimeZone:[coder decodeObject]];
 		[self setCalendar:[coder decodeObject]];
+		bool leapMonth;
+		[coder decodeValueOfObjCType:@encode(bool) at:&leapMonth];
+		[self setLeapMonth:leapMonth];
 	}
 	return self;
 }

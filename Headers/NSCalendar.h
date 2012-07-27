@@ -76,6 +76,7 @@ typedef enum {
 @property NSInteger weekOfMonth;
 @property NSInteger weekOfYear;
 @property NSInteger yearForWeekOfYear;
+@property(setter=setLeapMonth:) bool isLeapMonth;
 @end
 
 @interface NSCalendar	:	NSObject<NSCoding,NSCopying>
