@@ -996,14 +996,15 @@ options:(NSStringCompareOptions)mask range:(NSRange)aRange
 }
 
 /* Changing case */
-static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t, const UChar *, int32_t, const char *, UErrorCode *))
+static inline NSString *strSetCase(NSString *self, NSLocale *locale, int (*xlate)(UChar *, int32_t, const UChar *, int32_t, const char *, UErrorCode *))
 {
 	NSUInteger length = [self length];
 	UErrorCode ec = U_ZERO_ERROR;
 	NSUniChar* buf __cleanup(cleanup_pointer) = malloc(sizeof(NSUniChar) * (length + 1));
 	[self getCharacters:buf range:NSMakeRange(0,length)];
 
-	xlate(buf, length, buf, length, NULL, &ec);
+	const char *locName = [[locale localeIdentifier] UTF8String];
+	xlate(buf, length, buf, length, locName, &ec);
 	buf[length] = 0;
 	NSString *s = [[NSString alloc] initWithCharacters:buf length:length];
 	return s;
@@ -1024,14 +1025,40 @@ static inline NSString *strSetCase(NSString *self, int (*xlate)(UChar *, int32_t
 	return s;
 }
 
+- (NSString*)capitalizedStringWithLocale:(NSLocale *)locale
+{
+	// UNICODE
+	// ENCODINGS - this code applies to the system's default encoding
+	NSUInteger length = [self length];
+	UErrorCode ec = U_ZERO_ERROR;
+	NSUniChar* buf __cleanup(cleanup_pointer) = malloc(sizeof(NSUniChar) * (length + 1));
+	[self getCharacters:buf range:NSMakeRange(0,length)];
+
+	const char *locName = [[locale localeIdentifier] UTF8String];
+	u_strToTitle(buf, length, buf, length, NULL, locName, &ec);
+	buf[length] = 0;
+	NSString *s = [[NSString alloc] initWithCharacters:buf length:length];
+	return s;
+}
+
 - (NSString*)lowercaseString
 {
-	return strSetCase(self, u_strToLower);
+	return strSetCase(self, nil, u_strToLower);
+}
+
+- (NSString*)lowercaseStringWithLocale:(NSLocale *)locale
+{
+	return strSetCase(self, locale, u_strToLower);
 }
 
 - (NSString*)uppercaseString
 {
-	return strSetCase(self, u_strToUpper);
+	return strSetCase(self, nil, u_strToUpper);
+}
+
+- (NSString*)uppercaseStringWithLocale:(NSLocale *)locale
+{
+	return strSetCase(self, locale, u_strToUpper);
 }
 
 /* Getting C strings */

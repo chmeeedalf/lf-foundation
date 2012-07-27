@@ -527,15 +527,19 @@ typedef NSString * const NSSymbol;
  */
 -(NSString *)capitalizedString;
 
+-(NSString *)capitalizedStringWithLocale:(NSLocale *)locale;
+
 /*!
  \brief Returns a string with each character changed to its corresponding lowercase value.
  */
 -(NSString *)lowercaseString;
+-(NSString *)lowercaseStringWithLocale:(NSLocale *)locale;
 
 /*!
  \brief Returns a string with each character changed to its corresponding uppercase value.
  */
 -(NSString *)uppercaseString;
+-(NSString *)uppercaseStringWithLocale:(NSLocale *)locale;
 
 // Getting Strings with Mappings
 - (NSString *) decomposedStringWithCanonicalMapping;
