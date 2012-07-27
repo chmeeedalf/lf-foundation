@@ -146,12 +146,6 @@ static NSMutableSet *allConnections;
 	return nil;
 }
 
-+(NSDistantObject *)rootProxyForConnectionWithRegisteredName:(NSString *)name
-	target:(id<NSConnectable>)target
-{
-	return [[NSConnection connectionWithRegisteredName:name target:target] rootProxy];
-}
-
 + (NSConnection *) connectionWithReceivePort:(NSPort *)recvPort sendPort:(NSPort *)sendPort
 {
 	return [[self alloc] initWithReceivePort:recvPort sendPort:sendPort];
