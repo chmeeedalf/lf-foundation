@@ -272,6 +272,11 @@
 	return [self subclassResponsibility:_cmd];
 }
 
+- (id) objectAtIndexedSubscript:(NSUInteger)index
+{
+	return [self objectAtIndex:index];
+}
+
 - (NSArray *) objectsAtIndexes:(NSIndexSet *)indexes
 {
 	NSMutableArray *objects = [NSMutableArray new];

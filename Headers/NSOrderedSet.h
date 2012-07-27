@@ -72,6 +72,7 @@
 - (id) firstObject;
 - (id) lastObject;
 - (id) objectAtIndex:(NSUInteger)index;
+- (id) objectAtIndexedSubscript:(NSUInteger)index;
 - (NSArray *) objectsAtIndexes:(NSIndexSet *)indexes;
 - (NSUInteger) indexOfObject:(id)obj;
 - (NSUInteger) indexOfObject:(id)obj inSortedRange:(NSRange)range options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp;
