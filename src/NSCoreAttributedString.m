@@ -41,6 +41,11 @@
 
 - (id) initWithString:(NSString *)string attributes:(NSDictionary *)attributes
 {
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
+
 	str = string;
 	_AttributedRange *r = [_AttributedRange new];
 	r->attributes = attributes;
@@ -51,6 +56,11 @@
 
 - (id) initWithAttributedString:(NSAttributedString *)string
 {
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
+
 	str = [[string string] copy];
 	NSMutableArray *a = [NSMutableArray new];
 	size_t len = [str length];

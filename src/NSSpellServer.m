@@ -45,6 +45,10 @@ NSString * const NSGrammarCorrections = @"NSGrammarCorrections";
 
 - (id) init
 {
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
 	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSSpellServerDelegate)];
 
 	return self;

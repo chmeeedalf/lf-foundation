@@ -54,7 +54,10 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 - (id) initWithDomain:(NSString *)domain type:(NSString *)type name:(NSString *)name port:(int)port
 {
 	TODO; // -[NSNetService initWithDomain:type:name:port:]
-	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceDelegate)];
+	if ((self = [super init]) != nil)
+	{
+		delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceDelegate)];
+	}
 	return self;
 }
 
@@ -181,7 +184,10 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 - (id) init
 {
 	TODO;	// -[NSNetServiceBrowser init]
-	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceBrowserDelegate)];
+	if ((self = [super init]) != nil)
+	{
+		delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceBrowserDelegate)];
+	}
 	return self;
 }
 

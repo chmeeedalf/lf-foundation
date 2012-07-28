@@ -205,7 +205,7 @@
 
 + (id) predefinedNamespaceForPrefix:(NSString *)prefix
 {
-	dispatch_once_t predefNSonce;
+	static dispatch_once_t predefNSonce;
 	static NSDictionary *predefNamespaces;
 
 	dispatch_once(&predefNSonce,^{
@@ -434,6 +434,11 @@
 	{
 		@throw [NSRangeException exceptionWithReason:@"Index out of bounds" userInfo:nil];
 	}
+	if (child == NULL)
+	{
+		return nil;
+	}
+
 	return (__bridge id)child->_private;
 }
 

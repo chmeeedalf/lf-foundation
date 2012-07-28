@@ -113,8 +113,8 @@ class _NSNotificationDispatcher
 
 	for (auto &item: objects)
 	{
-		auto obj = item.source;
-		auto noteName = item.name;
+		id obj = item.source;
+		id noteName = item.name;
 		
 		if (obj != object && obj != nil)
 			continue;
@@ -129,6 +129,7 @@ class _NSNotificationDispatcher
 			   name:(NSString *)notificationName object:(id)object
 {
 	_NSNotificationDispatcher t{object, notificationName, observer, selector};
+	objects.push_back(t);
 }
 
 - (id) addObserverForName:(NSString *)name object:(id)obj queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *))block

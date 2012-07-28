@@ -37,7 +37,7 @@
  * When an object is deallocated, its class pointer points to the NSZombie
  * class.
  */
-
+__attribute__((objc_root_class))
 @interface NSZombie
 @end
 

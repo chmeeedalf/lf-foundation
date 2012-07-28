@@ -254,13 +254,12 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 	 * E - 11-bit exponent
 	 * M - 52-bit mantissa
 	 */
-	unsigned short exponent;
 	unsigned long long mantissa;
 	unsigned long long x = *(unsigned long long*)&value;
 
 	d.isNegative = value < 0.0 ? true : false;
 	
-	exponent = (x >> 52) & 0x7FF;
+	d.exponent = (x >> 52) & 0x7FF;
 	mantissa = (x & ((1ULL << 52) - 1)) | (1ULL << 52);
 
 	return [self initWithDecimal:d];

@@ -125,14 +125,20 @@
 
 - (id) initWithName:(NSString*)name
 {
-	names = [[NSMutableArray alloc] initWithObjects:name,nil];
+	if ((self = [super init]) != nil)
+	{
+		names = [[NSMutableArray alloc] initWithObjects:name,nil];
+	}
 	return self;
 }
 
 - (id) initWithAddressString:(NSString*)address
 {
-	NSInetAddress *addr = [[NSInetAddress alloc] initWithString:address];
-	addresses = [[NSMutableArray alloc] initWithObjects:addr,nil];
+	if ((self = [super init]) != nil)
+	{
+		NSInetAddress *addr = [[NSInetAddress alloc] initWithString:address];
+		addresses = [[NSMutableArray alloc] initWithObjects:addr,nil];
+	}
 
 	return self;
 }

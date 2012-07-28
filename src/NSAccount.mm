@@ -220,6 +220,10 @@ static NSUserAccount* currentUserAccount = nil;
 {
 	int cnt;
 
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
 	name = [NSString stringWithUTF8String:ptr->gr_name];
 	groupNumber = ptr->gr_gid;
 

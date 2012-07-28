@@ -112,6 +112,10 @@ static NSString *LocaleDataGetDelimiter(NSConcreteLocale *self, ULocaleDataDelim
 	UErrorCode ec = U_ZERO_ERROR;
 	NSString *localeStr;
 
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
 	localeLen = uloc_getName(locID, NULL, 0, &ec);
 
 	if (U_FAILURE(ec))

@@ -126,6 +126,7 @@ static NSString* Avsprintf(NSString* format, NSLocale *locale, va_list args)
 
 	if (uniFile == NULL)
 	{
+		fclose(strFile);
 		return nil;
 	}
 	str = [NSMutableString new];
@@ -530,8 +531,8 @@ length:(NSUInteger)length freeWhenDone:(bool)flag
 
 - (NSString *)stringByTrimmingCharactersInSet:(NSCharacterSet *)set
 {
-	NSRange r = {0, 0};
-	NSRange r2 = {0, 0};
+	NSRange r;
+	NSRange r2;
 	r = [self rangeOfCharacterFromSet:set options:NSAnchoredSearch];
 	r.location = r.length;
 	r.length = [self length] - r.location;

@@ -216,13 +216,11 @@
 {
 	NSUInteger i;
 	NSUInteger end;
-	int offset;
 
 	if (opts & NSAttributedStringEnumerationReverse)
 	{
 		i = NSMaxRange(range);
 		end = range.location;
-		offset = -1;
 	}
 	else
 	{
@@ -259,13 +257,11 @@
 {
 	NSUInteger i;
 	NSUInteger end;
-	int offset;
 
 	if (opts & NSAttributedStringEnumerationReverse)
 	{
 		i = NSMaxRange(range);
 		end = range.location;
-		offset = -1;
 	}
 	else
 	{

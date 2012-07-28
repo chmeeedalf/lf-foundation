@@ -183,7 +183,7 @@ static void UTextNStringClose(UText *ut)
 	id p = (__bridge_transfer id)ut->p;
 	ut->chunkContents = NULL;
 	ut->p = NULL;
-	p = nil;
+	[p self];	// Use it to appease the compiler.  This variable just exists to destroy the string.
 }
 
 /**

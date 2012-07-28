@@ -37,7 +37,7 @@
   @brief The NSException class is used to create and raise exceptions.
   Additionally the class provides information regarding the thrown exception.
  */
-__attribute__((__objc_exception__))
+__attribute__((objc_exception))
 @interface NSException : NSObject <NSCopying>
 {
 	NSString *name;			/*!< @brief Name of this exception. */

@@ -201,7 +201,8 @@ __BEGIN_DECLS
  provides the basic functions for most objects, such as creation, comparison,
  typing, copying, describing, and gathering information.
  */
-@interface NSObject <NSObject>
+__attribute__((objc_root_class))
+	@interface NSObject <NSObject>
 {
 	Class isa;	/*!< \brief Pointer to the class definition. */
 	// New for Gold!

@@ -466,10 +466,12 @@ err_out:
 	if ((fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, mode ? mode : 0640)) < 0)
 	{
 		errMess = @"Unable to create the target file.";
-		return false;
+		goto err_out;
 	}
 	if (![self setAttributes:attributes ofItemAtURL:uri error:errOut])
+	{
 		return false;
+	}
 
 	ssize_t len = [data length];
 	ssize_t written = 0;
@@ -478,7 +480,6 @@ err_out:
 	{
 		errMess = @"Unable to completely write the target file.";
 		goto err_out;
-		return false;
 	}
 	return (written == len);
 err_out:

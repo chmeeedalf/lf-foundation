@@ -157,10 +157,10 @@ static struct _InvocationPrivate *_setupFrame(const char *types)
 	struct _InvocationPrivate *frame;
 	ffi_type *rtype;
 	ffi_type **arg_types;
-	int nargs = 0;
+	int nargs;
 	const char *typesInd = types;
 	
-	for(nargs = -1; *typesInd; nargs++)
+	for (nargs = 0; *typesInd; nargs++)
 	{
 		typesInd = objc_skip_argspec(typesInd);
 	}
@@ -173,6 +173,7 @@ static struct _InvocationPrivate *_setupFrame(const char *types)
 	rtype = ffi_type_from_encoding(types);
 	types = objc_skip_argspec(types);
 
+	--nargs;
 	for (int i = 0; i < nargs; i++)
 	{
 		arg_types[i] = ffi_type_from_encoding(types);
@@ -200,6 +201,12 @@ static void _setupFrameArgs(struct _InvocationPrivate *frame)
 	char *arg_frame;
 	void **args;
 	unsigned int i;
+
+	if (frame->cif.nargs == 0)
+	{
+		frame->args = NULL;
+		return;
+	}
 
 	for (i = 0; i < frame->cif.nargs; i++)
 	{

@@ -79,9 +79,12 @@ static NSMapTable *keyedArchiverClassMap;
 
 - (id) initForWritingWithMutableData:(NSMutableData *)d
 {
-	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedArchiverDelegate)];
-	outData = d;
-	format = NSPropertyListXMLFormat_v1_0;
+	if ((self = [super init]) != nil)
+	{
+		delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedArchiverDelegate)];
+		outData = d;
+		format = NSPropertyListXMLFormat_v1_0;
+	}
 	
 	return self;
 }
@@ -253,8 +256,11 @@ static NSMapTable *keyedUnarchiverClassMap;
 
 - (id) initForReadingWithData:(NSData *)d
 {
-	delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedUnarchiverDelegate)];
-	inData = d;
+	if ((self = [super init]) != nil)
+	{
+		delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSKeyedUnarchiverDelegate)];
+		inData = d;
+	}
 	return self;
 }
 

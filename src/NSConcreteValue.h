@@ -75,7 +75,7 @@
 
 @interface NSNonretainedObjectValue : NSConcreteValue
 {
-	id data;
+	__unsafe_unretained id data;
 }
 @end
 

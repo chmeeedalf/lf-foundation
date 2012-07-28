@@ -274,7 +274,7 @@ Ivar findIvar(NSObject *self, NSString *key)
 	sig = [self methodSignatureForSelector:getSel];
 	imp = [self methodForSelector:getSel];
 
-	if (sig != nil)
+	if (sig != nil && imp != NULL)
 	{
 		if ([sig numberOfArguments] != 2)
 		{
@@ -297,6 +297,7 @@ Ivar findIvar(NSObject *self, NSString *key)
 			return [self valueForUndefinedKey:key];
 		}
 
+		type = ivar_getTypeEncoding(ivar);
 		varAddr = (char *)(__bridge void *)self + ivar_getOffset(ivar);
 	}
 
@@ -392,11 +393,12 @@ Ivar findIvar(NSObject *self, NSString *key)
 	if (value == nil || value == [NSNull null])
 	{
 		[self setNilValueForKey:key];
+		return;
 	}
 	sig = [self methodSignatureForSelector:setSel];
 	imp = [self methodForSelector:setSel];
 
-	if (sig != nil)
+	if (sig != nil && imp != NULL)
 	{
 		if ([sig numberOfArguments] != 3)
 		{
@@ -420,6 +422,7 @@ Ivar findIvar(NSObject *self, NSString *key)
 			[self setValue:value forUndefinedKey:key];
 		}
 
+		type = ivar_getTypeEncoding(ivar);
 		varAddr = (char *)(__bridge void *)self + ivar_getOffset(ivar);
 	}
 

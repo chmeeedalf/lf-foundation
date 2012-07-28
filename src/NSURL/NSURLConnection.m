@@ -96,6 +96,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(id)initWithRequest:(NSURLRequest *)request delegate:(id<NSURLConnectionDelegate>)delegate startImmediately:(bool)startLoading
 {
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
+
 	_request = [request copy];
 	Class cls = [NSURLProtocol _URLProtocolClassForRequest:request];
 	_protocol = [[cls alloc] initWithRequest:_request cachedResponse:nil client:self];

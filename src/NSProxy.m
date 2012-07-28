@@ -254,7 +254,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 - (bool)conformsToProtocol:(Protocol *)_protocol
 {
 	NSInvocation *i = _makeInvocation1(self, _cmd, "C@:@", _protocol);
-	bool         r;
+	bool         r = false;
 	[self forwardInvocation:i];
 	[i getReturnValue:&r];
 	return r;
@@ -262,7 +262,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 - (bool)isKindOfClass:(Class)_class
 {
 	NSInvocation *i = _makeInvocation1(self, _cmd, "C@:@", _class);
-	bool result;
+	bool result = false;
 	[self forwardInvocation:i];
 	[i getReturnValue:&result];
 	return result;
@@ -270,7 +270,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 - (bool)isMemberOfClass:(Class)_class
 {
 	NSInvocation *i = _makeInvocation1(self, _cmd, "C@:@", _class);
-	bool result;
+	bool result = false;
 	[self forwardInvocation:i];
 	[i getReturnValue:&result];
 	return result;
@@ -284,7 +284,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 - (bool)respondsToSelector:(SEL)_selector
 {
 	NSInvocation *i;
-	bool         r;
+	bool         r = false;
 
 	if (_selector)
 	{
@@ -387,7 +387,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 - (bool)isEqual:(id)_object
 {
 	NSInvocation *i = _makeInvocation1(self, _cmd, "i@:@", _object);
-	bool result;
+	bool result = false;
 
 	[self forwardInvocation:i];
 	[i getReturnValue:&result];
@@ -396,7 +396,7 @@ static inline NSInvocation *_makeInvocation1(NSProxy *self, SEL _cmd,
 - (NSHashCode)hash
 {
 	NSInvocation *i = _makeInvocation(self, _cmd, "I@:");
-	unsigned hc;
+	unsigned hc = 0;
 	[self forwardInvocation:i];
 	[i getReturnValue:&hc];
 	return hc;

@@ -39,7 +39,8 @@
   protocol for proxy classes.  Subclasses must override certain methods,
   specifically the -forwardNSInvocation: method.
  */
-@interface NSProxy <NSObject>
+__attribute__((objc_root_class))
+	@interface NSProxy <NSObject>
 {
 	Class isa;	/*!< \brief Pointer to the class metadata. */
 }
