@@ -142,6 +142,9 @@ OPTFLAGS+=-O0 -fno-inline -g3
 CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fblocks  -fexceptions #-Wall -fno-unit-at-a-time 
 .if ${CC} == "clang"
 CCXXFLAGS+=-Qunused-arguments
+.ifdef(ANALYZE)
+CCXXFLAGS+=--analyze -Xanalyzer -analyzer-checker=osx.API -Xanalyzer -analyzer-checker=osx.cocoa.Loops -Xanalyzer -analyzer-checker=osx.cocoa.NilArg -Xanalyzer -analyzer-checker=osx.cocoa.SelfInit -Xanalyzer
+.endif
 .endif
 
 CXXFLAGS+=-std=c++11 -stdlib=libc++
