@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <spawn.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -97,10 +98,9 @@ void yield(void)
  */
 bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, pid_t *targetID)
 {
-	std::vector<std::string> argv;
-	std::vector<std::string> environ;
+	std::vector<const char *> argv;
+	std::vector<const char *> environ;
 	const char *progname;
-	bool retval;
 	pid_t	pid;
 
 	/* Sanity checking */
@@ -113,8 +113,6 @@ bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, pid_t *t
 		progname = [[identifier path] UTF8String];
 		if ([args isKindOfClass:[NSDictionary class]])
 		{
-			size_t length = [args count];
-			length = 1;
 			for (id key in args)
 			{
 				if ([args objectForKey:key] == [NSNull null])
@@ -158,25 +156,15 @@ bool spawnProcessWithURL(NSURL *identifier, id args, NSDictionary *env, pid_t *t
 		{
 			environ.push_back([[NSString stringWithFormat:@"%@=%@",key,[env objectForKey:key]] UTF8String]);
 		}
-		switch ((pid = vfork()))
-		{
-			case -1:
-				NSLog(@"Can't fork!");
-				retval = false;
-				break;
-			case 0:
-				execve(progname, (char * const *)&argv[0],
-						(char * const *)&environ[0]);
-				_exit(errno);
-				break;
-			default:
-				*targetID = pid;
-				retval = true;
-				break;
-		}
 
+		if (posix_spawn(&pid, argv[0], NULL, NULL, 
+					(char **)&argv[0], (char **)&environ[0]) < 0)
+		{
+			return false;
+		}
+		*targetID = pid;
+		return true;
 	}
-	return retval;
 }
 
 static fd_set readers;
