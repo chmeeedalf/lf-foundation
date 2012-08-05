@@ -222,7 +222,7 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 }
 
 
-- (size_t) write:(const uint8_t *)buf maxLength:(size_t)max
+- (NSInteger) write:(const uint8_t *)buf maxLength:(NSUInteger)max
 {
 	[self subclassResponsibility:_cmd];
 	return 0;

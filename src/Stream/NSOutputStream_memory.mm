@@ -48,7 +48,7 @@
 	d = [NSMutableData new];
 }
 
-- (size_t) write:(const uint8_t *)buf maxLength:(size_t)maxLen
+- (NSInteger) write:(const uint8_t *)buf maxLength:(NSUInteger)maxLen
 {
 	if (maxLen > 0)
 	{

@@ -47,7 +47,7 @@
 	[[self delegate] stream:self handleEvent:NSStreamEventOpenCompleted];
 }
 
-- (size_t) read:(uint8_t *)buffer maxLength:(size_t)maxLen
+- (NSInteger) read:(uint8_t *)buffer maxLength:(NSUInteger)maxLen
 {
 	size_t len = std::min([d length] - cursor, maxLen);
 
