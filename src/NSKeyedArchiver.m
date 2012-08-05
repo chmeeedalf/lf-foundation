@@ -97,13 +97,6 @@ static NSMapTable *keyedArchiverClassMap;
 	return true;
 }
 
-- (bool) containsValueForKey:(NSString *)key
-{
-	TODO;	// -[NSKeyedArchiver containsValueForKey:]
-	return false;
-}
-
-
 - (void) encodeBool:(bool)boolv forKey:(NSString *)key
 {
 	[self encodeObject:@(boolv) forKey:key];
@@ -262,6 +255,13 @@ static NSMapTable *keyedUnarchiverClassMap;
 		inData = d;
 	}
 	return self;
+}
+
+
+- (bool) containsValueForKey:(NSString *)key
+{
+	TODO;	// -[NSKeyedUnarchiver containsValueForKey:]
+	return false;
 }
 
 

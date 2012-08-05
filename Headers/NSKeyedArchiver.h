@@ -30,11 +30,18 @@
 
 #import <Foundation/NSCoder.h>
 
+#import <Foundation/NSException.h>
 #import <Foundation/NSPropertyList.h>
 
 @class NSKeyedArchiver, NSKeyedUnarchiver;
 @class NSURL, NSMutableData, NSError;
 @class NSMapTable;
+
+@interface NSInvalidArchiveOperationException	:	NSStandardException
+@end
+
+@interface NSInvalidUnarchiveOperationException	:	NSStandardException
+@end
 
 @protocol NSKeyedArchiverDelegate<NSObject>
 @optional
@@ -68,7 +75,6 @@
 // Keyed coding
 
 - (bool) allowsKeyedCoding;
-- (bool) containsValueForKey:(NSString *)key;
 
 - (void) encodeBool:(bool)boolv forKey:(NSString *)key;
 - (void) encodeBytes:(const uint8_t *)bytes length:(size_t)len forKey:(NSString *)key;
@@ -102,6 +108,7 @@
 + (id)unarchiveObjectWithData:(NSData *)rootObject;
 + (id)unarchiveRootObjectWithURL:(NSURL *)path;
 
+- (bool) containsValueForKey:(NSString *)key;
 - (id) initForReadingWithData:(NSData *)d;
 
 - (bool) decodeBoolForKey:(NSString *)key;
