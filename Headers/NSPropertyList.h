@@ -58,7 +58,7 @@ typedef enum
 }
 + (NSData *)dataWithPropertyList:(id)plist format:(NSPropertyListFormat)format
 	options:(NSPropertyListWriteOptions)opts error:(NSError **)err;
-+ (void) writePropertyList:(id)plist toStream:(NSOutputStream *)stream
++ (NSUInteger) writePropertyList:(id)plist toStream:(NSOutputStream *)stream
 	format:(NSPropertyListFormat)format options:(NSPropertyListWriteOptions)opts
 	error:(NSError **)err;
 
