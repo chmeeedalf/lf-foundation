@@ -388,8 +388,16 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 
 -(bool)isDeletableFileAtURL:(NSURL *)path
 {
-	TODO;	// isDeletableFileAtURL:
-	return access([[path path] fileSystemRepresentation], X_OK) ? false : true;
+	NSDictionary *attribs = [self attributesOfItemAtURL:path error:NULL];
+	if (attribs == nil)
+		return false;
+
+	if (!(([attribs filePosixPermissions] & 0222) && ([[attribs fileType] isEqual:NSFileTypeRegular])))
+		return false;
+	attribs = [self attributesOfItemAtURL:[path URLByDeletingLastPathComponent] error:NULL];
+	if (!(([attribs filePosixPermissions] & 0222) && ([[attribs fileType] isEqual:NSFileTypeDirectory])))
+		return false;
+	return true;
 }
 
 -(bool)fileExistsAtURL:(NSURL *)path
