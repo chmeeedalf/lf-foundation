@@ -557,8 +557,7 @@
 
 - (NSString *) description
 {
-	TODO; // -[NSXMLNode description]
-	return nil;
+	return [self XMLString];
 }
 
 
