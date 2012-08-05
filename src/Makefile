@@ -45,7 +45,7 @@ SRCS=	NSRange.m \
 		NSApplication.m \
 		NSCoder.m \
 		NSKeyedArchiver.m \
-		NSArchiver.mm \
+		NSArchiver.m \
 		NSMethodSignature.m \
 		NSNull.m \
 		NSURL.m \
