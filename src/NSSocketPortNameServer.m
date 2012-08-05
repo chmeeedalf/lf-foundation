@@ -38,7 +38,7 @@
 
 + (id) sharedInstance
 {
-	TODO;	// +[NSSpellServer sharedInstance]
+	TODO;	// +[NSSocketPortNameServer sharedInstance]
 	return nil;
 }
 
@@ -55,7 +55,7 @@
 
 - (NSPort *) portForName:(NSString *)portName host:(NSString *)hostName nameServerPortNumber:(uint16_t)portNumber
 {
-	TODO;	// -[NSSpellServer portForName:host:nameServerPortNumber:]
+	TODO;	// -[NSSocketPortNameServer portForName:host:nameServerPortNumber:]
 	return nil;
 }
 
@@ -67,12 +67,12 @@
 
 - (void) registerPort:(NSPort *)port name:(NSString *)name nameServerPortNumber:(uint16_t)portNumber
 {
-	TODO;	// -[NSSpellServer registerPort:name:nameServerPortNumber:]
+	TODO;	// -[NSSocketPortNameServer registerPort:name:nameServerPortNumber:]
 }
 
 - (void) removePortForName:(NSString *)name
 {
-	TODO;	// -[NSSpellServer removePortForName:]
+	TODO;	// -[NSSocketPortNameServer removePortForName:]
 }
 
 
