@@ -110,6 +110,7 @@ enum {
 	NSItemReplacementDirectory	= 99,
 	NSAllApplicationsDirectory	= 100,
 	NSAllLibrariesDirectory	= 101,
+	NSTrashDirectory = 102
 };
 
 typedef unsigned long NSSearchPathDirectory;
