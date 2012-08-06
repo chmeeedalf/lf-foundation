@@ -574,12 +574,62 @@ static bool configureCalendar(NSCalendar *self)
 
 - (void) encodeWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSCalendar encodeWithCoder:]
+	if ([coder allowsKeyedCoding])
+	{
+		[coder encodeObject:calIdent forKey:@"NSCalendar.ident"];
+		[coder encodeObject:locale forKey:@"NSCalendar.locale"];
+		[coder encodeObject:tz forKey:@"NSCalendar.timezone"];
+		[coder encodeInteger:[self minimumDaysInFirstWeek] forKey:@"NSCalendar.minFirstWeek"];
+		[coder encodeInteger:[self firstWeekday] forKey:@"NSCalendar.firstWeekday"];
+	}
+	else
+	{
+		[coder encodeObject:calIdent];
+		[coder encodeObject:locale];
+		[coder encodeObject:tz];
+		NSInteger tmp;
+
+		tmp = [self minimumDaysInFirstWeek];
+		[coder encodeValueOfObjCType:@encode(NSInteger) at:&tmp];
+		tmp = [self firstWeekday];
+		[coder encodeValueOfObjCType:@encode(NSInteger) at:&tmp];
+	}
 }
 
 - (id) initWithCoder:(NSCoder *)coder
 {
-	TODO; // -[NSCalendar initWithCoder:]
-	return nil;
+	NSString *ident;
+	NSLocale *loc;
+	NSTimeZone *inTz;
+	NSInteger minDays;
+	NSInteger firstWd;
+
+	if ([coder allowsKeyedCoding])
+	{
+		ident = [coder decodeObjectForKey:@"NSCalendar.ident"];
+		loc = [coder decodeObjectForKey:@"NSCalendar.locale"];
+		inTz = [coder decodeObjectForKey:@"NSCalendar.timezone"];
+		minDays = [coder decodeIntegerForKey:@"NSCalendar.minFirstWeek"];
+		firstWd = [coder decodeIntegerForKey:@"NSCalendar.firstWeekday"];
+	}
+	else
+	{
+		ident = [coder decodeObject];
+		loc = [coder decodeObject];
+		inTz = [coder decodeObject];
+		[coder decodeValueOfObjCType:@encode(NSInteger) at:&minDays];
+		[coder decodeValueOfObjCType:@encode(NSInteger) at:&firstWd];
+	}
+
+	if ((self = [self initWithCalendarIdentifier:ident]) == nil)
+	{
+		return nil;
+	}
+
+	[self setLocale:loc];
+	[self setTimeZone:inTz];
+	[self setMinimumDaysInFirstWeek:minDays];
+	[self setFirstWeekday:firstWd];
+	return self;
 }
 @end
