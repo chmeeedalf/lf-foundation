@@ -70,6 +70,14 @@
 	TODO;	// -[NSSocketPortNameServer registerPort:name:nameServerPortNumber:]
 }
 
+- (NSPort *) registeredPortForName:(NSString *)aPortName
+{
+	NSPort *sockPort = [NSSocketPort port];
+
+	[self registerPort:sockPort name:aPortName];
+	return sockPort;
+}
+
 - (void) removePortForName:(NSString *)name
 {
 	TODO;	// -[NSSocketPortNameServer removePortForName:]

@@ -129,8 +129,11 @@ static NSMutableSet *allConnections;
 							   host:(NSString *)hostName
 					usingNameServer:(NSPortNameServer *)server
 {
-	TODO; // +[NSConnection connectionWithRegisteredName:host:usingNameServer:]
-	return nil;
+	NSPort *p = [server portForName:name host:hostName];
+
+	NSConnection *conn = [[self alloc] initWithReceivePort:p sendPort:p];
+
+	return conn;
 }
 
 + (id) serviceConnectionWithName:(NSString *)name rootObject:(id)root
@@ -142,8 +145,13 @@ static NSMutableSet *allConnections;
 
 + (id) serviceConnectionWithName:(NSString *)name rootObject:(id)root usingNameServer:(NSPortNameServer *)server
 {
-	TODO; // +[NSConnection serviceConnectionWithName:rootObject:usingNameServer:]
-	return nil;
+	NSPort *p = [server registeredPortForName:name];
+
+	NSConnection *conn = [[self alloc] initWithReceivePort:p sendPort:nil];
+
+	[conn setRootObject:root];
+
+	return conn;
 }
 
 + (NSConnection *) connectionWithReceivePort:(NSPort *)recvPort sendPort:(NSPort *)sendPort

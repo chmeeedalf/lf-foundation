@@ -58,6 +58,11 @@
     return [self portForName:aPortName onHost:nil];
 }
 
+- (NSPort *) registeredPortForName:(NSString *)aPortName
+{
+	return [self subclassResponsibility:_cmd];
+}
+
 @end /* NSPortNameServer */
 
 /*

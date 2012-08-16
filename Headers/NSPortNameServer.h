@@ -41,8 +41,11 @@
 
 /* port lookup */
 
-- (NSPort *) portForName:(NSString *)aPortName onHost:(NSString *)aHostName;
+- (NSPort *) portForName:(NSString *)aPortName host:(NSString *)aHostName;
 - (NSPort *) portForName:(NSString *)aPortName;
+
+/* Port creation */
+- (NSPort *) registeredPortForName:(NSString *)aPortName;
 
 @end
 
