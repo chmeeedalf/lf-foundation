@@ -231,6 +231,7 @@ struct sockaddr_storage;
 	xmlNodePtr nodePtr;
 }
 @end
+
 bool spawnProcessWithURL(NSURL *, id, NSDictionary *, pid_t *);
 
 static inline bool object_isInstance(id obj)

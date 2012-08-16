@@ -46,10 +46,8 @@
 #include <algorithm>
 #include <vector>
 #include <objc/encoding.h>
-#import "internal.h"
-
 #import "NSKVCMutableArray.h"
-#import "NSString+KVCAdditions.h"
+#import "internal.h"
 
 @implementation NSKeyValueCodingException
 @end
@@ -512,8 +510,7 @@ Ivar findIvar(NSObject *self, NSString *key)
 
 - (NSMutableArray *) mutableArrayValueForKey:(NSString *)key
 {
-	TODO; // -[NSObject(NSKeyValueCoding) mutableArrayValueForKey:]
-	return nil;
+	return [NSKVCMutableArray arrayWithTargetObject:self forKey:key];
 }
 
 - (NSMutableSet *) mutableSetValueForKey:(NSString *)key
