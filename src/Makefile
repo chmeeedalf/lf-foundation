@@ -68,6 +68,8 @@ SRCS=	NSRange.m \
 		NSKeyValueCoding.mm \
 		NSKeyValueObserving.mm \
 		NSKVCMutableArray.m \
+		NSKVCMutableOrderedSet.m \
+		NSKVCMutableSet.m \
 		NSSocket.m \
 		NSNetworkAddress.m \
 		NSConnection.m \
