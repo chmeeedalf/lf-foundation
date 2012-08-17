@@ -28,15 +28,15 @@
  * 
  */
 
-#import <Foundation/NSArray.h>
+#import <Foundation/NSOrderedSet.h>
 
 #import <Foundation/NSIndexSet.h>
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSKeyValueObserving.h>
 #import <Foundation/NSString.h>
-#import "NSKVCMutableArray.h"
+#import "NSKVCMutableOrderedSet.h"
 
-@interface NSKVCFastMutableArray	:	NSKVCMutableArray
+@interface NSKVCFastMutableOrderedSet	:	NSKVCMutableOrderedSet
 {
 	SEL insertSel;
 	SEL insertMSel;
@@ -47,19 +47,19 @@
 }
 @end
 
-@interface NSKVCSlowMutableArray	:	NSKVCMutableArray
+@interface NSKVCSlowMutableOrderedSet	:	NSKVCMutableOrderedSet
 {
 	SEL setSel;
 }
 @end
 
-@interface NSKVCIvarMutableArray	:	NSKVCMutableArray
+@interface NSKVCIvarMutableOrderedSet	:	NSKVCMutableOrderedSet
 @end
 
-@interface NSKVCDummyMutableArray	:	NSKVCMutableArray
+@interface NSKVCDummyMutableOrderedSet	:	NSKVCMutableOrderedSet
 @end
 
-@implementation NSKVCMutableArray
+@implementation NSKVCMutableOrderedSet
 {
 	@protected
 	id target;
@@ -67,22 +67,22 @@
 	NSString *key;
 }
 
-+ (id) arrayWithTargetObject:(id)obj forKey:(NSString *)k
++ (id) orderedSetWithTargetObject:(id)obj forKey:(NSString *)k
 {
 	id proxy;
 
-	proxy = [[NSKVCFastMutableArray alloc] initWithTargetObject:obj forKey:k];
+	proxy = [[NSKVCFastMutableOrderedSet alloc] initWithTargetObject:obj forKey:k];
 
 	if (proxy == nil)
 	{
-		proxy = [[NSKVCSlowMutableArray alloc] initWithTargetObject:obj forKey:k];
+		proxy = [[NSKVCSlowMutableOrderedSet alloc] initWithTargetObject:obj forKey:k];
 
 		if (proxy == nil)
 		{
-			proxy = [[NSKVCIvarMutableArray alloc] initWithTargetObject:obj forKey:k];
+			proxy = [[NSKVCIvarMutableOrderedSet alloc] initWithTargetObject:obj forKey:k];
 			if (proxy == nil)
 			{
-				proxy = [[NSKVCDummyMutableArray alloc] initWithTargetObject:obj forKey:k];
+				proxy = [[NSKVCDummyMutableOrderedSet alloc] initWithTargetObject:obj forKey:k];
 			}
 		}
 	}
@@ -197,7 +197,7 @@
 
 @end
 
-@implementation NSKVCFastMutableArray
+@implementation NSKVCFastMutableOrderedSet
 
 - (id) initWithTargetObject:(id)obj forKey:(NSString *)k
 {
@@ -213,8 +213,6 @@
 	rmSel = NSSelectorFromString([NSString stringWithFormat:@"removeObjectFrom%@AtIndex:",capKey]);
 	insertMSel = NSSelectorFromString([NSString stringWithFormat:@"insert%@:atIndexes:",capKey]);
 	rmMSel = NSSelectorFromString([NSString stringWithFormat:@"remove%@AtIndexes:",capKey]);
-	replSel = NSSelectorFromString([NSString stringWithFormat:@"replace%@AtIndex:withObject:",capKey]);
-	replMSel = NSSelectorFromString([NSString stringWithFormat:@"replace%@AtIndeesx:with%@:",capKey,capKey]);
 
 	if (![obj respondsToSelector:insertSel] && ![obj respondsToSelector:insertMSel])
 		return nil;
@@ -327,7 +325,7 @@
 
 @end
 
-@implementation NSKVCSlowMutableArray
+@implementation NSKVCSlowMutableOrderedSet
 - (id) initWithTargetObject:(id)obj forKey:(NSString *)k
 {
 	if ((self = [super initWithTargetObject:obj forKey:k]) == nil)
@@ -344,35 +342,35 @@
 
 - (void) _realInsertObject:(id)obj atIndex:(NSUInteger)idx
 {
-	NSMutableArray *arr = [NSMutableArray arrayWithArray:[target valueForKey:key]];
+	NSMutableOrderedSet *arr = [NSMutableOrderedSet orderedSetWithOrderedSet:[target valueForKey:key]];
 	[arr insertObject:obj atIndex:idx];
 	[target setValue:arr forKey:key];
 }
 
 - (void) _realInsertObjects:(id)objs atIndexes:(NSIndexSet *)idxs
 {
-	NSMutableArray *arr = [NSMutableArray arrayWithArray:[target valueForKey:key]];
+	NSMutableOrderedSet *arr = [NSMutableOrderedSet orderedSetWithOrderedSet:[target valueForKey:key]];
 	[arr insertObjects:objs atIndexes:idxs];
 	[target setValue:arr forKey:key];
 }
 
 - (void) _realRemoveObjectAtIndex:(NSUInteger)idx
 {
-	NSMutableArray *arr = [NSMutableArray arrayWithArray:[target valueForKey:key]];
+	NSMutableOrderedSet *arr = [NSMutableOrderedSet orderedSetWithOrderedSet:[target valueForKey:key]];
 	[arr removeObjectAtIndex:idx];
 	[target setValue:arr forKey:key];
 }
 
 - (void) _realRemoveObjectsAtIndexes:(NSIndexSet *)idxs
 {
-	NSMutableArray *arr = [NSMutableArray arrayWithArray:[target valueForKey:key]];
+	NSMutableOrderedSet *arr = [NSMutableOrderedSet orderedSetWithOrderedSet:[target valueForKey:key]];
 	[arr removeObjectsAtIndexes:idxs];
 	[target setValue:arr forKey:key];
 }
 
 - (void) _realReplaceObjectAtIndex:(NSUInteger)idx withObject:(id)obj
 {
-	NSMutableArray *arr = [NSMutableArray arrayWithArray:[target valueForKey:key]];
+	NSMutableOrderedSet *arr = [NSMutableOrderedSet orderedSetWithOrderedSet:[target valueForKey:key]];
 	[arr replaceObjectAtIndex:idx withObject:obj];
 	[target setValue:arr forKey:key];
 }
@@ -380,13 +378,13 @@
 - (void) _realReplaceObjectsAtIndexes:(NSIndexSet *)idxs withObjects:(id)objs
 {
 	[target replaceObjectsAtIndexes:idxs withObjects:objs];
-	NSMutableArray *arr = [NSMutableArray arrayWithArray:[target valueForKey:key]];
+	NSMutableOrderedSet *arr = [NSMutableOrderedSet orderedSetWithOrderedSet:[target valueForKey:key]];
 	[arr replaceObjectsAtIndexes:idxs withObjects:objs];
 	[target setValue:arr forKey:key];
 }
 @end
 
-@implementation NSKVCIvarMutableArray
+@implementation NSKVCIvarMutableOrderedSet
 - (id) initWithTargetObject:(id)obj forKey:(NSString *)k
 {
 	if (![[obj class] accessInstanceVariablesDirectly])
@@ -447,7 +445,7 @@
 }
 @end
 
-@implementation NSKVCDummyMutableArray
+@implementation NSKVCDummyMutableOrderedSet
 - (id) initWithTargetObject:(id)obj forKey:(NSString *)k
 {
 	self = [super initWithTargetObject:obj forKey:k];

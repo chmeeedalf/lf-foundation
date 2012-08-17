@@ -47,6 +47,8 @@
 #include <vector>
 #include <objc/encoding.h>
 #import "NSKVCMutableArray.h"
+#import "NSKVCMutableOrderedSet.h"
+#import "NSKVCMutableSet.h"
 #import "internal.h"
 
 @implementation NSKeyValueCodingException
@@ -515,14 +517,12 @@ Ivar findIvar(NSObject *self, NSString *key)
 
 - (NSMutableSet *) mutableSetValueForKey:(NSString *)key
 {
-	TODO; // -[NSObject(NSKeyValueCoding) mutableSetValueForKey:]
-	return nil;
+	return [NSKVCMutableSet setWithTargetObject:self forKey:key];
 }
 
 - (NSMutableOrderedSet *) mutableOrderedSetValueForKey:(NSString *)key
 {
-	TODO; // -[NSObject(NSKeyValueCoding) mutableOrderedSetValueForKey:]
-	return nil;
+	return [NSKVCMutableOrderedSet orderedSetWithTargetObject:self forKey:key];
 }
 
 @end
