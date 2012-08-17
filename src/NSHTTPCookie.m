@@ -30,7 +30,9 @@
 
 #import <Foundation/NSHTTPCookie.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
+#import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 #import "internal.h"
 
@@ -39,9 +41,29 @@
 	NSDictionary *properties;
 }
 
+/* Multiple occurrences of headers yields a single instance of that header with
+ * an NSArray as the value.  Others will have NSString as value.
+ */
 + (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *)fields forURL:(NSURL *)url
 {
 	TODO;	// -[NSHTTPCookie cookiesWithResponseHeaderFields:forURL:]
+	id val = [fields objectForKey:@"Set-Cookie"];
+
+	if (val == nil)
+		return nil;
+
+	if ([val isKindOfClass:[NSString class]])
+		val = @[val];
+	if (![val isKindOfClass:[NSArray class]])
+	{
+		NSLog(@"Response header value is of invalid type");
+		return nil;
+	}
+
+	for (NSString *cookie in val)
+	{
+
+	}
 	return nil;
 }
 
@@ -59,8 +81,21 @@
 
 + (NSDictionary *) requestHeaderFieldsWithCookies:(NSArray *)cookies
 {
-	TODO;	// -[NSHTTPCookie requestHeaderFieldsWithCookies:]
-	return nil;
+	NSMutableArray *outCookies;
+
+	if ([cookies count] == 0)
+	{
+		return nil;
+	}
+	outCookies = [NSMutableArray arrayWithCapacity:[cookies count]];
+
+	for (NSHTTPCookie *cookie in cookies)
+	{
+		[outCookies addObject:[NSString stringWithFormat:@"%@=%@",[cookie name],[cookie value]]];
+	}
+	return @{
+		@"Cookie": [outCookies componentsJoinedByString:@"; "]
+	};
 }
 
 
@@ -116,8 +151,7 @@
 
 - (NSDictionary *) properties
 {
-	TODO;	// -[NSHTTPCookie properties]
-	return nil;
+	return properties;
 }
 
 - (NSString *) value
