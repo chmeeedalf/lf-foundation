@@ -137,10 +137,6 @@ static NSTimeZone *autoTimeZone = nil;
 	}
 }
 
-/* TODO: Think about the next two methods.  They're not required right now, so
- * they're ignored.
- */
-
 static NSDictionary *abbreviationDictionary;
 +(NSDictionary *)abbreviationDictionary
 {
