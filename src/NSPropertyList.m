@@ -36,6 +36,7 @@
 #import <Foundation/NSByteOrder.h>
 #import <Foundation/NSCharacterSet.h>
 #import <Foundation/NSData.h>
+#import <Foundation/NSDateFormatter.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSError.h>
@@ -48,6 +49,9 @@
 #import "internal.h"
 
 static NSUInteger writeOpenStepPropertyList(id plist, NSOutputStream *outStream,
+		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err);
+
+static NSUInteger writeXMLPropertyList(id plist, NSOutputStream *outStream,
 		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err);
 
 @implementation NSPropertyListSerialization
@@ -81,7 +85,7 @@ static NSUInteger writeOpenStepPropertyList(id plist, NSOutputStream *outStream,
 	switch (format)
 	{
 		case NSPropertyListXMLFormat_v1_0:
-			TODO; // NSPropertyListXMLFormat create
+			return writeXMLPropertyList(plist, stream, opts, 0, err);
 			break;
 		case NSPropertyListBinaryFormat_v1_0:
 			TODO; // NSPropertyListBinaryFormat create -- finish
@@ -161,7 +165,7 @@ static bool _NSPropertyListCheckTypes(id plist, NSArray *validTypes)
 	switch (format)
 	{
 		case NSPropertyListXMLFormat_v1_0:
-			validTypes = @[[NSArray class], [NSDictionary class], [NSSet class],
+			validTypes = @[[NSArray class], [NSDictionary class],
 					   [NSNumber class], [NSDate class], [NSData class], [NSString class]];
 			break;
 		case NSPropertyListBinaryFormat_v1_0:
@@ -291,7 +295,7 @@ static NSUInteger writeOpenStepPropertyList(id plist, NSOutputStream *outStream,
 		if (sub < 0)
 			return total;
 		indentchars[indent] = 0;
-		sub = [outStream write:"}" maxLength:1];
+		sub = [outStream write:")" maxLength:1];
 		if (sub < 0)
 			return total;
 		total += sub;
@@ -437,4 +441,230 @@ static NSUInteger writeBinaryPropertyListInt(id plist, NSOutputStream *outStream
 	{
 	}
 	return sub;
+}
+
+static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
+		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err);
+
+static NSUInteger writeXMLPropertyList(id plist, NSOutputStream *outStream,
+		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err)
+{
+	NSUInteger total = 0;
+	const char prefix[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		"<!DOCTYPE plist PUBLIC \"-//libFoundation/DTD plist 0.9//EN\">\n"
+		"<plist>\n";
+	NSInteger sub;
+
+	sub = [outStream write:prefix maxLength:strlen(prefix)];
+	if (sub < 0)
+		return total;
+	total += sub;
+	total += writeXMLPropertyListInt(plist, outStream, opts, indent + 1, err);
+	sub = [outStream write:"</plist>" maxLength:strlen("</plist>")];
+	if (sub < 0)
+		return total;
+	total += sub;
+	return total;
+}
+
+static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
+		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err)
+{
+	NSInteger sub;
+	__block NSUInteger total = 0;
+
+	/*
+	 * We use an array 2-larger than the indent so we can modify for collections
+	 */
+	unsigned char *indentchars __cleanup(cleanup_pointer) = malloc(indent + 2);
+	memset(indentchars, '\t', indent + 1);
+	indentchars[indent+1] = 0;
+
+	if ([plist isKindOfClass:[NSArray class]])
+	{
+		NSUInteger count = [plist count];
+		__block NSInteger sub;
+
+		sub = [outStream write:"<array>\n" maxLength:strlen("<array>\n")];
+		if (sub < 0)
+			return total;
+		total += sub;
+		[plist enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, bool *stop)
+		{
+			sub = [outStream write:indentchars maxLength:indent + 1];
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+			total += sub;
+			sub = writeXMLPropertyList(obj, outStream, opts, indent + 1, err);
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+			total += sub;
+			sub = [outStream write:"\n" maxLength:1];
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+		}];
+		if (sub < 0)
+			return total;
+		indentchars[indent] = 0;
+		sub = [outStream write:"</array>" maxLength:strlen("</array>")];
+		if (sub < 0)
+			return total;
+		total += sub;
+	}
+	else if ([plist isKindOfClass:[NSDictionary class]])
+	{
+		__block NSInteger sub;
+
+		sub = [outStream write:"<dict>\n" maxLength:strlen("<dict>\n")];
+		if (sub < 0)
+			return total;
+		total += sub;
+		sub = [outStream write:indentchars maxLength:indent];
+		if (sub < 0)
+			return total;
+		total += sub;
+		[plist enumerateKeysAndObjectsUsingBlock:^(id key, id val, bool *stop){
+			sub = [outStream write:indentchars maxLength:indent + 1];
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+			total += sub;
+			sub = writeXMLPropertyList(key, outStream, opts, indent + 1, err);
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+			total += sub;
+			sub = [outStream write:"\n" maxLength:1];
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+			sub = [outStream write:indentchars maxLength:indent];
+			if (sub < 0)
+				return;
+			total += sub;
+			total += sub;
+			sub = writeXMLPropertyList(val, outStream, opts, indent + 1, err);
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+			total += sub;
+			sub = [outStream write:"\n" maxLength:strlen("\n")];
+			if (sub < 0)
+			{
+				*stop = true;
+				return;
+			}
+		}];
+		if (sub < 0)
+			return total;
+		indentchars[indent] = 0;
+		sub = [outStream write:indentchars maxLength:indent];
+		if (sub < 0)
+			return total;
+		total += sub;
+		sub = [outStream write:"</dict>" maxLength:strlen("</dict>")];
+		if (sub < 0)
+			return total;
+		total += sub;
+	}
+	else if ([plist isKindOfClass:[NSNumber class]])
+	{
+		switch (*[plist objCType])
+		{
+			case _C_BOOL:
+				{
+					if ([plist boolValue])
+					{
+						sub = [outStream write:"<true />" maxLength:8];
+					}
+					else
+					{
+						sub = [outStream write:"<false />" maxLength:9];
+					}
+					return (sub > 0) ? sub : 0;
+				}
+				break;
+			case _C_FLT:
+			case _C_DBL:
+				{
+					NSString *dblStr = [NSString stringWithFormat:@"<real>%g</real>",[plist doubleValue]];
+					sub = [outStream write:[dblStr UTF8String] maxLength:[dblStr length]];
+				}
+				break;
+			case _C_UCHR:
+			case _C_USHT:
+			case _C_UINT:
+			case _C_ULNG:
+			case _C_ULNG_LNG:
+				{
+					NSString *dblStr = [NSString stringWithFormat:@"<integer>%llu</integer>",[plist unsignedLongLongValue]];
+					sub = [outStream write:[dblStr UTF8String] maxLength:[dblStr length]];
+				}
+			default:
+				{
+					NSString *dblStr = [NSString stringWithFormat:@"<integer>%lld</integer>",[plist longLongValue]];
+					sub = [outStream write:[dblStr UTF8String] maxLength:[dblStr length]];
+				}
+				break;
+		}
+	}
+	else if ([plist isKindOfClass:[NSDate class]])
+	{
+		NSDateFormatter *fmt = [NSDateFormatter new];
+		[fmt setDateFormat:@"'<date>'yyyy-MM-dd'T'HH:mm:ssZ'</date>'"];
+		NSString *s = [fmt stringFromDate:plist];
+		sub = [outStream write:[s UTF8String] maxLength:[s length]];
+		return (sub <= 0) ? 0 : sub;
+	}
+	else if ([plist isKindOfClass:[NSData class]])
+	{
+		NSString *encStr = [plist encodedBase64String];
+		sub = [outStream write:"<data>" maxLength:6];
+		if (sub < 0)
+			return 0;
+		total += sub;
+		sub = [outStream write:[encStr UTF8String] maxLength:[encStr length]];
+		if (sub < 0)
+			return 0;
+		total += sub;
+		sub = [outStream write:"</data>" maxLength:7];
+		if (sub < 0)
+			return 0;
+		total += sub;
+	}
+	else if ([plist isKindOfClass:[NSString class]])
+	{
+		NSUInteger size = [plist lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+
+		sub = [outStream write:"<string>" maxLength:8];
+		if (sub < 0)
+			return 0;
+		total += sub;
+		sub = [outStream write:[plist UTF8String] maxLength:size];
+		if (sub < 0)
+			return 0;
+		total += sub;
+		sub = [outStream write:"</string>" maxLength:9];
+		if (sub < 0)
+			return 0;
+		total += sub;
+	}
+	return total;
 }
