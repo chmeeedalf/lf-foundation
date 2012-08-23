@@ -204,8 +204,27 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	   resultingItemURL:(NSURL **)result
 	   			  error:(NSError **)errp
 {
-	TODO; //-[NSFileManager replaceItemAtURL:withItemAtURL:backupItemName:options:resultingItemURL:error:]
-	return nil;
+	bool backedUp = false;
+	NSURL *backupItem;
+	if (backupName != nil)
+	{
+		backupItem = [[original URLByDeletingLastPathComponent] URLByAppendingPathComponent:backupName];
+		if ([self fileExistsAtURL:original])
+		{
+			if (![self moveItemAtURL:original toURL:backupItem error:errp])
+				return false;
+		}
+		backedUp = true;
+	}
+
+	if ([self fileExistsAtURL:original])
+		[self removeItemAtURL:original];
+
+	[self copyItemAtURL:newURL toURL:original error:errp];
+
+	if (backedUp && !(options & NSFileManagerItemReplacementWithoutDeletingBackupItem))
+		[self removeItemAtURL:backupItem];
+	return true;
 }
 
 -(bool)moveItemAtURL:(NSURL *)src toURL:(NSURL *)dest error:(NSError **)err
