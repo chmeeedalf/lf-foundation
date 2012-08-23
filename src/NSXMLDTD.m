@@ -144,7 +144,22 @@
 
 + (NSXMLDTDNode *) predefinedEntityDeclarationForName:(NSString *)name
 {
-	TODO; // +[NSXMLDTD predefinedEntityDeclarationForName:]
+	xmlEntityPtr ptr = xmlGetPredefinedEntity([name UTF8String]);
+
+	if (ptr == NULL)
+	{
+		return nil;
+	}
+	if (ptr->_private == NULL)
+	{
+		@synchronized(self)
+		{
+			NSXMLNode *node = [[NSXMLNode alloc] initWithKind:NSXMLDTDKind];
+			xmlFreeNode(node->nodePtr);
+			ptr->_private = (__bridge void *)node;
+			node->nodePtr = (xmlNodePtr)ptr;
+		}
+	}
 	return nil;
 }
 
