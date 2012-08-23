@@ -69,7 +69,7 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 
 + (NSDictionary *) dictionaryFromTXTRecordData:(NSData *)txtData
 {
-	TODO;	// +[NSNetService dictionaryFromTXTRecordDictionary:]
+	TODO;	// +[NSNetService dictionaryFromTXTRecordData:]
 	return nil;
 }
 
