@@ -191,8 +191,11 @@
 		{
 			[self invalidate];
 		}
+		else
+		{
+			fireDate = [NSDate dateWithTimeIntervalSinceNow:timeInterval];
+		}
 	}
-	fireDate = nil;
 }
 
 - (NSDate*)fireDate
@@ -202,7 +205,9 @@
 
 - (void) setFireDate:(NSDate *)newFireDate
 {
-	TODO; // -[NSTimer setFireDate:]
+	if ([newFireDate earlierDate:[NSDate date]] == newFireDate)
+		newFireDate = [NSDate date];
+	fireDate = newFireDate;
 }
 
 - (NSTimeInterval) timeInterval
@@ -215,7 +220,6 @@
 	if (isValid)
 	{
 		isValid = false;
-		[[NSRunLoop currentRunLoop] removeTimer:self forMode:NSDefaultRunLoopMode];
 		running = false;
 	}
 }
