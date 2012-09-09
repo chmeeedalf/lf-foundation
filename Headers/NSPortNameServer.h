@@ -52,7 +52,6 @@
 @interface NSSocketPortNameServer	:	NSPortNameServer
 + (id) sharedInstance;
 
-- (NSPort *) portForName:(NSString *)portName;
 - (NSPort *) portForName:(NSString *)portName host:(NSString *)hostName;
 - (NSPort *) portForName:(NSString *)portName host:(NSString *)hostName nameServerPortNumber:(uint16_t)portNumber;
 

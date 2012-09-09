@@ -48,14 +48,14 @@
 
 /* port lookup */
 
-- (NSPort *) portForName:(NSString *)aPortName onHost:(NSString *)aHostName
+- (NSPort *) portForName:(NSString *)aPortName host:(NSString *)aHostName
 {
     return [self notImplemented:_cmd];
 }
 
 - (NSPort *) portForName:(NSString *)aPortName
 {
-    return [self portForName:aPortName onHost:nil];
+    return [self portForName:aPortName host:nil];
 }
 
 - (NSPort *) registeredPortForName:(NSString *)aPortName

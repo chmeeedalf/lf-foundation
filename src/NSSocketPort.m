@@ -177,6 +177,16 @@ static bool _NSPrivateSetupSockaddr(NSData *addr, struct sockaddr_storage *sas)
 	return type;
 }
 
+- (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
+{
+	TODO; // -[NSSocketPort removeFromRunLoop:forMode:];
+}
+
+- (void) scheduleInRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
+{
+	TODO; // -[NSSocketPort scheduleInRunLoop:forMode:];
+}
+
 - (bool) sendBeforeDate:(NSDate *)date msgid:(uint32_t)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved
 {
 	// Only remote sockets are lazy connected

@@ -46,7 +46,7 @@ typedef NSUInteger NSSocketNativeHandle;
 - (void) handlePortMessage:(PortMessage *)message;
 @end
 
-@interface NSPort	:	NSObject<NSCoding,NSCopying,NSEventSource>
+@interface NSPort	:	NSObject<NSCoding,NSCopying>
 
 + (id) port;
 + (Class) portCoderClass;

@@ -29,6 +29,8 @@
  */
 
 #import <Foundation/NSPortNameServer.h>
+
+#import <Foundation/NSPort.h>
 #import "internal.h"
 
 @implementation NSSocketPortNameServer
@@ -42,11 +44,6 @@
 	return nil;
 }
 
-
-- (NSPort *) portForName:(NSString *)portName
-{
-	return [self portForName:portName host:NULL nameServerPortNumber:defPort];
-}
 
 - (NSPort *) portForName:(NSString *)portName host:(NSString *)hostName
 {
