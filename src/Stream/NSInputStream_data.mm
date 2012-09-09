@@ -49,7 +49,7 @@
 
 - (NSInteger) read:(uint8_t *)buffer maxLength:(NSUInteger)maxLen
 {
-	size_t len = std::min([d length] - cursor, maxLen);
+	NSUInteger len = std::min([d length] - cursor, maxLen);
 
 	if (len > 0)
 	{
@@ -64,7 +64,7 @@
 	return (cursor < [d length]);
 }
 
-- (bool) getBuffer:(uint8_t **)buf length:(size_t *)len
+- (bool) getBuffer:(uint8_t **)buf length:(NSUInteger *)len
 {
 	if (buf != NULL)
 		*buf = (uint8_t *)[d bytes] + cursor;

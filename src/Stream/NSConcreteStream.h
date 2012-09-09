@@ -36,7 +36,7 @@
 {
 	id<NSStreamDelegate> delegate;
 	NSData *d;
-	size_t cursor;
+	NSUInteger cursor;
 }
 - (id) initWithData:(NSData *)d;
 @end
@@ -53,8 +53,8 @@
 {
 	id<NSStreamDelegate> delegate;
 	uint8_t	*buffer;
-	size_t	 bufferLen;
-	size_t	 cursor;
+	NSUInteger	 bufferLen;
+	NSUInteger	 cursor;
 }
-- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
+- (id) initToBuffer:(uint8_t *)buf capacity:(NSUInteger)cap;
 @end

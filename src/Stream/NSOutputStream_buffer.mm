@@ -35,7 +35,7 @@
 
 @implementation NSOutputStream_buffer
 
-- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)bufLen
+- (id) initToBuffer:(uint8_t *)buf capacity:(NSUInteger)bufLen
 {
 	buffer = buf;
 	bufferLen = bufLen;
@@ -49,7 +49,7 @@
 
 - (NSInteger) write:(const uint8_t *)buf maxLength:(NSUInteger)maxLen
 {
-	size_t len = std::min(bufferLen - cursor, maxLen);
+	NSUInteger len = std::min(bufferLen - cursor, maxLen);
 
 	if (len == 0)
 	{

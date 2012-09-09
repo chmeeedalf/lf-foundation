@@ -61,13 +61,13 @@ typedef NSUInteger NSStreamEvent;
 @end
 
 @protocol NSInputStream
-- (size_t) read:(uint8_t *)buf maxLength:(size_t)max;
-- (bool) getBuffer:(uint8_t **)buf length:(size_t *)len;
+- (NSUInteger) read:(uint8_t *)buf maxLength:(NSUInteger)max;
+- (bool) getBuffer:(uint8_t **)buf length:(NSUInteger *)len;
 - (bool) hasBytesAvailable;
 @end
 
 @protocol NSOutputStream
-- (size_t) write:(const uint8_t *)buf maxLength:(size_t)max;
+- (NSUInteger) write:(const uint8_t *)buf maxLength:(NSUInteger)max;
 - (bool) hasSpaceAvailable;
 @end
 
@@ -111,11 +111,11 @@ typedef NSUInteger NSStreamEvent;
 }
 
 + (id) outputStreamToMemory;
-+ (id) outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap;
++ (id) outputStreamToBuffer:(uint8_t *)buf capacity:(NSUInteger)cap;
 + (id) outputStreamWithURL:(NSURL *)uri append:(bool)append;
 
 - (id) initToMemory;
-- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap;
+- (id) initToBuffer:(uint8_t *)buf capacity:(NSUInteger)cap;
 - (id) initWithURL:(NSURL *)uri append:(bool)append;
 
 - (NSInteger) write:(const uint8_t *)buf maxLength:(NSUInteger)max;

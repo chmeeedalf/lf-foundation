@@ -167,13 +167,13 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 }
 
 
-- (size_t) read:(uint8_t *)buf maxLength:(size_t)max
+- (NSInteger) read:(uint8_t *)buf maxLength:(NSUInteger)max
 {
 	[self subclassResponsibility:_cmd];
 	return 0;
 }
 
-- (bool) getBuffer:(uint8_t **)buf length:(size_t *)len
+- (bool) getBuffer:(uint8_t **)buf length:(NSUInteger *)len
 {
 	[self subclassResponsibility:_cmd];
 	return false;
@@ -194,7 +194,7 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 	return [[self alloc] initToMemory];
 }
 
-+ (id) outputStreamToBuffer:(uint8_t *)buf capacity:(size_t)cap
++ (id) outputStreamToBuffer:(uint8_t *)buf capacity:(NSUInteger)cap
 {
 	return [[self alloc] initToBuffer:buf capacity:cap];
 }
@@ -210,7 +210,7 @@ NSMakeSymbol(NSStreamNetworkServiceTypeVoice);
 	return [[NSOutputStream_memory alloc] initToMemory];
 }
 
-- (id) initToBuffer:(uint8_t *)buf capacity:(size_t)cap
+- (id) initToBuffer:(uint8_t *)buf capacity:(NSUInteger)cap
 {
 	return [[NSOutputStream_buffer alloc] initToBuffer:buf capacity:cap];
 }
