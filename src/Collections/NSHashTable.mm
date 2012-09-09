@@ -61,8 +61,6 @@ typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
 	intern_set table;
 }
 
-static Class HashTableClass;
-
 + (id) hashTableWithOptions:(NSPointerFunctionsOptions)options
 {
 	return [[self alloc] initWithOptions:options capacity:0];
