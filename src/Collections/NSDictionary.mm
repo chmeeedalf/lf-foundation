@@ -90,6 +90,12 @@ static Class CoreDictionaryClass;
 	CoreDictionaryClass = [NSCoreDictionary class];
 }
 
++ (id) sharedKeySetForKeys:(NSArray *)keys
+{
+	TODO; // +[NSDictionary sharedKeySetForKeys:]
+	return nil;
+}
+
 /* Creating and Initializing an NSDictionary */
 
 + (id)allocWithZone:(NSZone *)zone
@@ -703,6 +709,12 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 + (id)dictionaryWithCapacity:(unsigned int)aNumItems
 {
 	return [[self alloc] initWithCapacity:aNumItems];
+}
+
++ (id) dictionaryWithSharedKeySet:(id)keyset
+{
+	TODO; // +[NSMutableDictionary dictionaryWithSharedKeySet:]
+	return nil;
 }
 
 - (id)initWithCapacity:(unsigned int)aNumItems

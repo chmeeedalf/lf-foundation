@@ -91,7 +91,9 @@
  */
 +(id)dictionaryWithObjectsAndKeys:(id)firstObject,...;
 
-+(id)dictionaryWithContentsOfURL:(NSURL *)uri;
++(id)dictionaryWithContentsOfURL:(NSURL *)url;
+
++ (id) sharedKeySetForKeys:(NSArray *)keys;
 
 /*!
  * \brief Initializes the newly allocated NSDictionary object with the
@@ -245,6 +247,8 @@
  * \param aNumItems Maximum capacity of the dictionary.
  */
 +(id)dictionaryWithCapacity:(unsigned int)aNumItems;
+
++ (id) dictionaryWithSharedKeySet:(id)keyset;
 
 /*!
  * \brief Initializesan unitialized NSMutableDictionary object with the given

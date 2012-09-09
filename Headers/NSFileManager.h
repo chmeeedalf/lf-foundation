@@ -144,6 +144,7 @@ typedef NSUInteger NSFileManagerItemReplacementOptions;
 
 -(bool)copyItemAtURL:(NSURL *)fromPath toURL:(NSURL *)toPath error:(NSError **)error;
 -(bool)moveItemAtURL:(NSURL *)fromPath toURL:(NSURL *)toPath error:(NSError **)error;
+- (bool) trashItemAtURL:(NSURL *)url resultingItemURL:(NSURL **)outURL error:(NSError **)error;
 
 -(bool)createSymbolicLinkAtURL:(NSURL *)path withDestinationURL:(NSURL *)toPath error:(NSError **)error;
 -(bool)linkItemAtURL:(NSURL *)fromPath toURL:(NSURL *)toPath error:(NSError **)error;

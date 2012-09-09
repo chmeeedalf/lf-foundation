@@ -218,12 +218,12 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	}
 
 	if ([self fileExistsAtURL:original])
-		[self removeItemAtURL:original];
+		[self removeItemAtURL:original error:errp];
 
 	[self copyItemAtURL:newURL toURL:original error:errp];
 
 	if (backedUp && !(options & NSFileManagerItemReplacementWithoutDeletingBackupItem))
-		[self removeItemAtURL:backupItem];
+		[self removeItemAtURL:backupItem error:errp];
 	return true;
 }
 
@@ -342,6 +342,12 @@ static NSString *NSDefaultFileManager = @"NSDefaultFileManager";
 	}
 
 	return true;
+}
+
+- (bool) trashItemAtURL:(NSURL *)url resultingItemURL:(NSURL **)outURL error:(NSError **)error
+{
+	TODO; // -[NSFileManager trashItemAtURL:resultingItemURL:error:]
+	return false;
 }
 
 -(NSString *)currentDirectoryPath
