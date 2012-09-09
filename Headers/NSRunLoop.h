@@ -29,30 +29,11 @@
  * 
  */
 
+#include <dispatch/dispatch.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSDate.h>
-#ifdef __cplusplus
-#include <Alepha/RunLoop.h>
-#endif
 
-typedef enum
-{
-	NSDescriptorEventSource = 1,
-	NSProcessEventSource,
-	NSVNodeEventSource,
-	NSSignalEventSource,
-	NSUserEventSource,
-} NSEventSourceType;
-
-@protocol NSEventSource
-- (NSEventSourceType) sourceType;
-- (uintptr_t) descriptor;
-- (uint32_t) flags;
-
-- (void) handleEvent:(uint32_t)flags data:(uintptr_t)data;
-@end
-
-@class NSArray, NSDate, NSTimer;
+@class NSArray, NSDate, NSPort, NSTimer;
 
 SYSTEM_EXPORT NSString * const NSDefaultRunLoopMode;
 SYSTEM_EXPORT NSString * const NSRunLoopCommonModes;
@@ -63,33 +44,20 @@ SYSTEM_EXPORT NSString * const NSRunLoopCommonModes;
 - (NSDate *) limitDateForMode:(NSString *)mode;
 + (NSRunLoop *) mainRunLoop;
 
-- (void) addInputSource:(NSObject<NSEventSource> *)obj forMode:(NSString *)mode;
-- (void) removeInputSource:(NSObject<NSEventSource> *)obj forMode:(NSString *)mode;
 - (void) addTimer:(NSTimer *)timer forMode:(NSString *)mode;
-- (void) removeTimer:(NSTimer *)timer forMode:(NSString *)mode;
+
+- (void) addPort:(NSPort *)port forMode:(NSString *)mode;
+- (void) removePort:(NSPort *)port forMode:(NSString *)mode;
 
 - (void) run;
 - (void) runUntilDate:(NSDate *)date;
-- (void) runMode:(NSString *)mode beforeDate:(NSDate *)date;
+- (bool) runMode:(NSString *)mode beforeDate:(NSDate *)date;
 - (void) acceptInputForMode:(NSString *)mode beforeDate:(NSDate *)date;
-
-/* End the loop at the end of event processing. */
-- (void) exit;
-
-/* End the loop as soon as possible, generally when this event handler exits. */
-- (void) terminate;
-
-- (bool) isCanceled;
-- (bool) isTerminated;
 
 - (void) performSelector:(SEL)sel target:(id)target argument:(id)arg order:(NSUInteger)order modes:(NSArray *)modes;
 - (void) cancelPerformSelector:(SEL)sel target:(id)target argument:(id)arg;
 - (void) cancelPerformSelectorsWithTarget:(id)target;
 
-#ifdef __cplusplus
-- (void) addRunLoopSource:(Alepha::RunLoop::Source *)src target:(id)tgt selector:(SEL)sel mode:(NSString *)mode;
-- (Alepha::RunLoop *) coreRunLoop;
-#endif
 @end
 
 @interface NSObject(RunLoopAdditions)

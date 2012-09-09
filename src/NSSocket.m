@@ -39,13 +39,15 @@
 #include <string.h>
 #include <unistd.h>
 
-#import "internal.h"
 #import <Foundation/NSSocket.h>
+
+#import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSHost.h>
 #import <Foundation/NSString.h>
+#import "internal.h"
 
 @implementation NSSocket
 {
@@ -149,7 +151,11 @@
 			if ([self isAsynchronous])
 				_AsyncWatchDescriptor(newsock, sock, @selector(_socketHandleReceive), false);
 			else
-				[[NSRunLoop currentRunLoop] addInputSource:sock forMode:NSRunLoopCommonModes];
+			{
+				struct kevent ev;
+				EV_SET(&ev, newsock, EVFILT_READ, 0, 0, 0, (__bridge void *)sock);
+				[[NSRunLoop currentRunLoop] addEventSource:&ev target:sock selector:@selector(handleEvent) modes:@[NSRunLoopCommonModes]];
+			}
 		}
 	}
 	else
@@ -217,7 +223,11 @@
 		}
 	}
 	else
-		[[NSRunLoop currentRunLoop] addInputSource:self forMode:NSRunLoopCommonModes];
+	{
+		struct kevent ev;
+		EV_SET(&ev, sockfd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
+		[[NSRunLoop currentRunLoop] addEventSource:&ev target:self selector:@selector(handleEvent) modes:@[NSRunLoopCommonModes]];
+	}
 }
 
 - (void) getEventRegistry:(struct kevent **)unused count:(size_t *)num forLoop:(NSRunLoop *)runLoop
@@ -247,7 +257,7 @@
 
 - (NSEventSourceType) sourceType
 {
-	return NSDescriptorEventSource;
+	return NSReaderEventSource;
 }
 
 - (uint32_t) flags

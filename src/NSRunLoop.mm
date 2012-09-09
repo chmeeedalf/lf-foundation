@@ -29,118 +29,41 @@
  * 
  */
 
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+
+#include <math.h>
+#include <unistd.h>
+
+#include <unordered_map>
+#include <unordered_set>
+
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSMapTable.h>
+#import <Foundation/NSPort.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSTimer.h>
-#include <unordered_map>
 #include "internal.h"
-#include <atomic>
+
+#define MAX_EVENTS 100
 
 static NSString *NSRunLoopKey = @"NSRunLoopKey";
-
-namespace {
-typedef Singleton<std::unordered_map<id,NSUInteger>> modes;
-template<> modes::type modes::value = modes::type();
-}
-
-static std::atomic<NSUInteger> max_mode(0);
-//static Alepha::Atomic::atomic<NSUInteger> max_mode(0);
 
 NSMakeSymbol(NSDefaultRunLoopMode);
 NSMakeSymbol(NSRunLoopCommonModes);
 
-extern "C" id objc_msgSend(id,SEL,...);
-
-namespace 
-{
-	namespace ObjC_RunLoop
-	{
-		class Delegate	:	public Alepha::RunLoop::Delegate
-		{
-			private:
-				id target;
-				SEL sel;
-				Alepha::RunLoop::Source *source;
-			public:
-				Delegate() {}
-				Delegate(id t, SEL s, Alepha::RunLoop::Source *src) :
-					target(t), sel(s), source(src)
-				{
-					source->setDelegate(this);
-				}
-				~Delegate()
-				{
-					delete source;
-				}
-				void perform(Alepha::RunLoop::Source *s, uint32_t flags, intptr_t data)
-				{
-//					objc_msgSend(target, sel, flags, data);
-				}
-				Alepha::RunLoop::Source *getSource(void) const
-				{
-					return source;
-				}
-		};
-	}
-}
-
-/* We use associated objects, a'la OS X 10.6, to remove sources when the
- * delegate is destroyed.
- */
-@interface _RunLoopSource : NSObject
-{
-	@public
-		ObjC_RunLoop::Delegate d;
-}
-@end
-
-@implementation _RunLoopSource
-- (id) initWithTarget:(id)t selector:(SEL)selector
-	source:(Alepha::RunLoop::Source *)source
-{
-	new (&d) ObjC_RunLoop::Delegate(t, selector, source);
-	return self;
-}
-
-@end
-
-@interface NSRunLoop()
-- (void) removeRunLoopTarget:(id)tgt mode:(NSString *)mode;
-@end
-
 @implementation NSRunLoop
 {
-	@private
-		Alepha::RunLoop rl;
-		volatile bool	isCanceled;
-		volatile bool	isTerminated;
-		int		kernelQueue;	/* kqueue ID. */
-		id		currentMode;
-}
-
-static uint32_t ModeIndexFromString(NSString *mode)
-{
-	modes m;
-	if (m->find(mode) == m->end())
-	{
-		(*m)[mode] = ++max_mode;
-	}
-	return (*m)[mode];
-}
-
-+ (void) initialize
-{
-	static bool initialized = false;
-
-	if (!initialized)
-	{
-		ModeIndexFromString(NSDefaultRunLoopMode);
-	}
+	dispatch_queue_t                    loopQueue;
+	dispatch_semaphore_t                loopSem;
+	dispatch_source_t                   currentDispatchObj;
+	id                                  currentMode;
+	std::unordered_map<NSString *, int> modes;
 }
 
 + (id) currentRunLoop
@@ -171,47 +94,63 @@ static uint32_t ModeIndexFromString(NSString *mode)
 	return self;
 }
 
-- (void) addInputSource:(NSObject<NSEventSource> *)obj forMode:(NSString *)mode
+- (void) dealloc
 {
-	uintptr_t desc = [obj descriptor];
-	switch ([obj sourceType])
+	for (auto i: modes)
 	{
-		case NSDescriptorEventSource:
-			[self addRunLoopSource:(new Alepha::RunLoop::File(desc)) target:obj
-				selector:@selector(handleEvent:data:) mode:mode];
-			break;
-		case NSProcessEventSource:
-			[self addRunLoopSource:(new Alepha::RunLoop::Process(desc)) target:obj
-				selector:@selector(handleEvent:data:) mode:mode];
-			break;
-		case NSSignalEventSource:
-			[self addRunLoopSource:(new Alepha::RunLoop::Signal(desc)) target:obj
-				selector:@selector(handleEvent:data:) mode:mode];
-			break;
-		case NSUserEventSource:
-			[self addRunLoopSource:(new Alepha::RunLoop::File(desc)) target:obj
-				selector:@selector(handleEvent:data:) mode:mode];
-			break;
-		default:
-			break;
+		close(i.second);
 	}
 }
 
-- (void) removeInputSource:(NSObject<NSEventSource> *)obj forMode:(NSString *)mode
+- (void) addPort:(NSPort *)port forMode:(NSString *)mode
 {
-	[self removeRunLoopTarget:obj mode:mode];
+	[port scheduleInRunLoop:self forMode:mode];
 }
 
+- (void) removePort:(NSPort *)port forMode:(NSString *)mode
+{
+	[port removeFromRunLoop:self forMode:mode];
+}
+
+/*
+   Design of timers in NSRunLoop:
+ */
 - (void) addTimer:(NSTimer *)timer forMode:(NSString *)mode
 {
-	Alepha::RunLoop::Timer *t = new Alepha::RunLoop::Timer([timer
-			timeInterval]);
-	[self addRunLoopSource:t target:timer selector:@selector(fire) mode:mode];
+	TODO; // -[NSRunLoop addTimer:forMode:]
 }
 
-- (void) removeTimer:(NSTimer *)timer forMode:(NSString *)mode
+- (void) addEventSource:(struct kevent *)source target:(id)target
+	selector:(SEL)sel modes:(NSArray *)runModes
 {
-	[self removeRunLoopTarget:timer mode:mode];
+	struct timespec timeout{0, 0};
+
+	for (NSString *mode in runModes)
+	{
+		if (modes.find(mode) == modes.end())
+		{
+			modes[mode] = kqueue();
+		}
+		struct kevent s = *source;
+		s.flags |= EV_ADD;
+		kevent(modes[mode], &s, 1, NULL, 0, &timeout);
+	}
+}
+
+- (void) removeEventSource:(struct kevent *)source fromModes:(NSArray *)rlModes
+{
+	struct timespec timeout{0, 0};
+
+	for (id mode in rlModes)
+	{
+		auto i = modes.find(mode);
+		if (i != modes.end())
+		{
+			struct kevent s = *source;
+			s.flags |= EV_DELETE;
+			kevent(i->second, &s, 1, NULL, 0, &timeout);
+		}
+	}
 }
 
 - (void) run
@@ -223,49 +162,20 @@ static uint32_t ModeIndexFromString(NSString *mode)
 {
 	if (date == nil)
 		date = [NSDate distantFuture];
-	while (!isCanceled)
-	{
-		[self runMode:NSDefaultRunLoopMode beforeDate:date];
-		if ([date timeIntervalSinceNow] <= 0)
-			break;
-		if (isTerminated)
-			break;
-	}
+	while ([self runMode:NSDefaultRunLoopMode beforeDate:date])
+		;
 }
 
-- (void) runMode:(NSString *)str beforeDate:(NSDate *)date
+- (bool) runMode:(NSString *)str beforeDate:(NSDate *)date
 {
-	NSTimeInterval ti;
-	@autoreleasepool {
-		ti = [date timeIntervalSinceNow];
+	auto i = modes.find(str);
 
-		currentMode = str;
-		rl.run_once(ti, ModeIndexFromString(str));
-	}
-}
-
-/* End the loop at the end of event processing. */
-- (void) exit
-{
-	rl.cancel();
-	isCanceled = true;
-}
-
-- (bool) isCanceled
-{
-	return isCanceled;
-}
-
-/* End the loop as soon as possible, generally when this event handler exits. */
-- (void) terminate
-{
-	rl.exit();
-	isTerminated = true;
-}
-
-- (bool) isTerminated
-{
-	return isTerminated;
+	if (i == modes.end())
+		return false;
+	if ([[NSDate date] earlierDate:date] == date)
+		return false;
+	[self acceptInputForMode:str beforeDate:date];
+	return true;
 }
 
 - (void) performSelector:(SEL)sel target:(id)target argument:(id)arg
@@ -284,54 +194,66 @@ static uint32_t ModeIndexFromString(NSString *mode)
 	TODO; // -[NSRunLoop cancelPerformSelectorsWithTarget:]
 }
 
-static char rl_key;
-
-- (void) addRunLoopSource:(Alepha::RunLoop::Source *)s target:(id)tgt
-	selector:(SEL)sel mode:(NSString *)mode
-{
-	_RunLoopSource *d;
-	
-	d = objc_getAssociatedObject(tgt, &rl_key);
-
-	if (d == nil)
-	{
-		d = [[_RunLoopSource alloc] initWithTarget:tgt
-			selector:sel source:s];
-		objc_setAssociatedObject(tgt, &rl_key, d, OBJC_ASSOCIATION_RETAIN);
-	}
-	rl.add(d->d.getSource(), ModeIndexFromString(mode));
-}
-
-- (void) removeRunLoopTarget:(id)tgt mode:(NSString *)mode
-{
-	_RunLoopSource *d;
-	
-	d = objc_getAssociatedObject(tgt, &rl_key);
-
-	if (d != nil)
-	{
-		rl.remove(d->d.getSource(), ModeIndexFromString(mode));
-	}
-}
-
-- (Alepha::RunLoop *)coreRunLoop
-{
-	return &rl;
-}
-
 - (void) acceptInputForMode:(NSString *)mode beforeDate:(NSDate *)limit
 {
-	TODO; // acceptInputForMode:beforeDate:
+	NSTimeInterval ti = [limit timeIntervalSinceNow];
+	struct timespec ts{(time_t)ti,
+		static_cast<long>((ti - (long)ti) * 100000000000ULL)};
+	// First suspend the currently running mode, then resume the new one.  This
+	// way if inputs are in both modes, they will stick around.
+	auto i = modes.find(mode);
+	struct kevent events[MAX_EVENTS];
+	if (i == modes.end())
+		return;
+
+	currentMode = mode;
+	int count = kevent(i->second, NULL, 0, events, MAX_EVENTS, &ts);
+
+	for (; count > 0; --count)
+	{
+	}
 }
 
 - (NSDate *) limitDateForMode:(NSString *)mode
 {
 	TODO; // limitDateForMode:
-	return nil;
+	return [NSDate distantFuture];
 }
 
 - (NSString *) currentMode
 {
 	return currentMode;
 }
+@end
+
+@implementation NSObject(RunLoopAdditions)
++ (void) cancelPreviousPerformRequestsWithTarget:(id)target
+{
+	TODO; // -[NSObject(RunLoopAdditions) cancelPreviousPerformRequestsWithTarget:]
+}
+
++ (void) cancelPreviousPerformRequestsWithTarget:(id)target selector:(SEL)sel object:(id)arg
+{
+	TODO; // -[NSObject(RunLoopAdditions) cancelPreviousPerformRequestsWithTarget:selector:object:]
+}
+
+- (void) performSelector:(SEL)sel withObject:(id)obj afterDelay:(NSTimeInterval)delay
+{
+	[self performSelector:sel withObject:obj afterDelay:delay
+		inModes:@[NSDefaultRunLoopMode]];
+}
+
+- (void) performSelector:(SEL)sel withObject:(id)obj afterDelay:(NSTimeInterval)delay inModes:(NSArray *)modes
+{
+	NSTimer *t;
+	NSRunLoop *loop = [NSRunLoop currentRunLoop];
+
+	t = [NSTimer timerWithTimeInterval:delay target:self 
+		selector:sel userInfo:obj repeats:false];
+	for (id mode in modes)
+	{
+		[loop addTimer:t forMode:mode];
+	}
+}
+
 @end

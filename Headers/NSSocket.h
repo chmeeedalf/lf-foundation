@@ -252,7 +252,7 @@ typedef enum NSSocketType
  * Some cases do call for creating a NSSocket instance, such as ICMP, and other
  * low-level protocols.
  */
-@interface NSSocket	:	NSStream <NSEventSource>
+@interface NSSocket	:	NSStream
 
 @property(weak) id<NSSocketDelegate> delegate;
 @property bool isAsynchronous;

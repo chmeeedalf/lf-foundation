@@ -232,6 +232,23 @@ struct sockaddr_storage;
 }
 @end
 
+typedef enum
+{
+	NSReaderEventSource = 1,
+	NSWriterEventSource,
+	NSProcessEventSource,
+	NSVNodeEventSource,
+	NSSignalEventSource,
+	NSUserEventSource,
+} NSEventSourceType;
+
+/* Internals */
+struct kevent;
+@interface NSRunLoop()
+- (void) addEventSource:(struct kevent *)source target:(id)target selector:(SEL)sel modes:(NSArray *)modes;
+- (void) removeEventSource:(struct kevent *)source fromModes:(NSArray *)modes;
+@end
+
 bool spawnProcessWithURL(NSURL *, id, NSDictionary *, pid_t *);
 
 static inline bool object_isInstance(id obj)
