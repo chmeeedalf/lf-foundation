@@ -482,7 +482,6 @@ static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
 
 	if ([plist isKindOfClass:[NSArray class]])
 	{
-		NSUInteger count = [plist count];
 		__block NSInteger sub;
 
 		sub = [outStream write:"<array>\n" maxLength:strlen("<array>\n")];
