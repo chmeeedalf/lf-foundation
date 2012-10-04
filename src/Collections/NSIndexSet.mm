@@ -46,7 +46,7 @@
 	return [[self allocWithZone:NULL] initWithIndexesInRange:range];
 }
 
-+ (id) indexSetWithIndex:(unsigned)index
++ (id) indexSetWithIndex:(NSUInteger)index
 {
 	return [[self allocWithZone:NULL] initWithIndex:index];
 }
@@ -70,7 +70,7 @@
 	return self;
 }
 
-- (id) initWithIndex:(unsigned)index
+- (id) initWithIndex:(NSUInteger)index
 {
 	return [self initWithIndexesInRange:NSMakeRange(index,1)];
 }
@@ -105,7 +105,7 @@
 	return [self containsIndexes:other] && [other containsIndexes:self];
 }
 
-- (unsigned)count
+- (NSUInteger)count
 {
 	NSUInteger count = 0;
 
@@ -198,7 +198,7 @@
 	return found;
 }
 
-- (bool)containsIndex:(unsigned)index
+- (bool)containsIndex:(NSUInteger)index
 {
 	return [self containsIndexesInRange:NSMakeRange(index,1)];
 }

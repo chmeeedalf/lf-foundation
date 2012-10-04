@@ -54,7 +54,7 @@
 	return [self initWithCapacity:0];
 }
 
-- (id)initWithCapacity:(unsigned int)cap
+- (id)initWithCapacity:(NSUInteger)cap
 {
 	table = _map_table(cap);
 	return self;
@@ -100,8 +100,8 @@
 /* Allocating and Initializing */
 
 - (id)initWithObjects:(id*)objects
-forKeys:(id*)keys
-count:(unsigned int)count
+	forKeys:(id*)keys
+	count:(NSUInteger)count
 {
 	self = [self initWithCapacity:count];
 
@@ -154,11 +154,11 @@ count:(unsigned int)count
 	table.clear();
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
 	_map_table::const_iterator i = table.cbegin();
-	unsigned long j = 0;
+	NSUInteger j = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;

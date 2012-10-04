@@ -68,7 +68,7 @@
  * \param firstObj NSObject list to insert into the set, terminated with <b>nil</b>
  * \param count NSNumber of objects in the array.
  */
-+(id)setWithObjects:(const id[])firstObj count:(unsigned)count;
++(id)setWithObjects:(const id[])firstObj count:(NSUInteger)count;
 
 /*!
  * \brief Creates and returns a set containing the passed objects.
@@ -99,7 +99,7 @@
  * \param objects NSArray of objects to insert into the array.
  * \param count NSNumber of objects to insert.
  */
--(id)initWithObjects:(const id[])objects count:(unsigned int)count;
+-(id)initWithObjects:(const id[])objects count:(NSUInteger)count;
 
 /*!
  * \brief Initializes a newly allocated set object with the contents of another set.
@@ -209,7 +209,7 @@
  * \param indent Indent level.
  */
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-   indent:(unsigned int)indent;
+   indent:(NSUInteger)indent;
 
 - (NSArray *)sortedArrayUsingDescriptors:(NSArray *)sortDescriptors;
 @end
@@ -220,13 +220,13 @@
  * \brief Creates and returns a set with the given capacity.
  * \param numItems Capacity of the set.
  */
-+(id)setWithCapacity:(unsigned int)numItems;
++(id)setWithCapacity:(NSUInteger)numItems;
 
 /*!
  * \brief Initializes a newly allocated set object with the given capacity.
  * \param numItems Capacity of the set.
  */
--(id)initWithCapacity:(unsigned int)numItems;
+-(id)initWithCapacity:(NSUInteger)numItems;
 
 // Adding objects
 /*!
@@ -285,7 +285,7 @@
  * \brief Initializes a newly allocated set object with the given capacity.
  * \param numItems Capacity of the set.
  */
--(id)initWithCapacity:(unsigned int)numItems;
+-(id)initWithCapacity:(NSUInteger)numItems;
 
 /*!
  * \brief Initializes a newly allocated set object with the given array of

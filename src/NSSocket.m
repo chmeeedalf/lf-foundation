@@ -138,7 +138,7 @@
 {
 	struct sockaddr_storage addr;
 	NSSocket *sock;
-	size_t sock_size;
+	socklen_t sock_size;
 	if ([_delegate respondsToSelector:@selector(socket:shouldAcceptConnection:)])
 	{
 		int newsock = accept(sockfd, (struct sockaddr *)&addr, &sock_size);

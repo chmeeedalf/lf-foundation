@@ -264,10 +264,10 @@ extern bool objc_create_block_classes_as_subclasses_of(Class);
 }
 
 // Identifying and Comparing instances
--(NSHashCode)hash
+-(NSUInteger)hash
 {
 	// 16-byte aligned always, so remove low order bits
-	return (unsigned long)(self) >> 4;
+	return (NSUInteger)(self) >> 4;
 }
 
 -(bool)isEqual:(id)anObject
@@ -668,7 +668,7 @@ void class_addBehavior(Class targetClass, Class behavior)
 	free(itsList);
 
 	Method *itsMethodList = class_copyMethodList(behavior, &itsListCount);
-	for (unsigned int i = 0; i < itsListCount; i++)
+	for (NSUInteger i = 0; i < itsListCount; i++)
 	{
 		Method m = itsMethodList[i];
 		class_addMethod(targetClass, method_getName(m), method_getImplementation(m), method_getTypeEncoding(m));
@@ -676,7 +676,7 @@ void class_addBehavior(Class targetClass, Class behavior)
 	free(itsMethodList);
 
 	itsMethodList = class_copyMethodList(object_getClass(behavior), &itsListCount);
-	for (unsigned int i = 0; i < itsListCount; i++)
+	for (NSUInteger i = 0; i < itsListCount; i++)
 	{
 		Method m = itsMethodList[i];
 		Class cls = object_getClass(targetClass);

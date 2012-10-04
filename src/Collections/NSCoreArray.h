@@ -70,14 +70,14 @@
 }
 
 - (id)init;
-- (id)initWithCapacity:(unsigned int)aNumItems;
-- (id)initWithObjects:(id *)objects count:(unsigned int)count;
+- (id)initWithCapacity:(NSUInteger)aNumItems;
+- (id)initWithObjects:(id *)objects count:(NSUInteger)count;
 
-- (void)insertObject:(id)anObject atIndex:(unsigned int)index;
-- (void)replaceObjectAtIndex:(unsigned int)index withObject:(id)anObject;
+- (void)insertObject:(id)anObject atIndex:(NSUInteger)index;
+- (void)replaceObjectAtIndex:(NSUInteger)index withObject:(id)anObject;
 - (void)removeAllObjects;
 - (void)removeLastObject;
-- (void)removeObjectAtIndex:(unsigned int)index;
-- (void)removeObjectsFrom:(unsigned int)index count:(unsigned int)count;
+- (void)removeObjectAtIndex:(NSUInteger)index;
+- (void)removeObjectsFrom:(NSUInteger)index count:(NSUInteger)count;
 
 @end

@@ -63,7 +63,7 @@
 /* Allocating and Initializing */
 
 - (id)init;
-- (id)initWithObjects:(const id[])objects count:(unsigned int)count;
+- (id)initWithObjects:(const id[])objects count:(NSUInteger)count;
 
 /* Accessing keys and values */
 

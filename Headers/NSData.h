@@ -81,7 +81,7 @@ typedef NSUInteger NSDataSearchOptions;
  @param length Length of the byte buffer.
  @result Returns an initialized (autoreleased) data object of given length.
  */
-+(id)dataWithBytes:(const void *)bytes length:(unsigned int)length;
++(id)dataWithBytes:(const void *)bytes length:(NSUInteger)length;
 
 /*!
  @brief Creates and returns an object of given length of bytes without copying the data.
@@ -89,8 +89,8 @@ typedef NSUInteger NSDataSearchOptions;
  @param length Length of the buffer.
  @result Returns an initialized data object of given length of bytes, not copying the bytes.
  */
-+(id)dataWithBytesNoCopy:(void*)bytes length:(unsigned int)length;
-+(id)dataWithBytesNoCopy:(void*)bytes length:(unsigned int)length freeWhenDone:(bool)free;
++(id)dataWithBytesNoCopy:(void*)bytes length:(NSUInteger)length;
++(id)dataWithBytesNoCopy:(void*)bytes length:(NSUInteger)length freeWhenDone:(bool)free;
 
 /*!
  * @brief Creates and returns a copy of the given argument.
@@ -108,7 +108,7 @@ typedef NSUInteger NSDataSearchOptions;
  @param length Length of the data buffer.
  @result Returns the initialized data object.
  */
--(id)initWithBytes:(const void*)bytes length:(unsigned int)length;
+-(id)initWithBytes:(const void*)bytes length:(NSUInteger)length;
 
 /*!
  @brief Initializes an allocated data object with the given byte buffer, without copying.
@@ -116,8 +116,8 @@ typedef NSUInteger NSDataSearchOptions;
  @param length Length of the data buffer.
  @result Returns the initialized object.
  */
--(id)initWithBytesNoCopy:(void *)bytes length:(unsigned int)length;
--(id)initWithBytesNoCopy:(void *)bytes length:(unsigned int)length freeWhenDone:(bool)free;
+-(id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
+-(id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(bool)free;
 
 /*!
  * \brief Initialize the receiver with the given data argument.
@@ -142,7 +142,7 @@ typedef NSUInteger NSDataSearchOptions;
  @param[out] buffer Buffer into which to copy the bytes.
  @param length NSNumber of bytes to copy into the buffer.
  */
--(void)getBytes:(void *)buffer length:(unsigned int)length;
+-(void)getBytes:(void *)buffer length:(NSUInteger)length;
 
 /*!
  @brief Copies into the given buffer a range of bytes specified by the given range argument.
@@ -176,7 +176,7 @@ typedef NSUInteger NSDataSearchOptions;
 /*!
  @brief Returns the number of bytes contained in the receiver.
  */
--(unsigned int)length;
+-(NSUInteger)length;
 
 - (NSString *)encodedBase64String;
 
@@ -190,38 +190,38 @@ typedef NSUInteger NSDataSearchOptions;
  @brief Creates and returns a mutable data object with the given capacity.
  @param numBytes Maximum capacity of this data object.
  */
-+(id)dataWithCapacity:(unsigned int)numBytes;
++(id)dataWithCapacity:(NSUInteger)numBytes;
 
 /*!
  @brief Creates and returns a mutable data object with the given capacity, filled with zeros.
  @param length Maximum capacity of the data object.
  */
-+(id)dataWithLength:(unsigned int)length;
++(id)dataWithLength:(NSUInteger)length;
 
 /*!
  @brief Initializes a newly allocated mutable data object with the given capacity.
  @param capacity Capacity of the data object.
  */
--(id)initWithCapacity:(unsigned int)capacity;
+-(id)initWithCapacity:(NSUInteger)capacity;
 
 /*!
  @brief Initializes a newly allocated mutable data object with the given capacity, filling it with zeros.
  @param length Maximum capacity of the data object.
  */
--(id)initWithLength:(unsigned int)length;
+-(id)initWithLength:(NSUInteger)length;
 
 /*!
  @brief Increases the length of a mutable data object by the given length
  zero-filled bytes.
  @param extraLength Length to add to the data.
  */
--(void)increaseLengthBy:(unsigned int)extraLength;
+-(void)increaseLengthBy:(NSUInteger)extraLength;
 
 /*!
  @brief Sets the length of the data object's byte buffer to the given length.
  @param length Length to which to set the data object's buffer.
  */
--(void)setLength:(unsigned int)length;
+-(void)setLength:(NSUInteger)length;
 
 // Appending data
 /*!
@@ -229,7 +229,7 @@ typedef NSUInteger NSDataSearchOptions;
  @param bytes Pointer to the bytes to append to the data object.
  @param length NSNumber of bytes to append.
  */
--(void)appendBytes:(const void *)bytes length:(unsigned int)length;
+-(void)appendBytes:(const void *)bytes length:(NSUInteger)length;
 
 /*!
  @brief Appends the given data object to the receiver's byte buffer.

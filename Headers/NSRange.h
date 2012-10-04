@@ -51,11 +51,11 @@ typedef struct NSRange {
 #ifdef __cplusplus
 	// In C++, for safety, ranges will be set to "0" if default constructed.
 	explicit inline NSRange() : location(), length() {}
-	explicit inline NSRange(const unsigned int loc, const unsigned int len)
+	explicit inline NSRange(const NSUInteger loc, const NSUInteger len)
 	: location(loc), length(len) {}
 #endif
-	unsigned int location;	/*!< \brief Starting location of the range. */
-	unsigned int length;	/*!< \brief Length of the range. */
+	NSUInteger location;	/*!< \brief Starting location of the range. */
+	NSUInteger length;	/*!< \brief Length of the range. */
 } NSRange;
 
 #ifdef __cplusplus
@@ -80,7 +80,7 @@ __BEGIN_DECLS
  * \param length Length of range.
  * \result NSRange object of given location and length.
  */
-NS_INLINE NSRange NSMakeRange(unsigned int location, unsigned int length)
+NS_INLINE NSRange NSMakeRange(NSUInteger location, NSUInteger length)
 {
 	NSRange r;
 	r.location = location;
@@ -105,7 +105,7 @@ NS_INLINE bool NSEqualRanges(ConstRangeArg range1, ConstRangeArg range2)
  * \param range NSRange to get the max value of.
  * \result Maximum range of the range (1 + Maximum value).
  */
-NS_INLINE unsigned int NSMaxRange(ConstRangeArg range)
+NS_INLINE NSUInteger NSMaxRange(ConstRangeArg range)
 {
 	return range.location + range.length;
 }
@@ -116,7 +116,7 @@ NS_INLINE unsigned int NSMaxRange(ConstRangeArg range)
  * \param range NSRange to check in.
  * \result true if location is in the range, false otherwise.
  */
-NS_INLINE bool NSLocationInRange(unsigned int location, ConstRangeArg range)
+NS_INLINE bool NSLocationInRange(NSUInteger location, ConstRangeArg range)
 {
 	return (location >= range.location) &&
 			(location - range.location < range.length);

@@ -48,7 +48,7 @@ typedef std::unordered_multiset<id> _map_table;
 	_map_table table;
 }
 
--(id)initWithCapacity:(unsigned int)numItems
+-(id)initWithCapacity:(NSUInteger)numItems
 {
 	if ((self = [super initWithCapacity:numItems]) == nil)
 		return nil;
@@ -56,12 +56,12 @@ typedef std::unordered_multiset<id> _map_table;
 	return self;
 }
 
--(id)initWithObjects:(const id[])objects count:(unsigned int)count
+-(id)initWithObjects:(const id[])objects count:(NSUInteger)count
 {
 	if ((self = [self initWithCapacity:count]) == nil)
 		return nil;
 
-	for (unsigned int i = 0; i < count; i++)
+	for (NSUInteger i = 0; i < count; i++)
 		table.insert(objects[i]);
 
 	return self;

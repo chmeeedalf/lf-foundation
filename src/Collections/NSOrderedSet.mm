@@ -591,10 +591,10 @@
 
 - (NSString *) descriptionWithLocale:(NSLocale *)locale indent:(NSUInteger)indent
 {
-	unsigned int indent1 = indent + 4;
+	NSUInteger indent1 = indent + 4;
 	NSString* indentation = [NSString stringWithFormat:
 		[NSString stringWithFormat:@"%%%dc", indent1], ' '];
-	unsigned int count = [self count];
+	NSUInteger count = [self count];
 
 	if(count)
 	{
@@ -669,7 +669,8 @@
 }
 
 // NSFastEnumeration
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
 	if (state->state == 0)
 	{

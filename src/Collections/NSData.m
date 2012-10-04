@@ -49,7 +49,7 @@
     return NULL;
 }
 
-- (unsigned int)length
+- (NSUInteger)length
 {
     [self subclassResponsibility:_cmd];
     return 0;
@@ -69,13 +69,13 @@
 }
 
 + (id)dataWithBytes:(const void*)bytes
-    length:(unsigned int)length
+    length:(NSUInteger)length
 {
     return [[self allocWithZone:NULL] initWithBytes:bytes length:length];
 }
 
 + (id)dataWithBytesNoCopy:(void*)bytes
-    length:(unsigned int)length
+    length:(NSUInteger)length
 {
 	return [[self allocWithZone:NSDefaultAllocZone()]
 			initWithBytesNoCopy:bytes
@@ -83,7 +83,7 @@
 }
 
 + (id)dataWithBytesNoCopy:(void*)bytes
-    length:(unsigned int)length
+    length:(NSUInteger)length
 	freeWhenDone:(bool)flag
 {
 	return [[self allocWithZone:NSDefaultAllocZone()]
@@ -110,19 +110,19 @@
 }
 
 - (id)initWithBytes:(const void*)bytes
-    length:(unsigned int)length
+    length:(NSUInteger)length
 {
 	return self;
 }
 
 - (id)initWithBytesNoCopy:(void*)bytes
-    length:(unsigned int)length
+    length:(NSUInteger)length
 {
 	return [self initWithBytesNoCopy:bytes length:length freeWhenDone:true];
 }
 
 - (id)initWithBytesNoCopy:(void*)bytes
-    length:(unsigned int)length
+    length:(NSUInteger)length
 	freeWhenDone:(bool)flag
 {
 	return self;
@@ -175,10 +175,10 @@
 - (NSString*)description
 {
 	unsigned i;
-	unsigned int length = [self length];
+	NSUInteger length = [self length];
 	const char* bytes = [self bytes];
 	/* '< ... >', == 4 + 2 * n.  length / 4 = groups of 8 chars (4 bytes) */
-	unsigned int final_length = 4 + 2 * length + 1;
+	NSUInteger final_length = 4 + 2 * length + 1;
 	if (length > 0)
 		final_length = final_length + (length - 1) / 4;
 	char* description = malloc(final_length);
@@ -205,7 +205,7 @@
 }
 
 - (void)getBytes:(void*)buffer
-  length:(unsigned int)_length
+  length:(NSUInteger)_length
 {
 	NSRange r = {0, _length};
 	[self getBytes:buffer range:r];
@@ -214,7 +214,7 @@
 - (void)getBytes:(void*)buffer
     range:(NSRange)aRange
 {
-    unsigned int length = [self length];
+    NSUInteger length = [self length];
 
     if(NSMaxRange(aRange) > length)
 	{
@@ -346,7 +346,7 @@
 
 - (NSString *)encodedBase64String
 {
-	unsigned long len = [self length];
+	NSUInteger len = [self length];
 	char buf[(len+3) * 4/3 + 1];
 	int outcount = 0;
 
@@ -410,7 +410,7 @@
 	return NULL;
 }
 
-- (void)setLength:(unsigned int)length
+- (void)setLength:(NSUInteger)length
 {
     [self subclassResponsibility:_cmd];
 }
@@ -429,22 +429,22 @@
     return [[self allocWithZone:NULL] initWithBytes:NULL length:0];
 }
 
-+ (id)dataWithCapacity:(unsigned int)numBytes
++ (id)dataWithCapacity:(NSUInteger)numBytes
 {
     return [[self allocWithZone:NULL] initWithCapacity:numBytes];
 }
 
-+ (id)dataWithLength:(unsigned int)length
++ (id)dataWithLength:(NSUInteger)length
 {
     return [[self allocWithZone:NULL] initWithLength:length];
 }
 
-- (id)initWithCapacity:(unsigned int)capacity
+- (id)initWithCapacity:(NSUInteger)capacity
 {
 	return self;
 }
 
-- (id)initWithLength:(unsigned int)length
+- (id)initWithLength:(NSUInteger)length
 {
 	[self setLength:length];
 	return self;
@@ -460,13 +460,13 @@
 	return [[NSMutableData allocWithZone:zone] initWithData:self];
 }
 
-- (void)increaseLengthBy:(unsigned int)extraLength
+- (void)increaseLengthBy:(NSUInteger)extraLength
 {
 	[self setLength:[self length] + extraLength];
 }
 
 - (void)appendBytes:(const void*)_bytes
-    length:(unsigned int)_length
+    length:(NSUInteger)_length
 {
 	char *bytes;
 	size_t len = [self length];
@@ -484,7 +484,7 @@
 - (void)replaceBytesInRange:(NSRange)aRange
     withBytes:(const void*)bytes
 {
-	unsigned int length = [self length];
+	NSUInteger length = [self length];
 
 	if(NSMaxRange(aRange) > length)
 	{
@@ -523,7 +523,7 @@
 
 - (void)resetBytesInRange:(NSRange)aRange
 {
-	unsigned int length = [self length];
+	NSUInteger length = [self length];
 
 	if(NSMaxRange(aRange) > length)
 	{

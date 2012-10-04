@@ -46,20 +46,20 @@
 	return self;
 }
 
-- (id)initWithCapacity:(unsigned int)_capacity
+- (id)initWithCapacity:(NSUInteger)_capacity
 {
 	bytes.reserve(_capacity);
 	return self;
 }
 
-- (id)initWithBytes:(const void*)_bytes length:(unsigned int)_length
+- (id)initWithBytes:(const void*)_bytes length:(NSUInteger)_length
 {
 	bytes.assign((const char *)_bytes, (const char *)_bytes+_length);
 	return self;
 }
 
 - (id)initWithBytesNoCopy:(void*)_bytes
-	length:(unsigned int)_length
+	length:(NSUInteger)_length
 	freeWhenDone:(bool)flag
 {
 	bytes.assign((const char *)_bytes, (const char *)_bytes + _length);
@@ -86,12 +86,12 @@
 	return &bytes[0];
 }
 
-- (unsigned int)length
+- (NSUInteger)length
 {
 	return bytes.size();
 }
 
-- (void)setLength:(unsigned int)_length
+- (void)setLength:(NSUInteger)_length
 {
 	bytes.resize(_length);
 }

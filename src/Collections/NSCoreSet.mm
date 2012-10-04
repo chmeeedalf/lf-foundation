@@ -52,15 +52,15 @@ typedef std::unordered_set<id> intern_set;
 	return [self initWithCapacity:0];
 }
 
-- (id)initWithCapacity:(unsigned)_capacity
+- (id)initWithCapacity:(NSUInteger)_capacity
 {
 	set = intern_set(_capacity);
 	return self;
 }
 
-- (id)initWithObjects:(const id[])objects count:(unsigned int)count
+- (id)initWithObjects:(const id[])objects count:(NSUInteger)count
 {
-	unsigned i;
+	NSUInteger i;
 
 	self = [self initWithCapacity:count];
 	for (i = 0; i < count; i++)
@@ -122,11 +122,11 @@ typedef std::unordered_set<id> intern_set;
 	return &set;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
 	intern_set::const_iterator i;
-	unsigned long j = 0;
+	NSUInteger j = 0;
 	i = set.cbegin();
 	if (state->state == 0)
 	{

@@ -109,6 +109,7 @@ static NSUInteger NSCoderVersion    = 1100;
 	NSHashTable *outPointers;
 	NSMapTable  *outClassAlias;       // class name -> archive name
 	NSMapTable  *replacements;        // src-object to replacement
+	NSMapTable	*userReplacements;    // replacements by replaceObject:withObject:
 	id outKeys;
 	bool        traceMode;            // true if finding conditionals
 	bool        didWriteHeader;
@@ -127,6 +128,7 @@ static NSUInteger NSCoderVersion    = 1100;
 		outConditionals = [NSHashTable hashTableWithOptions:(NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality)];
 		outPointers     = [NSHashTable hashTableWithOptions:(NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality)];
 		replacements    = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
+		userReplacements= [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
         outClassAlias   = [NSMapTable mapTableWithStrongToStrongObjects];
         outClassAlias   = [NSMapTable mapTableWithStrongToStrongObjects];
 		outKeys         = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality
@@ -200,7 +202,7 @@ FINAL int _archiveIdOfClass(NSArchiver *self, Class _class)
 
 // ******************** primitive encoding ********************
 
-FINAL void _writeBytes(NSArchiver *self, const void *_bytes, unsigned _len);
+FINAL void _writeBytes(NSArchiver *self, const void *_bytes, NSUInteger _len);
 
 FINAL void _writeTag  (NSArchiver *self, NSTagType _tag);
 
@@ -332,6 +334,10 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
 
     //NSLog(@"lookup 0x%08X in outObjs=0x%08X", _object, self->outObjects);
     
+	if ([userReplacements objectForKey:_object] != nil)
+	{
+		_object = [userReplacements objectForKey:_object];
+	}
 	if ([self->outObjects containsObject:_object]) {
         //NSLog(@"lookup failed, object wasn't traced yet !");
         
@@ -372,7 +378,13 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
 - (void)_encodeObject:(id)_object
 {
     NSTagType tag;
-    int       archiveId = _archiveIdOfObject(self, _object);
+    int       archiveId;
+
+	if ([userReplacements objectForKey:_object] != nil)
+	{
+		_object = [userReplacements objectForKey:_object];
+	}
+	archiveId = _archiveIdOfObject(self, _object);
 
     if (_object == nil) { // nil object or class
         _writeTag(self, _C_ID | REFERENCE);
@@ -450,51 +462,59 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
 
 - (void)_traceValueOfObjCType:(const char *)_type at:(const void *)_value
 {
-    //NSLog(@"_tracing value at 0x%08X of type %s", _value, _type);
-    
-    switch (*_type) {
-        case _C_ID:
-        case _C_CLASS:
-            //NSLog(@"_traceObject 0x%08X", *(id *)_value);
+	//NSLog(@"_tracing value at 0x%08X of type %s", _value, _type);
+
+	switch (*_type)
+	{
+		case _C_ID:
+
+		case _C_CLASS:
+			//NSLog(@"_traceObject 0x%08X", *(id *)_value);
 			{
 				id val = (__bridge id)*(void **)_value;
 				[self _traceObject:val];
 			}
-            break;
-        
-        case _C_ARY_B: {
-            int        count     = atoi(_type + 1); // eg '[15I' => count = 15
-            const char *itemType = _type;
-            while(isdigit((int)*(++itemType))) ; // skip dimension
-            [self encodeArrayOfObjCType:itemType count:count at:_value];
-            break;
-        }
+			break;
 
-        case _C_STRUCT_B: { // C-structure begin '{'
-            int offset = 0;
+		case _C_ARY_B:
+			{
+				int        count     = atoi(_type + 1); // eg '[15I' => count = 15
+				const char *itemType = _type;
+				while(isdigit((int)*(++itemType))) ; // skip dimension
+				[self encodeArrayOfObjCType:itemType count:count at:_value];
+				break;
+			}
 
-            while ((*_type != _C_STRUCT_E) && (*_type++ != '=')); // skip "<name>="
-        
-            while (true) {
-				[self encodeValueOfObjCType:_type at:((const char *)_value) + offset];
+		case _C_STRUCT_B:
+			{ // C-structure begin '{'
+				int offset = 0;
 
-				NSUInteger skip, align;
-				_type = NSGetSizeAndAlignment(_type, &skip, &align);
-				offset += skip;
+				while ((*_type != _C_STRUCT_E) && (*_type++ != '=')); // skip "<name>="
 
-				if(*_type != _C_STRUCT_E)
-				{ // C-structure end '}'
-					int remainder;
+				while (true)
+				{
+					[self encodeValueOfObjCType:_type at:((const char *)_value) + offset];
 
-					if((remainder = offset % align))
-						offset += (align - remainder);
+					NSUInteger skip, align;
+					_type = NSGetSizeAndAlignment(_type, &skip, &align);
+					offset += skip;
+
+					if(*_type != _C_STRUCT_E)
+					{ // C-structure end '}'
+						int remainder;
+
+						if((remainder = offset % align))
+							offset += (align - remainder);
+					}
+					else
+						break;
 				}
-				else
-					break;
-            }
-            break;
-        }
-    }
+				break;
+			}
+		case _C_PTR:
+			[self _traceValueOfObjCType:(_type + 1) at:*(const void **)_value];
+			break;
+	}
 }
 
 - (void)_encodeValueOfObjCType:(const char *)_type at:(const void *)_value
@@ -597,7 +617,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
 }
 
 - (void)encodeArrayOfObjCType:(const char *)_type
-                        count:(unsigned int)_count
+                        count:(NSUInteger)_count
                            at:(const void *)_array
 {
 
@@ -617,7 +637,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
     // be written, write the type and then the elements of array.
 
     if ((*_type == _C_ID) || (*_type == _C_CLASS)) { // object array
-        unsigned int i;
+        NSUInteger i;
 
         if (self->traceMode == false)
             _writeTag(self, *_type); // object array
@@ -638,8 +658,8 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
     }
     else if (isBaseType(_type)) {
         if (self->traceMode == false) {
-            unsigned offset, itemSize = objc_sizeof_type(_type);
-            unsigned i;
+            NSUInteger offset, itemSize = objc_sizeof_type(_type);
+            NSUInteger i;
 
             /*
               NGLogT(@"encoder",
@@ -657,8 +677,8 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
     }
     else { // encoded using normal method
         IMP      encodeValue = NULL;
-        unsigned offset, itemSize = objc_sizeof_type(_type);
-        unsigned i;
+        NSUInteger offset, itemSize = objc_sizeof_type(_type);
+        NSUInteger i;
 
         encodeValue = [self methodForSelector:@selector(encodeValueOfObjCType:at:)];
 
@@ -681,9 +701,14 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
     [self->outClassAlias setObject:_archiveName forKey:_name];
 }
 
+- (void) replaceObject:(id)obj withObject:(id)otherObj
+{
+	[userReplacements setObject:otherObj forKey:obj];
+}
+
 // ******************** primitive encoding ********************
 
-FINAL void _writeBytes(NSArchiver *self, const void *bytes, unsigned len)
+FINAL void _writeBytes(NSArchiver *self, const void *bytes, NSUInteger len)
 {
     NSCAssert(self->traceMode == false, @"nothing can be written during trace-mode ..");
 	[self->data appendBytes:bytes length:len];
@@ -697,12 +722,12 @@ FINAL void _writeTag(NSArchiver *self, NSTagType _tag)
 
 FINAL void _writeInt(NSArchiver *self, int _value)
 {
-	[self serializeDataAt:&_value ofObjCType:@encode(int) context:self];
+	_writeObjC(self, &_value, @encode(int));
 }
 
 FINAL void _writeCString(NSArchiver *self, const char *_value)
 {
-	[self serializeDataAt:&_value ofObjCType:@encode(char *) context:self];
+	_writeObjC(self, &_value, @encode(char *));
 }
 
 FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type)
@@ -711,48 +736,11 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type)
         return;
 
     if (self->traceMode) {
-        // no need to track base-types in trace-mode
-    
-        switch (*_type) {
-            case _C_ID:
-            case _C_CLASS:
-            case _C_CHARPTR:
-            case _C_ARY_B:
-            case _C_STRUCT_B:
-            case _C_PTR:
-				{
-					[self serializeDataAt:_value ofObjCType:_type context:self];
-				}
-                break;
-
-            default:
-                break;
-        }
+		[self _traceValueOfObjCType:_type at:_value];
     }
     else {
 		[self serializeDataAt:_value ofObjCType:_type context:self];
     }
-}
-
-// NSObjCTypeSerializationCallBack
-
-- (void)serializeObjectAt:(id *)_object
-               ofObjCType:(const char *)_type
-                 intoData:(NSMutableData *)_data
-{
-    NSAssert(((*_type == _C_ID) || (*_type == _C_CLASS)), @"unexpected type ..");
-
-    if (self->traceMode)
-        [self _traceObject:*_object];
-    else
-        [self _encodeObject:*_object];
-}
-- (void)deserializeObjectAt:(id *)_object
-        ofObjCType:(const char *)_type
-        fromData:(NSData *)_data
-        atCursor:(unsigned int *)_cursor
-{
-    [self doesNotRecognizeSelector:_cmd];
 }
 
 @end /* NSArchiver */
@@ -767,6 +755,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type)
 	NSMapTable *inPointers;
 	NSMapTable *inClassAlias;
 	NSMapTable *inClassVersions;
+	NSMapTable *userReplacements;    // replacements by replaceObject:withObject:
 
 	NSUInteger cursor;
 
@@ -793,6 +782,7 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 		inObjects       = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
 		inClasses       = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
 		inPointers      = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory];
+		userReplacements= [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
 		inClassAlias    = [NSMapTable mapTableWithStrongToStrongObjects];
 		inClassVersions = [NSMapTable mapTableWithStrongToStrongObjects];
         self->data = _data;
@@ -835,14 +825,14 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
     return self->objectZone;
 }
 
-- (unsigned int)systemVersion
+- (unsigned)systemVersion
 {
     return self->inArchiverVersion;
 }
 
 // ******************** primitive decoding ********************
 
-FINAL void _readBytes(NSUnarchiver *self, void *_bytes, unsigned _len);
+FINAL void _readBytes(NSUnarchiver *self, void *_bytes, NSUInteger _len);
 
 FINAL NSTagType _readTag(NSUnarchiver *self);
 
@@ -869,8 +859,8 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
         }
         else if ([self systemVersion] != NSCoderVersion) {
             NSLog(@"WARNING: used a different archiver version "
-                  @"(archiver=%i, unarchiver=%i)",
-                  [self systemVersion], NSCoderVersion);
+                  @"(archiver=%i, unarchiver=%lu)",
+                  [self systemVersion], (unsigned long)NSCoderVersion);
         }
 
         if (archiver) {
@@ -1032,9 +1022,11 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
         }
 
         //NGLogT(@"decoder", @"decoded object 0x%08X<%@>",
-        //       (unsigned)result, NSStringFromClass([result class]));
+        //       (NSUInteger)result, NSStringFromClass([result class]));
     }
     
+	if ([userReplacements objectForKey:result] != nil)
+		result = [userReplacements objectForKey:result];
     return result;
 }
 
@@ -1171,12 +1163,12 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 }
 
 - (void)decodeArrayOfObjCType:(const char *)_type
-  count:(unsigned int)_count
+  count:(NSUInteger)_count
   at:(void *)_array
 {
     bool      startedDecoding = false;
     NSTagType tag   = _readTag(self);
-    unsigned  count = _readInt(self);
+    NSUInteger  count = _readInt(self);
 
     if (self->decodingRoot == false) {
         self->decodingRoot = true;
@@ -1214,8 +1206,8 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
         _readBytes(self, _array, _count);
     }
     else if (isBaseType(_type)) {
-        unsigned offset, itemSize = objc_sizeof_type(_type);
-        unsigned i;
+        NSUInteger offset, itemSize = objc_sizeof_type(_type);
+        NSUInteger i;
       
         tag = _readTag(self);
         NSAssert(tag == *_type, @"invalid array base type ..");
@@ -1225,8 +1217,8 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
     }
     else {
         IMP      decodeValue = NULL;
-        unsigned offset, itemSize = objc_sizeof_type(_type);
-        unsigned i;
+        NSUInteger offset, itemSize = objc_sizeof_type(_type);
+        NSUInteger i;
 
         decodeValue = [self methodForSelector:@selector(decodeValueOfObjCType:at:)];
     
@@ -1266,9 +1258,14 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 	[inClassAlias setObject:nameInArchive forKey:trueName];
 }
 
+- (void) replaceObject:(id)obj withObject:(id)otherObj
+{
+	[userReplacements setObject:otherObj forKey:obj];
+}
+
 // ******************** primitive decoding ********************
 
-FINAL void _readBytes(NSUnarchiver *self, void *_bytes, unsigned _len)
+FINAL void _readBytes(NSUnarchiver *self, void *_bytes, NSUInteger _len)
 {
     [self->data deserializeBytes:_bytes length:_len atCursor:&(self->cursor)];
 }
@@ -1287,71 +1284,24 @@ FINAL NSTagType _readTag(NSUnarchiver *self)
 
 FINAL int _readInt(NSUnarchiver *self)
 {
-    int value;
-    [self->data deserializeDataAt:&value
-    				   ofObjCType:@encode(int)
-    				   	 atCursor:&self->cursor
-    				   	  context:self];
-    return value;
+	int value = 0;
+	_readObjC(self, &value, @encode(int));
+	return value;
 }
 
 FINAL char *_readCString(NSUnarchiver *self)
 {
-    char *value = NULL;
-    [self->data deserializeDataAt:&value
-    				   ofObjCType:@encode(char *)
-    				   	 atCursor:&self->cursor
-    				   	  context:self];
-    return value;
+	char *value = NULL;
+	_readObjC(self, &value, @encode(char *));
+	return value;
 }
 
 FINAL void _readObjC(NSUnarchiver *self, void *value, const char *type)
 {
-    [self->data deserializeDataAt:value
-    				   ofObjCType:type
-    				   	 atCursor:&self->cursor
-    				   	  context:self];
-}
-
-// NSObjCTypeSerializationCallBack
-
-- (void)serializeObjectAt:(id *)_object
-  ofObjCType:(const char *)_type
-  intoData:(NSMutableData *)_data
-{
-    [self doesNotRecognizeSelector:_cmd];
-}
-
-- (void)deserializeObjectAt:(id *)_object
-  ofObjCType:(const char *)_type
-  fromData:(NSData *)_data
-  atCursor:(unsigned int *)_cursor
-{
-    NSTagType tag             = 0;
-    bool      isReference     = false;
-
-    tag         = _readTag(self);
-    isReference = isReferenceTag(tag);
-    tag         = tagValue(tag);
-
-    NSCAssert(((*_type == _C_ID) || (*_type == _C_CLASS)),
-              @"unexpected type ..");
-  
-    switch (*_type) {
-        case _C_ID:
-            NSAssert((*_type == _C_ID) || (*_type == _C_CLASS), @"invalid type ..");
-            break;
-            *_object = [self _decodeObject:isReference];
-            break;
-        case _C_CLASS:
-            NSAssert((*_type == _C_ID) || (*_type == _C_CLASS), @"invalid type ..");
-            *_object = [self _decodeClass:isReference];
-            break;
-      
-        default:
-			@throw [NSInconsistentArchiveException exceptionWithReason:[NSString stringWithFormat:@"encountered type '%s' in object context", _type] userInfo:nil];
-            break;
-    }
+	[self->data deserializeDataAt:value
+					   ofObjCType:type
+						 atCursor:&self->cursor
+						  context:self];
 }
 
 @end /* NSUnarchiver */

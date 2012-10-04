@@ -58,7 +58,7 @@ struct NSFastEnumerationState
 @class NSArray;
 
 @protocol NSFastEnumeration
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len;
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len;
 @end
 
 /*!

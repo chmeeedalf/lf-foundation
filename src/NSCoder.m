@@ -34,10 +34,10 @@
 @implementation NSCoder
 
 - (void)encodeArrayOfObjCType:(const char*)types
-	count:(unsigned int)count
+	count:(NSUInteger)count
 	at:(const void*)array
 {
-    unsigned int i, offset, item_size = objc_sizeof_type(types);
+    NSUInteger i, offset, item_size = objc_sizeof_type(types);
 	SEL encodeSelector = @selector(encodeValueOfObjCType:at:);
     IMP imp = [self methodForSelector:encodeSelector];
 
@@ -130,10 +130,10 @@
 }
 
 - (void)decodeArrayOfObjCType:(const char*)types
-	count:(unsigned)count
+	count:(NSUInteger)count
 	at:(void*)address
 {
-	unsigned i, offset;
+	NSUInteger i, offset;
 	NSUInteger item_size = objc_sizeof_type(types);
 	IMP imp = [self methodForSelector:@selector(decodeValueOfObjCType:at:)];
 
@@ -233,13 +233,13 @@
 {
 }
 
-- (unsigned int)systemVersion
+- (unsigned)systemVersion
 {
     [self notImplemented:_cmd];
     return 0;
 }
 
-- (unsigned int)versionForClassName:(NSString*)className
+- (NSInteger)versionForClassName:(NSString*)className
 {
     [self subclassResponsibility:_cmd];
     return 0;

@@ -134,7 +134,7 @@
  * \param count NSNumber of key/object pairs.
  */
 -(id)initWithObjects:(const id [])objects forKeys:(const id [])keys
-	count:(unsigned int)count;
+	count:(NSUInteger)count;
 
 -(id)initWithContentsOfURL:(NSURL *)uri;
 
@@ -224,7 +224,7 @@
  * \param level Indent level to use.
  */
 -(NSString *)descriptionWithLocale:(NSLocale *)localeDictionary
-	indent:(unsigned int)level;
+	indent:(NSUInteger)level;
 
 -(NSString *)descriptionInStringsFileFormat;
 
@@ -246,7 +246,7 @@
  * the given capacity.
  * \param aNumItems Maximum capacity of the dictionary.
  */
-+(id)dictionaryWithCapacity:(unsigned int)aNumItems;
++(id)dictionaryWithCapacity:(NSUInteger)aNumItems;
 
 + (id) dictionaryWithSharedKeySet:(id)keyset;
 
@@ -255,7 +255,7 @@
  * capacity.
  * \param aNumItems Maximum capacity of the dictionary.
  */
--(id)initWithCapacity:(unsigned int)aNumItems;
+-(id)initWithCapacity:(NSUInteger)aNumItems;
 
 /// \category Adding and removing entries
 /*!

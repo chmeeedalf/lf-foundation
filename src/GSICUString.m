@@ -27,7 +27,11 @@ static UBool UTextNSStringAccess(UText *ut, int64_t nativeIndex, UBool forward)
 	// Cast is necessary to remove constness warning.
 	NSString *str = (__bridge NSString *)ut->p;
 	NSUInteger length = [str length];
-	if (nativeIndex >= length) { return FALSE; }
+
+	if (nativeIndex < 0)
+		return FALSE;
+
+	if ((NSUInteger)nativeIndex >= length) { return FALSE; }
 	// Special case if the chunk already contains this index
 	if (nativeIndex >= ut->chunkNativeStart
 	    && nativeIndex < (ut->chunkNativeStart + ut->chunkLength))
@@ -124,7 +128,7 @@ static int32_t UTextNSStringExtract(UText *ut,
 	// Cast is necessary to remove constness warning.
 	NSString *str = (__bridge NSString *)ut->p;
 	NSUInteger length = [str length];
-	if (nativeLimit > length)
+	if ((NSUInteger)nativeLimit > length)
 	{
 		nativeLimit = length;
 	}
@@ -154,7 +158,7 @@ static void UTextNSStringCopy(UText *ut,
 	// Cast is necessary to remove constness warning.
 	NSMutableString *str = (__bridge NSMutableString *)ut->p;
 	NSUInteger length = [str length];
-	if (nativeLimit > length)
+	if ((NSUInteger)nativeLimit > length)
 	{
 		nativeLimit = length;
 	}
@@ -163,7 +167,7 @@ static void UTextNSStringCopy(UText *ut,
 	[str insertString: substr atIndex: nativeDest];
 	if (move)
 	{
-		if (nativeDest < r.location)
+		if ((NSUInteger)nativeDest < r.location)
 		{
 			r.location += r.length;
 		}

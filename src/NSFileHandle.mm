@@ -30,6 +30,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/event.h>
 #include <sys/socket.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -50,6 +51,8 @@
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
+
+#import "internal.h"
 
 @class NSArray;
 @class NSData;
@@ -234,6 +237,10 @@ NSString * const NSFileHandleNotificationDataItem = @"NSFileHandleNotificationDa
 - (id) initWithFileDescriptor:(int)desc closeOnDealloc:(bool)doClose
 {
 	struct stat sb;
+
+	if ((self = [super init]) == nil)
+		return nil;
+
 	closeOnDealloc = doClose;
 	fd = desc;
 
@@ -315,6 +322,7 @@ NSString * const NSFileHandleNotificationDataItem = @"NSFileHandleNotificationDa
 	do
 	{
 		inData = [self readDataOfLength:BUFSIZ];
+		[outData appendData:inData];
 	} while ([inData length] > 0);
 
 	return outData;
@@ -449,23 +457,14 @@ NSFileHandleNotificationDataItem : data,
 
 - (void) _addRunLoopSourceEventHandlerForModes:(NSArray *)modes selector:(SEL)selector
 {
-	if (modes != nil)
+	struct kevent ev;
+	EV_SET(&ev, fd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
+	if (modes == nil)
 	{
-		for (id mode in modes)
-		{
-			[[NSRunLoop currentRunLoop]
-				addRunLoopSource:(new Alepha::RunLoop::File(fd))
-				target:self
-				selector:@selector(acceptConnection) mode:mode];
-		}
+		modes = @[NSDefaultRunLoopMode];
 	}
-	else
-	{
-		[[NSRunLoop currentRunLoop]
-			addRunLoopSource:(new Alepha::RunLoop::File(fd))
-			target:self
-			selector:@selector(acceptConnection) mode:NSDefaultRunLoopMode];
-	}
+	[[NSRunLoop currentRunLoop] addEventSource:&ev target:self
+		selector:@selector(acceptConnection) modes:modes];
 }
 
 - (void) acceptConnectionInBackgroundAndNotify
@@ -629,12 +628,15 @@ NSFileHandleNotificationDataItem : data,
 {
 	int fds[2];
 
-	if (pipe(fds) < 0)
+	if ((self = [super init]) != nil)
 	{
-		return nil;
+		if (pipe(fds) < 0)
+		{
+			return nil;
+		}
+		readHandle = [[NSFileHandle alloc] initWithFileDescriptor:fds[0] closeOnDealloc:true];
+		writeHandle = [[NSFileHandle alloc] initWithFileDescriptor:fds[1] closeOnDealloc:true];
 	}
-	readHandle = [[NSFileHandle alloc] initWithFileDescriptor:fds[0] closeOnDealloc:true];
-	writeHandle = [[NSFileHandle alloc] initWithFileDescriptor:fds[1] closeOnDealloc:true];
 	return self;
 }
 

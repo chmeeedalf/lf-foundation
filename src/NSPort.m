@@ -91,7 +91,7 @@ NSMakeSymbol(NSPortDidBecomeInvalidNotification);
 					   reserved:reserved];
 }
 
-- (bool) sendBeforeDate:(NSDate *)date msgid:(uint32_t)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved
+- (bool) sendBeforeDate:(NSDate *)date msgid:(NSUInteger)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved
 {
 	[self subclassResponsibility:_cmd];
 	return false;

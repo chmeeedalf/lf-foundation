@@ -36,10 +36,10 @@
     return self;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
-	unsigned long i = 0;
+	NSUInteger i = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;

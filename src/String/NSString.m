@@ -106,7 +106,7 @@ static int32_t do_write_string(const void *p, UChar *chars, int32_t len)
 	{
 		return [s length];
 	}
-	[s getCharacters:chars range:NSMakeRange(0,MIN([s length], (unsigned int)len))];
+	[s getCharacters:chars range:NSMakeRange(0,MIN([s length], (NSUInteger)len))];
 
 	return [s length];
 }
@@ -1666,7 +1666,7 @@ static inline int hexval(char digit)
 		: NSAllocateObject(self, 0, zone);
 }
 
-+ (id)stringWithCapacity:(unsigned int)capacity
++ (id)stringWithCapacity:(NSUInteger)capacity
 {
 	return [[self alloc] initWithCapacity:capacity];
 }
@@ -1676,7 +1676,7 @@ static inline int hexval(char digit)
 	return [self stringWithCapacity:0];
 }
 
-- (id) initWithCapacity:(unsigned int)capacity
+- (id) initWithCapacity:(NSUInteger)capacity
 {
 	[self subclassResponsibility:_cmd];
 	return nil;
@@ -1704,7 +1704,7 @@ static inline int hexval(char digit)
 	[self replaceCharactersInRange:range withString:nil];
 }
 
--(void)insertString:(NSString *)aString atIndex:(unsigned int)index
+-(void)insertString:(NSString *)aString atIndex:(NSUInteger)index
 {
 	NSRange range = NSMakeRange(index, 0);
 
@@ -1716,12 +1716,12 @@ static inline int hexval(char digit)
 	[self subclassResponsibility:_cmd];
 }
 
--(unsigned int)replaceOccurrencesOfString:(NSString *)target
+-(NSUInteger)replaceOccurrencesOfString:(NSString *)target
 	withString:(NSString *)replacement options:(NSStringCompareOptions)options
 	range:(NSRange)searchRange
 {
 	NSRange r;
-	unsigned int numMatches;
+	NSUInteger numMatches;
 	for (numMatches = 0; searchRange.length != 0; numMatches++)
 	{
 		r = [self rangeOfString:target options:options

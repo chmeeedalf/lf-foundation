@@ -343,7 +343,7 @@ static NSUInteger writeBinaryPropertyList(id plist, NSOutputStream *outStream,
 	//NSMutableArray *offsets = [NSMutableArray array];
 
 	NSInteger sub;
-	NSUInteger total;
+	NSUInteger total = 0;
 
 	sub = [outStream write:"bplist01" maxLength:strlen("bplist01")];
 	if (sub < 0)
@@ -358,7 +358,7 @@ static NSUInteger writeBinaryPropertyList(id plist, NSOutputStream *outStream,
 static NSUInteger writeBinaryPropertyListInt(id plist, NSOutputStream *outStream,
 		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err)
 {
-	NSInteger sub;
+	NSInteger sub = 0;
 	if ([plist isKindOfClass:[NSNull class]])
 	{
 		sub = [outStream write:&(uint8_t){0} maxLength:1];
@@ -623,6 +623,7 @@ static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
 				}
 				break;
 		}
+		return (sub <= 0) ? 0 : sub;
 	}
 	else if ([plist isKindOfClass:[NSDate class]])
 	{

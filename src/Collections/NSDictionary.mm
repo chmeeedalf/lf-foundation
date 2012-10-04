@@ -116,7 +116,7 @@ static Class CoreDictionaryClass;
 }
 
 + (id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys
-	count:(unsigned int)count
+	count:(NSUInteger)count
 {
 	return [[self allocWithZone:NULL]
 		initWithObjects:objects forKeys:keys count:count];
@@ -216,8 +216,8 @@ static Class CoreDictionaryClass;
 
 - (id)initWithObjects:(NSArray*)objects forKeys:(NSArray*)keysArray
 {
-	unsigned int i = 0;
-	unsigned int count = [objects count];
+	NSUInteger i = 0;
+	NSUInteger count = [objects count];
 	std::vector<id> keys;
 	std::vector<id> values;
 
@@ -239,7 +239,7 @@ static Class CoreDictionaryClass;
 }
 
 - (id)initWithObjects:(const id [])objects forKeys:(const id [])keys
-count:(unsigned int)count
+count:(NSUInteger)count
 {
 	[self subclassResponsibility:_cmd];
 	return self;
@@ -452,7 +452,7 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 /* Storing Dictionaries */
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-	indent:(unsigned int)indent
+	indent:(NSUInteger)indent
 {
 	id value;
 	unsigned indent1 = indent + 4;
@@ -600,10 +600,10 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 /* Ugh, this algorithm is O(n^2), better hope this is only run once. A better
  * implementation is in NSCoreDictionary.mm.
  */
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
-	unsigned long i = 0;
+	NSUInteger i = 0;
 	NSEnumerator *en = [self keyEnumerator];
 
 	if (state->state == 0)
@@ -706,7 +706,7 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 	return s;
 }
 
-+ (id)dictionaryWithCapacity:(unsigned int)aNumItems
++ (id)dictionaryWithCapacity:(NSUInteger)aNumItems
 {
 	return [[self alloc] initWithCapacity:aNumItems];
 }
@@ -717,7 +717,7 @@ static NSComparisonResult compareVals(id key1, id key2, void *ctx)
 	return nil;
 }
 
-- (id)initWithCapacity:(unsigned int)aNumItems
+- (id)initWithCapacity:(NSUInteger)aNumItems
 {
 	[self subclassResponsibility:_cmd];
 	return self;

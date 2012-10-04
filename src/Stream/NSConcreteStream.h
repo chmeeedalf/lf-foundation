@@ -30,7 +30,6 @@
 
 #import <Foundation/NSData.h>
 #import <Foundation/NSStream.h>
-#import <Alepha/RunLoop.h>
 
 @interface NSInputStream_data	:	NSInputStream
 {

@@ -31,7 +31,6 @@
 #import <Foundation/NSData.h>
 #import <Foundation/NSStream.h>
 #import <Foundation/NSString.h>
-#import <Alepha/RunLoop.h>
 #import "NSConcreteStream.h"
 #import "internal.h"
 

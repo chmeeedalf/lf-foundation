@@ -62,12 +62,12 @@ typedef struct {
 /*!
  * \brief Returns the number of bytes that the arguments, taken together, would occupy on the stack.
  */
--(unsigned int)frameLength;
+-(NSUInteger)frameLength;
 
 /*!
  * \brief Returns the number of bytes required by the return value.
  */
--(unsigned int)methodReturnLength;
+-(NSUInteger)methodReturnLength;
 
 /*!
  * \brief Returns a string encoding the return type of the method.
@@ -77,12 +77,12 @@ typedef struct {
 /*!
  * \brief Returns the number of arguments recordered in the receiver.
  */
--(unsigned int)numberOfArguments;
+-(NSUInteger)numberOfArguments;
 
 /*!
  * \brief Returns the argument type for the given index.
  */
-- (const char *)getArgumentTypeAtIndex:(unsigned int)index;
+- (const char *)getArgumentTypeAtIndex:(NSUInteger)index;
 
 - (bool) isOneway;
 @end

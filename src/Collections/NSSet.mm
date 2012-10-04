@@ -123,7 +123,7 @@ static Class CoreSetClass;
 	return set;
 }
 
-+ (id)setWithObjects:(const id[])objects count:(unsigned int)count
++ (id)setWithObjects:(const id[])objects count:(NSUInteger)count
 {
 	return [[self alloc] initWithObjects:objects count:count];
 }
@@ -177,7 +177,7 @@ static Class CoreSetClass;
 	return self;
 }
 
-- (id)initWithObjects:(const id[])objects count:(unsigned int)count
+- (id)initWithObjects:(const id[])objects count:(NSUInteger)count
 {
 	return self;
 }
@@ -336,7 +336,7 @@ static Class CoreSetClass;
 }
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-   indent:(unsigned int)indent
+   indent:(NSUInteger)indent
 {
 	return [[self allObjects] descriptionWithLocale:locale indent:indent];
 }
@@ -391,10 +391,10 @@ static Class CoreSetClass;
 /* Ugh, this algorithm is O(n^2), better hope this is only run once. A better
  * implementation is in NSCoreSet.mm.
  */
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
-	unsigned long i = 0;
+	NSUInteger i = 0;
 	NSEnumerator *en = [self objectEnumerator];
 
 	if (state->state == 0)
@@ -552,12 +552,12 @@ static Class CoreSetClass;
 	return NSAllocateObject( (self == MutableSetClass) ?  CoreSetClass : (Class)self, 0, zone);
 }
 
-+ (id)setWithCapacity:(unsigned)numItems
++ (id)setWithCapacity:(NSUInteger)numItems
 {
 	return [[self alloc] initWithCapacity:numItems];
 }
 
-- (id)initWithCapacity:(unsigned)numItems
+- (id)initWithCapacity:(NSUInteger)numItems
 {
 	return self;
 }

@@ -811,14 +811,14 @@ typedef NSString * const NSSymbol;
  \brief Returns an empty mutable string of the given capacity.
  \param capacity Capacity of the string.
  */
-+(id)stringWithCapacity:(unsigned int)capacity;
++(id)stringWithCapacity:(NSUInteger)capacity;
 
 // Initializing a mutable string
 /*!
  \brief Initializes a newly allocated  mutable string of the given capacity.
  \param capacity Capacity of the string.
  */
--(id)initWithCapacity:(unsigned int)capacity;
+-(id)initWithCapacity:(NSUInteger)capacity;
 
 // Modifying a string
 /*!
@@ -849,7 +849,7 @@ typedef NSString * const NSSymbol;
  \details This method raises an StringBoundsError exception if the index
  is beyond the end of the string.
  */
--(void)insertString:(NSString *)aString atIndex:(unsigned int)index;
+-(void)insertString:(NSString *)aString atIndex:(NSUInteger)index;
 
 /*!
  \brief Replaces the characters in the given range with the specified string.
@@ -871,7 +871,7 @@ typedef NSString * const NSSymbol;
   \param searchRange NSRange of receiver to search.
   \return Returns the number of strings replaced.
  */
--(unsigned int)replaceOccurrencesOfString:(NSString *)target
+-(NSUInteger)replaceOccurrencesOfString:(NSString *)target
 	withString:(NSString *)replacement options:(NSStringCompareOptions)options
 	range:(NSRange)searchRange;
 	

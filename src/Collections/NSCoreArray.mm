@@ -50,18 +50,18 @@
 	return self;
 }
 
-- (id)initWithCapacity:(unsigned int)aNumItems
+- (id)initWithCapacity:(NSUInteger)aNumItems
 {
 	items.reserve(aNumItems);
 	return self;
 }
 
-- (id)initWithObjects:(id *)objects count:(unsigned int)count
+- (id)initWithObjects:(id *)objects count:(NSUInteger)count
 {
-	unsigned i;
+	NSUInteger i;
 
 	items.assign(objects, objects + count);
-	for (i=0; i < count; i++)
+	for (i = 0; i < count; i++)
 	{
 		if (objects[i] == nil)
 		{
@@ -75,7 +75,7 @@
 
 - (id)initWithArray:(NSArray *)anotherArray
 {
-	unsigned i, count = [anotherArray count];
+	NSUInteger i, count = [anotherArray count];
 
 	items.reserve(count);
 	for (i = 0; i < count; i++)
@@ -90,7 +90,7 @@
 	return items.size();
 }
 
-- (id) objectAtIndex:(unsigned int)index
+- (id) objectAtIndex:(NSUInteger)index
 {
 	if (index >= items.size())
 		@throw([NSRangeException exceptionWithReason:@"Index out of bounds in -[NSCoreArray objectAtIndex:]" userInfo:nil]);
@@ -99,7 +99,7 @@
 
 /* Altering the NSArray */
 
-- (void)insertObject:(id)anObject atIndex:(unsigned int)index
+- (void)insertObject:(id)anObject atIndex:(NSUInteger)index
 {
 	if (!anObject)
 	{
@@ -120,7 +120,7 @@
 	items.push_back(object);
 }
 
-- (void)replaceObjectAtIndex:(unsigned int)index withObject:(id)anObject
+- (void)replaceObjectAtIndex:(NSUInteger)index withObject:(id)anObject
 {
 	if (!anObject)
 	{
@@ -136,8 +136,8 @@
 	items[index] = anObject;
 }
 
-- (void)removeObjectsFrom:(unsigned int)index
-	count:(unsigned int)count
+- (void)removeObjectsFrom:(NSUInteger)index
+	count:(NSUInteger)count
 {
 	items.erase(items.begin() + index, items.begin() + index + count);
 }
@@ -160,15 +160,15 @@
 	}
 }
 
-- (void)removeObjectAtIndex:(unsigned int)index
+- (void)removeObjectAtIndex:(NSUInteger)index
 {
 	items.erase(items.begin() + index);
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
-	unsigned long idx = 0;
+	NSUInteger idx = 0;
 
 	if (state->state == 0)
 	{
@@ -182,7 +182,7 @@
 		state->mutationsPtr = &state->extra[0];
 	else
 		state->mutationsPtr = 0;
-	len = std::min(len, (unsigned long)items.size());
+	len = std::min(len, (NSUInteger)items.size());
 	std::copy(&items[idx], &items[idx + len], stackBuf);
 	state->extra[1] += len;
 	return len;

@@ -32,6 +32,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/event.h>
 #include <sys/un.h>
 
 #include <string.h>
@@ -39,6 +40,7 @@
 
 #import <Foundation/NSPort.h>
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
 
 #import "internal.h"
@@ -179,15 +181,21 @@ static bool _NSPrivateSetupSockaddr(NSData *addr, struct sockaddr_storage *sas)
 
 - (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
-	TODO; // -[NSSocketPort removeFromRunLoop:forMode:];
+	struct kevent ev;
+
+	EV_SET(&ev, sockfd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
+	[[NSRunLoop currentRunLoop] removeEventSource:&ev fromModes:@[mode]];
 }
 
 - (void) scheduleInRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
-	TODO; // -[NSSocketPort scheduleInRunLoop:forMode:];
+	struct kevent ev;
+
+	EV_SET(&ev, sockfd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
+	[[NSRunLoop currentRunLoop] addEventSource:&ev target:self selector:@selector(handleEvent) modes:@[mode]];
 }
 
-- (bool) sendBeforeDate:(NSDate *)date msgid:(uint32_t)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved
+- (bool) sendBeforeDate:(NSDate *)date msgid:(NSUInteger)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved
 {
 	// Only remote sockets are lazy connected
 	if (sockfd == 0)

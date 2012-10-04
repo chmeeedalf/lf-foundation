@@ -88,8 +88,8 @@ typedef enum {
 - (id) initWithCalendarIdentifier:(NSString *)calIdent;
 - (void) setLocale:(NSLocale *)loc;
 - (void) setTimeZone:(NSTimeZone *)newTz;
-- (void) setFirstWeekday:(unsigned long)weekday;
-- (void) setMinimumDaysInFirstWeek:(unsigned long)min;
+- (void) setFirstWeekday:(NSUInteger)weekday;
+- (void) setMinimumDaysInFirstWeek:(NSUInteger)min;
 
 - (NSString *)calendarIdentifier;
 - (NSInteger)firstWeekday;
@@ -102,9 +102,9 @@ typedef enum {
 - (bool)rangeOfUnit:(NSCalendarUnit)smaller startDate:(NSDate **)start interval:(NSTimeInterval*)interval forDate:(NSDate *)date;
 - (NSTimeZone *)timeZone;
 
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date;
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(unsigned long)opts;
-- (NSDate *)dateByAddingComponents:(NSDateComponents *)components toDate:(NSDate *)startDate options:(unsigned long)opts;
+- (NSDateComponents *)components:(NSUInteger)unitFlags fromDate:(NSDate *)date;
+- (NSDateComponents *)components:(NSUInteger)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(NSUInteger)opts;
+- (NSDate *)dateByAddingComponents:(NSDateComponents *)components toDate:(NSDate *)startDate options:(NSUInteger)opts;
 - (NSDate *)dateFromComponents:(NSDateComponents *)components;
 
 @end

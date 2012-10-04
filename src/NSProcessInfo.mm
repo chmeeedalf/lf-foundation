@@ -216,7 +216,7 @@ unsigned int numThreads __private = 0;
 	}
 }
 
-- (unsigned int) threadCount
+- (NSUInteger) threadCount
 {
 	return numThreads;
 }

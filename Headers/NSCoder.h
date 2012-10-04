@@ -44,7 +44,7 @@
  \param count NSNumber of objects to encode.
  \param array Starting address of the types.
  */
--(void)encodeArrayOfObjCType:(const char *)types count:(unsigned int)count
+-(void)encodeArrayOfObjCType:(const char *)types count:(NSUInteger)count
 	at:(const void *)array;
 
 /*!
@@ -122,7 +122,7 @@
  \param count NSNumber of types to decode.
  \param address Starting address of types.
  */
--(void)decodeArrayOfObjCType:(const char *)types count:(unsigned int)count
+-(void)decodeArrayOfObjCType:(const char *)types count:(NSUInteger)count
 	at:(void *)address;
 
 - (void *) decodeBytesWithReturnedLength:(size_t *)len;
@@ -193,7 +193,7 @@
  \param className Name of the class to get the version of.
  \return Returns the version of the class at time of archive.
  */
--(unsigned int)versionForClassName:(NSString *)className;
+-(NSInteger)versionForClassName:(NSString *)className;
 
 // Keyed coding
 

@@ -72,7 +72,7 @@ typedef struct _map_table *_map_table;
 
 /* Allocating and Initializing an NSDictionary */
 - (id)initWithObjects:(id*)objects forKeys:(id*)keys 
-  count:(unsigned int)count;
+  count:(NSUInteger)count;
 - (id)initWithDictionary:(NSDictionary*)dictionary;
 
 /* Accessing keys and values */
@@ -85,7 +85,7 @@ typedef struct _map_table *_map_table;
 
 /* Allocating and Initializing an NSDictionary */
 - (id)init;
-- (id)initWithCapacity:(unsigned int)aNumItems;
+- (id)initWithCapacity:(NSUInteger)aNumItems;
 
 
 /* Modifying dictionary */

@@ -230,11 +230,11 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	return [valFuncs copy];
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
 	intern_map::const_iterator i;
-	unsigned long j = 0;
+	NSUInteger j = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;
@@ -250,7 +250,7 @@ valuePointerFunctions:(NSPointerFunctions *)valFuncts capacity:(size_t)cap
 	state->mutationsPtr = (unsigned long *)&table;
 	/* LP model makes long and void* the same size, which makes this doable. */
 	if (i != table.end())
-		state->extra[1] = (unsigned long)(const void *)i->first;
+		state->extra[1] = (NSUInteger)(const void *)i->first;
 	return j;
 }
 

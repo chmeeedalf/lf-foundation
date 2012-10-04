@@ -80,7 +80,7 @@
 
 - (id) initWithPointerFunctions:(NSPointerFunctions *)functions
 {
-	return self;
+	return [super init];
 }
 
 - (size_t) count
@@ -225,10 +225,10 @@
 			array.end());
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
-	unsigned long idx = 0;
+	NSUInteger idx = 0;
 
 	if (state->state == 0)
 	{
@@ -242,9 +242,9 @@
 		state->mutationsPtr = &state->extra[0];
 	else
 		state->mutationsPtr = 0;
-	len = std::min(len, (unsigned long)array.size());
+	len = std::min(len, (NSUInteger)array.size());
 	state->extra[1] += len;
-	for (unsigned long i = 0; i < len; ++i)
+	for (NSUInteger i = 0; i < len; ++i)
 		stackBuf[len] = (__bridge id)array[len + idx];
 	return len;
 }

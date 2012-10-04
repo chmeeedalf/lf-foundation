@@ -418,7 +418,7 @@ static int delete_item(const char *path, const struct stat *sb, int flag, struct
 	}
 
 	/* If it won't fit in the buffer anyway, fail */
-	if (sb.st_size > SIZE_MAX)
+	if ((uintmax_t)sb.st_size > SIZE_MAX)
 	{
 		TODO; // Add support for mapped data files.
 		errMess = @"File size too big for buffer.";

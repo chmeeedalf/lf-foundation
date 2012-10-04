@@ -129,7 +129,7 @@ static NSString *rootPath = @"/";
 	return components;
 }
 
-- (unsigned long)completePathIntoString:(NSString **)outputName
+- (NSUInteger)completePathIntoString:(NSString **)outputName
 						  caseSensitive:(bool)flag matchesIntoArray:(NSArray **)outputArray
 							filterTypes:(NSArray *)filterTypes
 {
@@ -178,7 +178,7 @@ static NSString *rootPath = @"/";
 }
 
 - (bool)getFileSystemRepresentation:(char *)buffer
-						  maxLength:(unsigned int)maxLength
+						  maxLength:(NSUInteger)maxLength
 {
 	return [self getCString:buffer maxLength:maxLength
 			encoding:NSUTF8StringEncoding];
@@ -366,8 +366,8 @@ static NSString *rootPath = @"/";
 {
 	NSString *rest;
 	NSString *home;
-	unsigned int index;
-	unsigned int hlen;
+	NSUInteger index;
+	NSUInteger hlen;
 
 	if (![self hasPrefix:homeSeparator])
 		return self;

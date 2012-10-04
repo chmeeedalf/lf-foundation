@@ -421,7 +421,7 @@ static bool configureCalendar(NSCalendar *self)
 	return tz ? tz : ([self setTimeZone:[NSTimeZone defaultTimeZone]], tz);
 }
 
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date
+- (NSDateComponents *)components:(NSUInteger)unitFlags fromDate:(NSDate *)date
 {
 	NSDateComponents *components = [NSDateComponents new];
 	UErrorCode ec = U_ZERO_ERROR;
@@ -452,7 +452,7 @@ static bool configureCalendar(NSCalendar *self)
 	return components;
 }
 
-- (NSDateComponents *)components:(unsigned long)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(unsigned long)opts
+- (NSDateComponents *)components:(NSUInteger)unitFlags fromDate:(NSDate *)date toDate:(NSDate *)toDate options:(NSUInteger)opts
 {
 	NSTimeInterval t = [toDate timeIntervalSinceReferenceDate] - [date timeIntervalSinceReferenceDate];
 	NSDate *d = [[NSDate alloc] initWithTimeIntervalSince1970:t];
@@ -461,7 +461,7 @@ static bool configureCalendar(NSCalendar *self)
 	return dc;
 }
 
-- (NSDate *)dateByAddingComponents:(NSDateComponents *)components toDate:(NSDate *)startDate options:(unsigned long)opts
+- (NSDate *)dateByAddingComponents:(NSDateComponents *)components toDate:(NSDate *)startDate options:(NSUInteger)opts
 {
 	configureCalendar(self);
 	ucal_clear(cal);
@@ -542,13 +542,13 @@ static bool configureCalendar(NSCalendar *self)
 	return nil;
 }
 
-- (void) setFirstWeekday:(unsigned long)weekday
+- (void) setFirstWeekday:(NSUInteger)weekday
 {
 	if (configureCalendar(self))
 		ucal_setAttribute(cal, UCAL_FIRST_DAY_OF_WEEK, weekday);
 }
 
-- (void) setMinimumDaysInFirstWeek:(unsigned long)min
+- (void) setMinimumDaysInFirstWeek:(NSUInteger)min
 {
 	if (configureCalendar(self))
 		ucal_setAttribute(cal, UCAL_MINIMAL_DAYS_IN_FIRST_WEEK, min);

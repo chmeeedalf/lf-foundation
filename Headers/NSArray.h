@@ -108,7 +108,7 @@ enum
  * @param count NSNumber of objects.
  * @return Returns an array with multiple objects.
  */
-+(id)arrayWithObjects:(const id[])firstObj count:(unsigned int)count;
++(id)arrayWithObjects:(const id[])firstObj count:(NSUInteger)count;
 
 /*!
  * @brief Duplicates an array into a new instance.
@@ -141,7 +141,7 @@ enum
  * @param count NSNumber of objects to insert.
  * @return Returns an initialized array containing the objects.
  */
--(id)initWithObjects:(const id[])objects count:(unsigned int)count;
+-(id)initWithObjects:(const id[])objects count:(NSUInteger)count;
 
 // Querying the array....
 
@@ -179,7 +179,7 @@ enum
  * @param index Index of the object to return.
  * @return The object at the specified index, or RangeException if index is beyond the size of the array.
  */
--(id)objectAtIndex:(unsigned int)index;
+-(id)objectAtIndex:(NSUInteger)index;
 
 /*!
  * @brief Returns the objects at the specified indices.
@@ -349,7 +349,7 @@ enum
  * @return Returns a localizes string representation of the array.
  */
 -(NSString *)descriptionWithLocale:(NSLocale *)localeDictionary
-	indent:(unsigned int)level;
+	indent:(NSUInteger)level;
 
 -(bool) writeToURL:(NSURL *)url atomically:(bool)atomic;
 
@@ -376,14 +376,14 @@ enum
  * @param aNumItems NSNumber of items to hold.
  * @return Returns an array holding a specified number of elements.
  */
-+(id)arrayWithCapacity:(unsigned int)aNumItems;
++(id)arrayWithCapacity:(NSUInteger)aNumItems;
 
 /*!
  * @brief Initializes an allocated array with a given capacity.
  * @param aNumItems NSNumber of items the array should hold.
  * @return Returns an initialized array with a given capacity.
  */
--(id)initWithCapacity:(unsigned int)aNumItems;
+-(id)initWithCapacity:(NSUInteger)aNumItems;
 
 // Adding objects
 
@@ -404,7 +404,7 @@ enum
  * @param anObject NSObject to insert into the array.
  * @param index Index to insert the object at.
  */
--(void)insertObject:(id)anObject atIndex:(unsigned int)index;
+-(void)insertObject:(id)anObject atIndex:(NSUInteger)index;
 
 /*!
  * @brief Inserts an object at the given index.
@@ -440,7 +440,7 @@ enum
  * @brief Removes and releases the object located at the given index.
  * @param index Index of the object to remove.
  */
--(void)removeObjectAtIndex:(unsigned int)index;
+-(void)removeObjectAtIndex:(NSUInteger)index;
 
 - (void) removeObjectsAtIndexes:(NSIndexSet *)indexes;
 
@@ -478,7 +478,7 @@ enum
  * @throw InvalidArgumentException anObject is nil.
  * @throw RangeException index is not within the bounds of the array.
  */
--(void)replaceObjectAtIndex:(unsigned int)index withObject:(id)anObject;
+-(void)replaceObjectAtIndex:(NSUInteger)index withObject:(id)anObject;
 
 /*!
  * @brief Replaces the objects at the given indices with objects from the given

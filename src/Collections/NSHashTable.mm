@@ -81,6 +81,11 @@ typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
 
 - (id) initWithPointerFunctions:(NSPointerFunctions *)pfuncts capacity:(size_t)cap
 {
+	if ((self = [super init]) == nil)
+	{
+		return nil;
+	}
+
 	callbacks=[pfuncts copy];
 	[callbacks _fixupEmptyFunctions];
 	hasher = Gold::Hash(callbacks);
@@ -249,11 +254,11 @@ typedef std::unordered_set<void *,Gold::Hash,Gold::Equal> intern_set;
 	return [self subclassResponsibility:_cmd];
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
 	intern_set::const_iterator i = table.begin();
-	unsigned long j = 0;
+	NSUInteger j = 0;
 	if (state->state == 0)
 	{
 		state->state = 1;

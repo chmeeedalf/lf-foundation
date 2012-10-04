@@ -112,7 +112,7 @@ static Class CoreArrayClass;
 	return [[self alloc] initWithArray:anotherArray];
 }
 
-+ (id)arrayWithObjects:(const id[])objects count:(unsigned int)count
++ (id)arrayWithObjects:(const id[])objects count:(NSUInteger)count
 {
 	return [[self alloc]
 			initWithObjects:objects count:count];
@@ -168,7 +168,7 @@ static Class CoreArrayClass;
 	return self;
 }
 
-- (id)initWithObjects:(const id[])objects count:(unsigned int)count
+- (id)initWithObjects:(const id[])objects count:(NSUInteger)count
 {
 	[self subclassResponsibility:_cmd];
 	return self;
@@ -346,7 +346,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 		@throw([NSRangeException exceptionWithReason:@"Range arguement beyond length of array" userInfo:nil]);
 	}
 
-	for (unsigned int i = range.location; i < NSMaxRange(range); i++)
+	for (NSUInteger i = range.location; i < NSMaxRange(range); i++)
 		objs[i - range.location] = [self objectAtIndex:i];
 }
 
@@ -357,7 +357,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 	return count ? [self objectAtIndex:count - 1] : nil;
 }
 
-- (id)objectAtIndex:(unsigned int)index
+- (id)objectAtIndex:(NSUInteger)index
 {
 	[self subclassResponsibility:_cmd];
 	return self;
@@ -493,7 +493,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 - (NSArray*)subarrayWithRange:(NSRange)range
 {
 	id array;
-	unsigned int index;
+	NSUInteger index;
 	std::vector<id> objects;
 
 	if (NSMaxRange(range) > [self count])
@@ -553,12 +553,12 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 /* Creating a NSString Description of the NSArray */
 
 - (NSString*)descriptionWithLocale:(NSLocale*)locale
-	indent:(unsigned int)indent
+	indent:(NSUInteger)indent
 {
-	unsigned int indent1 = indent + 4;
+	NSUInteger indent1 = indent + 4;
 	NSString* indentation = [NSString stringWithFormat:
 		[NSString stringWithFormat:@"%%%dc", indent1], ' '];
-	unsigned int count = [self count];
+	NSUInteger count = [self count];
 
 	if(count)
 	{
@@ -675,7 +675,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 // Returns an array listing the receiver's elements for that comparator
 // function returns true
 {
-	unsigned i;
+	NSUInteger i;
 	NSUInteger m;
 	NSUInteger n = [self count];
 	std::vector<id> objects;
@@ -696,7 +696,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSArray *)arrayByAddingObject:(id)newObj
 {
-	unsigned long total = [self count] + 1;
+	NSUInteger total = [self count] + 1;
 	NSArray *arrayOut;
 	std::vector<id> objList;
 
@@ -712,7 +712,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 
 - (NSArray *)arrayByAddingObjectsFromArray:(NSArray *)anotherArray
 {
-	unsigned long total = [self count] + [anotherArray count];
+	NSUInteger total = [self count] + [anotherArray count];
 	NSArray *arrayOut;
 	std::vector<id> objList;
 
@@ -735,7 +735,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 // Returns an array listing the objects returned by function applied to
 // objects for that comparator returns true
 {
-	unsigned i, m, n = [self count];
+	NSUInteger i, m, n = [self count];
 	std::vector<id> objects;
 	id array;
 
@@ -798,8 +798,8 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 	return a;
 }
 
-- (unsigned long) countByEnumeratingWithState:(NSFastEnumerationState *)state
-	objects:(__unsafe_unretained id [])stackBuf count:(unsigned long)len
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *)state
+	objects:(__unsafe_unretained id [])stackBuf count:(NSUInteger)len
 {
 	NSUInteger i = 0;
 	NSUInteger j = 0;
@@ -935,7 +935,7 @@ static Class MutableArrayClass;
 		(Class)self, 0, zone);
 }
 
-+ (id)arrayWithCapacity:(unsigned int)aNumItems
++ (id)arrayWithCapacity:(NSUInteger)aNumItems
 {
 	return [[self alloc] initWithCapacity:aNumItems];
 }
@@ -945,7 +945,7 @@ static Class MutableArrayClass;
 	return [self initWithCapacity:0];
 }
 
-- (id)initWithCapacity:(unsigned int)aNumItems
+- (id)initWithCapacity:(NSUInteger)aNumItems
 {
 	self = [self init];
 	return self;
@@ -966,14 +966,14 @@ static Class MutableArrayClass;
 	}
 }
 
-- (void)insertObject:(id)anObject atIndex:(unsigned int)index
+- (void)insertObject:(id)anObject atIndex:(NSUInteger)index
 {
 	[self subclassResponsibility:_cmd];
 }
 
 - (void)insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes
 {
-	unsigned long index = [indexes lastIndex];
+	NSUInteger index = [indexes lastIndex];
 	for (id obj in objects)
 	{
 		[self insertObject:obj atIndex:index];
@@ -999,7 +999,7 @@ static Class MutableArrayClass;
 
 - (void)removeObject:(id)anObject
 {
-	unsigned int i, n;
+	NSUInteger i, n;
 	n = [self count];
 	for (i = 0; i < n; i++)
 	{
@@ -1012,7 +1012,7 @@ static Class MutableArrayClass;
 	}
 }
 
-- (void)removeObjectAtIndex:(unsigned int)index
+- (void)removeObjectAtIndex:(NSUInteger)index
 {
 	[self subclassResponsibility:_cmd];
 }
@@ -1032,8 +1032,8 @@ static Class MutableArrayClass;
 	[self removeObjectsAtIndexes:indices];
 }
 
-- (void)removeObjectsFromIndices:(unsigned int*)indices
-	numIndices:(unsigned int)count
+- (void)removeObjectsFromIndices:(NSUInteger*)indices
+	numIndices:(NSUInteger)count
 {
 	std::vector<NSUInteger> indexes(count);
 
@@ -1051,7 +1051,7 @@ static Class MutableArrayClass;
 
 - (void)removeObjectsInArray:(NSArray*)otherArray
 {
-	unsigned int i, n = [otherArray count];
+	NSUInteger i, n = [otherArray count];
 	for (i = 0; i < n; i++)
 	{
 		[self removeObject:[otherArray objectAtIndex:i]];
@@ -1060,7 +1060,7 @@ static Class MutableArrayClass;
 
 - (void)removeObject:(id)anObject inRange:(NSRange)aRange
 {
-	unsigned int index;
+	NSUInteger index;
 	for (index = aRange.location-1; index >= aRange.location; index--)
 	{
 		if ([anObject isEqual:[self objectAtIndex:index+aRange.location]])
@@ -1072,7 +1072,7 @@ static Class MutableArrayClass;
 
 - (void)removeObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
 {
-	unsigned int index;
+	NSUInteger index;
 	index = [self indexOfObjectIdenticalTo:anObject inRange:aRange];
 
 	if (index != NSNotFound)
@@ -1088,7 +1088,7 @@ static Class MutableArrayClass;
 
 /* Replacing Objects */
 
-- (void)replaceObjectAtIndex:(unsigned int)index  withObject:(id)anObject
+- (void)replaceObjectAtIndex:(NSUInteger)index  withObject:(id)anObject
 {
 	[self subclassResponsibility:_cmd];
 }
@@ -1104,7 +1104,7 @@ static Class MutableArrayClass;
 - (void)replaceObjectsInRange:(NSRange)rRange
 	withObjectsFromArray:(NSArray*)anArray range:(NSRange)aRange
 {
-	unsigned int index;
+	NSUInteger index;
 
 	if (rRange.length > aRange.length)
 	{
@@ -1128,7 +1128,7 @@ static Class MutableArrayClass;
 
 - (void)replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)newObjects
 {
-	unsigned long index = [indexes firstIndex];
+	NSUInteger index = [indexes firstIndex];
 	for (id obj in newObjects)
 	{
 		[self replaceObjectAtIndex:index withObject:obj];

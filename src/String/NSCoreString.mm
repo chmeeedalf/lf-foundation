@@ -114,7 +114,7 @@
 		freeWhenDone:flag];
 }
 
-- (id) initWithBytes:(const void *)bytes length:(unsigned long)length
+- (id) initWithBytes:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)enc copy:(bool)copy freeWhenDone:(bool)flag
 {
 	encoding = NSUnicodeStringEncoding;
@@ -242,7 +242,7 @@
 	}
 }
 
-- (id) initWithCapacity:(unsigned int)capacity
+- (id) initWithCapacity:(NSUInteger)capacity
 {
 	str = UnicodeString(capacity, 0, 0);
 	return self;

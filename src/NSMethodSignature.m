@@ -114,7 +114,7 @@
 		&& !strcmp(types, [anotherSignature types]);
 }
 
-- (const char *)getArgumentTypeAtIndex:(unsigned int)_index
+- (const char *)getArgumentTypeAtIndex:(NSUInteger)_index
 {
 	const char *typesInd = types;
 	const char *end;
@@ -136,7 +136,7 @@
 	return end;
 }
 
-- (unsigned)frameLength
+- (NSUInteger)frameLength
 {
 	size_t len = 0;
 	const char *typeInd = types;
@@ -147,7 +147,7 @@
 	return len;
 }
 
-- (unsigned)methodReturnLength
+- (NSUInteger)methodReturnLength
 {
 	return objc_sizeof_type(types);
 }
@@ -157,7 +157,7 @@
 	return objc_skip_type_qualifiers(types);
 }
 
-- (unsigned)numberOfArguments
+- (NSUInteger)numberOfArguments
 {
 	return numberOfArguments;
 }

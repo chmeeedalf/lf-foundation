@@ -120,7 +120,7 @@ enum {
 	freeWhenDone:(bool)flag;
 - (id)initWithString:(NSString*)aString;
 - (id)initWithData:(NSData*)data encoding:(NSStringEncoding)encoding;
-- (id)initWithBytes:(const void *)bytes length:(unsigned long)length
+- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length
 	encoding:(NSStringEncoding)enc copy:(bool)copy freeWhenDone:(bool)flag;
 - (id)initWithUnicodeString:(UnicodeString *)src;
 #ifdef __cplusplus

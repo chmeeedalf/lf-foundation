@@ -77,9 +77,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -(bool)isAbsolutePath;
 
 -(const char *)fileSystemRepresentation;
--(bool)getFileSystemRepresentation:(char *)bytes maxLength:(size_t)maxLength;
+-(bool)getFileSystemRepresentation:(char *)bytes maxLength:(NSUInteger)maxLength;
 
--(unsigned long)completePathIntoString:(NSString **)string caseSensitive:(bool)caseSensitive matchesIntoArray:(NSArray **)array filterTypes:(NSArray *)types;
+-(NSUInteger)completePathIntoString:(NSString **)string caseSensitive:(bool)caseSensitive matchesIntoArray:(NSArray **)array filterTypes:(NSArray *)types;
 
 @end
 
@@ -113,7 +113,7 @@ enum {
 	NSTrashDirectory = 102
 };
 
-typedef unsigned long NSSearchPathDirectory;
+typedef NSUInteger NSSearchPathDirectory;
 
 enum {
    NSUserDomainMask   = 0x0001,
@@ -123,7 +123,7 @@ enum {
    NSAllDomainsMask   = 0xffff,
 };
 
-typedef unsigned long NSSearchPathDomainMask;
+typedef NSUInteger NSSearchPathDomainMask;
 
 SYSTEM_EXPORT NSArray  *NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory d,NSSearchPathDomainMask mask,bool expand);
 
