@@ -32,16 +32,20 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#include <sys/timex.h>	// for NANOSECOND
 
 #include <math.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
+#import <Foundation/NSInvocation.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSPort.h>
 #import <Foundation/NSRunLoop.h>
@@ -57,13 +61,21 @@ static NSString *NSRunLoopKey = @"NSRunLoopKey";
 NSMakeSymbol(NSDefaultRunLoopMode);
 NSMakeSymbol(NSRunLoopCommonModes);
 
+typedef std::multimap<NSUInteger,NSInvocation *> performMap;
+
+struct _NSRunLoopMode {
+	NSMutableArray *timers;
+	performMap performers;
+	int queue = kqueue();
+};
+
 @implementation NSRunLoop
 {
 	dispatch_queue_t                    loopQueue;
 	dispatch_semaphore_t                loopSem;
 	dispatch_source_t                   currentDispatchObj;
 	id                                  currentMode;
-	std::unordered_map<NSString *, int> modes;
+	std::unordered_map<NSString *, _NSRunLoopMode> modes;
 }
 
 + (id) currentRunLoop
@@ -98,7 +110,7 @@ NSMakeSymbol(NSRunLoopCommonModes);
 {
 	for (auto i: modes)
 	{
-		close(i.second);
+		close(i.second.queue);
 	}
 }
 
@@ -117,7 +129,13 @@ NSMakeSymbol(NSRunLoopCommonModes);
  */
 - (void) addTimer:(NSTimer *)timer forMode:(NSString *)mode
 {
-	TODO; // -[NSRunLoop addTimer:forMode:]
+	/* Don't add an invalidated timer */
+	if (![timer isValid])
+		return;
+
+	if (modes[mode].timers == nil)
+		modes[mode].timers = [NSMutableArray array];
+	[modes[mode].timers addObject:timer];
 }
 
 - (void) addEventSource:(struct kevent *)source target:(id)target
@@ -127,13 +145,9 @@ NSMakeSymbol(NSRunLoopCommonModes);
 
 	for (NSString *mode in runModes)
 	{
-		if (modes.find(mode) == modes.end())
-		{
-			modes[mode] = kqueue();
-		}
 		struct kevent s = *source;
 		s.flags |= EV_ADD;
-		kevent(modes[mode], &s, 1, NULL, 0, &timeout);
+		kevent(modes[mode].queue, &s, 1, NULL, 0, &timeout);
 	}
 }
 
@@ -148,7 +162,7 @@ NSMakeSymbol(NSRunLoopCommonModes);
 		{
 			struct kevent s = *source;
 			s.flags |= EV_DELETE;
-			kevent(i->second, &s, 1, NULL, 0, &timeout);
+			kevent(i->second.queue, &s, 1, NULL, 0, &timeout);
 		}
 	}
 }
@@ -179,45 +193,114 @@ NSMakeSymbol(NSRunLoopCommonModes);
 }
 
 - (void) performSelector:(SEL)sel target:(id)target argument:(id)arg
-	order:(NSUInteger)order modes:(NSArray *)modes
+	order:(NSUInteger)order modes:(NSArray *)perfModes
 {
-	TODO; // -[NSRunLoop performSelector:target:argument:order:modes:]
+	for (NSString *perfMode in perfModes)
+	{
+		NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[target
+			methodSignatureForSelector:sel]];
+		[inv setTarget:target];
+		[inv setSelector:sel];
+		[inv setArgument:&arg atIndex:2];
+		modes[perfMode].performers.insert(std::make_pair(order, inv));
+	}
 }
 
 - (void) cancelPerformSelector:(SEL)sel target:(id)target argument:(id)arg
 {
-	TODO; // -[NSRunLoop cancelPerformSelector:target:argument:]
+	for (auto mode : modes)
+	{
+		auto &m = mode.second.performers;
+		for (auto i = m.begin(); i != m.end();)
+		{
+			id invarg;
+			if (([i->second target] == target) &&
+					([i->second selector] == sel) &&
+					(([i->second getArgument:&invarg atIndex:2],invarg) == arg)
+			   )
+				m.erase(i++);
+			else
+				i++;
+		}
+	}
 }
 
 - (void) cancelPerformSelectorsWithTarget:(id)target
 {
-	TODO; // -[NSRunLoop cancelPerformSelectorsWithTarget:]
+	for (auto mode : modes)
+	{
+		auto &m = mode.second.performers;
+		for (auto i = m.begin(); i != m.end();)
+		{
+			if ([i->second target] == target)
+				m.erase(i++);
+			else
+				i++;
+		}
+	}
 }
 
 - (void) acceptInputForMode:(NSString *)mode beforeDate:(NSDate *)limit
 {
-	NSTimeInterval ti = [limit timeIntervalSinceNow];
-	struct timespec ts{(time_t)ti,
-		static_cast<long>((ti - (long)ti) * 100000000000ULL)};
-	// First suspend the currently running mode, then resume the new one.  This
-	// way if inputs are in both modes, they will stick around.
 	auto i = modes.find(mode);
-	struct kevent events[MAX_EVENTS];
 	if (i == modes.end())
 		return;
 
+	struct kevent events[MAX_EVENTS];
 	currentMode = mode;
-	int count = kevent(i->second, NULL, 0, events, MAX_EVENTS, &ts);
 
-	for (; count > 0; --count)
+	while ([limit earlierDate:[NSDate date]] != limit)
 	{
+		NSDate *d = [limit earlierDate:[self limitDateForMode:mode]];
+		NSTimeInterval ti = [d timeIntervalSinceNow];
+		struct timespec ts{(time_t)ti,
+			static_cast<long>((ti - (long)ti) * NANOSECOND)};
+		int count = kevent(i->second.queue, NULL, 0, events, MAX_EVENTS, &ts);
+
+		if (count > 0)
+		{
+			for (; count > 0; --count)
+			{
+				// TODO: -[NSRunLoop acceptInputForMode:beforeDate:] events
+			}
+			break;
+		}
+		__block NSMutableArray *a = nil;
+		[i->second.timers enumerateObjectsUsingBlock:
+			^(id obj, NSUInteger idx, bool *stop){
+				if (![obj isValid])
+				{
+					if (a == nil)
+						a = [NSMutableArray array];
+					[a addObject:obj];
+				}
+				if ([[NSDate date] compare:[obj fireDate]] != NSOrderedAscending)
+				{
+					[obj fire];
+				}
+			}];
+		[i->second.timers removeObjectsInArray:a];
+	}
+	performMap map = i->second.performers;
+	i->second.performers.clear();
+
+	for (auto i : map)
+	{
+		[i.second invoke];
 	}
 }
 
 - (NSDate *) limitDateForMode:(NSString *)mode
 {
-	TODO; // limitDateForMode:
-	return [NSDate distantFuture];
+	__block NSDate *limitDate = [NSDate date];
+
+	[modes[mode].timers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx,
+			bool *stop){
+		NSDate *itsLimit = [obj fireDate];
+		if ([limitDate compare:itsLimit] == NSOrderedDescending)
+			limitDate = itsLimit;
+	}];
+	return limitDate;
 }
 
 - (NSString *) currentMode
@@ -226,15 +309,46 @@ NSMakeSymbol(NSRunLoopCommonModes);
 }
 @end
 
+@interface _NSObjectRunLoopLink : NSObject
+{
+	@package
+	NSTimer *timer;
+	NSInvocation *inv;
+}
+@end
+@implementation _NSObjectRunLoopLink
+-(void) dealloc
+{
+	[timer invalidate];
+}
+@end
+
 @implementation NSObject(RunLoopAdditions)
+static char runLoopRequestKey = 'R';
+
 + (void) cancelPreviousPerformRequestsWithTarget:(id)target
 {
-	TODO; // -[NSObject(RunLoopAdditions) cancelPreviousPerformRequestsWithTarget:]
+	objc_setAssociatedObject(target, &runLoopRequestKey, nil,
+			OBJC_ASSOCIATION_RETAIN);
 }
 
 + (void) cancelPreviousPerformRequestsWithTarget:(id)target selector:(SEL)sel object:(id)arg
 {
-	TODO; // -[NSObject(RunLoopAdditions) cancelPreviousPerformRequestsWithTarget:selector:object:]
+	NSMutableArray *links = objc_getAssociatedObject(target, &runLoopRequestKey);
+	NSMutableArray *toDestroy = [NSMutableArray array];
+	for (_NSObjectRunLoopLink *link in links)
+	{
+		if ([link->inv selector] == sel)
+		{
+			id obj;
+			[link->inv getArgument:&obj atIndex:2];
+			if (obj == arg)
+			{
+				[toDestroy addObject:link];
+			}
+		}
+	}
+	[links removeObjectsInArray:toDestroy];
 }
 
 - (void) performSelector:(SEL)sel withObject:(id)obj afterDelay:(NSTimeInterval)delay
@@ -247,13 +361,30 @@ NSMakeSymbol(NSRunLoopCommonModes);
 {
 	NSTimer *t;
 	NSRunLoop *loop = [NSRunLoop currentRunLoop];
+	NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self
+		methodSignatureForSelector:sel]];
 
-	t = [NSTimer timerWithTimeInterval:delay target:self 
-		selector:sel userInfo:obj repeats:false];
+	[inv setSelector:sel];
+	[inv setTarget:self];
+	[inv setArgument:&obj atIndex:2];
+
+	t = [NSTimer timerWithTimeInterval:delay invocation:inv repeats:false];
 	for (id mode in modes)
 	{
 		[loop addTimer:t forMode:mode];
 	}
+	_NSObjectRunLoopLink *link = [_NSObjectRunLoopLink new];
+	link->inv = inv;
+	link->timer = t;
+
+	NSMutableArray *links = objc_getAssociatedObject(self, &runLoopRequestKey);
+	if (links == nil)
+	{
+		links = [NSMutableArray array];
+		objc_setAssociatedObject(self, &runLoopRequestKey, links,
+				OBJC_ASSOCIATION_RETAIN);
+	}
+	[links addObject:link];
 }
 
 @end
