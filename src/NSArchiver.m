@@ -739,7 +739,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type)
 		[self _traceValueOfObjCType:_type at:_value];
     }
     else {
-		[self serializeDataAt:_value ofObjCType:_type context:self];
+		TODO; // NSArchiver [self serializeDataAt:_value ofObjCType:_type context:self];
     }
 }
 
@@ -1267,7 +1267,7 @@ FINAL void _checkType2(char _code, char _reqCode1, char _reqCode2)
 
 FINAL void _readBytes(NSUnarchiver *self, void *_bytes, NSUInteger _len)
 {
-    [self->data deserializeBytes:_bytes length:_len atCursor:&(self->cursor)];
+    TODO; // NSUnarchiver [self->data deserializeBytes:_bytes length:_len atCursor:&(self->cursor)];
 }
 
 FINAL NSTagType _readTag(NSUnarchiver *self)
@@ -1298,10 +1298,10 @@ FINAL char *_readCString(NSUnarchiver *self)
 
 FINAL void _readObjC(NSUnarchiver *self, void *value, const char *type)
 {
-	[self->data deserializeDataAt:value
-					   ofObjCType:type
-						 atCursor:&self->cursor
-						  context:self];
+	TODO; // NSUnarchiver [self->data deserializeDataAt:value
+					   //ofObjCType:type
+						// atCursor:&self->cursor
+						 // context:self];
 }
 
 @end /* NSUnarchiver */
