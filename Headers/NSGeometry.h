@@ -66,6 +66,9 @@ typedef struct NSPoint {
 	double y; /*!< \brief The y coordinate. */
 } NSPoint;
 
+typedef NSPoint *NSPointArray;
+typedef NSPoint *NSPointPointer;
+
 /*!
   \brief Describes a line between two points.
  */
@@ -82,6 +85,9 @@ typedef struct NSSize {
 	double height;	/*!< \brief The height. */
 } NSSize;
 
+typedef NSSize *NSSizeArray;
+typedef NSSize *NSSizePointer;
+
 /*!
  * \brief Describes a rectangle -- origin and size.
  */
@@ -89,6 +95,9 @@ typedef struct NSRect {
 	NSPoint origin;	/*!< \brief The origin (starting point) of the rectangle. */
 	NSSize size;		/*!< \brief The width and height of the rectangle, from the origin. */
 } NSRect;
+
+typedef NSRect *NSRectArray;
+typedef NSRect *NSRectPointer;
 
 /*!
   \enum NSRectEdge

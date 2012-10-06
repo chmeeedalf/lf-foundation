@@ -40,7 +40,7 @@ __BEGIN_DECLS
 @protocol NSEventSource;
 
 SYSTEM_EXPORT NSString * const NSPortDidBecomeInvalidNotification;
-typedef NSUInteger NSSocketNativeHandle;
+typedef int NSSocketNativeHandle;
 
 @protocol NSPortDelegate<NSObject>
 - (void) handlePortMessage:(PortMessage *)message;
