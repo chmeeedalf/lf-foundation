@@ -43,7 +43,6 @@
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
-#include <Alepha/System/SysCtl.h>
 #import "internal.h"
 
 /*
@@ -74,7 +73,11 @@ unsigned int numThreads __private = 0;
 {
 	if (self != [NSProcessInfo class])
 		return;
-	size_t count = (unsigned long)Alepha::System::SysCtl("kern.argmax");
+	size_t count = 0;
+	size_t s = sizeof(count);
+
+	sysctlbyname("kern.argmax", &count, &s, NULL, 0);
+
 	char *args = new char[count];
 	int argmib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ARGS, getpid() };
 	processInfo = [NSAllocateObject([NSProcessInfo class], 0, NULL) init];
@@ -253,19 +256,29 @@ unsigned int numThreads __private = 0;
 
 	if (processors == 0)
 	{
-		processors = Alepha::System::SysCtl("kern.smp.cpus");
+		size_t s = sizeof(processors);
+
+		sysctlbyname("kern.smp.cpus", &processors, &s, NULL, 0);
 	}
 	return processors;
 }
 
 - (NSUInteger) activeProcessorCount
 {
-	return (unsigned long)Alepha::System::SysCtl("kern.smp.active");
+	unsigned long activeCount = 0;
+	size_t s = sizeof(activeCount);
+
+	sysctlbyname("kern.smp.active", &activeCount, &s, NULL, 0);
+	return activeCount;
 }
 
 - (unsigned long long) physicalMemory
 {
-	return (unsigned long)Alepha::System::SysCtl("hw.physmem");
+	unsigned long physmem = 0;
+	size_t s = sizeof(physmem);
+
+	sysctlbyname("hw.physmem", &physmem, &s, NULL, 0);
+	return physmem;
 }
 
 - (void) enableSuddenTermination
