@@ -1,6 +1,5 @@
 /* 
    powerpc.h
- * All rights reserved.
 
    Copyright (C) 1998 Ovidiu Predescu and Mircea Oancea.
    All rights reserved.

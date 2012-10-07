@@ -1,6 +1,5 @@
 #include <machine/asm.h>
 
- * All rights reserved.
 /*
  struct objc_super2
  {
