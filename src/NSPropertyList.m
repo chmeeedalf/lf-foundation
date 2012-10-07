@@ -616,6 +616,7 @@ static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
 					NSString *dblStr = [NSString stringWithFormat:@"<integer>%llu</integer>",[plist unsignedLongLongValue]];
 					sub = [outStream write:[dblStr UTF8String] maxLength:[dblStr length]];
 				}
+				break;
 			default:
 				{
 					NSString *dblStr = [NSString stringWithFormat:@"<integer>%lld</integer>",[plist longLongValue]];

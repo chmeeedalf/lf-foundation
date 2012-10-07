@@ -261,6 +261,15 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 	
 	d.exponent = (x >> 52) & 0x7FF;
 	mantissa = (x & ((1ULL << 52) - 1)) | (1ULL << 52);
+	d.length = (52 / 16) + 1;
+
+	memset(d.mantissa, 0, sizeof(d.mantissa));
+
+	for (int i = 0; i < 4; i++)
+	{
+		d.mantissa[i] = mantissa & 0xFFFF;
+		mantissa >>= 16;
+	}
 
 	return [self initWithDecimal:d];
 }

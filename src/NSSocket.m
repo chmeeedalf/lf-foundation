@@ -70,7 +70,6 @@
 
 - (id) initWithAddress:(NSNetworkAddress *)addr socketType:(NSSocketType)type protocol:(int)protocol
 {
-	int pid;
 	struct sockaddr_storage saddr;
 
 	memset(&saddr, 0, sizeof(saddr));
@@ -86,7 +85,6 @@
 	}
 	fcntl(sockfd, F_SETFL, O_ASYNC|O_NONBLOCK);
 	fcntl(sockfd, F_SETOWN, getpid());
-	pid = fcntl(sockfd, F_GETOWN, 0);
 	addrInfo = addr;
 	return self;
 }

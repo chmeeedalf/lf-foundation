@@ -797,8 +797,6 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
     NSUnarchiver *unarchiver = [[self alloc] initForReadingWithData:_data];
     id           object      = [unarchiver decodeObject];
 
-    unarchiver = nil;
-  
     return object;
 }
 + (id)unarchiveObjectWithURL:(NSURL*)path
@@ -941,7 +939,6 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
         if (result == Nil) {
 			@throw [NSInconsistentArchiveException exceptionWithReason:@"class doesn't exist in this runtime." userInfo:nil];
         }
-        name = nil;
 
         if ([result version] != version) {
             @throw [NSInconsistentArchiveException exceptionWithReason:@"class versions do not match." userInfo:nil];
