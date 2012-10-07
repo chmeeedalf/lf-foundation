@@ -77,6 +77,9 @@ static bool _NSPrivateSetupSockaddr(NSData *addr, struct sockaddr_storage *sas)
 	return true;
 }
 
+@interface NSSocketPort() <_NSRunLoopEventSource>
+@end
+
 @implementation NSSocketPort
 {
 	int family;
@@ -179,6 +182,10 @@ static bool _NSPrivateSetupSockaddr(NSData *addr, struct sockaddr_storage *sas)
 	return type;
 }
 
+- (void) handleEvent:(struct kevent *)ev
+{
+}
+
 - (void) removeFromRunLoop:(NSRunLoop *)loop forMode:(NSString *)mode
 {
 	struct kevent ev;
@@ -192,7 +199,7 @@ static bool _NSPrivateSetupSockaddr(NSData *addr, struct sockaddr_storage *sas)
 	struct kevent ev;
 
 	EV_SET(&ev, sockfd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
-	[[NSRunLoop currentRunLoop] addEventSource:&ev target:self selector:@selector(handleEvent) modes:@[mode]];
+	[[NSRunLoop currentRunLoop] addEventSource:&ev target:self modes:@[mode]];
 }
 
 - (bool) sendBeforeDate:(NSDate *)date msgid:(NSUInteger)msgid components:(NSArray *)comp from:(NSPort *)from reserved:(size_t)reserved

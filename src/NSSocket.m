@@ -49,6 +49,9 @@
 #import <Foundation/NSString.h>
 #import "internal.h"
 
+@interface NSSocket() <_NSRunLoopEventSource>
+@end
+
 @implementation NSSocket
 {
 	@protected
@@ -154,7 +157,7 @@
 			{
 				struct kevent ev;
 				EV_SET(&ev, newsock, EVFILT_READ, 0, 0, 0, (__bridge void *)sock);
-				[[NSRunLoop currentRunLoop] addEventSource:&ev target:sock selector:@selector(handleEvent) modes:@[NSRunLoopCommonModes]];
+				[[NSRunLoop currentRunLoop] addEventSource:&ev target:sock modes:@[NSRunLoopCommonModes]];
 			}
 		}
 	}
@@ -226,7 +229,7 @@
 	{
 		struct kevent ev;
 		EV_SET(&ev, sockfd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
-		[[NSRunLoop currentRunLoop] addEventSource:&ev target:self selector:@selector(handleEvent) modes:@[NSRunLoopCommonModes]];
+		[[NSRunLoop currentRunLoop] addEventSource:&ev target:self modes:@[NSRunLoopCommonModes]];
 	}
 }
 

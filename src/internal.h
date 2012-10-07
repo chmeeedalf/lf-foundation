@@ -243,9 +243,15 @@ typedef enum
 } NSEventSourceType;
 
 /* Internals */
+
 struct kevent;
+
+@protocol _NSRunLoopEventSource <NSObject>
+- (void) handleEvent:(struct kevent *)ev;
+@end
+
 @interface NSRunLoop()
-- (void) addEventSource:(struct kevent *)source target:(id)target selector:(SEL)sel modes:(NSArray *)modes;
+- (void) addEventSource:(struct kevent *)source target:(id<_NSRunLoopEventSource>)target modes:(NSArray *)modes;
 - (void) removeEventSource:(struct kevent *)source fromModes:(NSArray *)modes;
 @end
 

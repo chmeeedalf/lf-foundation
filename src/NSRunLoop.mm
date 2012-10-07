@@ -138,10 +138,14 @@ struct _NSRunLoopMode {
 	[modes[mode].timers addObject:timer];
 }
 
-- (void) addEventSource:(struct kevent *)source target:(id)target
-	selector:(SEL)sel modes:(NSArray *)runModes
+- (void) addEventSource:(struct kevent *)source
+	target:(id<_NSRunLoopEventSource>)target
+	modes:(NSArray *)runModes
 {
 	struct timespec timeout{0, 0};
+
+	// The target is weakly held
+	source->udata = (__bridge void *)target;
 
 	for (NSString *mode in runModes)
 	{
@@ -261,7 +265,8 @@ struct _NSRunLoopMode {
 		{
 			for (; count > 0; --count)
 			{
-				// TODO: -[NSRunLoop acceptInputForMode:beforeDate:] events
+				struct kevent *ev = &events[count];
+				[(__bridge id<_NSRunLoopEventSource>)ev handleEvent:ev];
 			}
 			break;
 		}

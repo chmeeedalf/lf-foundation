@@ -71,9 +71,15 @@ NSString * const NSFileHandleNotificationDataItem = @"NSFileHandleNotificationDa
 @implementation NSFileHandleOperationException
 @end
 
-@interface NSFileHandle()
+@interface NSFileHandle() <_NSRunLoopEventSource>
 - (void) setNonBlock:(bool)noblock;
 @end
+
+enum state {
+	ACCEPTING,
+	READING,
+	DATA,
+};
 
 @implementation NSFileHandle
 {
@@ -88,6 +94,8 @@ NSString * const NSFileHandleNotificationDataItem = @"NSFileHandleNotificationDa
 	bool closeOnDealloc;
 	bool isNonBlocked;
 	bool isRegularFile;
+
+	enum state state;
 }
 
 @synthesize readabilityHandler;
@@ -455,16 +463,36 @@ NSFileHandleNotificationDataItem : data,
 		object:self];
 }
 
-- (void) _addRunLoopSourceEventHandlerForModes:(NSArray *)modes selector:(SEL)selector
+- (void) handleEvent:(struct kevent *)ev
+{
+	switch (state)
+	{
+		case ACCEPTING:
+			[self _acceptConnection];
+			break;
+		case READING:
+			[self _readDataToEndBackground];
+			break;
+		case DATA:
+			[self _dataAvailableBackground];
+			break;
+	}
+}
+
+- (void) _addRunLoopSourceEventHandlerForModes:(NSArray *)modes
+	state:(enum state)s
 {
 	struct kevent ev;
 	EV_SET(&ev, fd, EVFILT_READ, 0, 0, 0, (__bridge void *)self);
+
+	state = s;
+
 	if (modes == nil)
 	{
 		modes = @[NSDefaultRunLoopMode];
 	}
 	[[NSRunLoop currentRunLoop] addEventSource:&ev target:self
-		selector:@selector(acceptConnection) modes:modes];
+		modes:modes];
 }
 
 - (void) acceptConnectionInBackgroundAndNotify
@@ -474,8 +502,7 @@ NSFileHandleNotificationDataItem : data,
 
 - (void) acceptConnectionInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	[self _addRunLoopSourceEventHandlerForModes:modes
-		selector:@selector(_acceptConnection)];
+	[self _addRunLoopSourceEventHandlerForModes:modes state:ACCEPTING];
 }
 
 - (void) readInBackgroundAndNotify
@@ -485,8 +512,7 @@ NSFileHandleNotificationDataItem : data,
 
 - (void) readInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	[self _addRunLoopSourceEventHandlerForModes:modes
-		selector:@selector(_readDataBackground)];
+	[self _addRunLoopSourceEventHandlerForModes:modes state:READING];
 }
 
 - (void) readToEndOfFileInBackgroundAndNotify
@@ -497,8 +523,7 @@ NSFileHandleNotificationDataItem : data,
 - (void) readToEndOfFileInBackgroundAndNotifyForModes:(NSArray *)modes
 {
 	[self setNonBlock:false];
-	[self _addRunLoopSourceEventHandlerForModes:modes
-		selector:@selector(_readDataBackground)];
+	[self _addRunLoopSourceEventHandlerForModes:modes state:READING];
 }
 
 - (void) waitForDataInBackgroundAndNotify
@@ -508,8 +533,7 @@ NSFileHandleNotificationDataItem : data,
 
 - (void) waitForDataInBackgroundAndNotifyForModes:(NSArray *)modes
 {
-	[self _addRunLoopSourceEventHandlerForModes:modes
-		selector:@selector(_dataAvailableBackground)];
+	[self _addRunLoopSourceEventHandlerForModes:modes state:DATA];
 }
 
 
