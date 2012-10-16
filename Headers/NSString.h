@@ -97,7 +97,7 @@ enum
 {
 	NSStringEnumerationByLines = 0,
 	NSStringEnumerationByParagraphs = 1,
-	NSStringEnumerationByComposedCharacterSequence = 2,
+	NSStringEnumerationByComposedCharacterSequences = 2,
 	NSStringEnumerationByWords = 3,
 	NSStringEnumerationBySentences = 4,
 	NSStringEnumerationReverse = 1UL << 8,

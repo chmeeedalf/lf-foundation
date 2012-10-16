@@ -62,6 +62,8 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSLocale.h>
 #import <Foundation/NSScanner.h>
+#import "GSICUString.h"
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -828,7 +830,154 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 
 - (void) enumerateSubstringsInRange:(NSRange)range options:(NSStringEnumerationOptions)opts usingBlock:(void (^)(NSString *, NSRange, NSRange, bool *))block
 {
-	TODO; // -[NSString enumerateSubstringsInRange:options:usingBlock:]
+	UBreakIteratorType t;
+	UBreakIterator *iter;
+	UText *txt;
+	UErrorCode ec;
+
+	switch (opts & 0xFF)
+	{
+		case NSStringEnumerationByLines:
+			{
+				t = UBRK_LINE;
+				break;
+			}
+		case NSStringEnumerationByParagraphs:
+			{
+				t = UBRK_LINE;
+				break;
+			}
+		case NSStringEnumerationByComposedCharacterSequences:
+			{
+				t = UBRK_CHARACTER;
+				break;
+			}
+		case NSStringEnumerationByWords:
+			{
+				t = UBRK_WORD;
+				break;
+			}
+		case NSStringEnumerationBySentences:
+			{
+				t = UBRK_SENTENCE;
+				break;
+			}
+	}
+
+	const char *loc = NULL;
+
+	if (opts & NSStringEnumerationLocalized)
+	{
+		loc = [[[NSLocale currentLocale] localeIdentifier] UTF8String];
+	}
+	iter = ubrk_open(t, loc, NULL, 0, &ec);
+	txt = UTextInitWithNSString(NULL, self);
+
+	int32_t offset;
+	int32_t done;
+	
+	if (opts & NSStringEnumerationReverse)
+	{
+		offset = ubrk_following(iter, NSMaxRange(range) - 1);
+		if (offset == UBRK_DONE)
+			offset = [self length] - 1;
+		done = 0;
+	}
+	else
+	{
+		offset = ubrk_preceding(iter, range.location);
+		if (offset == UBRK_DONE)
+			offset = 0;
+		done = NSMaxRange(range);
+	}
+	for (;;)
+	{
+		NSString *substr = nil;
+		NSRange enclosingRange;
+		NSRange substrRange;
+		bool stop = false;
+		NSUInteger len = [self length];
+
+		enclosingRange.location = offset;
+		for (;;)
+		{
+			while (ubrk_isBoundary(iter, offset))
+			{
+				if (opts & NSStringEnumerationReverse)
+					offset--;
+				else
+					offset++;
+			}
+			substrRange.location = offset;
+			if (opts & NSStringEnumerationReverse)
+			{
+				offset = ubrk_preceding(iter, offset);
+				done = 0;
+			}
+			else
+			{
+				offset = ubrk_following(iter, offset);
+				done = NSMaxRange(range);
+			}
+			if (opts & NSStringEnumerationReverse)
+			{
+				substrRange.length = substrRange.location - offset;
+				substrRange.location = offset + 1;
+			}
+			else
+			{
+				substrRange.length = offset - substrRange.location;
+			}
+			int32_t stat = ubrk_getRuleStatus(iter);
+			while (ubrk_isBoundary(iter, offset))
+			{
+				if (opts & NSStringEnumerationReverse)
+					offset--;
+				else
+					offset++;
+			}
+			if ((opts & 0xFF) != NSStringEnumerationByParagraphs ||
+					(stat >= UBRK_LINE_HARD && stat < UBRK_LINE_HARD_LIMIT))
+				break;
+		}
+		if (opts & NSStringEnumerationReverse)
+		{
+			enclosingRange.length = enclosingRange.location - offset;
+			enclosingRange.location = offset;
+		}
+		else
+			enclosingRange.length = (offset - enclosingRange.location);
+
+		if (!(opts & NSStringEnumerationSubstringNotRequired))
+		{
+			substr = [self substringWithRange:substrRange];
+		}
+		block(substr, substrRange, enclosingRange, &stop);
+		if (stop)
+		{
+			break;
+		}
+		if (opts & NSStringEnumerationReverse)
+			offset--;
+		else
+			offset++;
+
+		if ((opts & NSStringEnumerationReverse) && (NSUInteger)offset < range.location)
+			break;
+		if ((NSUInteger)offset > NSMaxRange(range))
+			break;
+
+		NSUInteger newLen = [self length];
+		
+		if (newLen < len)
+		{
+			offset -= (len - newLen);
+		}
+		else
+		{
+			offset += (newLen - len);
+		}
+	}
 }
 
 /* Identifying and comparing strings */
@@ -1578,11 +1727,13 @@ static inline int hexval(char digit)
 
 - (void) getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEnd forRange:(NSRange)aRange
 {
+	TODO; // -[NSString getLineStart:end:contentsEnd:forRange:]
 	[self notImplemented:_cmd];
 }
 
 - (void) getParagraphStart:(NSUInteger *)startIndex end:(NSUInteger *)parEndIndex contentsEnd:(NSUInteger *)contentsEnd forRange:(NSRange)aRange
 {
+	TODO; // -[NSString getParagraphStart:end:contentsEnd:forRange:]
 	[self notImplemented:_cmd];
 }
 
