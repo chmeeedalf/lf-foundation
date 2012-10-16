@@ -29,6 +29,7 @@
  */
 
 #include <algorithm>
+#include <map>
 #include <vector>
 
 #import <Foundation/NSIndexPath.h>
@@ -38,7 +39,8 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSString.h>
 
-// TODO: Uniquify IndexPaths and cache them in a hash table.
+std::map<std::vector<NSUInteger>, __weak NSIndexPath *> pathCache;
+
 @implementation NSIndexPath
 {
 	std::vector<NSUInteger> indexes;
@@ -62,7 +64,19 @@
 - (id) initWithIndexes:(NSUInteger *)idxs length:(size_t)len
 {
 	std::copy(idxs, idxs + len, std::back_inserter(indexes));
+
+	auto i = pathCache.find(indexes);
+
+	if (i != pathCache.end())
+	{
+		return i->second;
+	}
 	return self;
+}
+
+- (void) dealloc
+{
+	pathCache.erase(indexes);
 }
 
 - (void) getIndexes:(NSUInteger *)idxOut
