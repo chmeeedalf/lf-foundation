@@ -71,6 +71,7 @@ std::map<std::vector<NSUInteger>, __weak NSIndexPath *> pathCache;
 	{
 		return i->second;
 	}
+	pathCache.insert({indexes, self});
 	return self;
 }
 
