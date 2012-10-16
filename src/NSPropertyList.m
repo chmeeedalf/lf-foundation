@@ -470,7 +470,7 @@ static NSUInteger writeXMLPropertyList(id plist, NSOutputStream *outStream,
 static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
 		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err)
 {
-	NSInteger sub;
+	__block NSInteger sub;
 	__block NSUInteger total = 0;
 
 	/*
@@ -482,8 +482,6 @@ static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
 
 	if ([plist isKindOfClass:[NSArray class]])
 	{
-		__block NSInteger sub;
-
 		sub = [outStream write:"<array>\n" maxLength:strlen("<array>\n")];
 		if (sub < 0)
 			return total;
@@ -521,8 +519,6 @@ static NSUInteger writeXMLPropertyListInt(id plist, NSOutputStream *outStream,
 	}
 	else if ([plist isKindOfClass:[NSDictionary class]])
 	{
-		__block NSInteger sub;
-
 		sub = [outStream write:"<dict>\n" maxLength:strlen("<dict>\n")];
 		if (sub < 0)
 			return total;

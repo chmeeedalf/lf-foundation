@@ -164,7 +164,7 @@
 - (void) removeObjectsAtIndexes:(NSIndexSet *)indexes
 {
 	[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:key];
-	[self _realRemoveObjectAtIndex:indexes];
+	[self _realRemoveObjectsAtIndexes:indexes];
 	[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:key];
 }
 
@@ -191,7 +191,7 @@
 - (void) replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)objs
 {
 	[self willChange:NSKeyValueChangeReplacement valuesAtIndexes:indexes forKey:key];
-	[self _realReplaceObjectAtIndex:indexes withObject:objs];
+	[self _realReplaceObjectsAtIndexes:indexes withObjects:objs];
 	[self didChange:NSKeyValueChangeReplacement valuesAtIndexes:indexes forKey:key];
 }
 

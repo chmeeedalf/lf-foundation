@@ -110,7 +110,6 @@ extern NSRecursiveLock *libFoundationLock;
 	if (ptr == NULL) {
 		fprintf(stderr, "%s: missing password structure ..\n",
 				__PRETTY_FUNCTION__);
-		self;
 		return nil;
 	}
 

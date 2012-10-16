@@ -303,13 +303,13 @@ enum state {
 			read_count = read(fd, buf, 1);
 			if (read_count <= 0)
 			{
-				char buf[NL_TEXTMAX];
-				strerror_r(errno, buf, sizeof(buf));
+				char errBuf[NL_TEXTMAX];
+				strerror_r(errno, errBuf, sizeof(errBuf));
 
 				@throw [NSFileHandleOperationException
 					exceptionWithReason:@"Unable to read from descriptor."
 					userInfo:@{
-						@"NSFileHandleError" : @(buf)}];
+						@"NSFileHandleError" : @(errBuf)}];
 			}
 			else
 			{
@@ -363,10 +363,10 @@ enum state {
 		rd = read(fd, &buf[0], rlen);
 		if (rd < 0)
 		{
-			char buf[NL_TEXTMAX];
-			strerror_r(errno, buf, sizeof(buf));
+			char errBuf[NL_TEXTMAX];
+			strerror_r(errno, errBuf, sizeof(errBuf));
 
-			@throw [NSFileHandleOperationException exceptionWithReason:@(buf) userInfo:nil];
+			@throw [NSFileHandleOperationException exceptionWithReason:@(errBuf) userInfo:nil];
 		}
 		[d appendBytes:&buf[0] length:rd];
 		length -= rd;

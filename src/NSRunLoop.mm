@@ -289,9 +289,9 @@ struct _NSRunLoopMode {
 	performMap map = i->second.performers;
 	i->second.performers.clear();
 
-	for (auto i : map)
+	for (auto j : map)
 	{
-		[i.second invoke];
+		[j.second invoke];
 	}
 }
 

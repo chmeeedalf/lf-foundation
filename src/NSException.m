@@ -152,12 +152,12 @@ userInfo:(NSDictionary*)_userInfo
 
 	NSUInteger count = [returnAddresses count];
 	callStackSymbols = [NSMutableArray new];
-	void **addrs = malloc([returnAddresses count] * sizeof(void *));
+	NSUInteger *addrs = malloc([returnAddresses count] * sizeof(void *));
 	for (NSUInteger i = count; i > 0; --i)
 	{
 		addrs[i - 1] = [[returnAddresses objectAtIndex:i-1] unsignedIntegerValue];
 	}
-	char **syms = backtrace_symbols(addrs, count);
+	char **syms = backtrace_symbols((void **)addrs, count);
 	for (NSUInteger i = 0; i < count; i++)
 	{
 		[callStackSymbols addObject:@(syms[i])];

@@ -343,7 +343,10 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 {
 	if (self->decimal.exponent == 0 && !self->decimal.isNegative)
 	{
-		return self->decimal.mantissa;
+		return ((unsigned long long)self->decimal.mantissa[0]) |
+			((unsigned long long)self->decimal.mantissa[1] << 16) |
+			((unsigned long long)self->decimal.mantissa[2] << 32) |
+			((unsigned long long)self->decimal.mantissa[3] << 48);
 	}
 	return [self doubleValue];
 }

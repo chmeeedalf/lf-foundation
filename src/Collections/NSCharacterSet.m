@@ -234,7 +234,7 @@ static _NSICUCharacterSet *whitespaceCharacterSet = nil;
 	const char *thisBitmap = [thisBitmapData bytes];
 	const char *otherBitmap = [otherBitmapData bytes];
 
-	NSUInteger len = MAX(thisBitmapData, otherBitmapData);
+	NSUInteger len = MAX([thisBitmapData length], [otherBitmapData length]);
 	for (NSUInteger i = 0; i < len; i++)
 	{
 		if ((thisBitmap[i] & otherBitmap[i]) != otherBitmap[i])

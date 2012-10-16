@@ -281,7 +281,7 @@ static int delete_item(const char *path, const struct stat *sb, int flag, struct
 
 	struct stat sb;
 	
-	if (stat(path[0], &sb) < 0)
+	if (stat(path, &sb) < 0)
 	{
 		return false;
 	}
@@ -299,7 +299,7 @@ static int delete_item(const char *path, const struct stat *sb, int flag, struct
 	}
 
 	/* Now remove the file */
-	if (remove(path[0]) == 0)
+	if (remove(path) == 0)
 		return true;
 	return false;
 }

@@ -158,11 +158,11 @@
 		NSInetAddress *addr = nil;
 		if (info->ai_family == AF_INET6)
 		{
-			addr = [[NSInet6Address alloc] initWithAddress:((struct sockaddr_in6 *)info->ai_addr)->sin6_addr.s6_addr];
+			addr = [[NSInet6Address alloc] initWithAddress:((struct sockaddr_in6 *)(void *)info->ai_addr)->sin6_addr.s6_addr];
 		}
 		else if (info->ai_family == AF_INET)
 		{
-			addr = [[NSInet4Address alloc] initWithAddress:(uint8_t *)&((struct sockaddr_in *)info->ai_addr)->sin_addr.s_addr];
+			addr = [[NSInet4Address alloc] initWithAddress:(uint8_t *)&((struct sockaddr_in *)(void *)info->ai_addr)->sin_addr.s_addr];
 		}
 		if (info->ai_canonname != NULL)
 			[names addObject:[NSString stringWithCString:info->ai_canonname encoding:NSASCIIStringEncoding]];
