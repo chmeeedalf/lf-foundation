@@ -115,7 +115,7 @@ static Class CoreDictionaryClass;
 	return [[self allocWithZone:NULL] initWithObjects:objects forKeys:keys];
 }
 
-+ (id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys
++ (id)dictionaryWithObjects:(const id [])objects forKeys:(const id<NSCopying> [])keys
 	count:(NSUInteger)count
 {
 	return [[self allocWithZone:NULL]
@@ -238,7 +238,7 @@ static Class CoreDictionaryClass;
 	return self;
 }
 
-- (id)initWithObjects:(const id [])objects forKeys:(const id [])keys
+- (id)initWithObjects:(const id [])objects forKeys:(const id<NSCopying> [])keys
 count:(NSUInteger)count
 {
 	[self subclassResponsibility:_cmd];

@@ -71,7 +71,7 @@ typedef struct _map_table *_map_table;
 }
 
 /* Allocating and Initializing an NSDictionary */
-- (id)initWithObjects:(id*)objects forKeys:(id*)keys 
+- (id)initWithObjects:(const id [])objects forKeys:(const id<NSCopying>[])keys 
   count:(NSUInteger)count;
 - (id)initWithDictionary:(NSDictionary*)dictionary;
 
@@ -89,7 +89,7 @@ typedef struct _map_table *_map_table;
 
 
 /* Modifying dictionary */
-- (void)setObject:(id)anObject forKey:(id)aKey;
+- (void)setObject:(id)anObject forKey:(id<NSCopying>)aKey;
 - (void)removeObjectForKey:(id)theKey;
 - (void)removeAllObjects;
 

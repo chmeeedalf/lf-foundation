@@ -71,7 +71,7 @@
  * \param objects NSArray of objects to insert into the dictionary.
  * \param keys NSArray of keys to associate with the objects.
  */
-+(id)dictionaryWithObject:(id)objects forKey:(id)key;
++(id)dictionaryWithObject:(id)objects forKey:(id<NSCopying>)key;
 
 /*!
  * \brief Creates and returns an NSDictionary containing a given number of
@@ -81,7 +81,7 @@
  * \param keys NSArray of keys to associate with the objects.
  * \param count NSNumber of key/object pairs.
  */
-+(id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys
++(id)dictionaryWithObjects:(const id [])objects forKeys:(const id<NSCopying> [])keys
 	count:(NSUInteger)count;
 
 /*!
@@ -133,7 +133,7 @@
  * \param keys NSArray of keys to associate with the objects.
  * \param count NSNumber of key/object pairs.
  */
--(id)initWithObjects:(const id [])objects forKeys:(const id [])keys
+-(id)initWithObjects:(const id [])objects forKeys:(const id<NSCopying> [])keys
 	count:(NSUInteger)count;
 
 -(id)initWithContentsOfURL:(NSURL *)uri;
@@ -287,7 +287,7 @@
  * \param anObject NSObject to add.
  * \param aKey Key to add, associated with the given object.
  */
--(void)setObject:(id)anObject forKey:(id)aKey;
+-(void)setObject:(id)anObject forKey:(id<NSCopying>)aKey;
 
 /*!
  * \brief Sets the contents of the receiver to that of the passed dictionary.
@@ -295,7 +295,7 @@
  */
 -(void)setDictionary:(NSDictionary *)otherDictionary;
 
-- (void) setObject:(id)obj forKeyedSubscript:(id)subscript;
+- (void) setObject:(id)obj forKeyedSubscript:(id<NSCopying>)subscript;
 @end
 
 /*

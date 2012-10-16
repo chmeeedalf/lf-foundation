@@ -99,8 +99,8 @@
 
 /* Allocating and Initializing */
 
-- (id)initWithObjects:(id*)objects
-	forKeys:(id*)keys
+- (id)initWithObjects:(const id [])objects
+	forKeys:(const id<NSCopying> [])keys
 	count:(NSUInteger)count
 {
 	self = [self initWithCapacity:count];
@@ -119,7 +119,7 @@
 					exceptionWithReason:@"Nil object to be added in dictionary"
 					userInfo:nil]);
 		}
-		key = [keys[count] copy];
+		key = [keys[count] copyWithZone:NULL];
 		table[key] = objects[count];
 	}
 	return self;
@@ -127,7 +127,7 @@
 
 /* Modifying dictionary */
 
-- (void)setObject:(id)anObject forKey:(id)aKey
+- (void)setObject:(id)anObject forKey:(id<NSCopying>)aKey
 {
 	if (!anObject || !aKey)
 	{
@@ -139,7 +139,7 @@
 	_map_table::iterator i = table.find(aKey);
 	if (i == table.end())
 	{
-		aKey = [aKey copy];
+		aKey = [aKey copyWithZone:NULL];
 	}
 	table[aKey] = anObject;
 }

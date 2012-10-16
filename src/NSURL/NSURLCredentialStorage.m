@@ -33,6 +33,7 @@
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSURLCredential.h>
+#import <Foundation/NSURLProtectionSpace.h>
 
 NSString * const NSURLCredentialStorageChangedNotification = @"NSURLCredentialStorageChangedNotification";
 
