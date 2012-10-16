@@ -39,10 +39,8 @@
 
 @implementation NSNotificationQueue
 {
-    NSNotificationCenter            *center;
-    struct _NSNotificationQueueList *asapQueue;
-    struct _NSNotificationQueueList *idleQueue;
-    NSZone *zone;
+	NSNotificationCenter *center;
+	NSDictionary         *modes;
 }
 
 static __thread __unsafe_unretained NSNotificationQueue *defaultQueue;
@@ -63,7 +61,7 @@ static __thread __unsafe_unretained NSNotificationQueue *defaultQueue;
 
 - (id)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter
 {
-	TODO;	// -[NSNotificationQueue initWithNotificationCenter:]
+	center = notificationCenter;
 	return self;
 }
 
@@ -71,7 +69,7 @@ static __thread __unsafe_unretained NSNotificationQueue *defaultQueue;
 /* Inserting and Removing Notifications From a Queue */
  
 - (void)dequeueNotificationsMatching:(NSNotification*)notification
-  coalesceMask:(unsigned int)coalesceMask
+  coalesceMask:(NSUInteger)coalesceMask
 {
 	TODO;	// -[NSNotificationQueue dequeueNotificationsMatching:coalesceMask:]
 }
@@ -88,7 +86,7 @@ static __thread __unsafe_unretained NSNotificationQueue *defaultQueue;
 
 - (void)enqueueNotification:(NSNotification*)notification
   postingStyle:(NSPostingStyle)postingStyle
-  coalesceMask:(unsigned int)coalesceMask
+  coalesceMask:(NSUInteger)coalesceMask
   forModes:(NSArray*)modes
 {
 	TODO;	// -[NSNotificationQueue enqueueNotification:postingStyle:coalesceMask:forModes:]
