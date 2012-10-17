@@ -36,9 +36,10 @@
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSURL.h>
+#include <dlfcn.h>
+#include <link.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dlfcn.h>
 #import "internal.h"
 
 #define RESOURCES_PATH "/system/lib:/local/lib"
@@ -79,11 +80,10 @@ typedef struct
 } LoadingClassCategory;
 #endif
 
-static NSMapTable           *bundleClasses     = NULL; // class -> bundle mapping
 static NSMapTable           *bundleNames       = NULL; // path  -> bundle mapping
 static NSMapTable           *bundleIdentifiers = NULL;
+static NSMapTable			*bundleAddresses   = NULL;
 static NSBundle             *mainBundle        = nil;  // application bundle
-//static LoadingClassCategory*	load_Classes      = NULL; // used while loading
 static int                  load_classes_size = 0;    // used while loading
 static int                  load_classes_used = 0;    // used while loading
 
@@ -113,9 +113,9 @@ NSMakeSymbol(NSBundleDidLoadNotification);
 	if (self != [NSBundle class])
 		return;
 
-	bundleClasses = [NSMapTable mapTableWithWeakToWeakObjects];
 	bundleNames = [NSMapTable mapTableWithStrongToWeakObjects];
 	bundleIdentifiers = [NSMapTable mapTableWithStrongToWeakObjects];
+	bundleAddresses    = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality valueOptions:NSMapTableZeroingWeakMemory|NSMapTableObjectPointerPersonality];
 }
 
 // Load info for bundle
@@ -136,23 +136,6 @@ NSMakeSymbol(NSBundleDidLoadNotification);
 		infoDictionary = [[NSDictionary alloc] init];
 }
 
-#if 0
-// Internal code loading
-static void load_callback(Class class, Category* category)
-{
-	if (load_classes_used >= load_classes_size)
-	{
-		load_classes_size += 128;
-		load_Classes = realloc(load_Classes,
-				load_classes_size*sizeof(LoadingClassCategory));
-	}
-	load_Classes[load_classes_used].class    = class;
-	load_Classes[load_classes_used].category = category;
-
-	load_classes_used++;
-}
-#endif
-
 - (bool) isLoaded
 {
 	return codeLoaded;
@@ -165,7 +148,6 @@ static void load_callback(Class class, Category* category)
 
 - (bool) loadAndReturnError:(NSError **)err
 {
-	int            i;
 	NSFileManager  *fm;
 	NSURL          *file;
 	NSURL          *rfile;
@@ -203,52 +185,16 @@ static void load_callback(Class class, Category* category)
 	// Prepare to keep classes/categories loaded
 	load_classes_size = 128;
 	load_classes_used = 0;
-	//load_Classes = malloc(load_classes_size * sizeof(LoadingClassCategory));
 
 	status = dlopen([[file path] fileSystemRepresentation], RTLD_LAZY);
 
 	if (status)
 	{
-		firstLoadedClass = Nil;
+		Link_map *map;
 
-		for (i = 0; i < load_classes_used; i++)
-		{
-			// get first class from bundle
-#if 0
-TODO: loader stuff
-			if (firstLoadedClass == NULL)
-			{
-				if (load_Classes[i].category == NULL)
-					firstLoadedClass = load_Classes[i].class;
-			}
-
-			// insert in bundle hash
-			if (load_Classes[i].category == NULL)
-				[bundleClasses setObject:self forKey:load_Classes[i].class];
-
-			// register for notification
-			if (load_Classes[i].category == NULL)
-			{
-				NSString *className = nil;
-
-				className = StringFromClass(load_Classes[i].class);
-				[loadedClasses addObject:className];
-			}
-			else
-			{
-				NSString *className    = nil;
-
-				if (load_Classes[i].class)
-				{
-					className = StringFromClass(load_Classes[i].class);
-				}
-				if (className) [loadedClasses addObject:className];
-			}
-#endif
-		}
+		dlinfo(status, RTLD_DI_LINKMAP, &map);
+		[bundleAddresses setPointer:(__bridge_retained void *)self forKey:map->l_addr];
 	}
-
-	//free(load_Classes); load_Classes = NULL;
 
 	if (status)
 	{
@@ -357,10 +303,12 @@ static bool canReadFile(NSURL *path)
 
 + (NSBundle *)bundleForClass:(Class)aClass
 {
-	NSBundle *bundle;
+	Dl_info info;
 
-	if ((bundle = [bundleClasses objectForKey:aClass]))
-		return bundle;
+	if (dladdr((__bridge void *)aClass, &info) != 0)
+	{
+		return (__bridge id)[bundleAddresses pointerForKey:info.dli_fbase];
+	}
 
 	return [self mainBundle];
 }
@@ -447,22 +395,10 @@ static bool canReadFile(NSURL *path)
 
 	[self load];
 
-	className = [[self infoDictionary] objectForKey:@"PrincipalClass"];
+	className = [[self infoDictionary] objectForKey:@"NSPrincipalClass"];
 
 	if ((class = NSClassFromString(className)) == Nil)
 		class = firstLoadedClass;
-
-	if (class)
-	{
-#ifdef DEBUG
-		if ([bundleClasses objectForKey:class] != self)
-		{
-			NSLog(@"WARNING(%s): principal class %@ of bundle %@ "
-					@"is not a class of the bundle !",
-					__func__, class, self);
-		}
-#endif
-	}
 
 	return class;
 }
