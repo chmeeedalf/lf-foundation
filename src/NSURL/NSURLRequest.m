@@ -67,6 +67,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	NSInputStream          *bodyStream;
 	NSMutableDictionary    *headerFields;
 	NSURL                  *mainDocumentURL;
+	NSURLRequestNetworkServiceType netServiceType;
+	bool                    usePipeline;
 	bool                    handleCookies;
 }
 
@@ -180,14 +182,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(bool) HTTPShouldUsePipelining
 {
-	TODO; // -[NSURLRequest HTTPShouldUsePipelining]
-	return false;
+	return usePipeline;
 }
 
 -(NSURLRequestNetworkServiceType) networkServiceType
 {
-	TODO; // -[NSURLRequest networkServiceType]
-	return 0;
+	return netServiceType;
 }
 @end
 
@@ -275,6 +275,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -(void)setMainDocumentURL:(NSURL *)value
 {
 	mainDocumentURL = [value copy];
+}
+
+-(void)setHTTPShouldUsePipelining:(bool)use
+{
+	usePipeline = use;
+}
+
+- (void) setNetworkServiceType:(NSURLRequestNetworkServiceType)type
+{
+	netServiceType = type;
 }
 
 @end

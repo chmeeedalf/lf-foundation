@@ -80,6 +80,9 @@ typedef enum
 -(void)setHTTPBodyStream:(NSInputStream *)value;
 -(void)setHTTPMethod:(NSString *)value;
 -(void)setHTTPShouldHandleCookies:(bool)value;
+-(void)setHTTPShouldUsePipelining:(bool)usePipeline;
+
+-(void)setNetworkServiceType:(NSURLRequestNetworkServiceType)type;
 -(void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
 
 @end
