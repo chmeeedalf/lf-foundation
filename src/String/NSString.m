@@ -1779,12 +1779,10 @@ static inline int hexval(char digit)
 
 	if (count > 0)
 	{
-		NSStringEncoding enc = NSUnicodeStringEncoding;
-		NSUniChar *chars __cleanup(cleanup_pointer) = malloc(count * sizeof(NSUniChar));
+		NSStringEncoding enc = [self fastestEncoding];
 
 		[coder encodeValueOfObjCType:@encode(NSStringEncoding) at:&enc];
-		[self getCharacters:chars range:NSMakeRange(0, count)];
-		[coder encodeArrayOfObjCType:@encode(NSUniChar) count:count at:chars];
+		[coder encodeDataObject:[self dataUsingEncoding:[self fastestEncoding]]];
 	}
 }
 
@@ -1794,14 +1792,12 @@ static inline int hexval(char digit)
 
 	[coder decodeValueOfObjCType:@encode(size_t) at:&count];
 
-	// TODO: In the future, this should support ASCII as well as Unicode.
-	// For now, just unicode.
 	if (count > 0)
 	{
-		NSUniChar *chars = malloc(count * sizeof(NSUniChar));
+		NSStringEncoding enc;
 
-		[coder decodeArrayOfObjCType:@encode(NSUniChar) count:count at:chars];
-		self = [self initWithCharactersNoCopy:chars length:count freeWhenDone:true];
+		[coder decodeValueOfObjCType:@encode(NSStringEncoding) at:&enc];
+		self = [self initWithData:[coder decodeDataObject] encoding:enc];
 	}
 	return self;
 }
