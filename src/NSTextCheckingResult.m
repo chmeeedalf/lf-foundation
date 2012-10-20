@@ -42,8 +42,6 @@
  */
 @interface GSRegularExpressionCheckingResult : NSTextCheckingResult
 {
-	// TODO: This could be made more efficient by adding a variant that only
-	// contained a single range.
 	@public
 		/** The number of ranges matched */
 		NSUInteger rangeCount;
