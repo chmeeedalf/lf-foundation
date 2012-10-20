@@ -51,7 +51,7 @@ typedef enum {
 	NSWeekdayCalendarUnit = 1 << 9,
 	NSWeekdayOrdinalCalendarUnit = 1 << 10,
 	NSWeekOfMonthCalendarUnit = 1 << 11,
-	NSWeekOfYearhCalendarUnit = 1 << 12,
+	NSWeekOfYearCalendarUnit = 1 << 12,
 	NSYearForWeekOfYearCalendarUnit = 1 << 13,
 	NSQuarterCalendarUnit = 1 << 14,
 	NSCalendarCalendarUnit = 1 << 20,
