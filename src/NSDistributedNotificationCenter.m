@@ -49,6 +49,9 @@ NSString *NSLocalNotificationCenterType = @"org.Gold.distnote.Local";
 			  object:(NSString *)obj
   suspensionBehavior:(NSNotificationSuspensionBehavior)behavior
 			  client:(id)client;
+- (void) postNotification:(NSNotification *)not
+	   deliverImmediately:(bool)flag
+				   client:(id)client;
 - (void) removeObserver:(id)observer name:(NSString *)name object:(id)obj client:(id)client;
 - (void) setSuspended:(bool)suspend;
 @end
@@ -56,11 +59,23 @@ NSString *NSLocalNotificationCenterType = @"org.Gold.distnote.Local";
 @interface NSDistributedNotificationCenter()
 - (id<NSDNCServer>) dncProxy;
 @end
+
+static NSDistributedNotificationCenter *localDNC;
+
 @implementation NSDistributedNotificationCenter
 {
 	NSString *type;
 	id<NSDNCServer> proxy;
 	bool suspended;
+}
+
++ (void) initialize
+{
+	if (localDNC == nil)
+	{
+		localDNC = NSAllocateObject(self, 0, NULL);
+		localDNC->type = NSLocalNotificationCenterType;
+	}
 }
 
 - (id<NSDNCServer>) dncProxy
@@ -80,7 +95,11 @@ NSString *NSLocalNotificationCenterType = @"org.Gold.distnote.Local";
 
 + (NSDistributedNotificationCenter *)notificationCenterForType:(NSString *)_type
 {
-	TODO;	// +[NSDistributedNotificationCenter notificationCenterForType:]
+	if ([_type isEqualToString:NSLocalNotificationCenterType])
+	{
+		return localDNC;
+	}
+
 	return nil;
 }
 
@@ -116,7 +135,12 @@ NSString *NSLocalNotificationCenterType = @"org.Gold.distnote.Local";
 - (void)postNotificationName:(NSString *)name object:(id)object
 					userInfo:(NSDictionary *)userInfo deliverImmediatly:(bool)flag
 {
-	TODO;	// -[NSDistributedNotificationCenter ]
+	NSNotification *not = [NSNotification notificationWithName:name
+														object:object
+													  userInfo:userInfo];
+	[[self dncProxy] postNotification:not
+				   deliverImmediately:flag
+							   client:self];
 }
 
 -(void)postNotificationName:(NSString *)aName object:(id)anObject
