@@ -43,8 +43,15 @@
 #import <Foundation/NSURL.h>
 #import <Foundation/NSValue.h>
 
+#import "NSSqlite.h"
 #import "internal.h"
 
+/*
+   NSUserDefaults loads all defaults from a single database, rather than
+   discrete files.  This way, there is only a single database connection.  The
+   drawback of this approach is that corruption by a single application will
+   render all defaults useless.
+ */
 @class NSString, NSData, NSURL;
 @class NSArray, NSMutableArray;
 @class NSDictionary, NSMutableDictionary;
@@ -65,6 +72,7 @@ static NSUserDefaults *standardDefaults;
 	NSMutableArray      *searchList;
 	NSMutableSet        *domainsToRemove;
 	NSMutableSet        *dirtyDomains;
+	NSSqliteDatabase	*sqliteConn;
 	dispatch_source_t    synchronizeSource;
 }
 
@@ -107,7 +115,13 @@ static NSUserDefaults *standardDefaults;
 	synchronizeSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD,
 			0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
 	dispatch_source_set_event_handler(synchronizeSource, ^{[self synchronize];});
-	return nil;
+
+	NSURL *homeDir = [NSURL fileURLWithPath:NSHomeDirectoryForUser(userName)];
+	NSURL *prefPath = [homeDir URLByAppendingPathComponent:@"Library"];
+	prefPath = [prefPath URLByAppendingPathComponent:@"Preferences"];
+	prefPath = [prefPath URLByAppendingPathComponent:@"user.sqlite"];
+	sqliteConn = [NSSqliteDatabase databaseWithURL:prefPath];
+	return self;
 }
 
 - (void) dealloc
@@ -464,8 +478,7 @@ static bool isPlistObject(id obj)
 
 - (bool) objectIsForcedForKey:(NSString *)key
 {
-	TODO; // -[NSUserDefaults objectIsForcedForKey:];
-	return false;
+	return [self objectIsForcedForKey:key inDomain:appDomain];
 }
 
 - (bool) objectIsForcedForKey:(NSString *)key inDomain:(NSString *)domain

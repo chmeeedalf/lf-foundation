@@ -29,47 +29,69 @@
  */
 
 #import <Foundation/NSHTTPCookieStorage.h>
+
+#import <Foundation/NSPredicate.h>
+#import <Foundation/NSValue.h>
+
+#import "NSSqlite.h"
 #import "internal.h"
 
 NSString * const NSHTTPCookieManagerCookiesChangedNotification = @"NSHTTPCookieManagerCookiesChangedNotification";
 NSString * const NSHTTPCookieManagerAcceptPolicyChangedNotification = @"NSHTTPCookieManagerAcceptPolicyChangedNotification";
 static NSString * const _NSGlobalHTTPCookieStorage = @"org.Gold.HTTPCookieStorage";
 
+static NSHTTPCookieStorage *sharedStorage;
+
 @implementation NSHTTPCookieStorage
 {
-	NSHTTPCookieAcceptPolicy policy;
+	NSSqliteDatabase *storage;
+	NSSqliteArray *policyArray;
+	NSSqliteArray *storedCookies;
+}
+
++ (void) initialize
+{
+	static bool initialized = false;
+
+	if (initialized)
+		return;
+	sharedStorage = [[self alloc] init];
+	initialized = true;
 }
 
 + (id) sharedHTTPCookieStorage
 {
-	TODO;	// +[NSHTTPCookieStorage sharedHTTPCookieStorage]
-	return nil;
+	return sharedStorage;
 }
 
 - (id) init
 {
-	policy = NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain;
+	if (sharedStorage != nil)
+		return sharedStorage;
+
+	if ((self = [super init]) == nil)
+		return nil;
+
+	policyArray = [NSSqliteArray arrayWithTableName:@"storagePolicy" database:storage];
+	[self setCookieAcceptPolicy:NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain];
 	return self;
 }
 
 
 - (NSHTTPCookieAcceptPolicy) cookieAcceptPolicy
 {
-	return policy;
+	return [policyArray[0][@"policy"] integerValue];
 }
 
 - (void) setCookieAcceptPolicy:(NSHTTPCookieAcceptPolicy)newPol
 {
-	policy = newPol;
-	[[NSDistributedNotificationCenter defaultCenter]
-		postNotification:NSHTTPCookieManagerAcceptPolicyChangedNotification
-				  object:_NSGlobalHTTPCookieStorage];
+	policyArray[0][@"storagePolicy"] = @(newPol);
 }
 
 
 - (void) deleteCookie:(NSHTTPCookie *)cookie
 {
-	TODO;	// -[NSHTTPCookieStorage deleteCookie:]
+	[storedCookies removeObject:cookie];
 }
 
 - (void) setCookie:(NSHTTPCookie *)cookie
@@ -79,20 +101,32 @@ static NSString * const _NSGlobalHTTPCookieStorage = @"org.Gold.HTTPCookieStorag
 
 - (void) setCookies:(NSArray *)cookies forURL:(NSURL *)url mainDocumentURL:(NSURL *)mainDocURL
 {
-	TODO;	// -[NSHTTPCookieStorage setCookies:forURL:mainDocumentURL:]
+	if ([cookies count] == 0 || [self cookieAcceptPolicy] == NSHTTPCookieAcceptPolicyNever)
+	{
+		return;
+	}
+
+	if ([self cookieAcceptPolicy] == NSHTTPCookieAcceptPolicyOnlyFromMainDocumentDomain &&
+			![[url hostname] hasSuffix:[mainDocURL hostname]])
+	{
+		return;
+	}
+
+	for (id cookie in cookies)
+	{
+		[self setCookie:cookie];
+	}
 }
 
 
 - (NSArray *) cookies
 {
-	TODO;	// -[NSHTTPCookieStorage cookies]
-	return nil;
+	return storedCookies;
 }
 
 - (NSArray *) cookiesForURL:(NSURL *)url
 {
-	TODO;	// -[NSHTTPCookieStorage cookiesForURL:]
-	return nil;
+	return [storedCookies filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"URL BEGINSWITH \"%@\"",url]];
 }
 
 - (NSArray *) sortedCookiesUsingDescriptors:(NSArray *)sortDescs
