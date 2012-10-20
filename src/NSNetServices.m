@@ -65,7 +65,6 @@ NSString * const NSNetServicesErrorDomain = @"NSNetServicesErrorDomain";
 
 - (id) initWithDomain:(NSString *)domain type:(NSString *)type name:(NSString *)name port:(int)srvPort
 {
-	TODO; // -[NSNetService initWithDomain:type:name:port:]
 	if ((self = [super init]) != nil)
 	{
 		delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceDelegate)];
@@ -287,7 +286,6 @@ static void NSAvahiNetServiceBrowserDomainCallback(AvahiDomainBrowser *b,
 
 - (id) init
 {
-	TODO;	// -[NSNetServiceBrowser init]
 	if ((self = [super init]) != nil)
 	{
 		delegate = [[NSDelegate alloc] initWithProtocol:@protocol(NSNetServiceBrowserDelegate)];
