@@ -53,6 +53,25 @@ static char observationKey;
 
 static std::unordered_map<void *, void *> observationInfos;
 
+/*
+   Internals of NSKeyValueObserving
+
+   Observation info contains an NSDictionary of NSMutableArray of all observer
+   details keyed by the keypath.
+   (from addObserver:forKeyPath:options:context:) plus current state info:
+    * Dictionary of change keys
+    * Whether old data needs to be kept
+    * What kind of association (one to one, one to many, etc)
+ */
+
+@interface _NSObservationInfo	:	NSObject
+{
+	NSMutableArray *observers;
+	NSMutableDictionary *changes;
+	bool saveOld;
+}
+@end
+
 @implementation NSObject (NSKeyValueObserving)
 
 + (bool)automaticallyNotifiesObserversForKey:(NSString *)key
