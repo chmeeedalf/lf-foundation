@@ -25,20 +25,12 @@
 
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSString.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
 #import "internal.h"
-
-@interface NSDecimalZeroNumber : NSDecimalNumber
-@end
-
-@interface NSDecimalOneNumber : NSDecimalNumber
-@end
-
-@interface NSDecimalNotANumber : NSDecimalNumber
-@end
 
 @implementation NSDecimalNumber
 
@@ -46,6 +38,20 @@ static id<NSDecimalNumberBehaviors> defBehavior = nil; // THREAD
 static NSDecimalNumber *zero = nil; // THREAD
 static NSDecimalNumber *one  = nil; // THREAD
 static NSDecimalNumber *decNan  = nil; // THREAD
+static NSDecimalNumber *minDec = nil;
+static NSDecimalNumber *maxDec = nil;
+
++ (void) initialize
+{
+	NSDecimal d = {.isValid = false};
+	decNan = [[self alloc] initWithDecimal:d];
+
+	minDec = [[self alloc] initWithDecimal:d];
+	maxDec = [[self alloc] initWithDecimal:d];
+
+	zero = [[self alloc] initWithDouble:0.0];
+	one = [[self alloc] initWithDouble:1.0];
+}
 
 + (void)setDefaultBehavior:(id<NSDecimalNumberBehaviors>)_beh
 {
@@ -59,33 +65,27 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 + (NSDecimalNumber *)zero
 {
-	if (zero == nil)
-		zero = [[NSDecimalZeroNumber alloc] init];
 	return zero;
 }
 
 + (NSDecimalNumber *)one
 {
-	if (one == nil)
-		one = [[NSDecimalOneNumber alloc] init];
 	return one;
 }
 
 + (NSDecimalNumber *)notANumber
 {
-	if (decNan == nil)
-		decNan = [[NSDecimalNotANumber alloc] init];
 	return decNan;
 }
 
 + (NSDecimalNumber *)maximumDecimalNumber
 {
-	return [self notImplemented:_cmd];
+	return maxDec;
 }
 
 + (NSDecimalNumber *)minimumDecimalNumber
 {
-	return [self notImplemented:_cmd];
+	return minDec;
 }
 
 + (NSDecimalNumber *)decimalNumberWithDecimal:(NSDecimal)_num
@@ -114,9 +114,9 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 + (NSDecimalNumber *)decimalNumberWithNumber:(NSNumber *)_number
 {
-	/* TO BE FIXED ! */
-	TODO; // -[NSDecimalNumber decimalNumberWithNumber:]
-	return nil;
+	if ([_number isKindOfClass:[NSDecimalNumber class]])
+		return (NSDecimalNumber *)_number;
+	return (NSDecimalNumber *)[self numberWithDouble:[_number doubleValue]];
 }
 
 - (id)initWithDecimal:(NSDecimal)_num
@@ -384,7 +384,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 	return [self decimalNumberByMultiplyingBy:_num withBehavior:defBehavior];
 }
 
-- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(NSDecimalNumber *)_num
+- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(short)_num
 {
 	return [self decimalNumberByMultiplyingByPowerOf10:_num withBehavior:defBehavior];
 }
@@ -394,7 +394,7 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 	return [self decimalNumberByDividingBy:_num withBehavior:defBehavior];
 }
 
-- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSDecimalNumber *)_num
+- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSUInteger)_num
 {
 	return [self decimalNumberByRaisingToPower:_num withBehavior:defBehavior];
 }
@@ -462,11 +462,22 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 	return [NSDecimalNumber decimalNumberWithDecimal:res];
 }
 
-- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(NSDecimalNumber *)_num
-  withBehavior:(id<NSDecimalNumberBehaviors>)_beh
+- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(short)num
+  withBehavior:(id<NSDecimalNumberBehaviors>)beh
 {
-	TODO; // -[NSDecimalNumber decimalNumberByMultiplyingByPowerOf10:withBehavior:]
-	return nil;
+	NSDecimal d;
+	NSCalculationError err;
+
+	err = NSDecimalMultiplyByPowerOf10(&d, &decimal, num, [beh roundingMode]);
+
+	if (err != NSCalculationOK)
+	{
+		return [beh exceptionDuringOperation:_cmd
+										error:err
+								  leftOperand:self
+								 rightOperand:(NSDecimalNumber *)[NSDecimalNumber numberWithShort:num]];
+	}
+	return [[NSDecimalNumber alloc] initWithDecimal:d];
 }
 
 - (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num
@@ -490,17 +501,30 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 	return [NSDecimalNumber decimalNumberWithDecimal:res];
 }
 
-- (NSDecimalNumber *) decimalNumberByRaisingToPower:(NSDecimalNumber *)_num
+- (NSDecimalNumber *) decimalNumberByRaisingToPower:(NSUInteger)_num
 									   withBehavior:(id<NSDecimalNumberBehaviors>)_beh
 {
-	TODO; // -[NSDecimalNumber decimalNumberByRaisingToPower:withBehavior:]
-	return nil;
+	NSDecimal res;
+	NSCalculationError err;
+
+	err = NSDecimalPower(&res, &decimal, _num, [_beh roundingMode]);
+
+	if (err != NSCalculationOK)
+	{
+		return [_beh exceptionDuringOperation:_cmd
+										error:err
+								  leftOperand:self
+								 rightOperand:[[NSDecimalNumber alloc] initWithUnsignedLong:_num]];
+	}
+	return [NSDecimalNumber decimalNumberWithDecimal:res];
 }
 
 - (NSDecimalNumber *) decimalNumberByRoundingAccordingToBehavior:(id<NSDecimalNumberBehaviors>)behavior
 {
-	TODO; // -[NSDecimalNumber decimalNumberByRoundingAccordingToBehavior:]
-	return nil;
+	NSDecimal result;
+
+	NSDecimalRound(&result, &decimal, [behavior scale], [behavior roundingMode]);
+	return [[NSDecimalNumber alloc] initWithDecimal:result];
 }
 
 /* comparison */
@@ -543,139 +567,15 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 @end /* NSDecimalNumber */
 
-@implementation NSDecimalZeroNumber
-
-- (id)init
-{
-	// Defaults to all clear
-	return self;
-}
-
-/* operations */
-
-- (NSDecimalNumber *)decimalNumberByAdding:(NSDecimalNumber *)_num
-							  withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	return _num;
-}
-
-- (NSDecimalNumber *)decimalNumberBySubtracting:(NSDecimalNumber *)_num
-								   withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	NSDecimal d;
-	d = [_num decimalValue];
-	d.isNegative = !d.isNegative;
-	return [NSDecimalNumber decimalNumberWithDecimal:d];
-}
-
-- (NSDecimalNumber *)decimalNumberByMultiplyingBy:(NSDecimalNumber *)_num
-									 withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	return self;
-}
-
-- (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num
-								  withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	/* should check for _num==zero ??? */
-	return self;
-}
-
-/* description */
-
-- (NSString *)descriptionWithLocale:(NSLocale *)_locale
-{
-	return @"0";
-}
-- (NSString *)description
-{
-	return @"0";
-}
-
-@end /* NSDecimalZeroNumber */
-
-@implementation NSDecimalOneNumber
-
-- (id)init
-{
-	self->decimal.mantissa[0] = 1;
-	return self;
-}
-
-/* operations */
-
-- (NSDecimalNumber *)decimalNumberByAdding:(NSDecimalNumber *)_num
-							  withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	return _num;
-}
-
-- (NSDecimalNumber *)decimalNumberByMultiplyingBy:(NSDecimalNumber *)_num
-									 withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	/* 1 * x = x */
-	return _num;
-}
-
-/* description */
-
-- (NSString *)descriptionWithLocale:(NSLocale *)_locale
-{
-	return @"1";
-}
-- (NSString *)description
-{
-	return @"1";
-}
-
-@end /* NSDecimalOneNumber */
-
-@implementation NSDecimalNotANumber
-
-- (id)init
-{
-	self->decimal.exponent   = (signed char)0xFF;
-	self->decimal.isNegative = false;
-	return self;
-}
-
-/* operations */
-
-- (NSDecimalNumber *)decimalNumberByAdding:(NSDecimalNumber *)_num
-							  withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	return self;
-}
-
-- (NSDecimalNumber *)decimalNumberBySubtracting:(NSDecimalNumber *)_num
-								   withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	return self;
-}
-
-- (NSDecimalNumber *)decimalNumberByMultiplyingBy:(NSDecimalNumber *)_num
-									 withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	return self;
-}
-
-- (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num
-								  withBehavior:(id<NSDecimalNumberBehaviors>)_beh
-{
-	/* should check for 0-divide ?? */
-	return self;
-}
-
-/* description */
-
-- (NSString *)descriptionWithLocale:(NSLocale *)_locale
-{
-	return @"NaN";
-}
-
-@end /* NSDecimalNotANumber */
-
 @implementation NSDecimalNumberHandler
+{
+	NSRoundingMode roundMode;
+	short scale;
+	bool exactness;
+	bool overflow;
+	bool underflow;
+	bool divZero;
+}
 
 + (id) defaultDecimalNumberHandler
 {
@@ -710,13 +610,18 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 }
 
 - (id) initWithRoundingMode:(NSRoundingMode)roundingMode
-					  scale:(short)scale
+					  scale:(short)inScale
 		   raiseOnExactness:(bool)raiseOnExactness
 			raiseOnOverflow:(bool)raiseOnOverflow
 		   raiseOnUnderflow:(bool)raiseOnUnderflow
 		raiseOnDivideByZero:(bool)raiseOnDivZero
 {
-	TODO; // -[NSDecimalNumberHandler initWithRoundingMode:scale:raiseOnExactness:raiseOnOverflow:raiseOnUnderflow:raiseOnDivideByZero:]
+	roundMode = roundingMode;
+	scale = inScale;
+	exactness = raiseOnExactness;
+	overflow = raiseOnOverflow;
+	underflow = raiseOnUnderflow;
+	divZero = raiseOnDivZero;
 	return nil;
 }
 
@@ -730,12 +635,12 @@ static NSDecimalNumber *decNan  = nil; // THREAD
 
 - (NSRoundingMode)roundingMode
 {
-	return NSRoundBankers;
+	return roundMode;
 }
 
 - (short)scale
 {
-	return 0;
+	return scale;
 }
 
 @end /* NSDecimalNumberHandler */

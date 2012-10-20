@@ -74,8 +74,8 @@
 - (NSDecimalNumber *)decimalNumberBySubtracting:(NSDecimalNumber *)_num;
 - (NSDecimalNumber *)decimalNumberByMultiplyingBy:(NSDecimalNumber *)_num;
 - (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num;
-- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSDecimalNumber *)_num;
-- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(NSDecimalNumber *)_num;
+- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSUInteger)_num;
+- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(short)_num;
 
 - (NSDecimalNumber *)decimalNumberByAdding:(NSDecimalNumber *)_num
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
@@ -85,9 +85,9 @@
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
 - (NSDecimalNumber *)decimalNumberByDividingBy:(NSDecimalNumber *)_num
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
-- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSDecimalNumber *)_num
+- (NSDecimalNumber *)decimalNumberByRaisingToPower:(NSUInteger)_num
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
-- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(NSDecimalNumber *)_num
+- (NSDecimalNumber *)decimalNumberByMultiplyingByPowerOf10:(short)_num
   withBehavior:(id<NSDecimalNumberBehaviors>)_beh;
 
 

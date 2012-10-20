@@ -55,7 +55,8 @@ typedef struct {
 	unsigned int length:4;
 	unsigned int isNegative:1;
 	unsigned int isCompact:1;
-	unsigned int reserved:18;
+	unsigned int isValid:1;
+	unsigned int reserved:17;
 	unsigned short mantissa[NSDecimalMaxSize];
 } NSDecimal;
 
