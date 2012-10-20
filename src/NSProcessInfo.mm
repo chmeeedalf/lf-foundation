@@ -31,15 +31,18 @@
 #include <sys/sysctl.h>
 #include <sys/utsname.h>
 
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
 
+#include <atomic>
 #include <string>
 #include <memory>
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSDate.h>
+#import <Foundation/NSException.h>
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSThread.h>
@@ -68,6 +71,31 @@ unsigned int numThreads __private = 0;
  */
 
 @implementation NSProcessInfo
+
+static std::atomic<NSInteger> suddenTermCount{1};
+
+static void sigtermHandler(int sig __unused)
+{
+	if (suddenTermCount > 0)
+	{
+		return;
+	}
+	else
+	{
+		exit(0);
+	}
+}
+
++ (void) load
+{
+	struct sigaction sa{};
+
+	memset(&sa, 0, sizeof(sa));
+
+	sa.sa_handler = sigtermHandler;
+
+	sigaction(SIGTERM, &sa, NULL);
+}
 
 + (void) initialize
 {
@@ -283,11 +311,18 @@ unsigned int numThreads __private = 0;
 
 - (void) enableSuddenTermination
 {
-	TODO; // -[NSProcessInfo enableSuddenTermination];
+	NSInteger count = --suddenTermCount;
+
+	if (count < 0)
+	{
+		@throw [NSInternalInconsistencyException
+			exceptionWithReason:@"Unbalanced sudden termination control"
+			userInfo:nil];
+	}
 }
 
 - (void) disableSuddenTermination
 {
-	TODO; // -[NSProcessInfo disableSuddenTermination];
+	suddenTermCount++;
 }
 @end
