@@ -53,6 +53,8 @@ static NSUInteger writeOpenStepPropertyList(id plist, NSOutputStream *outStream,
 
 static NSUInteger writeXMLPropertyList(id plist, NSOutputStream *outStream,
 		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err);
+static NSUInteger writeBinaryPropertyList(id plist, NSOutputStream *outStream,
+		NSPropertyListWriteOptions opts, NSUInteger indent, NSError **err);
 
 @implementation NSPropertyListSerialization
 {
@@ -69,7 +71,6 @@ static NSUInteger writeXMLPropertyList(id plist, NSOutputStream *outStream,
 	format:(NSPropertyListFormat)format options:(NSPropertyListWriteOptions)opts
 	error:(NSError **)err
 {
-	TODO;	// -[NSPropertyListSerialization writePropertyList:toStream:format:options:error:]
 
 	if (![self propertyList:plist isValidForFormat:format])
 	{
@@ -88,7 +89,7 @@ static NSUInteger writeXMLPropertyList(id plist, NSOutputStream *outStream,
 			return writeXMLPropertyList(plist, stream, opts, 0, err);
 			break;
 		case NSPropertyListBinaryFormat_v1_0:
-			TODO; // NSPropertyListBinaryFormat create -- finish
+			return writeBinaryPropertyList(plist, stream, opts, 0, err);
 			break;
 		case NSPropertyListOpenStepFormat:
 			return writeOpenStepPropertyList(plist, stream, opts, 0, err);
@@ -342,6 +343,7 @@ static NSUInteger writeBinaryPropertyList(id plist, NSOutputStream *outStream,
 {
 	//NSMutableArray *offsets = [NSMutableArray array];
 
+	TODO; // writeBinaryPropertyList()
 	NSInteger sub;
 	NSUInteger total = 0;
 
