@@ -72,13 +72,18 @@
 
 - (void) setNotationName:(NSString *)notationName
 {
-	TODO;	// -[NSXMLDTDNode setNotationName:]
+	if (thisNode->name != NULL)
+	{
+		xmlFree((void *)thisNode->name);
+	}
+	thisNode->name = xmlStrdup([notationName UTF8String]);
 }
 
 - (NSString *) notationName
 {
-	TODO; // -[NSXMLDTDNode notationName]
-	return nil;
+	if (thisNode->name == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:thisNode->name];
 }
 
 - (void) setPublicID:(NSString *)publicID

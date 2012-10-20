@@ -165,25 +165,97 @@
 
 - (NSXMLDTDNode *) elementDeclarationForName:(NSString *)name
 {
-	TODO; // -[NSXMLDTD elementDeclarationForName:]
+	const xmlChar *declName = [name UTF8String];
+	xmlDtdPtr dtdPtr = thisNode;
+	xmlNodePtr child;
+
+	if (dtdPtr == NULL || dtdPtr->children == NULL)
+		return nil;
+
+	for (child = dtdPtr->children; child != NULL; child = child->next)
+	{
+		if (child->type == XML_ELEMENT_DECL)
+		{
+			if (xmlStrcmp(child->name, declName) == 0)
+			{
+				return (__bridge id)child->_private;
+			}
+		}
+	}
+
 	return nil;
 }
 
+
 - (NSXMLDTDNode *) attributeDeclarationForName:(NSString *)name elementName:(NSString *)elName
 {
-	TODO; // -[NSXMLDTD attributeDeclarationForName:elementName:]
+	const xmlChar *declName = [name UTF8String];
+	const xmlChar *elementName = [elName UTF8String];
+	xmlDtdPtr dtdPtr = thisNode;
+	xmlNodePtr child;
+
+	if (dtdPtr == NULL || dtdPtr->children == NULL)
+		return nil;
+
+	for (child = dtdPtr->children; child != NULL; child = child->next)
+	{
+		if (child->type == XML_ATTRIBUTE_DECL)
+		{
+			xmlAttributePtr attr = (xmlAttributePtr)child;
+			if (xmlStrcmp(attr->name, declName) == 0 &&
+					xmlStrcmp(attr->elem, elementName) == 0)
+			{
+				return (__bridge id)child->_private;
+			}
+		}
+	}
+
 	return nil;
 }
 
 - (NSXMLDTDNode *) entityDeclarationForName:(NSString *)name
 {
-	TODO; // -[NSXMLDTD entityDeclarationForName:]
+	const xmlChar *declName = [name UTF8String];
+	xmlDtdPtr dtdPtr = thisNode;
+	xmlNodePtr child;
+
+	if (dtdPtr == NULL || dtdPtr->children == NULL)
+		return nil;
+
+	for (child = dtdPtr->children; child != NULL; child = child->next)
+	{
+		if (child->type == XML_ENTITY_DECL)
+		{
+			if (xmlStrcmp(child->name, declName) == 0)
+			{
+				return (__bridge id)child->_private;
+			}
+		}
+	}
+
 	return nil;
 }
 
 - (NSXMLDTDNode *) notationDeclarationForName:(NSString *)name
 {
-	TODO; // -[NSXMLDTD notationDeclarationForName:]
+	const xmlChar *declName = [name UTF8String];
+	xmlDtdPtr dtdPtr = thisNode;
+	xmlNodePtr child;
+
+	if (dtdPtr == NULL || dtdPtr->children == NULL)
+		return nil;
+
+	for (child = dtdPtr->children; child != NULL; child = child->next)
+	{
+		if (child->type == XML_NOTATION_NODE)
+		{
+			if (xmlStrcmp(child->name, declName) == 0)
+			{
+				return (__bridge id)child->_private;
+			}
+		}
+	}
+
 	return nil;
 }
 

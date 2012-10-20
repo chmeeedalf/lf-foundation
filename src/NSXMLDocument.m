@@ -34,6 +34,8 @@
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSError.h>
 #import <Foundation/NSXMLElement.h>
 #import <Foundation/NSXMLNode.h>
 #import <Foundation/NSXMLNodeOptions.h>
@@ -41,6 +43,10 @@
 
 #define thisNode ((xmlDoc *)nodePtr)
 @implementation NSXMLDocument
+{
+	NSString *MIMEType;
+}
+
 - (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)mask error:(NSError **)errp
 {
 	self = [self initWithData:[NSData dataWithContentsOfURL:url] options:mask error:errp];
@@ -126,13 +132,12 @@
 
 - (NSString *)MIMEType
 {
-	TODO; 	// -[NSXMLDocument MIMEType]
-	return nil;
+	return MIMEType;
 }
 
 - (void) setMIMEType:(NSString *)type
 {
-	TODO; 	// -[NSXMLDocument setMIMEType:]
+	MIMEType = [type copy];
 }
 
 - (NSString *) URI
@@ -271,11 +276,33 @@
 				  allowLossyConversion:false];
 }
 
+static void validateError(void *ctx, const char *msg, ...)
+{
+	NSMutableArray *a = (__bridge id)ctx;
+	va_list ap;
+
+	va_start(ap, msg);
+	[a addObject:[NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:@{
+		  NSLocalizedDescriptionKey : [[NSString alloc] initWithFormat:@(msg) arguments:ap]
+	}]];
+
+	va_end(ap);
+}
 
 - (bool) validateAndReturnError:(NSError **)errp
 {
-	TODO; 	// -[NSXMLDocument validateAndReturnError:]
-	return false;
+	xmlValidCtxtPtr ctxt = xmlNewValidCtxt();
+
+	NSMutableArray *tmp = [NSMutableArray array];
+	ctxt->userData = (__bridge void *)tmp;
+	ctxt->error = validateError;
+
+	bool result = xmlValidateDocument(ctxt, thisNode);
+
+	if (errp != NULL && [tmp count] > 0)
+		*errp = [tmp objectAtIndex:0];
+	xmlFreeValidCtxt(ctxt);
+	return result;
 }
 
 
