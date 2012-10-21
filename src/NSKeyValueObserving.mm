@@ -94,28 +94,51 @@ static std::unordered_map<void *, void *> observationInfos;
 {
 }
 
-#define SETTER_BLOCK(type) imp_implementationWithBlock((__bridge void *)^(id self, type val){ \
-	if ([self automaticallyNotifiesObserversForKey:key]) \
+#define SETTER_BLOCK(type) imp_implementationWithBlock((__bridge void *)^(id _self, type val){ \
+	if ([_self automaticallyNotifiesObserversForKey:key]) \
 	{\
-		[self willChangeValueForKey:key];\
-		\
-		[self didChangeValueForKey:key];\
+		[_self willChangeValueForKey:key];\
+		realSetter(self, setSel, val);\
+		[_self didChangeValueForKey:key];\
 	} \
 	else \
 	{\
-		\
+		realSetter(self, setSel, val);\
 	}\
 })
 
 -(void)addObserver:(NSObject *)observer forKeyPath:(NSString*)keyPath options:(NSKeyValueObservingOptions)options context:(void*)context
 {
 	IMP blkImp;
-	SEL setSel;
+	__block IMP realSetter;
+	__block SEL setSel;
+	NSMethodSignature *sig;
 	id key;
 
 	setSel = NSSelectorFromString([NSString
 			stringWithFormat:@"set%@:",[keyPath capitalizedString]]);
-	blkImp = SETTER_BLOCK(id);
+	realSetter = [self methodForSelector:setSel];
+	sig = [self methodSignatureForSelector:setSel];
+
+#define SET_SETTER_BLOCK(s, t) case s: { blkImp = SETTER_BLOCK(t); break; }
+	switch ([sig getArgumentTypeAtIndex:2][0])
+	{
+		SET_SETTER_BLOCK(_C_CHR, char);
+		SET_SETTER_BLOCK(_C_UCHR, unsigned char);
+		SET_SETTER_BLOCK(_C_SHT, short);
+		SET_SETTER_BLOCK(_C_USHT, unsigned short);
+		SET_SETTER_BLOCK(_C_INT, int);
+		SET_SETTER_BLOCK(_C_UINT, unsigned int);
+		SET_SETTER_BLOCK(_C_LNG, long);
+		SET_SETTER_BLOCK(_C_ULNG, unsigned long);
+		SET_SETTER_BLOCK(_C_LNG_LNG, long long);
+		SET_SETTER_BLOCK(_C_ULNG_LNG, unsigned long long);
+		SET_SETTER_BLOCK(_C_FLT, float);
+		SET_SETTER_BLOCK(_C_DBL, double);
+		SET_SETTER_BLOCK(_C_ID, id);
+		SET_SETTER_BLOCK(_C_CLASS, Class);
+	}
+
 	TODO; // -[NSObject(NSKeyValueObserving) addObserver:forKeyPath:options:context:]
 }
 
