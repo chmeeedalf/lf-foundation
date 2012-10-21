@@ -1,7 +1,7 @@
 /* $Gold$	*/
 /*
- * All rights reserved.
  * Copyright (c) 2011-2012	Justin Hibbits
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,14 +42,24 @@
 #include <libxml/parser.h>
 
 /* TODO:
- * - Doesn't enforce the shouldResolveExternalEntities, shouldProcessNamespaces,
- *   or shouldReportNamespacePrefixes settings.
+ * - Doesn't enforce the shouldResolveExternalEntities and 
+ *   shouldProcessNamespaces settings.
  */
 
 static const int BUFFER_SIZE = 8192;	// 8KB buffer size should be sufficient most of the time.
 NSMakeSymbol(NSXMLParserErrorDomain);
 
 @implementation NSXMLParser
+{
+	id delegate;						/*!< \brief The parser delegate. */
+	bool shouldProcessNamespaces;		/*!< \brief Whether or not to perform namespace processing. */
+	bool shouldReportNamespacePrefixes;	/*!< \brief Whether or not to report namespace prefixes. */
+	bool shouldResolveExternalEntities;	/*!< \brief Whether or not the parser should resolve external entities. */
+	
+	id data;
+	id error;
+	xmlParserCtxt *parser;	/*!< \brief Opaque XML parser object. */
+}
 
 static void startDocumentHandler(void *ctx)
 {
@@ -66,24 +76,24 @@ static void endDocumentHandler(void *ctx)
 static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URL, int nb_namespace, const xmlChar **namespaces, int nb_attributes, int nb_defaulted, const xmlChar **attributes)
 {
 	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
-	NSString *ocName = [[NSString alloc] initWithUTF8String:(const char *)name];
-	NSString *ocPrefix = [[NSString alloc] initWithUTF8String:(const char *)prefix];
-	NSString *ocURL = [[NSString alloc] initWithUTF8String:(const char *)URL];
+	NSString *ocName = [NSString stringWithUTF8String:(const char *)name];
+	NSString *ocPrefix = [NSString stringWithUTF8String:(const char *)prefix];
+	NSString *ocURL = [NSString stringWithUTF8String:(const char *)URL];
 	NSMutableDictionary *ocAttribs = [NSMutableDictionary new];
 
 	if ([parser shouldReportNamespacePrefixes])
 	{
 		for (int i = 0; i < nb_namespace; i += 2)
 		{
-			NSString *ocNSPrefix = [[NSString alloc] initWithUTF8String:(const char *)namespaces[i]];
-			NSString *ocNS = [[NSString alloc] initWithUTF8String:(const char *)namespaces[i + 1]];
+			NSString *ocNSPrefix = [NSString stringWithUTF8String:(const char *)namespaces[i]];
+			NSString *ocNS = [NSString stringWithUTF8String:(const char *)namespaces[i + 1]];
 			[parser->delegate parser:parser didStartMappingPrefix:ocNSPrefix toURL:ocNS];
 		}
 	}
 
 	for (int i = 0; i < nb_attributes; i+=5)
 	{
-		NSString *key = [[NSString alloc] initWithUTF8String:(const char *)attributes[i]];
+		NSString *key = [NSString stringWithUTF8String:(const char *)attributes[i]];
 		NSString *value = [[NSString alloc] initWithBytes:attributes[i+3] length:((size_t)(attributes[i+4] - attributes[i+3])) encoding:NSUTF8StringEncoding];
 		[ocAttribs setObject:value forKey:key];
 	}
@@ -93,9 +103,9 @@ static void startElementNsHandler(void *ctx, const xmlChar *name, const xmlChar 
 static void endElementNsHandler(void *ctx, const xmlChar *name, const xmlChar *prefix, const xmlChar *URL)
 {
 	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
-	NSString *ocName = [[NSString alloc] initWithUTF8String:(const char *)name];
-	NSString *ocPrefix = [[NSString alloc] initWithUTF8String:(const char *)prefix];
-	NSString *ocURL = [[NSString alloc] initWithUTF8String:(const char *)URL];
+	NSString *ocName = [NSString stringWithUTF8String:(const char *)name];
+	NSString *ocPrefix = [NSString stringWithUTF8String:(const char *)prefix];
+	NSString *ocURL = [NSString stringWithUTF8String:(const char *)URL];
 
 	[parser->delegate parser:parser didEndElement:ocName namespaceURL:ocURL qualifiedName:ocPrefix];
 }
@@ -116,8 +126,8 @@ static void ignorableWhitespaceHandler(void *ctx, const xmlChar *ch, int len)
 
 static void processingInstructionHandler(void *ctx, const xmlChar *target, const xmlChar *data)
 {
-	NSString *nsTarget = [[NSString alloc] initWithUTF8String:(const char *)target];
-	NSString *nsData = [[NSString alloc] initWithUTF8String:(const char *)data];
+	NSString *nsTarget = [NSString stringWithUTF8String:(const char *)target];
+	NSString *nsData = [NSString stringWithUTF8String:(const char *)data];
 	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
 
 	[parser->delegate parser:parser foundProcessingInstructionWithTarget:nsTarget data:nsData];
@@ -126,7 +136,7 @@ static void processingInstructionHandler(void *ctx, const xmlChar *target, const
 static void commentHandler(void *ctx, const xmlChar *value)
 {
 	NSXMLParser *parser = (__bridge NSXMLParser *)ctx;
-	NSString *comment = [[NSString alloc] initWithUTF8String:(const char *)value];
+	NSString *comment = [NSString stringWithUTF8String:(const char *)value];
 	[parser->delegate parser:parser foundComment:comment];
 }
 
@@ -148,7 +158,7 @@ static void errorHandler(void *ctx, const char *msg, ...)
 	parser = (__bridge NSXMLParser *)ctx;
 	lastErr = xmlCtxtGetLastError(parser->parser);
 	va_start(args, msg);
-	fmt = [[NSString alloc] initWithUTF8String:msg];
+	fmt = [NSString stringWithUTF8String:msg];
 	errstr = [[NSString alloc] initWithFormat:fmt arguments:args];
 	va_end(args);
 

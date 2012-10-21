@@ -142,16 +142,6 @@ typedef NSInteger NSXMLParserError;
  * \brief A SAX-compatible XML parser.
  */
 @interface NSXMLParser : NSObject
-{
-	id delegate;						/*!< \brief The parser delegate. */
-	bool shouldProcessNamespaces;		/*!< \brief Whether or not to perform namespace processing. */
-	bool shouldReportNamespacePrefixes;	/*!< \brief Whether or not to report namespace prefixes. */
-	bool shouldResolveExternalEntities;	/*!< \brief Whether or not the parser should resolve external entities. */
-	
-	id data;
-	id error;
-	void *parser;	/*!< \brief Opaque XML parser object. */
-}
 @property(weak) id<NSXMLParserDelegate> delegate;
 @property bool shouldProcessNamespaces;
 @property bool shouldReportNamespacePrefixes;
