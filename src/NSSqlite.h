@@ -57,6 +57,10 @@
 {
 }
 + (id) databaseWithURL:(NSURL *)url;
++ (id) temporaryDatabase;
+
+- (void) setValue:(id)val forPragma:(NSString *)pragma;
+- (id) valueForPragma:(NSString *)pragma;
 @end
 
 @protocol NSSqlTable

@@ -29,14 +29,39 @@
  */
 
 #import <Foundation/NSURLCache.h>
+
+#import <Foundation/NSFileManager.h>
+#import <Foundation/NSProcessInfo.h>
+#import <Foundation/NSValue.h>
+
+#import "NSSqlite.h"
 #import "internal.h"
 
+/*
+ * Design of NSURLCache:
+ *
+ * LRU-based cache.  Least recently used are pushed out to disk when reaching
+ * memory capacity.  Once on-disk it still maintains temporal data for eviction
+ * purposes.
+ *
+ * Both in-memory and on-disk use sqlite databases.  This ensures a consistent
+ * access to each store.  Columns for the tables are:
+ *
+ * Request -- blob
+ * Response -- blob
+ * Timestamp -- datetime
+ *
+ * When the memory cache fills up, it flushes some to the disk cache.  When it
+ * retrieves an entry from the disk cache, it's copied into the memory cache,
+ * but not removed from the disk cache until normal LRU purging.
+ */
 static NSURLCache *sharedCache;
 
 @implementation NSURLCache
 {
-	NSUInteger memoryCapacity;
-	NSUInteger diskCapacity;
+	NSSqliteDatabase *diskCache;
+	NSSqliteDatabase *memCache;
+	NSUInteger sqlitePagesize;
 }
 
 +(NSURLCache *)sharedURLCache
@@ -49,8 +74,8 @@ static NSURLCache *sharedCache;
 			cache = sharedCache;
 			if (cache == nil)
 			{
-				NSURL *sharedURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomains:NSUserDomainMask appropriateForURL:nil create:true error:nil];
-				NSString sharedPath = [[sharedURL absolutePath] stringByAppendingPathComponent:[NSProcessInfo processName]];
+				NSURL *sharedURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:true error:NULL];
+				NSString *sharedPath = [[sharedURL path] stringByAppendingPathComponent:[[NSProcessInfo processInfo] processName]];
 				sharedCache = [[self alloc] initWithMemoryCapacity:(4 * 1024 * 1024)
 													  diskCapacity:(20 * 1024 * 1024)
 														  diskPath:sharedPath];
@@ -69,37 +94,34 @@ static NSURLCache *sharedCache;
 	}
 }
 
--(id)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(NSString *)diskPath
+-(id)initWithMemoryCapacity:(NSUInteger)memCap diskCapacity:(NSUInteger)diskCap diskPath:(NSString *)diskPath
 {
-	TODO; // -[NSURLCache initWithMemoryCapacity:diskCapacity:diskPath:]
-	[self notImplemented:_cmd];
-	return nil;
+	diskCache = [NSSqliteDatabase databaseWithURL:[NSURL fileURLWithPath:diskPath]];
+	memCache = [NSSqliteDatabase temporaryDatabase];
+	[diskCache setValue:@(diskCap) forPragma:@"max_page_count"];
+	[memCache setValue:@(memCap) forPragma:@"max_page_count"];
+
+	return self;
 }
 
 -(NSUInteger)memoryCapacity
 {
-	TODO; // -[NSURLCache memoryCapacity]
-	return memoryCapacity;
+	return [[diskCache valueForPragma:@"max_page_count"] unsignedIntegerValue];
 }
 
 -(NSUInteger)diskCapacity
 {
-	TODO; // -[NSURLCache diskCapacity]
-	return diskCapacity;
+	return [[diskCache valueForPragma:@"max_page_count"] unsignedIntegerValue];
 }
 
 -(NSUInteger)currentDiskUsage
 {
-	TODO; // -[NSURLCache currentDiskUsage]
-	[self notImplemented:_cmd];
-	return 0;
+	return [[diskCache valueForPragma:@"page_count"] unsignedIntegerValue];
 }
 
 -(NSUInteger)currentMemoryUsage
 {
-	TODO; // -[NSURLCache currentMemoryUsage]
-	[self notImplemented:_cmd];
-	return 0;
+	return [[memCache valueForPragma:@"page_count"] unsignedIntegerValue];
 }
 
 -(NSCachedURLResponse *)cachedResponseForRequest:(NSURLRequest *)request
@@ -109,16 +131,14 @@ static NSURLCache *sharedCache;
 	return nil;
 }
 
--(void)setMemoryCapacity:(NSUInteger)memoryCapacity
+-(void)setMemoryCapacity:(NSUInteger)newCap
 {
-	TODO; // -[NSURLCache setMemoryCapacity:]
-	[self notImplemented:_cmd];
+	[memCache setValue:@(newCap) forPragma:@"max_page_count"];
 }
 
--(void)setDiskCapacity:(NSUInteger)diskCapacity
+-(void)setDiskCapacity:(NSUInteger)newCap
 {
-	TODO; // -[NSURLCache setDiskCapacity:]
-	[self notImplemented:_cmd];
+	[diskCache setValue:@(newCap) forPragma:@"max_page_count"];
 }
 
 -(void)storeCachedResponse:(NSCachedURLResponse *)response forRequest:(NSURLRequest *)request
