@@ -46,7 +46,7 @@
  */
 + (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *)fields forURL:(NSURL *)url
 {
-	TODO;	// -[NSHTTPCookie cookiesWithResponseHeaderFields:forURL:]
+	TODO;	// +[NSHTTPCookie cookiesWithResponseHeaderFields:forURL:]
 	id val = [fields objectForKey:@"Set-Cookie"];
 
 	if (val == nil)
