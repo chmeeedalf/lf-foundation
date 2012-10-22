@@ -96,6 +96,7 @@ SRCS=	NSRange.m \
 		NSPortMessage.m \
 		NSIndexPath.mm \
 		NSCache.mm \
+		NSFormatArgumentParser.m \
 		NSFormatter.m \
 		NSNumberFormatter.m \
 		NSDateFormatter.m \

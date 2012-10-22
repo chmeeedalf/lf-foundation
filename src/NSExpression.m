@@ -43,6 +43,7 @@
 #import <Foundation/NSSet.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
+#import "NSFormatArgumentParser.h"
 #import "internal.h"
 
 /*!
@@ -679,8 +680,9 @@
 
 + (NSExpression *)expressionWithFormat:(NSString *)format arguments:(va_list)argList
 {
-	TODO; // +[NSExpression expressionWithFormat:arguments:]
-	return nil;
+	return [self expressionWithFormat:format
+						argumentArray:[NSFormatArgumentParser parseArgumentList:argList
+							forFormat:format]];
 }
 
 + (NSExpression *)expressionWithFormat:(NSString *)_format 
