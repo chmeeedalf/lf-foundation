@@ -68,12 +68,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 @interface NSURLConnection(private) <NSURLProtocolClient>
 @end
 
+@interface _NSURLConnectionSynchronousDelegate : NSObject<NSURLConnectionDelegate>
+{
+}
+@end
+
+@implementation _NSURLConnectionSynchronousDelegate
+@end
+
 @implementation NSURLConnection
 {
 	NSURLRequest  *_request;
 	NSURLProtocol *_protocol;
-	id<NSURLConnectionDelegate>             _delegate;
-	NSMutableArray *_modes;
+	__weak id<NSURLConnectionDelegate>             _delegate;
+	NSMutableArray *_modes;	// Array of arrays
 	NSInputStream  *_inputStream;
 	NSOutputStream *_outputStream;
 }
@@ -86,6 +94,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 +(NSData *)sendSynchronousRequest:(NSURLRequest *)request returningResponse:(NSURLResponse **)responsep error:(NSError **)errorp
 {
 	TODO; // +[NSURLConnection sendSynchronousRequest:returningResponse:error:]
+	NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:request
+														  delegate:nil
+												  startImmediately:false];
+	[conn scheduleInRunLoop:[NSRunLoop currentRunLoop]
+					forMode:@"NSURLConnectionSynchronousRequestMode"];
+	[conn start];
 	return nil;
 }
 
@@ -105,7 +119,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	Class cls = [NSURLProtocol _URLProtocolClassForRequest:request];
 	_protocol = [[cls alloc] initWithRequest:_request cachedResponse:nil client:self];
 	_delegate = delegate;
-	_modes = [[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode,nil];
+	_modes = [NSMutableArray array];
 	if(startLoading)
 		[self start];
 	return self;
@@ -135,10 +149,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	[_inputStream setDelegate:_protocol];
 	[_outputStream setDelegate:_protocol];
 
-	for(NSString *mode in _modes)
+	if ([_modes count] == 0)
+		[_modes addObject:NSDefaultRunLoopMode];
+
+	for(NSArray *mode in _modes)
 	{
-		[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
-		[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
+		[_inputStream scheduleInRunLoop:mode[0] forMode:mode[1]];
+		[_outputStream scheduleInRunLoop:mode[0] forMode:mode[1]];
 	}
 
 	[_inputStream open];
@@ -164,14 +181,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -(void)scheduleInRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode
 {
-	[_inputStream scheduleInRunLoop:runLoop forMode:mode];
-	[_outputStream scheduleInRunLoop:runLoop forMode:mode];
+	[_modes addObject:@[runLoop, mode]];
 }
 
 -(void)unscheduleFromRunLoop:(NSRunLoop *)runLoop forMode:(NSString *)mode
 {
-	[_inputStream removeFromRunLoop:runLoop forMode:mode];
-	[_outputStream removeFromRunLoop:runLoop forMode:mode];
+	[_modes removeObject:@[runLoop, mode]];
 }
 
 -(void)URLProtocol:(NSURLProtocol *)urlProtocol wasRedirectedToRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirect
