@@ -466,7 +466,7 @@
 	return [[NSOrderedSet alloc] initWithObjects:&objects[0] count:objects.size()];
 }
 
-- (void) getObjects:(id[])objs range:(NSRange)range
+- (void) getObjects:(id __unsafe_unretained [])objs range:(NSRange)range
 {
 	NSParameterAssert(NSMaxRange(range) <= [self count]);
 

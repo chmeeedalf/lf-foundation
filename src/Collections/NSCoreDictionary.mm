@@ -41,11 +41,22 @@
 #import "internal.h"
 #import "NSCoreDictionary.h"
 
+#include <unordered_map>
+typedef std::unordered_map<__strong id,id> _map_table;
+
+@interface NSCoreDictionary()
+/* Private */
+- (_map_table *)__dictObject;
+@end
+
 /*
  * NSCoreDictionary class
  */
 
 @implementation NSCoreDictionary
+{
+	_map_table table;
+}
 
 /* Allocating and Initializing */
 
@@ -184,6 +195,12 @@
  */
 
 @implementation _CoreDictionaryEnumerator
+{
+	NSCoreDictionary *d;
+	_map_table *table;
+	_map_table::const_iterator i;
+	bool valEnum;
+}
 
 - (id) initWithDictionary:(NSCoreDictionary*)_dict
 {

@@ -286,7 +286,8 @@ count:(NSUInteger)count
 	return array;
 }
 
-- (void) getObjects:(id[])objects andKeys:(id[])keys
+- (void) getObjects:(id __unsafe_unretained [])objects
+	andKeys:(id __unsafe_unretained [])keys
 {
 	__block NSUInteger idx = 0;
 

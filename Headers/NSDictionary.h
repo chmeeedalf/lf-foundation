@@ -152,7 +152,7 @@
  */
 -(NSArray *)allValues;
 
-- (void) getObjects:(id[])objects andKeys:(id[])keys;
+- (void) getObjects:(__unsafe_unretained id[])objects andKeys:(__unsafe_unretained id[])keys;
 
 /*!
  * \brief Returns the object associated with the given key.

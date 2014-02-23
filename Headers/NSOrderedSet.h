@@ -85,7 +85,7 @@
 - (NSEnumerator *) objectEnumerator;
 - (NSEnumerator *) reverseObjectEnumerator;
 - (NSOrderedSet *) reversedOrderedSet;
-- (void) getObjects:(id[])objs range:(NSRange)range;
+- (void) getObjects:(__unsafe_unretained id[])objs range:(NSRange)range;
 
 - (bool) isEqualToOrderedSet:(NSOrderedSet *)other;
 - (bool) intersectsOrderedSet:(NSOrderedSet *)other;

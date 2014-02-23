@@ -58,17 +58,8 @@
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSMapTable.h>
 #import "internal.h"
-#ifdef __cplusplus
-#include <unordered_map>
-typedef std::unordered_map<id,id> _map_table;
-#else
-typedef struct _map_table *_map_table;
-#endif
 
 @interface NSCoreDictionary : NSMutableDictionary
-{
-	_map_table table;
-}
 
 /* Allocating and Initializing an NSDictionary */
 - (id)initWithObjects:(const id [])objects forKeys:(const id<NSCopying>[])keys 
@@ -79,9 +70,6 @@ typedef struct _map_table *_map_table;
 - (id)objectForKey:(id)aKey;
 - (NSUInteger)count;
 - (NSEnumerator *)keyEnumerator;
-
-/* Private */
-- (_map_table *)__dictObject;
 
 /* Allocating and Initializing an NSDictionary */
 - (id)init;
@@ -100,16 +88,6 @@ typedef struct _map_table *_map_table;
  */
 
 @interface _CoreDictionaryEnumerator : NSEnumerator
-{
-	NSCoreDictionary *d;
-	_map_table *table;
-#ifdef __cplusplus
-	_map_table::const_iterator i;
-#else
-	void *i;
-#endif
-	bool valEnum;
-}
 
 - (id) initWithDictionary:(NSCoreDictionary*)_dict;
 - (id) nextObject;

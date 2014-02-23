@@ -339,7 +339,7 @@ options:(NSBinarySearchingOptions)opts usingComparator:(NSComparator)cmp
 	return count ? [self objectAtIndex:0] : nil;
 }
 
-- (void) getObjects:(id [])objs range:(NSRange)range
+- (void) getObjects:(id __unsafe_unretained [])objs range:(NSRange)range
 {
 	if (NSMaxRange(range) > [self count])
 	{

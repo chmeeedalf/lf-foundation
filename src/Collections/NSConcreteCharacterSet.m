@@ -192,7 +192,7 @@
 - (bool)hasMemberInPlane:(uint8_t)plane
 {
 	// Each plane is 65536 characters, 16 bits
-	USet *testSet = uset_open(plane << 16, (plane + 1) << 16 - 1);
+	USet *testSet = uset_open(plane << 16, ((plane + 1) << 16) - 1);
 	bool isMember;
 
 	isMember = uset_containsSome(set, testSet);
