@@ -42,6 +42,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <dispatch/dispatch.h>
+
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSDictionary.h>
