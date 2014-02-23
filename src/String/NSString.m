@@ -838,30 +838,23 @@ static inline bool SetHasCharacter(NSCharacterSet *set, NSUniChar c, bool insens
 	switch (opts & 0xFF)
 	{
 		case NSStringEnumerationByLines:
-			{
-				t = UBRK_LINE;
-				break;
-			}
+			t = UBRK_LINE;
+			break;
 		case NSStringEnumerationByParagraphs:
-			{
-				t = UBRK_LINE;
-				break;
-			}
+			t = UBRK_LINE;
+			break;
 		case NSStringEnumerationByComposedCharacterSequences:
-			{
-				t = UBRK_CHARACTER;
-				break;
-			}
+			t = UBRK_CHARACTER;
+			break;
 		case NSStringEnumerationByWords:
-			{
-				t = UBRK_WORD;
-				break;
-			}
+			t = UBRK_WORD;
+			break;
 		case NSStringEnumerationBySentences:
-			{
-				t = UBRK_SENTENCE;
-				break;
-			}
+			t = UBRK_SENTENCE;
+			break;
+		default:
+			t = UBRK_CHARACTER;
+			break;
 	}
 
 	const char *loc = NULL;
