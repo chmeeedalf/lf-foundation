@@ -66,7 +66,7 @@ NSMakeSymbol(NSRunLoopCommonModes);
 typedef std::multimap<NSUInteger,NSInvocation *> performMap;
 
 struct _NSRunLoopMode {
-	NSMutableArray *timers;
+	NSMutableArray *timers = nil;
 	performMap performers;
 	int queue = kqueue();
 };
