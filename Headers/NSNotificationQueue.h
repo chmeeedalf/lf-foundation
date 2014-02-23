@@ -57,14 +57,14 @@ typedef enum {
 /* Inserting and Removing Notifications From a Queue */
  
 - (void)dequeueNotificationsMatching:(NSNotification*)notification
-  coalesceMask:(unsigned int)coalesceMask;
+  coalesceMask:(NSUInteger)coalesceMask;
 
 - (void)enqueueNotification:(NSNotification*)notification
   postingStyle:(NSPostingStyle)postingStyle;
 
 - (void)enqueueNotification:(NSNotification*)notification
   postingStyle:(NSPostingStyle)postingStyle
-  coalesceMask:(unsigned int)coalesceMask
+  coalesceMask:(NSUInteger)coalesceMask
   forModes:(NSArray*)modes;
 
 @end
