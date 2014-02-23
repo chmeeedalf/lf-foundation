@@ -63,12 +63,6 @@ id NSAllocateObject(Class aClass, size_t extraBytes, __unused NSZone *zone)
 	return class_createInstance(aClass, extraBytes);
 }
 
-id NSCopyObject(id<NSObject> anObject, size_t extraBytes, __unused NSZone *zone)
-{
-	return object_copy(anObject, extraBytes +
-			class_getInstanceSize(object_getClass(anObject)));
-}
-
 NSZone* NSZoneFromObject(__unused id<NSObject> anObject)
 {
 	return NULL;
