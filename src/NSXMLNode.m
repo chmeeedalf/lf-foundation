@@ -30,6 +30,8 @@
 
 #include <string.h>
 
+#include <dispatch/dispatch.h>
+
 #include <libxml/xmlsave.h>
 
 #import <Foundation/NSXMLNode.h>
