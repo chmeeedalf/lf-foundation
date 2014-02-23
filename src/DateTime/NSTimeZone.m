@@ -183,6 +183,7 @@ static NSDictionary *abbreviationDictionary;
 	size_t len = [zoneName length];
 	NSString *localizedName = nil;
 	UChar buf[len];
+
 	[zoneName getCharacters:buf range:NSMakeRange(0, len)];
 	UCalendar *cal = ucal_open(buf, len, [[locale localeIdentifier] cStringUsingEncoding:NSUTF8StringEncoding], UCAL_TRADITIONAL, &ec);
 
