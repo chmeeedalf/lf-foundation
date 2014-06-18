@@ -45,7 +45,7 @@ SRCS=	NSRange.m \
 		NSApplication.m \
 		NSCoder.m \
 		NSKeyedArchiver.m \
-		NSArchiver.m \
+		NSArchiver.mm \
 		NSMethodSignature.m \
 		NSNull.m \
 		NSURL.m \
@@ -142,15 +142,14 @@ NSConcreteNumber.m: NSConcreteNumber.m.sh
 OPTFLAGS+=-O0 -fno-inline -g3
 .endif
 
-CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fblocks  -fexceptions #-Wall -fno-unit-at-a-time 
-.if ${CC} == "clang"
-CCXXFLAGS+=-Qunused-arguments
+CCXXFLAGS=$(OPTFLAGS) $(CPPFLAGS) -fblocks  -fexceptions
+#.if ${CC} == "clang"
 .ifdef(ANALYZE)
 CCXXFLAGS+=--analyze -Xanalyzer -analyzer-checker=osx.API -Xanalyzer -analyzer-checker=osx.cocoa.Loops -Xanalyzer -analyzer-checker=osx.cocoa.NilArg -Xanalyzer -analyzer-checker=osx.cocoa.SelfInit -Xanalyzer
-.endif
+#.endif
 .endif
 
-CXXFLAGS+=-std=c++11 -stdlib=libc++
+CXXFLAGS+=-std=c++11
 CSTD=gnu99
 
 OBJCCXXFLAGS=-fobjc-exceptions -fobjc-abi-version=3 
@@ -159,10 +158,37 @@ OBJCCXXFLAGS+=-fobjc-arc -fobjc-arc-exceptions -Wno-arc-performSelector-leaks
 #OBJCCXXFLAGS+=-fcolor-diagnostics
 WARNS=3
 OBJCXXFLAGS=$(CXXFLAGS) $(OBJCCXXFLAGS) -fvisibility=default -fobjc-call-cxx-cdtors
-CFLAGS+=$(CCXXFLAGS) -B/usr/local/bin/
+CFLAGS+=$(CCXXFLAGS) #-B/usr/local/bin/
 OBJCFLAGS=$(CFLAGS) $(OBJCCXXFLAGS)
 .include <bsd.lib.mk>
 CFLAGS+= -Wno-system-headers -Wno-unused-parameter
 CXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage -Wno-unused-parameter
 OBJCFLAGS+= -Wno-system-headers -Wno-unused-parameter
 OBJCXXFLAGS+= -Wno-system-headers -Wno-return-type-c-linkage -Wno-unused-parameter
+
+.SUFFIXES: .m .mm 
+
+.m.o:
+	${OBJC} ${OBJCFLAGS} -c ${.IMPSRC}
+	${CTFCONVERT_CMD}
+
+.mm.o:
+	${OBJCXX} ${OBJCXXFLAGS} -c ${.IMPSRC}
+	${CTFCONVERT_CMD}
+
+.m.po:
+	${OBJC} ${OBJCFLAGS} -pg -c ${.IMPSRC} -o ${.TARGET}
+	${CTFCONVERT_CMD}
+
+.m.So:
+	${OBJC} ${PICFLAG} -DPIC ${OBJCFLAGS} -c ${.IMPSRC} -o ${.TARGET}
+	${CTFCONVERT_CMD}
+
+.mm.po:
+	${OBJCXX} ${OBJCXXFLAGS} -pg -c ${.IMPSRC} -o ${.TARGET}
+	${CTFCONVERT_CMD}
+
+.mm.So:
+	${OBJCXX} ${PICFLAG} -DPIC ${OBJCXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
+	${CTFCONVERT_CMD}
+

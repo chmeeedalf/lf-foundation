@@ -56,6 +56,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#import <unordered_set>
+#import <unordered_map>
 #import <Foundation/NSArchiver.h>
 
 #import <Foundation/NSData.h>
@@ -104,13 +106,13 @@ static NSUInteger NSCoderVersion    = 1100;
 
 @implementation NSArchiver
 {
-	NSHashTable *outObjects;
+	std::unordered_set<id> outObjects;
+	std::unordered_map<id,int> outKeys;
 	NSHashTable *outConditionals;
 	NSHashTable *outPointers;
 	NSMapTable  *outClassAlias;       // class name -> archive name
 	NSMapTable  *replacements;        // src-object to replacement
 	NSMapTable	*userReplacements;    // replacements by replaceObject:withObject:
-	id outKeys;
 	bool        traceMode;            // true if finding conditionals
 	bool        didWriteHeader;
 	bool        encodingRoot;
@@ -124,15 +126,12 @@ static NSUInteger NSCoderVersion    = 1100;
 - (id)initForWritingWithMutableData:(NSMutableData *)_data
 {
     if ((self = [super init])) {
-		outObjects      = [NSHashTable hashTableWithOptions:(NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality)];
 		outConditionals = [NSHashTable hashTableWithOptions:(NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality)];
 		outPointers     = [NSHashTable hashTableWithOptions:(NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality)];
 		replacements    = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
 		userReplacements= [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
         outClassAlias   = [NSMapTable mapTableWithStrongToStrongObjects];
         outClassAlias   = [NSMapTable mapTableWithStrongToStrongObjects];
-		outKeys         = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality
-												valueOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory];
 
         self->archiveAddress = 1;
 
@@ -174,26 +173,20 @@ FINAL int _archiveIdOfObject(NSArchiver *self, id _object)
 {
     if (_object == nil)
         return 0;
-#if 1
-    else
-        return (int)_object;
-#else
     else {
         int archiveId;
 
-        archiveId = (int)[self->outKeys objectForKey:_object];
+        archiveId = self->outKeys[_object];
         if (archiveId == 0) {
-            archiveId = self->archiveAddress;
-            [self->outKeys setObject:(__bridge id)(void*)archiveId forKey:_object];
+            archiveId = self->archiveAddress++;
+			self->outKeys[_object] = archiveId;
 #if ARCHIVE_DEBUGGING
             NSLog(@"mapped 0x%08X => %i", _object, archiveId);
 #endif
-            self->archiveAddress++;
         }
 
         return archiveId;
     }
-#endif
 }
 FINAL int _archiveIdOfClass(NSArchiver *self, Class _class)
 {
@@ -254,7 +247,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
     }
     @finally {
         self->traceMode = false;
-        [self->outObjects removeAllObjects];
+        outObjects.clear();
     }
 }
 
@@ -306,7 +299,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
          */
 
         if (_object) {
-			if ([outObjects containsObject:_object])
+			if (outObjects.find(_object) != outObjects.end())
                 // object isn't conditional any more .. (was stored using encodeObject:)
                 ;
             else if ([self->outConditionals containsObject:_object])
@@ -338,7 +331,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
 	{
 		_object = [userReplacements objectForKey:_object];
 	}
-	if ([self->outObjects containsObject:_object]) {
+	if (outObjects.find(_object) != outObjects.end()) {
         //NSLog(@"lookup failed, object wasn't traced yet !");
         
         // object wasn't traced yet
@@ -350,7 +343,7 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
         }
         
         // mark object as traced
-        [self->outObjects addObject:_object];
+        outObjects.insert(_object);
         
         if (object_isInstance(_object)) {
             Class archiveClass = Nil;
@@ -394,13 +387,13 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type);
     
     tag = object_isInstance(_object) ? _C_ID : _C_CLASS;
     
-	if ([self->outObjects containsObject:_object]) { // object was already written
+	if (outObjects.find(_object) != outObjects.end()) {
         _writeTag(self, tag | REFERENCE);
         _writeInt(self, archiveId);
     }
     else {
         // mark object as written
-        [self->outObjects addObject:_object];
+        outObjects.insert(_object);
 
         /*
           if (tag == _C_CLASS) { // a class object
@@ -750,8 +743,8 @@ FINAL void _writeObjC(NSArchiver *self, const void *_value, const char *_type)
 	NSData     *data;
 	NSZone     *objectZone;
 
-	NSMapTable *inObjects;
-	NSMapTable *inClasses;
+	std::unordered_map<int,id> inClasses;
+	std::unordered_map<int,id> inObjects;
 	NSMapTable *inPointers;
 	NSMapTable *inClassAlias;
 	NSMapTable *inClassVersions;
@@ -779,8 +772,6 @@ static NSMapTable *classToAliasMappings = NULL; // archive name => decoded name
 - (id)initForReadingWithData:(NSData*)_data
 {
     if ((self = [super init])) {
-		inObjects       = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
-		inClasses       = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
 		inPointers      = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory];
 		userReplacements= [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory|NSPointerFunctionsObjectPersonality];
 		inClassAlias    = [NSMapTable mapTableWithStrongToStrongObjects];
@@ -898,12 +889,13 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
     if (_isReference) {
         NSAssert(archiveId, @"archive id is 0 !");
         
-		result = (Class)[self->inClasses objectForKey:(__bridge id)(void *)archiveId];
-        if (result == nil)
-            result = (id)[self->inObjects objectForKey:(__bridge id)(void *)archiveId];
-        if (result == nil) {
+		auto res = inClasses.find(archiveId);
+        if (res == inClasses.end())
+			res = inObjects.find(archiveId);
+        if (res == inObjects.end()) {
 			@throw [NSInconsistentArchiveException exceptionWithReason:[NSString stringWithFormat:@"did not find referenced class %i.", archiveId] userInfo:nil];
         }
+        result = res->second;
     }
     else {
         NSString *name   = NULL;
@@ -944,7 +936,7 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
             @throw [NSInconsistentArchiveException exceptionWithReason:@"class versions do not match." userInfo:nil];
         }
 
-        [self->inClasses setObject:result forKey:(__bridge id)(void *)archiveId];
+        inClasses[archiveId] = result;
 #if ARCHIVE_DEBUGGING
         NSLog(@"read class %i => 0x%08X", archiveId, result);
 #endif
@@ -967,24 +959,25 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
     if (_isReference) {
         NSAssert(archiveId, @"archive id is 0 !");
         
-        result = (id)[self->inObjects objectForKey:(__bridge id)(void *)archiveId];
-        if (result == nil)
-            result = (id)[self->inClasses objectForKey:(__bridge id)(void *)archiveId];
+        auto res = inObjects.find(archiveId);
+        if (res == inObjects.end())
+			res = inClasses.find(archiveId);
         
-        if (result == nil) {
+        if (res == inObjects.end()) {
 			@throw [NSInconsistentArchiveException exceptionWithReason:[NSString stringWithFormat:@"did not find referenced object %i.", archiveId] userInfo:nil];
         }
+        result = res->second;
     }
     else {
-        Class class       = Nil;
+        Class cls       = Nil;
         id    replacement = nil;
 
         // decode class info
-        [self decodeValueOfObjCType:"#" at:&class];
-        NSAssert(class, @"could not decode class for object.");
+        [self decodeValueOfObjCType:"#" at:&cls];
+        NSAssert(cls, @"could not decode class for object.");
     
-        result = [class allocWithZone:self->objectZone];
-        [self->inObjects setObject:result forKey:(__bridge id)(void *)archiveId];
+        result = [cls allocWithZone:self->objectZone];
+        inObjects[archiveId] = result;
         
 #if ARCHIVE_DEBUGGING
         NSLog(@"read object %i => 0x%08X", archiveId, result);
@@ -999,9 +992,8 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
               replacement, class_get_class_name(*(Class *)replacement));
             */
 
-			[self->inObjects removeObjectForKey:(__bridge id)(void*)archiveId];
             result = replacement;
-			[self->inObjects setObject:result forKey:(__bridge id)(void *)archiveId];
+			inObjects[archiveId] = result;
         }
 
         replacement = [result awakeAfterUsingCoder:self];
@@ -1013,9 +1005,8 @@ FINAL void _readObjC(NSUnarchiver *self, void *_value, const char *_type);
               replacement, class_get_class_name(*(Class *)replacement));
             */
       
-            [self->inObjects removeObjectForKey:(__bridge id)(void*)archiveId];
             result = replacement;
-            [self->inObjects setObject:result forKey:(__bridge id)(void *)archiveId];
+            inObjects[archiveId] = result;
         }
 
         //NGLogT(@"decoder", @"decoded object 0x%08X<%@>",
