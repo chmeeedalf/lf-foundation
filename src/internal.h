@@ -67,7 +67,6 @@
 #ifdef __cplusplus
 namespace
 {
-	/* This will go away when Adam commits the Alepha threading mutex code. */
 	class spin_lock
 	{
 		pthread_spinlock_t spinlock;
