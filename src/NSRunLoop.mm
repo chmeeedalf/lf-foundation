@@ -77,7 +77,7 @@ struct _NSRunLoopMode {
 	dispatch_semaphore_t                loopSem;
 	dispatch_source_t                   currentDispatchObj;
 	id                                  currentMode;
-	std::unordered_map<NSString *, _NSRunLoopMode> modes;
+	std::unordered_map<NSString *, _NSRunLoopMode, std::hash<id>> modes;
 }
 
 + (id) currentRunLoop
